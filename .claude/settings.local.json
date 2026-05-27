@@ -1,0 +1,43 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node server.js)",
+      "Bash(curl -s http://localhost:3000/api/whatsapp/status)",
+      "Bash(npx kill-port *)",
+      "Bash(curl -s http://localhost:3000/api/agents)",
+      "Bash(curl -s -X PUT http://localhost:3000/api/agents/1 -H \"Content-Type: application/json\" -d \"{\\\\\"name\\\\\":\\\\\"Carlos IT\\\\\"}\")",
+      "Bash(curl -s -X PUT http://localhost:3000/api/agents/1 -H \"Content-Type: application/json\" -d \"{\\\\\"name\\\\\":\\\\\"Agente 1\\\\\"}\")",
+      "Bash(ipconfig)",
+      "Bash(findstr /R \"IPv4\")",
+      "Bash(curl -s http://localhost:3000/api/network-info)",
+      "Bash(curl -s -X PUT http://localhost:3000/api/agents/1 -H \"Content-Type: application/json\" -d \"{\\\\\"name\\\\\":\\\\\"Juan IT\\\\\"}\")",
+      "Bash(node -e \"const d=require\\('fs'\\).readFileSync\\('/dev/stdin','utf8'\\);const j=JSON.parse\\(d\\);console.log\\('status:',j.status,'connected:',j.connected,'hasQR:',!!j.qrImage\\)\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('status:', d['status'], '| connected:', d['connected'], '| hasQR:', bool\\(d.get\\('qrImage'\\)\\)\\)\")",
+      "Bash(node -e \"import\\('@whiskeysockets/baileys'\\).then\\(m => console.log\\('keys:', Object.keys\\(m\\).slice\\(0,10\\)\\)\\).catch\\(e => console.error\\(e.message\\)\\)\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('status:', d['status'], '| hasQR:', bool\\(d.get\\('qrString'\\)\\)\\)\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(json.dumps\\({k:v for k,v in d.items\\(\\) if k!='qrImage' and k!='qrString'}, indent=2\\)\\)\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('status:', d['status']\\)\")",
+      "Bash(curl -s -X POST http://localhost:3000/api/simulate -H \"Content-Type: application/json\" -d \"{\\\\\"phone\\\\\":\\\\\"573001234567\\\\\",\\\\\"message\\\\\":\\\\\"hola\\\\\"}\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('bot dice:', d.get\\('response','ERROR'\\)[:80]\\)\")",
+      "Bash(curl -s -X POST http://localhost:3000/api/whatsapp/reset)",
+      "Bash(npm install *)",
+      "Bash(rm -rf \"C:\\\\Users\\\\equipo sitemas 1\\\\.cache\\\\puppeteer\\\\chrome\\\\win64-146.0.7680.31\")",
+      "Bash(npx puppeteer *)",
+      "Bash(node -e ' *)",
+      "Bash(curl -s --max-time 2 http://localhost:3000/api/events)",
+      "Bash(curl -s -X POST http://localhost:3000/api/simulate -H 'Content-Type: application/json' -d '{\"phone\":\"573001234567\",\"message\":\"hola\"}')",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(d.get\\('response','ERROR'\\)[:120]\\)\")",
+      "Bash(curl -s -X POST http://localhost:3000/api/simulate -H 'Content-Type: application/json' -d '{\"phone\":\"573001234567\",\"message\":\"5\"}')",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(d.get\\('response','ERROR'\\)[:200]\\)\")",
+      "Bash(curl -s -X POST http://localhost:3000/api/simulate -H 'Content-Type: application/json' -d '{\"phone\":\"573001234567\",\"message\":\"El modulo contable no me deja importar el archivo del banco, aparece error 404\"}')",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); r=d.get\\('response','ERROR'\\); print\\(r[:500]\\)\")",
+      "Bash(ls -la \"/mnt/c/Users/equipo sitemas 1/.gemini/antigravity/scratch/it-tickets/src/tech-requests/firma-jefe.png\" 2>/dev/null || echo \"File not found via WSL path\")",
+      "Bash(git --version)",
+      "Bash(git config *)",
+      "Bash(ls -la ~/.ssh 2>/dev/null | grep -E \"id_|github\" || echo \"Sin SSH keys encontradas\")",
+      "Bash(git init *)",
+      "Bash(git add *)",
+      "Bash(git commit *)"
+    ]
+  }
+}
