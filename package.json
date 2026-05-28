@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@whiskeysockets/baileys": "^7.0.0-rc13",
+    "adm-zip": "^0.5.17",
     "docx": "^9.7.0",
     "dotenv": "^16.4.0",
     "express": "^4.21.0",
