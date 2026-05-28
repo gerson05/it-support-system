@@ -444,7 +444,7 @@ export async function renderTechRequestDetail(container, id) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             agentName: state.currentAgent?.name || 'IT',
-            content: `Acta de entrega generada — Equipo: ${marca} ${modelo}`,
+            content: `Acta de entrega generada — ${items.length} equipo(s): ${items.map(i => [i.marca, i.modelo].filter(Boolean).join(' ')).join(', ')}`,
           }),
         });
 
