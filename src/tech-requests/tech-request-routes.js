@@ -125,15 +125,26 @@ router.post('/api/tech-requests/:id/acta', async (req, res) => {
       return res.status(400).json({ error: 'El acta de entrega solo aplica para requerimientos.' });
     }
 
-    const { marca, modelo, serial, imei, accesorios, observaciones, agentName } = req.body;
+    const { items, accesorios, observaciones, agentName } = req.body;
 
-    if (!marca || !modelo) {
-      return res.status(400).json({ error: 'Marca y Modelo son obligatorios para el acta.' });
+    // items: [{ idx, marca, modelo, serial }, ...]
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ error: 'Se requiere al menos un equipo para generar el acta.' });
+    }
+    if (!items[0].marca || !items[0].modelo) {
+      return res.status(400).json({ error: 'Marca y Modelo son obligatorios para el primer equipo.' });
     }
 
     const buffer = await generateActa(
       req2,
-      { marca, modelo, serial, imei, accesorios, observaciones },
+      items.map(item => ({
+        marca: item.marca || '',
+        modelo: item.modelo || '',
+        serial: item.serial || '',
+        imei: item.imei || '',
+        accesorios,
+        observaciones,
+      })),
       agentName || 'Soporte IT',
     );
 

@@ -73,8 +73,18 @@ function firma(nombre) {
 
 /* ── Función principal ─────────────────────────────────────── */
 
+/**
+ * @param {Object} request - Objeto del requerimiento (con .items)
+ * @param {Array|Object} equipment - Array de items o objeto simple { marca, modelo, ... }
+ * @param {String} agentName - Nombre del agente (Jefe de Soporte)
+ */
 export async function generateActa(request, equipment, agentName = 'Jefe de Soporte') {
   const firmaBuffer = fs.existsSync(FIRMA_PATH) ? fs.readFileSync(FIRMA_PATH) : null;
+
+  // Normalizar: si equipment es un array, usarlo; si no, convertir a array
+  const equipmentItems = Array.isArray(equipment)
+    ? equipment
+    : [equipment];
 
   const fechaEntrega = new Date().toLocaleDateString('es-CO', {
     day: '2-digit', month: '2-digit', year: 'numeric',
@@ -146,20 +156,23 @@ export async function generateActa(request, equipment, agentName = 'Jefe de Sopo
 
         /* ══ EQUIPOS SOLICITADOS (si hay ítems registrados) ══ */
         ...(request.items?.length > 0 ? [
-          seccion('Equipos solicitados'),
+          seccion('Equipos solicitados y detalles de entrega'),
           // Cabecera de columnas
           new Paragraph({
             spacing: { after: 60 },
             tabStops: [
               { type: TabStopType.LEFT, position: 560  },
-              { type: TabStopType.LEFT, position: 6200 },
-              { type: TabStopType.LEFT, position: 7600 },
+              { type: TabStopType.LEFT, position: 3200 },
+              { type: TabStopType.LEFT, position: 5200 },
+              { type: TabStopType.LEFT, position: 6500 },
+              { type: TabStopType.LEFT, position: 8000 },
             ],
             children: [
               new TextRun({ text: 'N°', bold: true, size: SZ_NORMAL - 2, font: FONT, color: '888888' }),
-              new TextRun({ text: '\tDescripción del equipo', bold: true, size: SZ_NORMAL - 2, font: FONT, color: '888888' }),
-              new TextRun({ text: '\tCant.', bold: true, size: SZ_NORMAL - 2, font: FONT, color: '888888' }),
-              new TextRun({ text: '\tSerial / Inv.', bold: true, size: SZ_NORMAL - 2, font: FONT, color: '888888' }),
+              new TextRun({ text: '\tEquipo', bold: true, size: SZ_NORMAL - 2, font: FONT, color: '888888' }),
+              new TextRun({ text: '\tMarca', bold: true, size: SZ_NORMAL - 2, font: FONT, color: '888888' }),
+              new TextRun({ text: '\tModelo', bold: true, size: SZ_NORMAL - 2, font: FONT, color: '888888' }),
+              new TextRun({ text: '\tSerial', bold: true, size: SZ_NORMAL - 2, font: FONT, color: '888888' }),
             ],
           }),
           // Separador
@@ -168,34 +181,43 @@ export async function generateActa(request, equipment, agentName = 'Jefe de Sopo
             border: { bottom: { style: BorderStyle.SINGLE, size: 2, color: 'DDDDDD', space: 1 } },
             children: [new TextRun({ text: '', size: 2 })],
           }),
-          // Filas de ítems
-          ...request.items.map((item, idx) => new Paragraph({
-            spacing: { after: 80 },
-            tabStops: [
-              { type: TabStopType.LEFT, position: 560  },
-              { type: TabStopType.LEFT, position: 6200 },
-              { type: TabStopType.LEFT, position: 7600 },
-            ],
-            children: [
-              new TextRun({ text: `${idx + 1}.`, bold: true, size: SZ_NORMAL, font: FONT }),
-              new TextRun({ text: `\t${item.equipment_name}`, size: SZ_NORMAL, font: FONT }),
-              new TextRun({ text: `\t${item.quantity}`, size: SZ_NORMAL, font: FONT }),
-              new TextRun({ text: `\t${item.serial || '—'}`, size: SZ_NORMAL, font: FONT, color: '666666' }),
-            ],
-          })),
+          // Filas de ítems con detalles de entrega
+          ...request.items.map((item, idx) => {
+            const equipmentDetail = equipmentItems[idx] || {};
+            return new Paragraph({
+              spacing: { after: 80 },
+              tabStops: [
+                { type: TabStopType.LEFT, position: 560  },
+                { type: TabStopType.LEFT, position: 3200 },
+                { type: TabStopType.LEFT, position: 5200 },
+                { type: TabStopType.LEFT, position: 6500 },
+                { type: TabStopType.LEFT, position: 8000 },
+              ],
+              children: [
+                new TextRun({ text: `${idx + 1}.`, bold: true, size: SZ_NORMAL, font: FONT }),
+                new TextRun({ text: `\t${item.equipment_name}`, size: SZ_NORMAL, font: FONT }),
+                new TextRun({ text: `\t${equipmentDetail.marca || '—'}`, size: SZ_NORMAL, font: FONT, color: '666666' }),
+                new TextRun({ text: `\t${equipmentDetail.modelo || '—'}`, size: SZ_NORMAL, font: FONT, color: '666666' }),
+                new TextRun({ text: `\t${equipmentDetail.serial || item.serial || '—'}`, size: SZ_NORMAL, font: FONT, color: '666666' }),
+              ],
+            });
+          }),
           esp(),
-          seccion('Detalle del equipo entregado'),
         ] : [
-          seccion('Descripción del equipo'),
+          seccion('Detalle del equipo entregado'),
+          // Si no hay ítems, mostrar detalles del primer/único equipo
+          ...(equipmentItems[0]
+            ? [
+                campo('Marca:',                    equipmentItems[0].marca       || ''),
+                campo('Modelo:',                   equipmentItems[0].modelo      || ''),
+                campo('Número de Serie:',          equipmentItems[0].serial      || ''),
+              ]
+            : []),
         ]),
 
-        campo('Marca:',                    equipment.marca       || ''),
-        campo('Modelo:',                   equipment.modelo      || ''),
-        campo('Número de Serie:',          equipment.serial      || ''),
-        campo('IMEI:',                     equipment.imei        || ''),
-        campo('Accesorios que se asignan.', equipment.accesorios || ''),
-        ...(equipment.observaciones
-          ? [campo('Observaciones:',       equipment.observaciones)]
+        campo('Accesorios que se asignan.', equipmentItems[0]?.accesorios || ''),
+        ...(equipmentItems[0]?.observaciones
+          ? [campo('Observaciones:',       equipmentItems[0].observaciones)]
           : []),
 
         esp(),
@@ -270,11 +292,11 @@ export async function generateActa(request, equipment, agentName = 'Jefe de Sopo
                 new TextRun({ text: '\t________________________________', size: SZ_NORMAL, font: FONT }),
               ],
             }),
-            // Nombres bajo la línea
+            // Nombres bajo la línea (solo quien recibe)
             new Paragraph({
               tabStops: [{ type: TabStopType.LEFT, position: col }],
               children: [
-                new TextRun({ text: agentName, bold: true, size: SZ_NORMAL, font: FONT }),
+                new TextRun({ text: '(Firma automática)', bold: false, size: 18, color: '888888', font: FONT, italic: true }),
                 new TextRun({ text: '\t' + request.requester_name, bold: true, size: SZ_NORMAL, font: FONT }),
               ],
             }),
