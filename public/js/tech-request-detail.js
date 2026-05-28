@@ -271,6 +271,17 @@ export async function renderTechRequestDetail(container, id) {
     const actaOverlay = document.getElementById('acta-modal-overlay');
 
     document.getElementById('btn-generar-acta').addEventListener('click', () => {
+      // Pre-llenar con el primer equipo solicitado (si existe)
+      if (req.items && req.items.length > 0) {
+        const firstItem = req.items[0];
+        // Intentar extraer marca del nombre del equipo (ej: "Portátil Dell" → "Dell")
+        const nameParts = (firstItem.equipment_name || '').split(' ');
+        const possibleBrand = nameParts.length > 1 ? nameParts[nameParts.length - 1] : '';
+
+        document.getElementById('acta-marca').value = possibleBrand || firstItem.equipment_name || '';
+        document.getElementById('acta-modelo').value = firstItem.equipment_name || '';
+        document.getElementById('acta-serial').value = firstItem.serial || '';
+      }
       actaOverlay.style.display = 'flex';
     });
 
