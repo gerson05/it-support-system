@@ -37,7 +37,13 @@
       "Bash(ls -la ~/.ssh 2>/dev/null | grep -E \"id_|github\" || echo \"Sin SSH keys encontradas\")",
       "Bash(git init *)",
       "Bash(git add *)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "Bash(git branch *)",
+      "Bash(git remote *)",
+      "Bash(git push *)",
+      "Bash(ls -lh \"\\\\\\\\soportejs\\\\Compartidos\\\\actas\\\\Entregas\\\\\" 2>&1 | head -20)",
+      "Read(//mnt/soportejs/Compartidos/actas/**)",
+      "Read(//z/actas/**)"
     ]
   }
 }

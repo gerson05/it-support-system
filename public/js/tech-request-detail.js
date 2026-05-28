@@ -70,57 +70,54 @@ export async function renderTechRequestDetail(container, id) {
       </div>
     </div>
 
-    <!-- Modal Acta de Entrega -->
+    <!-- Modal Acta de Entrega (TODOS los equipos) -->
     <div id="acta-modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:2000;align-items:center;justify-content:center;">
-      <div style="background:#1e1e38;border:1px solid rgba(255,255,255,.15);border-radius:16px;padding:32px;width:min(580px,95vw);max-height:90vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,.8);">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-          <h3 style="font-size:18px;font-weight:700;">📄 Acta de Entrega de Equipos</h3>
+      <div style="background:#1e1e38;border:1px solid rgba(255,255,255,.15);border-radius:16px;padding:28px;width:min(780px,96vw);max-height:85vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,.8);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <h3 style="font-size:18px;font-weight:700;">📄 Acta de Entrega - ${req.requester_name}</h3>
           <button id="acta-modal-close" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text-muted);">✕</button>
         </div>
 
-        <p style="color:#94a3b8;font-size:13px;margin-bottom:20px;padding:12px;background:rgba(255,255,255,.06);border-radius:8px;border-left:3px solid #667eea;">
-          El acta se generará con los datos de <strong style="color:#e2e8f0;">${req.requester_name}</strong> · ${req.cargo} · ${req.sede}
+        <p style="color:#94a3b8;font-size:12px;margin-bottom:16px;padding:10px;background:rgba(102,126,234,.1);border-radius:6px;border-left:3px solid #667eea;">
+          📋 Completa los detalles de cada equipo. Una sola acta incluirá todos los ítems.
         </p>
 
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-          <div style="display:flex;flex-direction:column;gap:6px;">
-            <label style="font-size:13px;font-weight:600;color:#e2e8f0;">Marca *</label>
-            <input type="text" id="acta-marca" placeholder="Ej: Kalley, HP, Lenovo…"
-              style="padding:10px 12px;background:#0f0f22;border:1px solid rgba(255,255,255,.2);border-radius:8px;color:#f1f5f9;font-size:14px;outline:none;">
+        <!-- Tabla de equipos -->
+        <div style="margin-bottom:16px;overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:12px;">
+            <thead>
+              <tr style="background:rgba(255,255,255,.05);border-bottom:2px solid rgba(255,255,255,.1);">
+                <th style="padding:8px;text-align:left;color:#e2e8f0;font-weight:600;">Equipo</th>
+                <th style="padding:8px;text-align:center;color:#e2e8f0;font-weight:600;">Cant.</th>
+                <th style="padding:8px;text-align:left;color:#e2e8f0;font-weight:600;">Marca</th>
+                <th style="padding:8px;text-align:left;color:#e2e8f0;font-weight:600;">Modelo</th>
+                <th style="padding:8px;text-align:left;color:#e2e8f0;font-weight:600;">Serial</th>
+              </tr>
+            </thead>
+            <tbody id="acta-items-table" style="font-size:12px;">
+              <!-- Se rellena dinámicamente -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Campos comunes (accesorios, observaciones) -->
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px;">
+          <div>
+            <label style="font-size:12px;font-weight:600;color:#e2e8f0;">Accesorios entregados (aplica a todos)</label>
+            <input type="text" id="acta-accesorios" placeholder="Ej: Control, Cable de energía, Caja, Manuales…"
+              style="width:100%;padding:8px;background:#0f0f22;border:1px solid rgba(255,255,255,.2);border-radius:6px;color:#f1f5f9;font-size:12px;box-sizing:border-box;margin-top:4px;">
           </div>
-          <div style="display:flex;flex-direction:column;gap:6px;">
-            <label style="font-size:13px;font-weight:600;color:#e2e8f0;">Modelo *</label>
-            <input type="text" id="acta-modelo" placeholder="Ej: 43 pulgadas Smart"
-              style="padding:10px 12px;background:#0f0f22;border:1px solid rgba(255,255,255,.2);border-radius:8px;color:#f1f5f9;font-size:14px;outline:none;">
-          </div>
-          <div style="display:flex;flex-direction:column;gap:6px;">
-            <label style="font-size:13px;font-weight:600;color:#e2e8f0;">Número de Serie</label>
-            <input type="text" id="acta-serial" placeholder="Ej: SN-ABC123XYZ"
-              style="padding:10px 12px;background:#0f0f22;border:1px solid rgba(255,255,255,.2);border-radius:8px;color:#f1f5f9;font-size:14px;outline:none;">
-          </div>
-          <div style="display:flex;flex-direction:column;gap:6px;">
-            <label style="font-size:13px;font-weight:600;color:#e2e8f0;">IMEI <span style="color:#64748b;font-weight:400;">(si aplica)</span></label>
-            <input type="text" id="acta-imei" placeholder="Ej: 356938035643809"
-              style="padding:10px 12px;background:#0f0f22;border:1px solid rgba(255,255,255,.2);border-radius:8px;color:#f1f5f9;font-size:14px;outline:none;">
+          <div>
+            <label style="font-size:12px;font-weight:600;color:#e2e8f0;">Observaciones (opcional)</label>
+            <textarea id="acta-obs" rows="2"
+              style="width:100%;padding:8px;background:#0f0f22;border:1px solid rgba(255,255,255,.2);border-radius:6px;color:#f1f5f9;font-size:12px;box-sizing:border-box;resize:vertical;margin-top:4px;"
+              placeholder="Estado del equipo, condiciones especiales…"></textarea>
           </div>
         </div>
 
-        <div style="display:flex;flex-direction:column;gap:6px;margin-top:14px;">
-          <label style="font-size:13px;font-weight:600;color:#e2e8f0;">Accesorios entregados</label>
-          <input type="text" id="acta-accesorios" placeholder="Ej: Control, Cable de energía, Caja"
-            style="padding:10px 12px;background:#0f0f22;border:1px solid rgba(255,255,255,.2);border-radius:8px;color:#f1f5f9;font-size:14px;outline:none;">
-        </div>
-
-        <div style="display:flex;flex-direction:column;gap:6px;margin-top:14px;">
-          <label style="font-size:13px;font-weight:600;color:#e2e8f0;">Observaciones <span style="color:#64748b;font-weight:400;">(opcional)</span></label>
-          <textarea id="acta-obs" rows="2"
-            style="padding:10px 12px;background:#0f0f22;border:1px solid rgba(255,255,255,.2);border-radius:8px;color:#f1f5f9;font-size:14px;outline:none;resize:vertical;"
-            placeholder="Estado del equipo, condiciones especiales…"></textarea>
-        </div>
-
-        <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,.1);">
-          <button class="btn btn-secondary" id="acta-modal-cancel">Cancelar</button>
-          <button class="btn btn-primary" id="acta-btn-download" style="padding:10px 20px;">⬇️ Descargar Acta (.docx)</button>
+        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:18px;padding-top:16px;border-top:1px solid rgba(255,255,255,.1);">
+          <button class="btn btn-secondary" id="acta-modal-cancel" style="font-size:13px;">Cancelar</button>
+          <button class="btn btn-primary" id="acta-btn-download" style="padding:8px 16px;font-size:13px;">⬇️ Generar Acta Única (.docx)</button>
         </div>
       </div>
     </div>
@@ -271,16 +268,34 @@ export async function renderTechRequestDetail(container, id) {
     const actaOverlay = document.getElementById('acta-modal-overlay');
 
     document.getElementById('btn-generar-acta').addEventListener('click', () => {
-      // Pre-llenar con el primer equipo solicitado (si existe)
+      // Renderizar tabla con TODOS los equipos
+      const tbody = document.getElementById('acta-items-table');
       if (req.items && req.items.length > 0) {
-        const firstItem = req.items[0];
-        // Intentar extraer marca del nombre del equipo (ej: "Portátil Dell" → "Dell")
-        const nameParts = (firstItem.equipment_name || '').split(' ');
-        const possibleBrand = nameParts.length > 1 ? nameParts[nameParts.length - 1] : '';
-
-        document.getElementById('acta-marca').value = possibleBrand || firstItem.equipment_name || '';
-        document.getElementById('acta-modelo').value = firstItem.equipment_name || '';
-        document.getElementById('acta-serial').value = firstItem.serial || '';
+        tbody.innerHTML = req.items.map((item, idx) => {
+          const nameParts = (item.equipment_name || '').split(' ');
+          const possibleBrand = nameParts.length > 1 ? nameParts[nameParts.length - 1] : '';
+          return `
+            <tr style="border-bottom:1px solid rgba(255,255,255,.05);">
+              <td style="padding:8px;color:#e2e8f0;">${item.equipment_name}</td>
+              <td style="padding:8px;text-align:center;color:#e2e8f0;">${item.quantity}</td>
+              <td style="padding:8px;">
+                <input type="text" class="acta-item-marca" data-idx="${idx}"
+                  value="${possibleBrand || item.equipment_name || ''}"
+                  style="width:100%;padding:4px;background:#0f0f22;border:1px solid rgba(255,255,255,.15);border-radius:4px;color:#f1f5f9;font-size:11px;box-sizing:border-box;">
+              </td>
+              <td style="padding:8px;">
+                <input type="text" class="acta-item-modelo" data-idx="${idx}"
+                  value="${item.equipment_name || ''}"
+                  style="width:100%;padding:4px;background:#0f0f22;border:1px solid rgba(255,255,255,.15);border-radius:4px;color:#f1f5f9;font-size:11px;box-sizing:border-box;">
+              </td>
+              <td style="padding:8px;">
+                <input type="text" class="acta-item-serial" data-idx="${idx}"
+                  value="${item.serial || ''}"
+                  style="width:100%;padding:4px;background:#0f0f22;border:1px solid rgba(255,255,255,.15);border-radius:4px;color:#f1f5f9;font-size:11px;box-sizing:border-box;">
+              </td>
+            </tr>
+          `;
+        }).join('');
       }
       actaOverlay.style.display = 'flex';
     });
@@ -291,15 +306,20 @@ export async function renderTechRequestDetail(container, id) {
     actaOverlay.addEventListener('click', e => { if (e.target === actaOverlay) closeActa(); });
 
     document.getElementById('acta-btn-download').addEventListener('click', async () => {
-      const marca      = document.getElementById('acta-marca').value.trim();
-      const modelo     = document.getElementById('acta-modelo').value.trim();
-      const serial     = document.getElementById('acta-serial').value.trim();
-      const imei       = document.getElementById('acta-imei').value.trim();
       const accesorios = document.getElementById('acta-accesorios').value.trim();
       const obs        = document.getElementById('acta-obs').value.trim();
 
-      if (!marca || !modelo) {
-        showToast('Marca y Modelo son obligatorios', 'error');
+      // Recolectar datos de TODOS los equipos editados
+      const items = Array.from(document.querySelectorAll('.acta-item-marca')).map((el, idx) => ({
+        idx,
+        marca: el.value.trim(),
+        modelo: document.querySelector(`.acta-item-modelo[data-idx="${idx}"]`)?.value.trim() || '',
+        serial: document.querySelector(`.acta-item-serial[data-idx="${idx}"]`)?.value.trim() || '',
+      }));
+
+      // Validar que al menos marca y modelo estén en el primer equipo
+      if (!items[0]?.marca || !items[0]?.modelo) {
+        showToast('Completa al menos Marca y Modelo del primer equipo', 'error');
         return;
       }
 
@@ -312,7 +332,8 @@ export async function renderTechRequestDetail(container, id) {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            marca, modelo, serial, imei, accesorios,
+            items,  // Array de { idx, marca, modelo, serial }
+            accesorios,
             observaciones: obs,
             agentName: state.currentAgent?.name || 'Soporte IT',
           }),
