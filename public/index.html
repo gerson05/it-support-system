@@ -62,12 +62,12 @@
       </div>
       <button class="btn btn-small btn-secondary" id="btn-wa-connect" style="display:none; margin-top: 8px; font-size: 11px; padding: 6px 12px;">Conectar WhatsApp</button>
       <div id="wa-qr-container" style="display:none; margin-top: 10px; text-align: center;">
-        <img id="wa-qr-image" src="" alt="QR Code" style="width: 180px; height: 180px; background: white; padding: 8px; border-radius: 8px; display: block; margin: 0 auto;">
+        <p style="font-size:11px;color:#f59e0b;margin-bottom:8px;">📱 Escanea con WhatsApp</p>
+        <img id="wa-qr-image" src="" alt="QR Code" style="width: 220px; height: 220px; background: white; padding: 8px; border-radius: 10px; display: block; margin: 0 auto; box-shadow: 0 4px 16px rgba(0,0,0,.5);">
         <div style="margin-top: 8px; display: flex; gap: 6px;">
-          <textarea id="wa-qr-text" readonly style="flex:1;height:50px;font-size:8px;background:rgba(0,0,0,0.3);border:1px solid var(--glass-border);color:var(--text-muted);padding:4px;border-radius:4px;resize:none;overflow:hidden;" onclick="this.select()"></textarea>
-          <button id="btn-copy-qr" style="font-size:10px;padding:4px 8px;background:var(--primary);color:#fff;border:none;border-radius:4px;cursor:pointer;" title="Copiar">📋</button>
+          <textarea id="wa-qr-text" readonly style="flex:1;height:36px;font-size:8px;background:rgba(0,0,0,0.3);border:1px solid var(--glass-border);color:var(--text-muted);padding:4px;border-radius:4px;resize:none;overflow:hidden;" onclick="this.select()"></textarea>
+          <button id="btn-copy-qr" style="font-size:10px;padding:4px 8px;background:var(--primary);color:#fff;border:none;border-radius:4px;cursor:pointer;" title="Copiar QR">📋</button>
         </div>
-        <p style="font-size: 9px; color: var(--text-muted); margin-top: 4px;">Usa <strong>https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=</strong> + el texto de arriba</p>
       </div>
     </div>
 

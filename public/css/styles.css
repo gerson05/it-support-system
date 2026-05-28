@@ -95,11 +95,18 @@ body {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
   position: fixed;
   left: 0;
   top: 0;
   z-index: 100;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,.1) transparent;
 }
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-track { background: transparent; }
+.sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 4px; }
 
 .sidebar-brand {
   display: flex;
