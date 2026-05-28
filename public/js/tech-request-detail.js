@@ -58,67 +58,112 @@ export async function renderTechRequestDetail(container, id) {
 
   container.innerHTML = `
     <!-- Encabezado -->
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;flex-wrap:wrap;">
-      <button onclick="history.back()" class="btn btn-secondary" style="padding:8px 14px;">← Volver</button>
-      <div>
-        <h2 style="font-size:22px;font-weight:700;">${typeLabel} — ${req.request_number}</h2>
-        <p style="color:var(--text-muted);font-size:13px;">Creado ${formatTimeAgo(req.created_at)} · ${formatDate(req.created_at)}</p>
+    <div style="background:linear-gradient(135deg,rgba(99,102,241,.1),rgba(139,92,246,.06));border:1px solid rgba(99,102,241,.18);border-radius:14px;padding:18px 22px;margin-bottom:24px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+      <button onclick="history.back()" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);padding:7px 14px;border-radius:8px;color:#94a3b8;font-size:13px;cursor:pointer;transition:all .2s;flex-shrink:0;"
+        onmouseover="this.style.background='rgba(255,255,255,.12)'" onmouseout="this.style.background='rgba(255,255,255,.07)'">← Volver</button>
+      <div style="flex:1;min-width:0;">
+        <h2 style="font-size:20px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${typeLabel} — ${req.request_number}</h2>
+        <p style="color:var(--text-muted);font-size:12px;margin-top:2px;">Creado ${formatTimeAgo(req.created_at)} · ${formatDate(req.created_at)}</p>
       </div>
-      <div style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex-shrink:0;">
         ${sb(req.status)} ${pb(req.priority)}
-        ${!isInc ? `<button class="btn btn-primary" id="btn-generar-acta" style="padding:8px 16px;">📄 Generar Acta</button>` : ''}
+        ${!isInc ? `
+          <button id="btn-generar-acta"
+            style="display:flex;align-items:center;gap:7px;padding:9px 18px;background:linear-gradient(135deg,#10b981,#059669);border:none;border-radius:9px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(16,185,129,.3);transition:all .2s;"
+            onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 20px rgba(16,185,129,.4)'"
+            onmouseout="this.style.transform='';this.style.boxShadow='0 4px 14px rgba(16,185,129,.3)'">
+            📄 Generar Acta
+          </button>` : ''}
       </div>
     </div>
 
     <!-- Modal Acta de Entrega (TODOS los equipos) -->
-    <div id="acta-modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:2000;align-items:center;justify-content:center;">
-      <div style="background:#1e1e38;border:1px solid rgba(255,255,255,.15);border-radius:16px;padding:28px;width:min(780px,96vw);max-height:85vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,.8);">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-          <h3 style="font-size:18px;font-weight:700;">📄 Acta de Entrega - ${req.requester_name}</h3>
-          <button id="acta-modal-close" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text-muted);">✕</button>
-        </div>
+    <div id="acta-modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(5px);z-index:2000;align-items:center;justify-content:center;">
+      <div style="background:linear-gradient(160deg,#141428 0%,#111122 100%);border:1px solid rgba(99,102,241,.2);border-radius:18px;width:min(800px,96vw);max-height:88vh;display:flex;flex-direction:column;box-shadow:0 32px 80px rgba(0,0,0,.85),0 0 0 1px rgba(99,102,241,.08);">
 
-        <p style="color:#94a3b8;font-size:12px;margin-bottom:16px;padding:10px;background:rgba(102,126,234,.1);border-radius:6px;border-left:3px solid #667eea;">
-          📋 Completa los detalles de cada equipo. Una sola acta incluirá todos los ítems.
-        </p>
-
-        <!-- Tabla de equipos -->
-        <div style="margin-bottom:16px;overflow-x:auto;">
-          <table style="width:100%;border-collapse:collapse;font-size:12px;">
-            <thead>
-              <tr style="background:rgba(255,255,255,.05);border-bottom:2px solid rgba(255,255,255,.1);">
-                <th style="padding:8px;text-align:left;color:#e2e8f0;font-weight:600;">Equipo</th>
-                <th style="padding:8px;text-align:center;color:#e2e8f0;font-weight:600;">Cant.</th>
-                <th style="padding:8px;text-align:left;color:#e2e8f0;font-weight:600;">Marca</th>
-                <th style="padding:8px;text-align:left;color:#e2e8f0;font-weight:600;">Modelo</th>
-                <th style="padding:8px;text-align:left;color:#e2e8f0;font-weight:600;">Serial</th>
-              </tr>
-            </thead>
-            <tbody id="acta-items-table" style="font-size:12px;">
-              <!-- Se rellena dinámicamente -->
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Campos comunes (accesorios, observaciones) -->
-        <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px;">
-          <div>
-            <label style="font-size:12px;font-weight:600;color:#e2e8f0;">Accesorios entregados (aplica a todos)</label>
-            <input type="text" id="acta-accesorios" placeholder="Ej: Control, Cable de energía, Caja, Manuales…"
-              style="width:100%;padding:8px;background:#0f0f22;border:1px solid rgba(255,255,255,.2);border-radius:6px;color:#f1f5f9;font-size:12px;box-sizing:border-box;margin-top:4px;">
+        <!-- Header fijo -->
+        <div style="background:linear-gradient(135deg,rgba(16,185,129,.15),rgba(5,150,105,.08));padding:22px 28px 18px;border-radius:18px 18px 0 0;border-bottom:1px solid rgba(16,185,129,.15);flex-shrink:0;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <div style="width:40px;height:40px;background:linear-gradient(135deg,#10b981,#059669);border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 4px 12px rgba(16,185,129,.35);">📄</div>
+              <div>
+                <h3 style="font-size:17px;font-weight:700;color:#e2e8f0;margin-bottom:2px;">Acta de Entrega</h3>
+                <p style="font-size:12px;color:#6ee7b7;opacity:.8;">${escHtml(req.requester_name)} · ${req.request_number}</p>
+              </div>
+            </div>
+            <button id="acta-modal-close" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);width:32px;height:32px;border-radius:8px;font-size:15px;cursor:pointer;color:#94a3b8;display:flex;align-items:center;justify-content:center;transition:all .2s;" onmouseover="this.style.background='rgba(255,255,255,.13)'" onmouseout="this.style.background='rgba(255,255,255,.07)'">✕</button>
           </div>
-          <div>
-            <label style="font-size:12px;font-weight:600;color:#e2e8f0;">Observaciones (opcional)</label>
-            <textarea id="acta-obs" rows="2"
-              style="width:100%;padding:8px;background:#0f0f22;border:1px solid rgba(255,255,255,.2);border-radius:6px;color:#f1f5f9;font-size:12px;box-sizing:border-box;resize:vertical;margin-top:4px;"
-              placeholder="Estado del equipo, condiciones especiales…"></textarea>
+
+          <!-- Info pill -->
+          <div style="display:flex;align-items:center;gap:8px;margin-top:14px;padding:8px 12px;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.15);border-radius:8px;">
+            <span style="font-size:13px;">ℹ️</span>
+            <span style="font-size:12px;color:#6ee7b7;">Verifica marca, modelo y serial de cada equipo antes de generar. El documento incluirá todos los ítems en una sola acta.</span>
           </div>
         </div>
 
-        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:18px;padding-top:16px;border-top:1px solid rgba(255,255,255,.1);">
-          <button class="btn btn-secondary" id="acta-modal-cancel" style="font-size:13px;">Cancelar</button>
-          <button class="btn btn-primary" id="acta-btn-download" style="padding:8px 16px;font-size:13px;">⬇️ Generar Acta Única (.docx)</button>
+        <!-- Cuerpo scrollable -->
+        <div style="overflow-y:auto;padding:22px 28px;flex:1;">
+
+          <!-- Tabla de equipos -->
+          <div style="margin-bottom:20px;">
+            <div style="font-size:11px;font-weight:700;color:#10b981;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;display:flex;align-items:center;gap:8px;">
+              📦 Equipos a entregar
+              <span style="flex:1;height:1px;background:linear-gradient(90deg,rgba(16,185,129,.3),transparent);display:inline-block;"></span>
+            </div>
+            <div style="overflow-x:auto;border-radius:10px;border:1px solid rgba(255,255,255,.07);">
+              <table style="width:100%;border-collapse:collapse;font-size:12px;">
+                <thead>
+                  <tr style="background:linear-gradient(90deg,rgba(16,185,129,.12),rgba(5,150,105,.07));">
+                    <th style="padding:10px 12px;text-align:left;color:#6ee7b7;font-weight:600;font-size:11px;letter-spacing:.04em;text-transform:uppercase;border-bottom:1px solid rgba(16,185,129,.15);">Equipo</th>
+                    <th style="padding:10px 8px;text-align:center;color:#6ee7b7;font-weight:600;font-size:11px;letter-spacing:.04em;text-transform:uppercase;border-bottom:1px solid rgba(16,185,129,.15);width:50px;">Cant.</th>
+                    <th style="padding:10px 12px;text-align:left;color:#6ee7b7;font-weight:600;font-size:11px;letter-spacing:.04em;text-transform:uppercase;border-bottom:1px solid rgba(16,185,129,.15);">Marca</th>
+                    <th style="padding:10px 12px;text-align:left;color:#6ee7b7;font-weight:600;font-size:11px;letter-spacing:.04em;text-transform:uppercase;border-bottom:1px solid rgba(16,185,129,.15);">Modelo</th>
+                    <th style="padding:10px 12px;text-align:left;color:#6ee7b7;font-weight:600;font-size:11px;letter-spacing:.04em;text-transform:uppercase;border-bottom:1px solid rgba(16,185,129,.15);">Serial</th>
+                  </tr>
+                </thead>
+                <tbody id="acta-items-table">
+                  <!-- Se rellena dinámicamente -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Campos comunes -->
+          <div style="font-size:11px;font-weight:700;color:#10b981;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;display:flex;align-items:center;gap:8px;">
+            📎 Información adicional
+            <span style="flex:1;height:1px;background:linear-gradient(90deg,rgba(16,185,129,.3),transparent);display:inline-block;"></span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+            <div>
+              <label style="font-size:11px;font-weight:700;color:#8b9ab0;text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:6px;">Accesorios entregados</label>
+              <input type="text" id="acta-accesorios" placeholder="Ej: Cargador, Cable HDMI, Mouse…"
+                style="width:100%;padding:9px 12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#f1f5f9;font-size:12px;box-sizing:border-box;transition:border-color .2s,box-shadow .2s;"
+                onfocus="this.style.borderColor='rgba(16,185,129,.6)';this.style.boxShadow='0 0 0 3px rgba(16,185,129,.12)'"
+                onblur="this.style.borderColor='rgba(255,255,255,.1)';this.style.boxShadow='none'">
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:700;color:#8b9ab0;text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:6px;">Observaciones <span style="color:#4b5563;text-transform:none;font-weight:400;">(opcional)</span></label>
+              <textarea id="acta-obs" rows="1"
+                style="width:100%;padding:9px 12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#f1f5f9;font-size:12px;box-sizing:border-box;resize:none;transition:border-color .2s,box-shadow .2s;"
+                placeholder="Estado del equipo, condiciones especiales…"
+                onfocus="this.style.borderColor='rgba(16,185,129,.6)';this.style.boxShadow='0 0 0 3px rgba(16,185,129,.12)'"
+                onblur="this.style.borderColor='rgba(255,255,255,.1)';this.style.boxShadow='none'"></textarea>
+            </div>
+          </div>
+
         </div>
+
+        <!-- Footer fijo -->
+        <div style="padding:16px 28px;border-top:1px solid rgba(255,255,255,.07);display:flex;gap:10px;justify-content:flex-end;flex-shrink:0;background:rgba(0,0,0,.2);border-radius:0 0 18px 18px;">
+          <button class="btn btn-secondary" id="acta-modal-cancel" style="padding:10px 20px;font-size:13px;">Cancelar</button>
+          <button id="acta-btn-download"
+            style="display:flex;align-items:center;gap:8px;padding:10px 22px;background:linear-gradient(135deg,#10b981,#059669);border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(16,185,129,.35);transition:all .2s;"
+            onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 20px rgba(16,185,129,.45)'"
+            onmouseout="this.style.transform='';this.style.boxShadow='0 4px 14px rgba(16,185,129,.35)'">
+            ⬇️ Generar Acta (.docx)
+          </button>
+        </div>
+
       </div>
     </div>
 
@@ -267,31 +312,62 @@ export async function renderTechRequestDetail(container, id) {
   if (!isInc) {
     const actaOverlay = document.getElementById('acta-modal-overlay');
 
+    // Inyectar estilos para los inputs de la tabla del acta
+    if (!document.getElementById('acta-modal-styles')) {
+      const st = document.createElement('style');
+      st.id = 'acta-modal-styles';
+      st.textContent = `
+        .acta-td-input {
+          width:100%; padding:6px 8px;
+          background:rgba(255,255,255,.05);
+          border:1px solid rgba(255,255,255,.09);
+          border-radius:6px; color:#e2e8f0; font-size:12px;
+          box-sizing:border-box; transition:border-color .2s,box-shadow .2s;
+        }
+        .acta-td-input:focus {
+          outline:none;
+          border-color:rgba(16,185,129,.6);
+          box-shadow:0 0 0 3px rgba(16,185,129,.12);
+          background:rgba(16,185,129,.06);
+        }
+        .acta-td-input::placeholder { color:rgba(180,190,210,.3); }
+        .acta-item-row { transition: background .15s; }
+        .acta-item-row:hover { background:rgba(16,185,129,.04); }
+        .acta-item-row:last-child td { border-bottom:none !important; }
+      `;
+      document.head.appendChild(st);
+    }
+
     document.getElementById('btn-generar-acta').addEventListener('click', () => {
       // Renderizar tabla con TODOS los equipos
       const tbody = document.getElementById('acta-items-table');
       if (req.items && req.items.length > 0) {
         tbody.innerHTML = req.items.map((item, idx) => {
           const nameParts = (item.equipment_name || '').split(' ');
-          const possibleBrand = nameParts.length > 1 ? nameParts[nameParts.length - 1] : '';
+          const possibleBrand = nameParts.length > 1 ? nameParts[0] : item.equipment_name || '';
+          const rowBg = idx % 2 === 0 ? 'rgba(255,255,255,.02)' : 'transparent';
           return `
-            <tr style="border-bottom:1px solid rgba(255,255,255,.05);">
-              <td style="padding:8px;color:#e2e8f0;">${item.equipment_name}</td>
-              <td style="padding:8px;text-align:center;color:#e2e8f0;">${item.quantity}</td>
-              <td style="padding:8px;">
-                <input type="text" class="acta-item-marca" data-idx="${idx}"
-                  value="${possibleBrand || item.equipment_name || ''}"
-                  style="width:100%;padding:4px;background:#0f0f22;border:1px solid rgba(255,255,255,.15);border-radius:4px;color:#f1f5f9;font-size:11px;box-sizing:border-box;">
+            <tr class="acta-item-row" style="background:${rowBg};border-bottom:1px solid rgba(255,255,255,.05);">
+              <td style="padding:8px 12px;">
+                <span style="font-size:12px;color:#e2e8f0;font-weight:500;">${escHtml(item.equipment_name)}</span>
               </td>
-              <td style="padding:8px;">
-                <input type="text" class="acta-item-modelo" data-idx="${idx}"
-                  value="${item.equipment_name || ''}"
-                  style="width:100%;padding:4px;background:#0f0f22;border:1px solid rgba(255,255,255,.15);border-radius:4px;color:#f1f5f9;font-size:11px;box-sizing:border-box;">
+              <td style="padding:8px;text-align:center;">
+                <span style="display:inline-block;min-width:28px;padding:2px 8px;background:rgba(99,102,241,.15);color:#818cf8;border-radius:99px;font-size:12px;font-weight:700;">${item.quantity}</span>
               </td>
-              <td style="padding:8px;">
-                <input type="text" class="acta-item-serial" data-idx="${idx}"
-                  value="${item.serial || ''}"
-                  style="width:100%;padding:4px;background:#0f0f22;border:1px solid rgba(255,255,255,.15);border-radius:4px;color:#f1f5f9;font-size:11px;box-sizing:border-box;">
+              <td style="padding:6px 8px;">
+                <input type="text" class="acta-item-marca acta-td-input" data-idx="${idx}"
+                  value="${escHtml(possibleBrand)}"
+                  placeholder="Marca…">
+              </td>
+              <td style="padding:6px 8px;">
+                <input type="text" class="acta-item-modelo acta-td-input" data-idx="${idx}"
+                  value="${escHtml(item.equipment_name || '')}"
+                  placeholder="Modelo…">
+              </td>
+              <td style="padding:6px 8px;">
+                <input type="text" class="acta-item-serial acta-td-input" data-idx="${idx}"
+                  value="${escHtml(item.serial || '')}"
+                  placeholder="Serial…">
               </td>
             </tr>
           `;
