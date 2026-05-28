@@ -287,13 +287,20 @@ export async function generateActa(request, equipment, agentName = 'Jefe de Sopo
     throw new Error(`Plantilla no encontrada: ${TEMPLATE}`);
   }
 
-  const templateZip  = new AdmZip(TEMPLATE);
+  const templateZip    = new AdmZip(TEMPLATE);
   let   templateDocXml = templateZip.readAsText('word/document.xml');
 
-  // Reemplazar el cuerpo manteniendo los namespaces originales
+  // Extraer el <w:sectPr> original para preservar referencias a headers/footers
+  // (logo, marca de agua VML en header2.xml, etc.)
+  const sectPrMatch = templateDocXml.match(/<w:sectPr[\s\S]*?<\/w:sectPr>/);
+  const originalSectPr = sectPrMatch ? sectPrMatch[0] : '<w:sectPr/>';
+
+  // Reemplazar el cuerpo manteniendo namespaces y reutilizando el sectPr original
+  const bodyXmlFinal = bodyXml.replace('<w:sectPr/>', originalSectPr);
+
   templateDocXml = templateDocXml.replace(
     /<w:body>[\s\S]*<\/w:body>/,
-    `<w:body>${bodyXml}</w:body>`
+    `<w:body>${bodyXmlFinal}</w:body>`
   );
 
   templateZip.updateFile('word/document.xml', Buffer.from(templateDocXml, 'utf-8'));
