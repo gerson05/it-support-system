@@ -51,7 +51,12 @@ export async function renderTechRequests(container) {
         <h2 style="font-size:24px;font-weight:700;margin-bottom:4px;">📦 Requerimientos Tecnológicos</h2>
         <p style="color:var(--text-muted);font-size:14px;">Gestiona solicitudes de equipos e incidencias enviadas desde las sedes.</p>
       </div>
-      <button class="btn btn-primary" id="btn-new-request">＋ Nueva Solicitud</button>
+      <button id="btn-new-request"
+        style="display:flex;align-items:center;gap:8px;padding:10px 22px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(99,102,241,.35);transition:all .2s;"
+        onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 22px rgba(99,102,241,.5)'"
+        onmouseout="this.style.transform='';this.style.boxShadow='0 4px 16px rgba(99,102,241,.35)'">
+        ＋ Nueva Solicitud
+      </button>
     </div>
 
     <!-- Pestañas -->
@@ -108,8 +113,8 @@ export async function renderTechRequests(container) {
     <div id="tr-table-container" style="margin-top:20px;"></div>
 
     <!-- Modal nuevo -->
-    <div id="tr-modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:1000;align-items:center;justify-content:center;">
-      <div id="tr-modal" style="background:#1e1e38;border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:32px;width:min(640px,95vw);max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.7);">
+    <div id="tr-modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:1000;align-items:center;justify-content:center;">
+      <div id="tr-modal" style="border-radius:16px;padding:32px;width:min(640px,95vw);max-height:90vh;overflow-y:auto;">
         <!-- contenido inyectado dinámicamente -->
       </div>
     </div>
@@ -129,35 +134,101 @@ export async function renderTechRequests(container) {
       .tr-row:hover { background:rgba(255,255,255,.04);cursor:pointer; }
       .badge-pendiente { background:rgba(245,158,11,.15);color:#f59e0b; }
 
-      /* Modal nueva solicitud — campos opacos */
+      /* ── Modal nueva solicitud ── */
+      #tr-modal-overlay { backdrop-filter: blur(4px); }
+
+      #tr-modal {
+        background: linear-gradient(160deg, #1a1a3e 0%, #16162e 100%) !important;
+        border: 1px solid rgba(99,102,241,0.25) !important;
+        box-shadow: 0 32px 80px rgba(0,0,0,.85), 0 0 0 1px rgba(99,102,241,0.1) !important;
+      }
+
       #tr-modal input[type="text"],
       #tr-modal input[type="number"],
       #tr-modal textarea,
       #tr-modal select {
-        background: #0f0f22 !important;
+        background: rgba(255,255,255,0.05) !important;
         color: #e8e8f0 !important;
-        border: 1px solid rgba(255,255,255,0.12) !important;
+        border: 1px solid rgba(255,255,255,0.1) !important;
         border-radius: 8px;
+        transition: border-color .2s, box-shadow .2s;
       }
       #tr-modal input[type="text"]:focus,
       #tr-modal input[type="number"]:focus,
       #tr-modal textarea:focus,
       #tr-modal select:focus {
-        border-color: var(--primary) !important;
+        border-color: rgba(99,102,241,0.7) !important;
         outline: none;
-        box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+        box-shadow: 0 0 0 3px rgba(99,102,241,0.18);
+        background: rgba(99,102,241,0.07) !important;
       }
-      #tr-modal label { color: #c4c4d4; font-size: 13px; }
+      #tr-modal input::placeholder,
+      #tr-modal textarea::placeholder { color: rgba(200,200,220,0.35); }
+      #tr-modal label { color: #a8a8c8; font-size: 12px; font-weight: 600; letter-spacing: .03em; text-transform: uppercase; }
       #tr-modal h3 { color: #e8e8f0; }
       #tr-modal select option { background: #1e1e38; color: #e8e8f0; }
-      #tr-modal #lbl-req,
-      #tr-modal #lbl-inc {
-        background: rgba(255,255,255,0.04);
-        color: #e8e8f0;
+
+      /* Tipo de solicitud cards */
+      .tr-type-card {
+        display:flex; align-items:center; gap:12px; cursor:pointer;
+        padding:14px 16px; border:2px solid rgba(255,255,255,0.1);
+        border-radius:12px; flex:1; transition: all .2s;
+        background: rgba(255,255,255,0.03);
       }
-      #tr-modal #lbl-req:hover,
-      #tr-modal #lbl-inc:hover {
-        background: rgba(255,255,255,0.07);
+      .tr-type-card:hover { background: rgba(255,255,255,0.06); border-color: rgba(99,102,241,0.4); }
+      .tr-type-card.selected { border-color: var(--primary); background: rgba(99,102,241,0.12); }
+      .tr-type-card .tc-icon { font-size:22px; flex-shrink:0; }
+      .tr-type-card .tc-title { font-size:13px; font-weight:700; color:#e2e8f0; }
+      .tr-type-card .tc-desc { font-size:11px; color:#6b7280; margin-top:2px; }
+
+      /* Sección con línea divisora */
+      .tr-section {
+        margin-top:20px; padding-top:16px;
+        border-top: 1px solid rgba(255,255,255,0.07);
+      }
+      .tr-section-title {
+        font-size:11px; font-weight:700; color:#6366f1;
+        text-transform:uppercase; letter-spacing:.08em;
+        margin-bottom:12px; display:flex; align-items:center; gap:8px;
+      }
+      .tr-section-title::after {
+        content:''; flex:1; height:1px;
+        background:linear-gradient(90deg,rgba(99,102,241,.3),transparent);
+      }
+
+      /* Fila de ítem de equipo */
+      .tr-item-row {
+        display:grid; grid-template-columns:2fr 58px 1fr 30px;
+        gap:6px; margin-bottom:8px; align-items:center;
+        background:rgba(255,255,255,.03); padding:6px 8px;
+        border-radius:8px; border:1px solid rgba(255,255,255,.06);
+        transition: border-color .2s;
+      }
+      .tr-item-row:hover { border-color:rgba(99,102,241,.25); }
+
+      /* Botón add item */
+      #tr-btn-add-item {
+        background: rgba(99,102,241,.12);
+        border: 1px dashed rgba(99,102,241,.45);
+        color: #818cf8;
+        border-radius: 8px;
+        padding: 6px 16px;
+        font-size: 12px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all .2s;
+      }
+      #tr-btn-add-item:hover {
+        background: rgba(99,102,241,.2);
+        border-color: rgba(99,102,241,.7);
+        color: #a5b4fc;
+      }
+
+      /* Footer del modal */
+      .tr-modal-footer {
+        display:flex; gap:10px; justify-content:flex-end;
+        margin-top:24px; padding-top:18px;
+        border-top:1px solid rgba(255,255,255,.08);
       }
     `;
     document.head.appendChild(st);
@@ -310,101 +381,128 @@ function openModal(defaultType, onSuccess) {
   let modalItems = [{ equipment_name: '', quantity: 1, serial: '' }];
 
   modal.innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
-      <h3 style="font-size:18px;font-weight:700;">Nueva Solicitud</h3>
-      <button id="tr-modal-close" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text-muted);">✕</button>
+    <!-- Header con gradiente -->
+    <div style="background:linear-gradient(135deg,rgba(99,102,241,.18),rgba(139,92,246,.12));margin:-32px -32px 24px;padding:24px 28px 20px;border-radius:16px 16px 0 0;border-bottom:1px solid rgba(99,102,241,.2);">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+            <div style="width:36px;height:36px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;">📝</div>
+            <h3 style="font-size:18px;font-weight:700;color:#e2e8f0;">Nueva Solicitud</h3>
+          </div>
+          <p style="font-size:12px;color:#6b7a99;margin-left:46px;">Completa los datos para registrar el requerimiento o incidencia</p>
+        </div>
+        <button id="tr-modal-close" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);width:32px;height:32px;border-radius:8px;font-size:16px;cursor:pointer;color:#94a3b8;display:flex;align-items:center;justify-content:center;transition:all .2s;" onmouseover="this.style.background='rgba(255,255,255,.12)'" onmouseout="this.style.background='rgba(255,255,255,.07)'">✕</button>
+      </div>
     </div>
 
-    <!-- Tipo -->
-    <div class="form-group" style="margin-bottom:16px;">
-      <label style="font-weight:600;">Tipo de solicitud *</label>
-      <div style="display:flex;gap:12px;margin-top:8px;">
-        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:10px 16px;border:2px solid ${defaultType==='requerimiento'?'var(--primary)':'var(--glass-border)'};border-radius:8px;flex:1;" id="lbl-req">
-          <input type="radio" name="tr-type" value="requerimiento" ${defaultType==='requerimiento'?'checked':''} style="accent-color:var(--primary);">
-          📋 Requerimiento
+    <!-- Tipo de solicitud -->
+    <div style="margin-bottom:4px;">
+      <div style="font-size:11px;font-weight:700;color:#6366f1;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">Tipo de solicitud</div>
+      <div style="display:flex;gap:12px;">
+        <label class="tr-type-card ${defaultType==='requerimiento'?'selected':''}" id="lbl-req" for="tr-type-req">
+          <input type="radio" id="tr-type-req" name="tr-type" value="requerimiento" ${defaultType==='requerimiento'?'checked':''} style="display:none;">
+          <span class="tc-icon">📋</span>
+          <div>
+            <div class="tc-title">Requerimiento</div>
+            <div class="tc-desc">Solicitud de equipo nuevo</div>
+          </div>
         </label>
-        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:10px 16px;border:2px solid ${defaultType==='incidencia'?'var(--primary)':'var(--glass-border)'};border-radius:8px;flex:1;" id="lbl-inc">
-          <input type="radio" name="tr-type" value="incidencia" ${defaultType==='incidencia'?'checked':''} style="accent-color:var(--primary);">
-          🔧 Incidencia
+        <label class="tr-type-card ${defaultType==='incidencia'?'selected':''}" id="lbl-inc" for="tr-type-inc">
+          <input type="radio" id="tr-type-inc" name="tr-type" value="incidencia" ${defaultType==='incidencia'?'checked':''} style="display:none;">
+          <span class="tc-icon">🔧</span>
+          <div>
+            <div class="tc-title">Incidencia</div>
+            <div class="tc-desc">Falla o problema técnico</div>
+          </div>
         </label>
       </div>
     </div>
 
-    <!-- Solicitante -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-      <div class="form-group">
-        <label>Nombre completo *</label>
-        <input type="text" id="tr-f-name" placeholder="Nombre del solicitante">
-      </div>
-      <div class="form-group">
-        <label>Cédula *</label>
-        <input type="text" id="tr-f-cedula" placeholder="Número de cédula">
-      </div>
-      <div class="form-group">
-        <label>Cargo *</label>
-        <input type="text" id="tr-f-cargo" placeholder="Ej: Auxiliar contable">
-      </div>
-      <div class="form-group">
-        <label>Sede / Punto *</label>
-        <input type="text" id="tr-f-sede" placeholder="Ej: Sede Central, Clínica Norte…">
+    <!-- Datos del solicitante -->
+    <div class="tr-section">
+      <div class="tr-section-title">👤 Datos del solicitante</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-group">
+          <label>Nombre completo *</label>
+          <input type="text" id="tr-f-name" placeholder="Nombre y apellido">
+        </div>
+        <div class="form-group">
+          <label>Cédula *</label>
+          <input type="text" id="tr-f-cedula" placeholder="Número de cédula">
+        </div>
+        <div class="form-group">
+          <label>Cargo *</label>
+          <input type="text" id="tr-f-cargo" placeholder="Ej: Auxiliar contable">
+        </div>
+        <div class="form-group">
+          <label>Sede / Punto *</label>
+          <input type="text" id="tr-f-sede" placeholder="Ej: Sede Central, Clínica Norte…">
+        </div>
       </div>
     </div>
 
-    <!-- ── EQUIPOS SOLICITADOS (solo requerimientos) ── -->
-    <div id="tr-f-items-section" style="margin-top:16px;${defaultType==='incidencia'?'display:none;':''}">
+    <!-- EQUIPOS SOLICITADOS (solo requerimientos) -->
+    <div id="tr-f-items-section" class="tr-section" style="${defaultType==='incidencia'?'display:none;':''}">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <label style="font-weight:600;font-size:13px;">📦 Equipos solicitados *</label>
-        <button type="button" id="tr-btn-add-item"
-          style="background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.35);color:#818cf8;border-radius:6px;padding:5px 14px;font-size:12px;cursor:pointer;font-weight:600;">
-          + Agregar equipo
-        </button>
+        <div class="tr-section-title" style="margin-bottom:0;">📦 Equipos solicitados</div>
+        <button type="button" id="tr-btn-add-item">＋ Agregar equipo</button>
       </div>
-      <div style="display:grid;grid-template-columns:2fr 58px 1fr 30px;gap:6px;padding:0 2px;margin-bottom:6px;">
-        <span style="font-size:11px;color:var(--text-muted);">Nombre del equipo *</span>
-        <span style="font-size:11px;color:var(--text-muted);text-align:center;">Cant.</span>
-        <span style="font-size:11px;color:var(--text-muted);">Serial / Inv. (opc.)</span>
+      <div style="display:grid;grid-template-columns:2fr 58px 1fr 30px;gap:6px;padding:0 8px;margin-bottom:4px;">
+        <span style="font-size:11px;color:#5a607a;">Nombre del equipo *</span>
+        <span style="font-size:11px;color:#5a607a;text-align:center;">Cant.</span>
+        <span style="font-size:11px;color:#5a607a;">Serial / Inv.</span>
         <span></span>
       </div>
       <div id="tr-f-items-list"></div>
     </div>
 
-    <!-- ── EQUIPO AFECTADO (solo incidencias) ── -->
-    <div id="tr-f-equipo-wrap" style="margin-top:16px;${defaultType==='requerimiento'?'display:none;':''}">
-      <div class="form-group">
-        <label>Equipo afectado <span style="color:var(--text-muted);font-size:12px;">(para incidencias)</span></label>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px;">
-          <input type="text" id="tr-f-equipo" placeholder="Nombre / tipo de equipo">
-          <input type="text" id="tr-f-serial" placeholder="Serial o inventario (opcional)">
-        </div>
-      </div>
-    </div>
-
-    <!-- Descripción + controles -->
-    <div style="display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-top:16px;">
-      <div class="form-group">
-        <label>Descripción *</label>
-        <textarea id="tr-f-desc" rows="3" placeholder="Describe el requerimiento o la falla del equipo…" style="resize:vertical;"></textarea>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:10px;">
-        <div class="form-group" id="tr-f-qty-wrap" style="${defaultType==='requerimiento'?'display:none;':''}">
-          <label>Cantidad</label>
-          <input type="number" id="tr-f-qty" value="1" min="1">
+    <!-- EQUIPO AFECTADO (solo incidencias) -->
+    <div id="tr-f-equipo-wrap" class="tr-section" style="${defaultType==='requerimiento'?'display:none;':''}">
+      <div class="tr-section-title">🖥️ Equipo afectado</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-group">
+          <label>Nombre / tipo de equipo</label>
+          <input type="text" id="tr-f-equipo" placeholder="Ej: Portátil Dell, Impresora…">
         </div>
         <div class="form-group">
-          <label>Prioridad</label>
-          <select id="tr-f-priority">
-            <option value="baja">Baja</option>
-            <option value="media" selected>Media</option>
-            <option value="alta">Alta</option>
-            <option value="critica">Crítica</option>
-          </select>
+          <label>Serial o inventario</label>
+          <input type="text" id="tr-f-serial" placeholder="Opcional">
         </div>
       </div>
     </div>
 
-    <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:20px;">
-      <button class="btn btn-secondary" id="tr-modal-cancel">Cancelar</button>
-      <button class="btn btn-primary" id="tr-modal-save">💾 Guardar Solicitud</button>
+    <!-- Descripción + prioridad -->
+    <div class="tr-section">
+      <div class="tr-section-title">📝 Detalles</div>
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:12px;">
+        <div class="form-group">
+          <label>Descripción *</label>
+          <textarea id="tr-f-desc" rows="3" placeholder="Describe el requerimiento o la falla del equipo…" style="resize:vertical;"></textarea>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div class="form-group" id="tr-f-qty-wrap" style="${defaultType==='requerimiento'?'display:none;':''}">
+            <label>Cantidad</label>
+            <input type="number" id="tr-f-qty" value="1" min="1">
+          </div>
+          <div class="form-group">
+            <label>Prioridad</label>
+            <select id="tr-f-priority">
+              <option value="baja">🟢 Baja</option>
+              <option value="media" selected>🟡 Media</option>
+              <option value="alta">🟠 Alta</option>
+              <option value="critica">🔴 Crítica</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="tr-modal-footer">
+      <button class="btn btn-secondary" id="tr-modal-cancel" style="padding:10px 20px;">Cancelar</button>
+      <button class="btn btn-primary" id="tr-modal-save" style="padding:10px 24px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border:none;">
+        💾 Guardar Solicitud
+      </button>
     </div>
   `;
 
@@ -414,7 +512,7 @@ function openModal(defaultType, onSuccess) {
     if (!cont) return;
 
     cont.innerHTML = modalItems.map((item, idx) => `
-      <div style="display:grid;grid-template-columns:2fr 58px 1fr 30px;gap:6px;margin-bottom:8px;align-items:center;">
+      <div class="tr-item-row">
         <input type="text" class="tr-item-name" data-idx="${idx}"
           value="${_esc(item.equipment_name)}"
           placeholder="Ej: Portátil, Monitor, Teclado…">
@@ -425,7 +523,7 @@ function openModal(defaultType, onSuccess) {
           placeholder="Serial (opc.)">
         <button type="button" class="tr-item-remove" data-idx="${idx}"
           title="Quitar equipo"
-          style="background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);color:#f87171;border-radius:6px;width:30px;height:36px;cursor:pointer;font-size:15px;line-height:1;${modalItems.length <= 1 ? 'opacity:.3;cursor:not-allowed;' : ''}"
+          style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.25);color:#f87171;border-radius:6px;width:30px;height:36px;cursor:pointer;font-size:14px;line-height:1;transition:all .2s;${modalItems.length <= 1 ? 'opacity:.3;cursor:not-allowed;' : ''}"
           ${modalItems.length <= 1 ? 'disabled' : ''}>✕</button>
       </div>
     `).join('');
@@ -461,8 +559,8 @@ function openModal(defaultType, onSuccess) {
   modal.querySelectorAll('input[name="tr-type"]').forEach(radio => {
     radio.addEventListener('change', () => {
       const isReq = modal.querySelector('input[name="tr-type"]:checked')?.value === 'requerimiento';
-      document.getElementById('lbl-req').style.borderColor         = isReq  ? 'var(--primary)' : 'var(--glass-border)';
-      document.getElementById('lbl-inc').style.borderColor         = !isReq ? 'var(--primary)' : 'var(--glass-border)';
+      document.getElementById('lbl-req').classList.toggle('selected',  isReq);
+      document.getElementById('lbl-inc').classList.toggle('selected', !isReq);
       document.getElementById('tr-f-items-section').style.display  = isReq  ? 'block' : 'none';
       document.getElementById('tr-f-equipo-wrap').style.display    = isReq  ? 'none'  : 'block';
       document.getElementById('tr-f-qty-wrap').style.display       = isReq  ? 'none'  : 'block';
