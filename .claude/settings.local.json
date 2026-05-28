@@ -43,7 +43,26 @@
       "Bash(git push *)",
       "Bash(ls -lh \"\\\\\\\\soportejs\\\\Compartidos\\\\actas\\\\Entregas\\\\\" 2>&1 | head -20)",
       "Read(//mnt/soportejs/Compartidos/actas/**)",
-      "Read(//z/actas/**)"
+      "Read(//z/actas/**)",
+      "Bash(ls \"//soportejs/Compartidos/actas/Entregas/\" 2>&1 | head -10)",
+      "Bash(cp '//soportejs/Compartidos/actas/Entregas/ACTA DE ENTREGA DE EQUIPOS  andry España Ortiz  CELULAR BARBACOA.docx' /tmp/template_acta.docx)",
+      "Bash(echo \"Copiado OK\")",
+      "Bash(pip install *)",
+      "Read(//tmp/template_unpacked/**)",
+      "Read(//tmp/template_unpacked/word/**)",
+      "Bash(pandoc /tmp/template_acta.docx -o /tmp/template_text.md)",
+      "Read(//tmp/**)",
+      "Read(//usr/**)",
+      "Read(//usr/local/**)",
+      "Bash(python 'C:/Users/equipo sitemas 1/AppData/Roaming/Claude/local-agent-mode-sessions/skills-plugin/f4769885-59f0-441f-8863-8b3329816cc6/6e373e71-65a4-4241-9446-c3aad5d9546f/skills/docx/scripts/office/unpack.py' --help)",
+      "Bash(pip show *)",
+      "Bash(ls /tmp/template_unpacked/word/)",
+      "Bash(python -c ' *)",
+      "Bash(cp \"/tmp/template_unpacked/word/media/image2.png\" \"C:/Users/equipo sitemas 1/.gemini/antigravity/scratch/it-tickets/src/tech-requests/assets/logo-medivalle.png\")",
+      "Bash(cp \"/tmp/template_unpacked/word/media/image1.png\" \"C:/Users/equipo sitemas 1/.gemini/antigravity/scratch/it-tickets/src/tech-requests/assets/watermark.png\")",
+      "Bash(cp '//soportejs/Compartidos/actas/Entregas/ACTA DE ENTREGA DE EQUIPOS  andry España Ortiz  CELULAR BARBACOA.docx' 'C:/Users/equipo sitemas 1/.gemini/antigravity/scratch/it-tickets/src/tech-requests/assets/template-acta-base.docx')",
+      "Bash(echo \"Template copiado:\")",
+      "Bash(ls -lh 'C:/Users/equipo sitemas 1/.gemini/antigravity/scratch/it-tickets/src/tech-requests/assets/template-acta-base.docx')"
     ]
   }
 }

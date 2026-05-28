@@ -1,319 +1,302 @@
 /**
  * Generador de Acta de Entrega de Equipos (.docx)
- * Formato limpio sin tablas — igual al documento de referencia.
+ * Usa la plantilla corporativa de Medivalle como base para preservar:
+ *   - Logo en encabezado
+ *   - Marca de agua de fondo
+ *   - Estilos y formato corporativo
+ * Solo reemplaza el cuerpo del documento con datos dinámicos.
  */
 
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import {
-  Document, Packer, Paragraph, TextRun, ImageRun,
-  AlignmentType, BorderStyle, LevelFormat, TabStopType,
-  Header, Footer, PageNumber,
-} from 'docx';
+import AdmZip from 'adm-zip';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const FIRMA_PATH = path.join(__dirname, 'firma-jefe.png');
+const ASSETS     = path.join(__dirname, 'assets');
+const TEMPLATE   = path.join(ASSETS, 'template-acta-base.docx');
 
-/* ── Colores y constantes ──────────────────────────────────── */
-const AZUL        = '1F3864';   // Azul oscuro para títulos de sección
-const NEGRO       = '000000';
-const FONT        = 'Arial';
-const SZ_NORMAL   = 22;         // 11 pt
-const SZ_TITULO   = 24;         // 12 pt bold
-const TAB_VALOR   = 3200;       // DXA — punto donde arranca el valor (~2.2 inch)
+/* ── Utilidades XML ───────────────────────────────────────────── */
 
-/* ── Helpers ───────────────────────────────────────────────── */
-
-/** Título de sección: MAYÚSCULAS, azul oscuro, negrita */
-function seccion(texto) {
-  return new Paragraph({
-    spacing: { before: 280, after: 100 },
-    children: [new TextRun({
-      text: texto.toUpperCase(),
-      bold: true,
-      color: AZUL,
-      size: SZ_TITULO,
-      font: FONT,
-    })],
-  });
+/** Escapa caracteres especiales para XML */
+function esc(str) {
+  return String(str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
 }
 
-/** Línea de campo: "Label:    Valor" con tabulación para alinear */
-function campo(label, valor = '') {
-  return new Paragraph({
-    spacing: { after: 60 },
-    tabStops: [{ type: TabStopType.LEFT, position: TAB_VALOR }],
-    children: [
-      new TextRun({ text: label, bold: true, size: SZ_NORMAL, font: FONT, color: NEGRO }),
-      new TextRun({ text: '\t' + (valor || ''), size: SZ_NORMAL, font: FONT }),
-    ],
-  });
+/** Párrafo con estilo "Textoindependiente" (estilo base de la plantilla) */
+function pTxt(runs, extra = '') {
+  return `<w:p><w:pPr><w:pStyle w:val="Textoindependiente"/><w:spacing w:before="11"/>${extra}</w:pPr>${runs}</w:p>`;
 }
 
-/** Párrafo en blanco */
-function esp() {
-  return new Paragraph({ spacing: { after: 60 }, children: [new TextRun({ text: '', size: SZ_NORMAL })] });
+/** Run de texto */
+function run(text, bold = false, color = '') {
+  const rPr = (bold || color)
+    ? `<w:rPr>${bold ? '<w:b/><w:bCs/>' : ''}${color ? `<w:color w:val="${color}"/>` : ''}</w:rPr>`
+    : '';
+  return `<w:r>${rPr}<w:t xml:space="preserve">${esc(text)}</w:t></w:r>`;
 }
 
-/** Línea de firma con nombre debajo */
-function firma(nombre) {
-  return [
-    new Paragraph({
-      spacing: { before: 800, after: 60 },
-      children: [new TextRun({ text: '', size: SZ_NORMAL })],
-    }),
-    new Paragraph({
-      border: { top: { style: BorderStyle.SINGLE, size: 4, color: '444444', space: 4 } },
-      spacing: { after: 40 },
-      children: [new TextRun({ text: nombre.toUpperCase(), bold: true, size: SZ_NORMAL, font: FONT })],
-    }),
-  ];
+/** Línea etiqueta + valor con tabulación */
+function campoXml(label, valor) {
+  return pTxt(
+    run(label) +
+    `<w:r><w:tab/></w:r>` +
+    run(String(valor || ''), true)
+  );
 }
 
-/* ── Función principal ─────────────────────────────────────── */
+/** Párrafo vacío */
+function espXml() {
+  return `<w:p><w:pPr><w:pStyle w:val="Textoindependiente"/><w:spacing w:before="11"/></w:pPr></w:p>`;
+}
+
+/** Título de sección en MAYÚSCULAS, negrita */
+function seccionXml(texto) {
+  return pTxt(run(texto.toUpperCase(), true), '<w:spacing w:before="200"/>');
+}
+
+/** Fila de tabla XML */
+function tablaFila(celdas, cabecera = false) {
+  const celdasXml = celdas.map(({ text, w }) => `
+    <w:tc>
+      <w:tcPr>
+        <w:tcW w:w="${w}" w:type="dxa"/>
+        <w:tcBorders>
+          <w:top w:val="single" w:sz="4" w:color="CCCCCC"/>
+          <w:bottom w:val="single" w:sz="4" w:color="CCCCCC"/>
+          <w:left w:val="single" w:sz="4" w:color="CCCCCC"/>
+          <w:right w:val="single" w:sz="4" w:color="CCCCCC"/>
+        </w:tcBorders>
+        <w:shading w:val="clear" w:color="auto" w:fill="${cabecera ? 'EEF2FF' : 'FFFFFF'}"/>
+        <w:tcMar><w:top w:w="80" w:type="dxa"/><w:bottom w:w="80" w:type="dxa"/><w:left w:w="100" w:type="dxa"/><w:right w:w="100" w:type="dxa"/></w:tcMar>
+      </w:tcPr>
+      <w:p><w:pPr><w:pStyle w:val="Textoindependiente"/></w:pPr>
+        ${cabecera
+          ? `<w:r><w:rPr><w:b/><w:bCs/><w:color w:val="444444"/><w:sz w:val="18"/></w:rPr><w:t xml:space="preserve">${esc(text)}</w:t></w:r>`
+          : `<w:r><w:rPr><w:sz w:val="20"/></w:rPr><w:t xml:space="preserve">${esc(text)}</w:t></w:r>`
+        }
+      </w:p>
+    </w:tc>`).join('');
+
+  return `<w:tr${cabecera ? ' w:rsidTrPr="00000000"' : ''}>${celdasXml}</w:tr>`;
+}
+
+/* ── Función principal ─────────────────────────────────────────── */
 
 /**
- * @param {Object} request - Objeto del requerimiento (con .items)
- * @param {Array|Object} equipment - Array de items o objeto simple { marca, modelo, ... }
- * @param {String} agentName - Nombre del agente (Jefe de Soporte)
+ * @param {Object}       request        - Requerimiento con .items[]
+ * @param {Array|Object} equipment      - Array [{ marca, modelo, serial, accesorios, observaciones }]
+ * @param {String}       agentName      - No se usa en la firma (solo para historial)
  */
 export async function generateActa(request, equipment, agentName = 'Jefe de Soporte') {
-  const firmaBuffer = fs.existsSync(FIRMA_PATH) ? fs.readFileSync(FIRMA_PATH) : null;
 
-  // Normalizar: si equipment es un array, usarlo; si no, convertir a array
-  const equipmentItems = Array.isArray(equipment)
-    ? equipment
-    : [equipment];
+  // Normalizar equipment a array
+  const eqItems = Array.isArray(equipment) ? equipment : [equipment];
 
-  const fechaEntrega = new Date().toLocaleDateString('es-CO', {
+  const fechaHoy  = new Date();
+  const fechaLarga = fechaHoy.toLocaleDateString('es-CO', {
+    day: 'numeric', month: 'long', year: 'numeric',
+  });
+  const fechaCorta = fechaHoy.toLocaleDateString('es-CO', {
     day: '2-digit', month: '2-digit', year: 'numeric',
   });
 
-  const doc = new Document({
-    numbering: {
-      config: [{
-        reference: 'bullets',
-        levels: [{
-          level: 0,
-          format: LevelFormat.BULLET,
-          text: '•',
-          alignment: AlignmentType.LEFT,
-          style: {
-            paragraph: { indent: { left: 560, hanging: 360 } },
-          },
-        }],
-      }],
-    },
+  const accesorios  = eqItems[0]?.accesorios    || '';
+  const observaciones = eqItems[0]?.observaciones || '';
 
-    styles: {
-      default: { document: { run: { font: FONT, size: SZ_NORMAL, color: NEGRO } } },
-    },
+  /* ── 1. Construir el cuerpo XML ───────────────────────────── */
+  const colWidths = [600, 2400, 1800, 2000, 1800, 700]; // N°, Equipo, Marca, Modelo, Serial, Cant.
+  const totalW    = colWidths.reduce((a, b) => a + b, 0); // 9300 DXA
 
-    sections: [{
-      properties: {
-        page: {
-          size: { width: 12240, height: 15840 },   // Carta
-          margin: { top: 1200, right: 1200, bottom: 1200, left: 1200 },
-        },
-      },
+  const filasCabecera = tablaFila([
+    { text: 'N°',     w: colWidths[0] },
+    { text: 'Equipo', w: colWidths[1] },
+    { text: 'Marca',  w: colWidths[2] },
+    { text: 'Modelo', w: colWidths[3] },
+    { text: 'Serial', w: colWidths[4] },
+    { text: 'Cant.',  w: colWidths[5] },
+  ], true);
 
-      headers: {
-        default: new Header({
-          children: [new Paragraph({
-            alignment: AlignmentType.RIGHT,
-            children: [new TextRun({ text: `Ref: ${request.request_number}`, size: 18, color: '888888', font: FONT })],
-          })],
-        }),
-      },
-
-      footers: {
-        default: new Footer({
-          children: [new Paragraph({
-            alignment: AlignmentType.CENTER,
-            border: { top: { style: BorderStyle.SINGLE, size: 2, color: 'CCCCCC', space: 4 } },
-            children: [
-              new TextRun({ text: 'Página ', size: 16, color: '888888', font: FONT }),
-              new TextRun({ children: [PageNumber.CURRENT], size: 16, font: FONT }),
-              new TextRun({ text: ' de ', size: 16, color: '888888', font: FONT }),
-              new TextRun({ children: [PageNumber.TOTAL_PAGES], size: 16, font: FONT }),
-            ],
-          })],
-        }),
-      },
-
-      children: [
-
-        /* ══ DATOS DEL USUARIO RESPONSABLE ══ */
-        seccion('Datos del usuario responsable'),
-
-        campo('Fecha de entrega:',       fechaEntrega),
-        campo('Nombres y apellidos:',    request.requester_name),
-        campo('ID:',                     request.cedula),
-        campo('Área:',                   `${request.cargo}  ${request.sede}`),
-
-        esp(),
-
-        /* ══ EQUIPOS SOLICITADOS (si hay ítems registrados) ══ */
-        ...(request.items?.length > 0 ? [
-          seccion('Equipos solicitados y detalles de entrega'),
-          // Cabecera de columnas
-          new Paragraph({
-            spacing: { after: 60 },
-            tabStops: [
-              { type: TabStopType.LEFT, position: 560  },
-              { type: TabStopType.LEFT, position: 3200 },
-              { type: TabStopType.LEFT, position: 5200 },
-              { type: TabStopType.LEFT, position: 6500 },
-              { type: TabStopType.LEFT, position: 8000 },
-            ],
-            children: [
-              new TextRun({ text: 'N°', bold: true, size: SZ_NORMAL - 2, font: FONT, color: '888888' }),
-              new TextRun({ text: '\tEquipo', bold: true, size: SZ_NORMAL - 2, font: FONT, color: '888888' }),
-              new TextRun({ text: '\tMarca', bold: true, size: SZ_NORMAL - 2, font: FONT, color: '888888' }),
-              new TextRun({ text: '\tModelo', bold: true, size: SZ_NORMAL - 2, font: FONT, color: '888888' }),
-              new TextRun({ text: '\tSerial', bold: true, size: SZ_NORMAL - 2, font: FONT, color: '888888' }),
-            ],
-          }),
-          // Separador
-          new Paragraph({
-            spacing: { after: 80 },
-            border: { bottom: { style: BorderStyle.SINGLE, size: 2, color: 'DDDDDD', space: 1 } },
-            children: [new TextRun({ text: '', size: 2 })],
-          }),
-          // Filas de ítems con detalles de entrega
-          ...request.items.map((item, idx) => {
-            const equipmentDetail = equipmentItems[idx] || {};
-            return new Paragraph({
-              spacing: { after: 80 },
-              tabStops: [
-                { type: TabStopType.LEFT, position: 560  },
-                { type: TabStopType.LEFT, position: 3200 },
-                { type: TabStopType.LEFT, position: 5200 },
-                { type: TabStopType.LEFT, position: 6500 },
-                { type: TabStopType.LEFT, position: 8000 },
-              ],
-              children: [
-                new TextRun({ text: `${idx + 1}.`, bold: true, size: SZ_NORMAL, font: FONT }),
-                new TextRun({ text: `\t${item.equipment_name}`, size: SZ_NORMAL, font: FONT }),
-                new TextRun({ text: `\t${equipmentDetail.marca || '—'}`, size: SZ_NORMAL, font: FONT, color: '666666' }),
-                new TextRun({ text: `\t${equipmentDetail.modelo || '—'}`, size: SZ_NORMAL, font: FONT, color: '666666' }),
-                new TextRun({ text: `\t${equipmentDetail.serial || item.serial || '—'}`, size: SZ_NORMAL, font: FONT, color: '666666' }),
-              ],
-            });
-          }),
-          esp(),
-        ] : [
-          seccion('Detalle del equipo entregado'),
-          // Si no hay ítems, mostrar detalles del primer/único equipo
-          ...(equipmentItems[0]
-            ? [
-                campo('Marca:',                    equipmentItems[0].marca       || ''),
-                campo('Modelo:',                   equipmentItems[0].modelo      || ''),
-                campo('Número de Serie:',          equipmentItems[0].serial      || ''),
-              ]
-            : []),
-        ]),
-
-        campo('Accesorios que se asignan.', equipmentItems[0]?.accesorios || ''),
-        ...(equipmentItems[0]?.observaciones
-          ? [campo('Observaciones:',       equipmentItems[0].observaciones)]
-          : []),
-
-        esp(),
-
-        /* ══ CLÁUSULA DE COMPROMISO ══ */
-        seccion('Cláusula de compromiso'),
-
-        new Paragraph({
-          numbering: { reference: 'bullets', level: 0 },
-          spacing: { after: 120 },
-          children: [
-            new TextRun({ text: 'Responsabilidad por el equipo: ', bold: true, size: SZ_NORMAL, font: FONT }),
-            new TextRun({ text: 'Es responsable por cualquier pérdida, daño, robo o deterioro del equipo y deberá cubrir el costo total de su reparación o reemplazo.', size: SZ_NORMAL, font: FONT }),
-          ],
-        }),
-
-        new Paragraph({
-          numbering: { reference: 'bullets', level: 0 },
-          spacing: { after: 120 },
-          children: [
-            new TextRun({ text: 'Reporte de incidentes: ', bold: true, size: SZ_NORMAL, font: FONT }),
-            new TextRun({ text: 'En caso de robo o fallas técnicas, se debe comunicar lo más pronto posible a la Subgerencia de Logística y Control Patrimonial.', size: SZ_NORMAL, font: FONT }),
-          ],
-        }),
-
-        new Paragraph({
-          numbering: { reference: 'bullets', level: 0 },
-          spacing: { after: 120 },
-          children: [
-            new TextRun({ text: 'Devolución completa: ', bold: true, size: SZ_NORMAL, font: FONT }),
-            new TextRun({ text: 'El equipo debe devolverse con todos los accesorios originales con los que fue entregado (cargador, manual, memoria auxiliar, manos libres, batería, cable USB, etc.), con los cuál fue asignado.', size: SZ_NORMAL, font: FONT }),
-          ],
-        }),
-
-        esp(),
-
-        /* ══ FIRMAN EN CONFORMIDAD ══ */
-        new Paragraph({
-          spacing: { before: 200, after: 60 },
-          children: [new TextRun({ text: 'Firman en conformidad.', size: SZ_NORMAL, font: FONT })],
-        }),
-
-        /* Dos firmas lado a lado usando tab stops */
-        ...(() => {
-          const col = 4400;  // posición columna derecha
-
-          // Fila de imagen de firma (izquierda) + línea en blanco (derecha)
-          const firmaRow = firmaBuffer
-            ? new Paragraph({
-                spacing: { before: 400, after: 0 },
-                tabStops: [{ type: TabStopType.LEFT, position: col }],
-                children: [
-                  new ImageRun({
-                    type: 'png',
-                    data: firmaBuffer,
-                    transformation: { width: 140, height: 55 },
-                    altText: { title: 'Firma Jefe de Soporte', description: 'Firma', name: 'firma-jefe' },
-                  }),
-                  new TextRun({ text: '\t', size: SZ_NORMAL, font: FONT }),
-                ],
-              })
-            : new Paragraph({ spacing: { before: 900, after: 0 }, children: [new TextRun({ text: '' })] });
-
-          return [
-            firmaRow,
-            // Líneas de firma: izquierda con borde superior, derecha con borde superior
-            new Paragraph({
-              spacing: { after: 80 },
-              tabStops: [{ type: TabStopType.LEFT, position: col }],
-              children: [
-                new TextRun({ text: '________________________________', size: SZ_NORMAL, font: FONT }),
-                new TextRun({ text: '\t________________________________', size: SZ_NORMAL, font: FONT }),
-              ],
-            }),
-            // Nombres bajo la línea (solo quien recibe)
-            new Paragraph({
-              tabStops: [{ type: TabStopType.LEFT, position: col }],
-              children: [
-                new TextRun({ text: '(Firma automática)', bold: false, size: 18, color: '888888', font: FONT, italic: true }),
-                new TextRun({ text: '\t' + request.requester_name, bold: true, size: SZ_NORMAL, font: FONT }),
-              ],
-            }),
-            // Roles
-            new Paragraph({
-              tabStops: [{ type: TabStopType.LEFT, position: col }],
-              children: [
-                new TextRun({ text: 'Jefe de Soporte', size: 18, color: '555555', font: FONT }),
-                new TextRun({ text: '\tQuien recibe', size: 18, color: '555555', font: FONT }),
-              ],
-            }),
-          ];
-        })(),
-
-      ],
-    }],
+  const filasEquipos = (request.items?.length > 0 ? request.items : []).map((item, idx) => {
+    const eq = eqItems[idx] || eqItems[0] || {};
+    return tablaFila([
+      { text: `${idx + 1}`,              w: colWidths[0] },
+      { text: item.equipment_name || '', w: colWidths[1] },
+      { text: eq.marca   || '—',         w: colWidths[2] },
+      { text: eq.modelo  || '—',         w: colWidths[3] },
+      { text: eq.serial  || item.serial || '—', w: colWidths[4] },
+      { text: String(item.quantity || 1), w: colWidths[5] },
+    ]);
   });
 
-  return Packer.toBuffer(doc);
+  const tablaEquipos = `
+    <w:tbl>
+      <w:tblPr>
+        <w:tblW w:w="${totalW}" w:type="dxa"/>
+        <w:tblBorders>
+          <w:top w:val="single" w:sz="4" w:color="BBBBBB"/>
+          <w:bottom w:val="single" w:sz="4" w:color="BBBBBB"/>
+          <w:left w:val="single" w:sz="4" w:color="BBBBBB"/>
+          <w:right w:val="single" w:sz="4" w:color="BBBBBB"/>
+          <w:insideH w:val="single" w:sz="4" w:color="DDDDDD"/>
+          <w:insideV w:val="single" w:sz="4" w:color="DDDDDD"/>
+        </w:tblBorders>
+        <w:tblCellMar>
+          <w:top w:w="80" w:type="dxa"/><w:bottom w:w="80" w:type="dxa"/>
+          <w:left w:w="100" w:type="dxa"/><w:right w:w="100" w:type="dxa"/>
+        </w:tblCellMar>
+      </w:tblPr>
+      <w:tblGrid>
+        ${colWidths.map(w => `<w:gridCol w:w="${w}"/>`).join('')}
+      </w:tblGrid>
+      ${filasCabecera}
+      ${filasEquipos.join('')}
+    </w:tbl>`;
+
+  // Sección de firma: imagen del jefe (rId8 = image1.png de la plantilla) + línea para quien recibe
+  // La firma del jefe está embebida en la plantilla como rId8 (image1.png, 312x149)
+  const firmaJefeImgXml = `
+    <w:r>
+      <w:rPr><w:noProof/></w:rPr>
+      <w:drawing>
+        <wp:inline xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing">
+          <wp:extent cx="1244600" cy="594360"/>
+          <wp:docPr id="1001" name="firma-jefe"/>
+          <wp:cNvGraphicFramePr>
+            <a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/>
+          </wp:cNvGraphicFramePr>
+          <a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
+            <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">
+              <pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
+                <pic:nvPicPr>
+                  <pic:cNvPr id="1002" name="firma-jefe"/>
+                  <pic:cNvPicPr/>
+                </pic:nvPicPr>
+                <pic:blipFill>
+                  <a:blip r:embed="rId8" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"/>
+                  <a:stretch><a:fillRect/></a:stretch>
+                </pic:blipFill>
+                <pic:spPr>
+                  <a:xfrm><a:off x="0" y="0"/><a:ext cx="1244600" cy="594360"/></a:xfrm>
+                  <a:prstGeom prst="rect"><a:avLst/></a:prstGeom>
+                </pic:spPr>
+              </pic:pic>
+            </a:graphicData>
+          </a:graphic>
+        </wp:inline>
+      </w:drawing>
+    </w:r>`;
+
+  const bodyXml = `
+    ${/* Ciudad y fecha */''}
+    ${pTxt(run(`Santiago de Cali,  ${fechaLarga}`, true), '<w:jc w:val="center"/>')}
+
+    ${/* Título */''}
+    <w:p><w:pPr><w:pStyle w:val="Ttulo"/></w:pPr></w:p>
+    <w:p><w:pPr><w:pStyle w:val="Ttulo"/></w:pPr>
+      ${run('                 ACTA DE ENTREGA', true)}
+    </w:p>
+
+    ${espXml()}
+
+    ${/* Ref */''}
+    ${pTxt(run(`Ref: ${esc(request.request_number)}`, false, '888888'))}
+
+    ${/* Datos usuario */''}
+    ${seccionXml('Datos del usuario responsable')}
+    ${campoXml('Fecha de entrega:', fechaCorta)}
+    ${campoXml('Nombres y apellidos:', request.requester_name)}
+    ${campoXml('ID:', request.cedula)}
+    ${campoXml('Área:', `${request.cargo}  /  ${request.sede}`)}
+
+    ${espXml()}
+
+    ${/* Equipos */''}
+    ${seccionXml('Descripción de equipos entregados')}
+    ${espXml()}
+    ${tablaEquipos}
+    ${espXml()}
+
+    ${/* Accesorios */''}
+    ${campoXml('Accesorios que se asignan:', accesorios || 'Ninguno')}
+    ${observaciones ? campoXml('Observaciones:', observaciones) : ''}
+
+    ${espXml()}
+
+    ${/* Cláusula */''}
+    ${seccionXml('Cláusula de compromiso')}
+
+    <w:p><w:pPr><w:pStyle w:val="Textoindependiente"/><w:numPr><w:ilvl w:val="0"/><w:numId w:val="1"/></w:numPr></w:pPr>
+      <w:r><w:rPr><w:b/><w:bCs/></w:rPr><w:t xml:space="preserve">Responsabilidad por el equipo: </w:t></w:r>
+      <w:r><w:t>Es responsable por cualquier p&#233;rdida, da&#241;o, robo o deterioro del equipo y deber&#225; cubrir el costo total de su reparaci&#243;n o reemplazo.</w:t></w:r>
+    </w:p>
+
+    <w:p><w:pPr><w:pStyle w:val="Textoindependiente"/><w:numPr><w:ilvl w:val="0"/><w:numId w:val="1"/></w:numPr></w:pPr>
+      <w:r><w:rPr><w:b/><w:bCs/></w:rPr><w:t xml:space="preserve">Reporte de incidentes: </w:t></w:r>
+      <w:r><w:t>En caso de robo o fallas t&#233;cnicas, se debe comunicar lo m&#225;s pronto posible a la Subgerencia de Log&#237;stica y Control Patrimonial.</w:t></w:r>
+    </w:p>
+
+    <w:p><w:pPr><w:pStyle w:val="Textoindependiente"/><w:numPr><w:ilvl w:val="0"/><w:numId w:val="1"/></w:numPr></w:pPr>
+      <w:r><w:rPr><w:b/><w:bCs/></w:rPr><w:t xml:space="preserve">Devoluci&#243;n completa: </w:t></w:r>
+      <w:r><w:t>El equipo debe devolverse con todos los accesorios originales con los que fue entregado (cargador, manual, memoria auxiliar, manos libres, bater&#237;a, cable USB, etc.), con los cu&#225;l fue asignado.</w:t></w:r>
+    </w:p>
+
+    ${espXml()}
+
+    ${/* Firmas */''}
+    ${pTxt(run('Firman en conformidad.'))}
+
+    ${/* Imagen firma jefe (izquierda) + espacio para quien recibe (derecha) */''}
+    <w:p>
+      <w:pPr><w:pStyle w:val="Textoindependiente"/><w:spacing w:before="400"/><w:tabs><w:tab w:val="left" w:pos="5000"/></w:tabs></w:pPr>
+      ${firmaJefeImgXml}
+    </w:p>
+
+    ${/* Líneas de firma */''}
+    <w:p>
+      <w:pPr><w:pStyle w:val="Textoindependiente"/><w:tabs><w:tab w:val="left" w:pos="5000"/></w:tabs></w:pPr>
+      ${run('____________________')}
+      <w:r><w:tab/></w:r>
+      ${run('_____________________')}
+    </w:p>
+
+    <w:p>
+      <w:pPr><w:pStyle w:val="Textoindependiente"/><w:tabs><w:tab w:val="left" w:pos="5000"/></w:tabs></w:pPr>
+      ${run('Jefe de Soporte', false, '555555')}
+      <w:r><w:tab/></w:r>
+      ${run(esc(request.requester_name), true)}
+    </w:p>
+
+    <w:p>
+      <w:pPr><w:pStyle w:val="Textoindependiente"/><w:tabs><w:tab w:val="left" w:pos="5000"/></w:tabs></w:pPr>
+      ${run('', false, '888888')}
+      <w:r><w:tab/></w:r>
+      ${run('Quien recibe', false, '555555')}
+    </w:p>
+
+    <w:sectPr/>
+  `;
+
+  /* ── 2. Inyectar en la plantilla ──────────────────────────── */
+  if (!fs.existsSync(TEMPLATE)) {
+    throw new Error(`Plantilla no encontrada: ${TEMPLATE}`);
+  }
+
+  const templateZip  = new AdmZip(TEMPLATE);
+  let   templateDocXml = templateZip.readAsText('word/document.xml');
+
+  // Reemplazar el cuerpo manteniendo los namespaces originales
+  templateDocXml = templateDocXml.replace(
+    /<w:body>[\s\S]*<\/w:body>/,
+    `<w:body>${bodyXml}</w:body>`
+  );
+
+  templateZip.updateFile('word/document.xml', Buffer.from(templateDocXml, 'utf-8'));
+
+  return templateZip.toBuffer();
 }
