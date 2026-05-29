@@ -139,6 +139,20 @@ CREATE TABLE IF NOT EXISTS tech_request_items (
     FOREIGN KEY (request_id) REFERENCES tech_requests(id) ON DELETE CASCADE
 );
 
+-- ═══════════════════════════════════════════════════════════════
+-- MÓDULO: RED DE PUNTOS (sedes administrables desde el panel)
+-- ═══════════════════════════════════════════════════════════════
+
+CREATE TABLE IF NOT EXISTS sedes (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    ciudad      TEXT NOT NULL,
+    nombre_punto TEXT NOT NULL,
+    activo      INTEGER DEFAULT 1,
+    created_at  TEXT DEFAULT (datetime('now','localtime'))
+);
+CREATE INDEX IF NOT EXISTS idx_sedes_ciudad ON sedes(ciudad);
+CREATE INDEX IF NOT EXISTS idx_sedes_activo ON sedes(activo);
+
 -- Índices para búsquedas rápidas
 CREATE INDEX IF NOT EXISTS idx_tickets_status ON tickets(status);
 CREATE INDEX IF NOT EXISTS idx_tickets_area ON tickets(area);
