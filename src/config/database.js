@@ -24,6 +24,7 @@ db.exec(schema);
 // Migraciones incrementales (columnas nuevas en tablas existentes)
 const migrations = [
   `ALTER TABLE tickets ADD COLUMN title TEXT DEFAULT ''`,
+  `ALTER TABLE conversations ADD COLUMN warned_inactive INTEGER DEFAULT 0`,
 ];
 for (const sql of migrations) {
   try { db.exec(sql); } catch { /* columna ya existe */ }
