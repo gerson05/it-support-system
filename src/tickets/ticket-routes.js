@@ -7,7 +7,7 @@ import {
   addMessage,
   addInternalNote
 } from './ticket-model.js';
-import { sendWhatsAppMessage } from '../whatsapp/messenger.js';
+import { sendWhatsAppMessage, sendWhatsAppImage } from '../whatsapp/messenger.js';
 import { appEvents } from '../events/broadcaster.js';
 
 const router = express.Router();
@@ -161,6 +161,36 @@ router.post('/api/tickets/:id/notes', (req, res) => {
   } catch (error) {
     console.error('Error en POST /api/tickets/:id/notes:', error);
     res.status(500).json({ error: 'Error interno al agregar la nota.' });
+  }
+});
+
+/* ── Enviar imagen al usuario del ticket por WhatsApp ── */
+router.post('/api/tickets/:id/send-image', async (req, res) => {
+  try {
+    const ticketId = parseInt(req.params.id);
+    const ticket   = getTicketById(db, ticketId);
+    if (!ticket) return res.status(404).json({ error: 'Ticket no encontrado.' });
+
+    const { base64, mimetype = 'image/jpeg', caption = '', agentName = 'Agente IT' } = req.body;
+    if (!base64) return res.status(400).json({ error: 'Se requiere la imagen en base64.' });
+
+    // Enviar por WhatsApp
+    const result = await sendWhatsAppImage(ticket.phone, base64, mimetype, caption);
+
+    // Guardar en historial del ticket con attachment
+    const attachment = JSON.stringify({ type: 'image', mimetype, caption });
+    db.prepare(`
+      INSERT INTO messages (ticket_id, sender_type, sender_name, content, attachment)
+      VALUES (?, 'agent', ?, ?, ?)
+    `).run(ticketId, agentName, caption || '[Imagen]', attachment);
+
+    db.prepare(`UPDATE tickets SET updated_at = datetime('now','localtime') WHERE id = ?`).run(ticketId);
+    appEvents.emit('ticket:message', { ticketId });
+
+    res.json({ success: true, simulation: result.simulation });
+  } catch (err) {
+    console.error('Error en POST /api/tickets/:id/send-image:', err);
+    res.status(500).json({ error: 'Error al enviar la imagen.' });
   }
 });
 
