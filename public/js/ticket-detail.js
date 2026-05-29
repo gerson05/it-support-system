@@ -144,11 +144,12 @@ export async function renderTicketDetail(container, ticketId) {
                 <div class="form-group" style="margin-bottom: 0;">
                   <label for="change-status">Estado del Ticket</label>
                   <select id="change-status">
-                    <option value="abierto" ${ticket.status === 'abierto' ? 'selected' : ''}>Abierto</option>
-                    <option value="en_progreso" ${ticket.status === 'en_progreso' ? 'selected' : ''}>En Progreso</option>
-                    <option value="en_espera" ${ticket.status === 'en_espera' ? 'selected' : ''}>En Espera</option>
-                    <option value="resuelto" ${ticket.status === 'resuelto' ? 'selected' : ''}>Resuelto</option>
-                    <option value="cerrado" ${ticket.status === 'cerrado' ? 'selected' : ''}>Cerrado</option>
+                    <option value="siguiente_dia" ${ticket.status === 'siguiente_dia' ? 'selected' : ''}>Siguiente día</option>
+                    <option value="abierto"       ${ticket.status === 'abierto'       ? 'selected' : ''}>Abierto</option>
+                    <option value="en_progreso"   ${ticket.status === 'en_progreso'   ? 'selected' : ''}>En Progreso</option>
+                    <option value="en_espera"     ${ticket.status === 'en_espera'     ? 'selected' : ''}>En Espera</option>
+                    <option value="resuelto"      ${ticket.status === 'resuelto'      ? 'selected' : ''}>Resuelto</option>
+                    <option value="cerrado"       ${ticket.status === 'cerrado'       ? 'selected' : ''}>Cerrado</option>
                   </select>
                 </div>
 

@@ -32,6 +32,7 @@ export async function renderTicketList(container) {
           <label for="filter-status">Estado</label>
           <select id="filter-status">
             <option value="">Todos</option>
+            <option value="siguiente_dia">Siguiente día</option>
             <option value="abierto">Abiertos</option>
             <option value="en_progreso">En Progreso</option>
             <option value="en_espera">En Espera</option>

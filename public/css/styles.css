@@ -591,10 +591,11 @@ body {
 .badge-completado { background:rgba(16,185,129,.12);  color:#34d399; }
 .badge-rechazado  { background:rgba(239,68,68,.12);   color:#f87171; }
 
-.badge-baja    { background:rgba(16,185,129,.12);  color:#34d399; }
-.badge-media   { background:rgba(245,158,11,.12);  color:#fbbf24; }
-.badge-alta    { background:rgba(239,68,68,.12);   color:#f87171; }
-.badge-critica { background:rgba(185,28,28,.15);   color:#fca5a5; }
+.badge-baja         { background:rgba(16,185,129,.12);  color:#34d399; }
+.badge-media        { background:rgba(245,158,11,.12);  color:#fbbf24; }
+.badge-alta         { background:rgba(239,68,68,.12);   color:#f87171; }
+.badge-critica      { background:rgba(185,28,28,.15);   color:#fca5a5; }
+.badge-siguiente_dia{ background:rgba(99,102,241,.12);  color:#a5b4fc; }
 
 /* ==========================================================================
    TABLES

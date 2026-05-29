@@ -5,6 +5,48 @@ import { matchCiudad, getPuntosCiudad, displaySede } from './sedes.js';
 import { searchFaqsAll }     from '../knowledge/faq-service.js';
 
 /* ─────────────────────────────────────────────────────────────
+   HORARIO DE ATENCIÓN (Colombia, UTC-5, sin DST)
+   Lunes–Viernes  7:00 – 16:40
+   Pre-cierre     16:20 – 16:40  (aviso de agendamiento)
+   ───────────────────────────────────────────────────────────── */
+
+/** Hora actual en Colombia (UTC-5) */
+function _coNow() {
+  const now = new Date();
+  const utcMs = now.getTime() + now.getTimezoneOffset() * 60_000;
+  return new Date(utcMs - 5 * 3_600_000);
+}
+
+/**
+ * Devuelve el estado del horario:
+ *   'open'    — dentro del horario normal
+ *   'closing' — últimos 20 min antes del cierre (16:20–16:40)
+ *   'closed'  — fuera del horario (antes de las 7, después de las 16:40, fines de semana)
+ */
+function getBusinessStatus() {
+  const co  = _coNow();
+  const day = co.getDay(); // 0=Dom, 6=Sáb
+  if (day === 0 || day === 6) return 'closed';
+
+  const min = co.getHours() * 60 + co.getMinutes();
+  if (min < 7 * 60)          return 'closed';   // antes de 7:00
+  if (min >= 16 * 60 + 40)   return 'closed';   // después de 16:40
+  if (min >= 16 * 60 + 20)   return 'closing';  // 16:20–16:40
+  return 'open';
+}
+
+/** Próximo día hábil en español */
+function _nextBusinessDay() {
+  const co   = _coNow();
+  const next = new Date(co);
+  do { next.setDate(next.getDate() + 1); }
+  while (next.getDay() === 0 || next.getDay() === 6);
+  const DAYS   = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+  const MONTHS = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  return `${DAYS[next.getDay()]} ${next.getDate()} de ${MONTHS[next.getMonth()]}`;
+}
+
+/* ─────────────────────────────────────────────────────────────
    Rate limiting: máximo 20 mensajes por minuto por número
    ───────────────────────────────────────────────────────────── */
 const _rateMap = new Map();
@@ -193,10 +235,27 @@ export class Chatbot {
     try {
 
       /* ══════════════════════════════════════════════════════
-         MENÚ INICIAL
+         MENÚ INICIAL — con verificación de horario
          ══════════════════════════════════════════════════════ */
       if (step === 'idle' || isCommand) {
-        this._setStep(db, phone, 'select_type', null, '{}');
+        const bizStatus = getBusinessStatus();
+
+        if (bizStatus !== 'open') {
+          // Fuera de horario o pre-cierre → redirigir a flujo OOS
+          const isClosing = bizStatus === 'closing';
+          this._setStep(db, phone, 'oos_name', null, '{}');
+          response = isClosing
+            ? `⚠️ *Estamos a punto de cerrar*\n\n` +
+              `Nuestro horario de atención termina a las *4:40 PM*.\n` +
+              `Tu caso quedará agendado para el *${_nextBusinessDay()}* a las 7:00 AM.\n\n` +
+              `¿Cuál es tu nombre completo?`
+            : `⏰ *Fuera de horario de atención*\n\n` +
+              `Nuestro equipo de IT atiende de *lunes a viernes de 7:00 AM a 4:40 PM*.\n\n` +
+              `Tu caso quedará registrado y será atendido el *${_nextBusinessDay()}* a primera hora.\n\n` +
+              `¿Cuál es tu nombre completo?`;
+        } else {
+          // Horario normal
+          this._setStep(db, phone, 'select_type', null, '{}');
         response =
           `🖥️ *¡Hola! Soy el asistente de IT* 🤖\n\n` +
           `¿En qué te puedo ayudar hoy?\n\n` +
@@ -205,6 +264,46 @@ export class Chatbot {
           `*3️⃣* ⚠️ Voy a *enviar un equipo con falla* (incidencia)\n\n` +
           `_Responde con el número de tu opción._\n\n` +
           `💡 Escribe *estado* en cualquier momento para consultar tus tickets.`;
+        } // fin else horario normal
+
+      /* ══════════════════════════════════════════════════════
+         FLUJO FUERA DE HORARIO — nombre del solicitante
+         ══════════════════════════════════════════════════════ */
+      } else if (step === 'oos_name') {
+        const ctx = this._ctx(session);
+        ctx.name = text.trim();
+        this._setStep(db, phone, 'oos_desc', null, JSON.stringify(ctx));
+        response =
+          `✅ Gracias, *${ctx.name}*.\n\n` +
+          `📝 Descríbeme brevemente el problema o lo que necesitas.\n` +
+          `_(Lo atenderemos el *${_nextBusinessDay()}* a partir de las 7:00 AM)_`;
+
+      /* ══════════════════════════════════════════════════════
+         FLUJO FUERA DE HORARIO — descripción y cierre de ticket
+         ══════════════════════════════════════════════════════ */
+      } else if (step === 'oos_desc') {
+        const ctx      = this._ctx(session);
+        const title    = await generateTicketTitle('general', text);
+        const dateStr  = new Date().toISOString().slice(0,10).replace(/-/g,'');
+        const last     = db.prepare(`SELECT ticket_number FROM tickets WHERE ticket_number LIKE ? ORDER BY id DESC LIMIT 1`).get(`TK-${dateStr}-%`);
+        const nextNum  = last ? parseInt(last.ticket_number.split('-')[2]) + 1 : 1;
+        const ticketNumber = `TK-${dateStr}-${String(nextNum).padStart(3,'0')}`;
+
+        db.prepare(`
+          INSERT INTO tickets (ticket_number, phone, requester_name, area, description, title, status, priority)
+          VALUES (?, ?, ?, 'general', ?, ?, 'siguiente_dia', 'media')
+        `).run(ticketNumber, phone, ctx.name || 'Sin nombre', text, title);
+
+        const { id: ticketId } = db.prepare(`SELECT last_insert_rowid() as id`).get();
+        db.prepare(`INSERT INTO messages (ticket_id, sender_type, content) VALUES (?, 'user', ?)`).run(ticketId, text);
+        appEvents.emit('ticket:created', { id: ticketId, ticket_number: ticketNumber, area: 'general', phone });
+
+        this._setStep(db, phone, 'idle', null, '{}');
+        response =
+          `✅ *Caso agendado para el ${_nextBusinessDay()}*\n\n` +
+          `🎟️ Número de caso: *${ticketNumber}*\n` +
+          `👤 Nombre: ${ctx.name}\n\n` +
+          `Nuestro equipo lo atenderá a primera hora. ¡Gracias por tu paciencia! 🙏`;
 
       /* ══════════════════════════════════════════════════════
          SELECCIÓN DE TIPO
