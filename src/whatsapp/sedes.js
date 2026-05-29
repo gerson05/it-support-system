@@ -68,6 +68,7 @@ export const CIUDADES = {
   'BUGALAGRANDE':           ['MI FARMACIA - DROGUERIA SINALTRAFARMA - BUGALAGRANDE'],
   'CAICEDONIA':             ['MI FARMACIA - CAICEDONIA'],
   'CALI':                   [
+    'MEDIVALLE - SEDE PRINCIPAL',
     'MI FARMACIA - CALI SUR',
     'MI FARMACIA - CALI NORTE',
     'MI FARMACIA - CALI AIC',
@@ -136,6 +137,7 @@ export const CIUDADES = {
   'YUMBO':                  [
     'MI FARMACIA - YUMBO',
     'DROGUERIA RAPI DROGAS - YUMBO',
+    'MEDIVALLE - BODEGA YUMBO',
   ],
   'ZARZAL':                 ['MI FARMACIA - DROGUERIA SAN LUIS - ZARZAL'],
   'SELIA':                  ['SELIA'],
