@@ -30,24 +30,28 @@ export function createTicketRow(ticket) {
   const emoji = getAreaEmoji(ticket.area);
   const areaName = getAreaName(ticket.area);
   const agentName = ticket.agent_name || '<span class="text-muted">Sin asignar</span>';
-  
+  const title = ticket.title?.trim()
+    ? ticket.title
+    : (ticket.description || '').slice(0, 60) + ((ticket.description?.length > 60) ? '…' : '');
+
   return `
     <tr onclick="window.location.hash = '#ticket/${ticket.id}'">
-      <td style="font-weight: 700; color: #667eea;">${ticket.ticket_number}</td>
+      <td style="font-weight:700;color:#667eea;white-space:nowrap;">${ticket.ticket_number}</td>
       <td>
-        <span class="flex-align" style="display: flex; align-items: center; gap: 8px;">
+        <span style="display:flex;align-items:center;gap:8px;">
           <span>${emoji}</span>
           <span>${areaName}</span>
         </span>
       </td>
-      <td>
-        <div style="font-weight: 500;">${ticket.requester_name || 'Sin nombre'}</div>
-        <div style="font-size: 11px; color: var(--text-muted);">${ticket.phone}</div>
+      <td style="max-width:280px;">
+        <div style="font-weight:600;font-size:13px;color:var(--text-primary);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"
+             title="${(ticket.title || '').replace(/"/g, '&quot;')}">${title}</div>
+        <div style="font-size:11px;color:var(--text-muted);">👤 ${ticket.requester_name || 'Sin nombre'} · ${ticket.phone}</div>
       </td>
       <td>${getPriorityBadge(ticket.priority)}</td>
       <td>${getStatusBadge(ticket.status)}</td>
       <td>👤 ${agentName}</td>
-      <td style="color: var(--text-muted); font-size: 13px;">${formatDate(ticket.updated_at)}</td>
+      <td style="color:var(--text-muted);font-size:13px;white-space:nowrap;">${formatDate(ticket.updated_at)}</td>
     </tr>
   `;
 }
