@@ -1,7 +1,7 @@
 import { getAISolution, getAISolutionFromImage, generateTicketTitle } from './gemini-service.js';
 import { appEvents }         from '../events/broadcaster.js';
 import { createTechRequest } from '../tech-requests/tech-request-model.js';
-import { matchCiudad, CIUDADES, displaySede } from './sedes.js';
+import { matchCiudad, getPuntosCiudad, displaySede } from './sedes.js';
 import { searchFaqsAll }     from '../knowledge/faq-service.js';
 
 /* ─────────────────────────────────────────────────────────────
@@ -210,7 +210,7 @@ export class Chatbot {
          ══════════════════════════════════════════════════════ */
       } else if (step === 'ask_ciudad') {
         const ctx      = this._ctx(session);
-        const ciudades = matchCiudad(text);
+        const ciudades = matchCiudad(text, db);
 
         if (ciudades.length === 0) {
           response =
@@ -228,7 +228,7 @@ export class Chatbot {
         } else {
           // Ciudad única encontrada
           const ciudad = ciudades[0];
-          const puntos = CIUDADES[ciudad];
+          const puntos = getPuntosCiudad(ciudad, db);
 
           if (puntos.length === 1) {
             // Un solo punto → seleccionar automáticamente
@@ -257,7 +257,7 @@ export class Chatbot {
 
         if (idx >= 0 && idx < cands.length) {
           const ciudad = cands[idx];
-          const puntos = CIUDADES[ciudad];
+          const puntos = getPuntosCiudad(ciudad, db);
           delete ctx.ciudad_candidates;
           ctx.ciudad = ciudad;
 

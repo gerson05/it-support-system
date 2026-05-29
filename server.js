@@ -9,6 +9,7 @@ import ticketRouter from './src/tickets/ticket-routes.js';
 import metricsRouter from './src/metrics/metrics-routes.js';
 import techRequestRouter from './src/tech-requests/tech-request-routes.js';
 import faqRouter from './src/knowledge/faq-routes.js';
+import sedesRouter from './src/sedes/sedes-routes.js';
 import Chatbot from './src/whatsapp/chatbot.js';
 import whatsappClient from './src/whatsapp/baileys-client.js';
 import { addSseClient, removeSseClient } from './src/events/broadcaster.js';
@@ -34,6 +35,7 @@ app.use(ticketRouter);
 app.use(metricsRouter);
 app.use(techRequestRouter);
 app.use(faqRouter);
+app.use(sedesRouter);
 
 // Al arrancar, resetear todas las conversaciones al estado inicial para
 // evitar que sesiones del flujo viejo interfieran con el nuevo menú.

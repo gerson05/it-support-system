@@ -29,4 +29,15 @@ for (const sql of migrations) {
   try { db.exec(sql); } catch { /* columna ya existe */ }
 }
 
+// Poblar tabla sedes desde datos estáticos si está vacía
+const sedesCount = db.prepare('SELECT COUNT(*) as n FROM sedes').get().n;
+if (sedesCount === 0) {
+  const { CIUDADES } = await import('../whatsapp/sedes.js');
+  const ins = db.prepare('INSERT INTO sedes (ciudad, nombre_punto) VALUES (?, ?)');
+  for (const [ciudad, puntos] of Object.entries(CIUDADES)) {
+    for (const punto of puntos) ins.run(ciudad, punto);
+  }
+  console.log(`[DB] Red de puntos inicializada: ${db.prepare('SELECT COUNT(*) as n FROM sedes').get().n} puntos.`);
+}
+
 export default db;

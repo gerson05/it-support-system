@@ -152,18 +152,30 @@ function normC(str) {
  * Busca ciudades que coincidan con el texto del usuario.
  * Devuelve array de nombres de ciudad (keys de CIUDADES).
  */
-export function matchCiudad(input) {
+/**
+ * Busca ciudades desde la DB. Si no hay DB disponible, usa CIUDADES estático.
+ * @param {string} input - texto del usuario
+ * @param {object|null} db - instancia DatabaseSync (opcional)
+ */
+export function matchCiudad(input, db = null) {
   const q = normC(input);
   if (!q || q.length < 2) return [];
 
-  const exact    = [];
-  const contains = [];
-  const partial  = [];
+  // Obtener lista de ciudades (de DB si está disponible, o del mapa estático)
+  let ciudadList;
+  if (db) {
+    try {
+      ciudadList = db.prepare(`SELECT DISTINCT ciudad FROM sedes WHERE activo=1 ORDER BY ciudad`).all().map(r => r.ciudad);
+    } catch { ciudadList = Object.keys(CIUDADES); }
+  } else {
+    ciudadList = Object.keys(CIUDADES);
+  }
 
-  for (const ciudad of Object.keys(CIUDADES)) {
+  const exact = [], contains = [], partial = [];
+  for (const ciudad of ciudadList) {
     const key = normC(ciudad);
-    if (key === q)              { exact.push(ciudad);    continue; }
-    if (key.includes(q) || q.includes(key)) { contains.push(ciudad); continue; }
+    if (key === q)                             { exact.push(ciudad);    continue; }
+    if (key.includes(q) || q.includes(key))   { contains.push(ciudad); continue; }
     const qWords = q.split(/\s+/).filter(w => w.length >= 3);
     const kWords = key.split(/\s+/);
     if (qWords.length > 0) {
@@ -177,6 +189,20 @@ export function matchCiudad(input) {
     if (seen.has(c)) return false;
     seen.add(c); return true;
   }).slice(0, 6);
+}
+
+/**
+ * Devuelve los puntos activos de una ciudad desde la DB.
+ * Fallback al mapa estático si no hay DB.
+ */
+export function getPuntosCiudad(ciudad, db = null) {
+  if (db) {
+    try {
+      const rows = db.prepare(`SELECT nombre_punto FROM sedes WHERE ciudad=? AND activo=1 ORDER BY id`).all(ciudad);
+      if (rows.length) return rows.map(r => r.nombre_punto);
+    } catch {}
+  }
+  return CIUDADES[ciudad] || [];
 }
 
 export const SEDES = [
