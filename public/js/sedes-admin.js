@@ -6,8 +6,8 @@ import { showToast } from './components.js';
 export async function renderSedesAdmin(container) {
   container.innerHTML = `
     <div style="margin-bottom:28px;">
-      <h2 style="font-size:22px;font-weight:700;margin-bottom:4px;">🗺️ Red de Puntos</h2>
-      <p style="color:var(--text-muted);font-size:14px;">Administra las ciudades y puntos de atención disponibles en el bot de WhatsApp.</p>
+      <h2 style="font-size:20px;font-weight:700;letter-spacing:-.4px;margin-bottom:4px;">Red de Puntos</h2>
+      <p style="color:var(--text-3);font-size:13px;">Administra las ciudades y puntos de atención disponibles en el bot de WhatsApp.</p>
     </div>
 
     <!-- Formulario agregar -->
