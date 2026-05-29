@@ -13,15 +13,15 @@
 import db from '../config/database.js';
 import { sendWhatsAppMessage } from './messenger.js';
 
-const WARN_AFTER_MIN  = 30;   // minutos sin actividad → aviso
-const CLOSE_AFTER_MIN = 15;   // minutos adicionales sin respuesta → cierre
-const CHECK_INTERVAL_MS = 3 * 60 * 1000; // revisar cada 3 minutos
+const WARN_AFTER_MIN  = 5;    // minutos sin actividad → aviso
+const CLOSE_AFTER_MIN = 10;   // minutos adicionales sin respuesta → cierre
+const CHECK_INTERVAL_MS = 60 * 1000; // revisar cada 1 minuto
 
 let _timer = null;
 
 export function startInactivityMonitor() {
   if (_timer) return; // ya iniciado
-  console.log('[InactivityMonitor] Iniciado — check cada 3 min, aviso a los 30 min, cierre a los 45 min.');
+  console.log('[InactivityMonitor] Iniciado — check cada 1 min, aviso a los 5 min, cierre a los 10 min.');
   _timer = setInterval(_check, CHECK_INTERVAL_MS);
   _check(); // primera revisión inmediata al arrancar
 }
@@ -73,7 +73,7 @@ async function _check() {
         await sendWhatsAppMessage(conv.phone,
           `⏳ ¿Sigues ahí? Llevas un momento sin responder.\n\n` +
           `Si deseas continuar, responde cualquier cosa.\n` +
-          `Si no, en *${CLOSE_AFTER_MIN} minutos* cerraré esta sesión automáticamente.\n\n` +
+          `Si no, en *${CLOSE_AFTER_MIN} minutos* cerramos esta sesión.\n\n` +
           `_(Escribe *menu* para volver al inicio)_`
         );
       } catch { /* no bloquear si falla el envío */ }
