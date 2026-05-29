@@ -10,10 +10,37 @@ export async function renderSedesAdmin(container) {
       <p style="color:var(--text-3);font-size:13px;">Administra las ciudades y puntos de atención disponibles en el bot de WhatsApp.</p>
     </div>
 
+    <!-- Barra de búsqueda y filtros -->
+    <div class="card" style="margin-bottom:16px;padding:16px 20px;">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <!-- Búsqueda principal -->
+        <div style="flex:1;min-width:200px;position:relative;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+            style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text-3);pointer-events:none;">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input type="text" id="sede-search" placeholder="Buscar ciudad o punto de atención…"
+            style="padding-left:32px;width:100%;padding-top:8px;padding-bottom:8px;padding-right:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;font-family:inherit;outline:none;box-sizing:border-box;"
+            onfocus="this.style.borderColor='var(--border-focus)';this.style.boxShadow='0 0 0 3px var(--primary-light)'"
+            onblur="this.style.borderColor='var(--border)';this.style.boxShadow='none'">
+        </div>
+        <!-- Filtro por inicial -->
+        <select id="sede-filter-letter" style="padding:8px 12px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;font-family:inherit;outline:none;cursor:pointer;min-width:130px;">
+          <option value="">Todas las letras</option>
+        </select>
+        <!-- Toggle inactivos -->
+        <label style="display:flex;align-items:center;gap:7px;font-size:13px;color:var(--text-2);cursor:pointer;white-space:nowrap;">
+          <input type="checkbox" id="show-inactive" style="accent-color:var(--primary);width:14px;height:14px;"> Mostrar inactivos
+        </label>
+        <!-- Contador -->
+        <span id="sede-count" style="font-size:12px;color:var(--text-3);white-space:nowrap;"></span>
+      </div>
+    </div>
+
     <!-- Formulario agregar -->
-    <div class="card" style="margin-bottom:24px;padding:24px;">
-      <h4 style="font-size:14px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:16px;">＋ Agregar Nuevo Punto</h4>
-      <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end;">
+    <div class="card" style="margin-bottom:16px;">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-3);margin-bottom:14px;">Agregar nuevo punto</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end;">
         <div class="form-group" style="margin:0;">
           <label>Ciudad</label>
           <input type="text" id="new-sede-ciudad" placeholder="Ej: CALI, MANIZALES…" autocomplete="off" style="text-transform:uppercase;">
@@ -22,18 +49,8 @@ export async function renderSedesAdmin(container) {
           <label>Nombre del punto</label>
           <input type="text" id="new-sede-punto" placeholder="Ej: MI FARMACIA - CALI CENTRO" autocomplete="off">
         </div>
-        <button class="btn btn-primary" id="btn-add-sede" style="height:42px;padding:0 20px;">Agregar</button>
+        <button class="btn btn-primary" id="btn-add-sede" style="height:38px;padding:0 18px;">Agregar</button>
       </div>
-    </div>
-
-    <!-- Buscador -->
-    <div style="margin-bottom:16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
-      <input type="text" id="sede-search" placeholder="🔍 Buscar ciudad o punto…"
-        style="flex:1;min-width:200px;padding:9px 14px;background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:8px;color:var(--text-primary);font-size:13px;">
-      <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-muted);cursor:pointer;">
-        <input type="checkbox" id="show-inactive" style="accent-color:var(--primary);"> Mostrar inactivos
-      </label>
-      <span id="sede-count" style="font-size:13px;color:var(--text-muted);"></span>
     </div>
 
     <!-- Lista de sedes -->
@@ -48,6 +65,14 @@ export async function renderSedesAdmin(container) {
       const res  = await fetch('/api/sedes');
       const data = await res.json();
       allData = data.grouped;
+      // Poblar select de letras
+      const letterSel = document.getElementById('sede-filter-letter');
+      if (letterSel) {
+        const letters = [...new Set(Object.keys(allData).map(c => c[0]))].sort();
+        letterSel.innerHTML = `<option value="">Todas las letras</option>` +
+          letters.map(l => `<option value="${l}">${l}</option>`).join('');
+        letterSel.addEventListener('change', renderList);
+      }
       renderList();
     } catch {
       showToast('Error al cargar sedes', 'error');
@@ -55,7 +80,8 @@ export async function renderSedesAdmin(container) {
   }
 
   function renderList() {
-    const search  = (document.getElementById('sede-search')?.value || '').toLowerCase();
+    const search  = (document.getElementById('sede-search')?.value || '').toLowerCase().trim();
+    const letter  = document.getElementById('sede-filter-letter')?.value || '';
     const listEl  = document.getElementById('sedes-list');
     const countEl = document.getElementById('sede-count');
     if (!listEl) return;
@@ -65,15 +91,19 @@ export async function renderSedesAdmin(container) {
     let html = '';
 
     for (const ciudad of ciudades) {
+      // Filtro por letra inicial
+      if (letter && ciudad[0] !== letter) continue;
+
       let puntos = allData[ciudad];
       if (!showInactive) puntos = puntos.filter(p => p.activo);
+
+      // Filtro por texto
       if (search) {
-        if (!ciudad.toLowerCase().includes(search) &&
-            !puntos.some(p => p.nombre_punto.toLowerCase().includes(search))) continue;
-        puntos = puntos.filter(p =>
-          ciudad.toLowerCase().includes(search) ||
-          p.nombre_punto.toLowerCase().includes(search)
-        );
+        const ciudadMatch = ciudad.toLowerCase().includes(search);
+        if (!ciudadMatch && !puntos.some(p => p.nombre_punto.toLowerCase().includes(search))) continue;
+        if (!ciudadMatch) {
+          puntos = puntos.filter(p => p.nombre_punto.toLowerCase().includes(search));
+        }
       }
       if (!puntos.length) continue;
       totalPuntos += puntos.length;
