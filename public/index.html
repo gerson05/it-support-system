@@ -3,124 +3,139 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IT Support - Panel de Gestión</title>
-  <!-- Google Fonts: Inter -->
+  <title>IT Support — Panel de Gestión</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <!-- Archivo de Estilos Principal -->
   <link rel="stylesheet" href="css/styles.css">
-  <!-- Chart.js para gráficas en el dashboard -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 <body>
 
-  <!-- Overlay para cerrar el sidebar en móvil -->
   <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
-  <!-- Sidebar Lateral de Navegación -->
+  <!-- Sidebar -->
   <aside class="sidebar">
+
+    <!-- Brand -->
     <div class="sidebar-brand">
-      <div class="brand-logo">🖥️</div>
+      <div class="brand-logo">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+             fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/>
+          <line x1="12" y1="17" x2="12" y2="21"/>
+        </svg>
+      </div>
       <div class="brand-text">
         <h1>IT Support</h1>
         <span>Panel de Gestión</span>
       </div>
     </div>
-    
+
+    <!-- Nav -->
     <nav class="sidebar-menu">
-      <a href="#dashboard" class="menu-item active" id="nav-dashboard" data-label="Dashboard">
-        <span class="menu-icon">📊</span>
+      <a href="#dashboard" class="menu-item active" id="nav-dashboard">
+        <span class="menu-icon"><i data-lucide="layout-dashboard" class="lucide"></i></span>
         <span class="menu-label">Dashboard</span>
       </a>
-      <a href="#tickets" class="menu-item" id="nav-tickets" data-label="Tickets">
-        <span class="menu-icon">📋</span>
+      <a href="#tickets" class="menu-item" id="nav-tickets">
+        <span class="menu-icon"><i data-lucide="ticket" class="lucide"></i></span>
         <span class="menu-label">Tickets</span>
       </a>
-      <a href="#tech-requests" class="menu-item" id="nav-tech-requests" data-label="Requerimientos">
-        <span class="menu-icon">📦</span>
+      <a href="#tech-requests" class="menu-item" id="nav-tech-requests">
+        <span class="menu-icon"><i data-lucide="package" class="lucide"></i></span>
         <span class="menu-label">Requerimientos</span>
       </a>
-      <a href="#faqs" class="menu-item" id="nav-faqs" data-label="Base de Conocimiento">
-        <span class="menu-icon">📚</span>
+      <a href="#faqs" class="menu-item" id="nav-faqs">
+        <span class="menu-icon"><i data-lucide="book-open" class="lucide"></i></span>
         <span class="menu-label">Base de Conocimiento</span>
       </a>
-      <a href="#sedes" class="menu-item" id="nav-sedes" data-label="Red de Puntos">
-        <span class="menu-icon">🗺️</span>
+      <a href="#sedes" class="menu-item" id="nav-sedes">
+        <span class="menu-icon"><i data-lucide="map-pin" class="lucide"></i></span>
         <span class="menu-label">Red de Puntos</span>
       </a>
-      <a href="#settings" class="menu-item" id="nav-settings" data-label="Configuración">
-        <span class="menu-icon">⚙️</span>
+      <a href="#settings" class="menu-item" id="nav-settings">
+        <span class="menu-icon"><i data-lucide="settings" class="lucide"></i></span>
         <span class="menu-label">Configuración</span>
       </a>
     </nav>
-    
+
     <div class="sidebar-divider"></div>
-    
-    <!-- Estado de WhatsApp -->
+
+    <!-- WhatsApp -->
     <div class="wa-status-sidebar" id="wa-status-sidebar">
-      <label>Conexión WhatsApp</label>
+      <label>WhatsApp</label>
       <div class="wa-connection-status" id="wa-connection-status">
         <span class="wa-status-dot disconnecting" id="wa-status-dot"></span>
         <span id="wa-status-text">Iniciando...</span>
       </div>
-      <button class="btn btn-small btn-secondary" id="btn-wa-connect" style="display:none; margin-top: 8px; font-size: 11px; padding: 6px 12px;">Conectar WhatsApp</button>
+      <button class="btn btn-small btn-secondary" id="btn-wa-connect"
+        style="display:none; margin-top: 8px; width:100%;">Conectar</button>
       <div id="wa-qr-container" style="display:none; margin-top: 10px; text-align: center;">
-        <p style="font-size:11px;color:#f59e0b;margin-bottom:8px;">📱 Escanea con WhatsApp</p>
-        <img id="wa-qr-image" src="" alt="QR Code" style="width: 220px; height: 220px; background: white; padding: 8px; border-radius: 10px; display: block; margin: 0 auto; box-shadow: 0 4px 16px rgba(0,0,0,.5);">
-        <div style="margin-top: 8px; display: flex; gap: 6px;">
-          <textarea id="wa-qr-text" readonly style="flex:1;height:36px;font-size:8px;background:rgba(0,0,0,0.3);border:1px solid var(--glass-border);color:var(--text-muted);padding:4px;border-radius:4px;resize:none;overflow:hidden;" onclick="this.select()"></textarea>
-          <button id="btn-copy-qr" style="font-size:10px;padding:4px 8px;background:var(--primary);color:#fff;border:none;border-radius:4px;cursor:pointer;" title="Copiar QR">📋</button>
+        <p style="font-size:11px;color:#f59e0b;margin-bottom:8px;font-weight:500;">
+          Escanea con WhatsApp
+        </p>
+        <img id="wa-qr-image" src="" alt="QR Code"
+          style="width:220px;height:220px;background:white;padding:8px;border-radius:10px;display:block;margin:0 auto;box-shadow:var(--shadow-lg);">
+        <div style="margin-top:8px;display:flex;gap:6px;">
+          <textarea id="wa-qr-text" readonly onclick="this.select()"
+            style="flex:1;height:36px;font-size:8px;background:var(--surface-2);border:1px solid var(--border);color:var(--text-3);padding:4px;border-radius:4px;resize:none;overflow:hidden;font-family:monospace;"></textarea>
+          <button id="btn-copy-qr" title="Copiar QR"
+            style="padding:4px 10px;background:var(--primary);color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:11px;">
+            Copiar
+          </button>
         </div>
       </div>
     </div>
 
-    <!-- Selector de Agente IT Activo -->
+    <!-- Agente -->
     <div class="agent-selector-container">
       <label for="agent-select">Agente de Turno</label>
       <select id="agent-select" class="agent-select">
-        <!-- Se cargan dinámicamente -->
         <option value="1">Agente 1</option>
         <option value="2">Agente 2</option>
         <option value="3">Agente 3</option>
         <option value="4">Agente 4</option>
       </select>
     </div>
-    
+
     <div class="sidebar-footer">
       <span>v1.0.0</span>
       <span class="pulse-indicator"></span>
     </div>
   </aside>
 
-  <!-- Contenedor Principal de la Aplicación -->
+  <!-- Main -->
   <main class="main-content">
-    <!-- Header Superior -->
     <header class="app-header">
       <div class="header-search">
-        <!-- Botón hamburguesa (visible en móvil) -->
         <button class="hamburger" id="sidebar-toggle" aria-label="Abrir menú">
-          <span></span>
-          <span></span>
-          <span></span>
+          <span></span><span></span><span></span>
         </button>
       </div>
       <div class="header-profile">
-        <span class="agent-badge">🟢 Conectado</span>
+        <span class="agent-badge" id="header-connection-badge">Conectado</span>
         <div class="avatar" id="current-agent-avatar">A</div>
       </div>
     </header>
 
-    <!-- Contenedor dinámico SPA -->
-    <div id="app" class="page-container">
-      <!-- Las páginas se renderizan aquí dinámicamente -->
-    </div>
+    <div id="app" class="page-container"></div>
   </main>
 
-  <!-- Sistema de Toasts para Notificaciones -->
   <div id="toast-container" class="toast-container"></div>
 
-  <!-- Script Principal de la SPA -->
   <script type="module" src="js/app.js"></script>
+  <script>
+    // Inicializar Lucide icons y re-inicializar en cada navegación
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.lucide) lucide.createIcons();
+    });
+    // Re-render icons cuando el SPA cambia de página
+    const _observer = new MutationObserver(() => {
+      if (window.lucide) lucide.createIcons();
+    });
+    _observer.observe(document.getElementById('app') || document.body, { childList: true, subtree: false });
+  </script>
 </body>
 </html>
