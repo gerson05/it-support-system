@@ -224,3 +224,49 @@ FORMATO OBLIGATORIO:
   console.warn('[Gemini Vision] Todos los modelos fallaron.');
   return null;
 }
+
+/**
+ * Genera un título corto (máx. 8 palabras) para un ticket de soporte.
+ * Si Gemini falla, devuelve las primeras palabras de la descripción.
+ */
+export async function generateTicketTitle(area, description) {
+  if (!API_KEY) return _fallbackTitle(description);
+
+  const areaName = AREA_NAMES[area] || 'Soporte IT';
+  const prompt =
+`Genera un título MUY CORTO (máximo 7 palabras) para este ticket de soporte IT en el área de ${areaName}.
+El título debe describir el problema de forma clara y directa, como si fuera el asunto de un correo.
+Solo responde con el título, sin comillas, sin puntos al final.
+
+Problema reportado: "${description.slice(0, 300)}"`;
+
+  const now = Date.now();
+  for (const model of MODELS) {
+    if (_cooldownUntil[model] && now < _cooldownUntil[model]) continue;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${API_KEY}`;
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { maxOutputTokens: 30, temperature: 0.2 },
+        }),
+      });
+      if (!res.ok) {
+        if (res.status === 429) { _cooldownUntil[model] = now + 5 * 60_000; continue; }
+        break;
+      }
+      const data = await res.json();
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+      if (text) return text.replace(/^["']|["']$/g, '').slice(0, 80);
+    } catch { /* continuar */ }
+  }
+  return _fallbackTitle(description);
+}
+
+function _fallbackTitle(description) {
+  const clean = description.replace(/\s+/g, ' ').trim();
+  const words = clean.split(' ').slice(0, 7).join(' ');
+  return words.length < clean.length ? words + '…' : words;
+}

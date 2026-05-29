@@ -21,4 +21,12 @@ const db = new DatabaseSync(dbPath);
 const schema = fs.readFileSync(schemaPath, 'utf8');
 db.exec(schema);
 
+// Migraciones incrementales (columnas nuevas en tablas existentes)
+const migrations = [
+  `ALTER TABLE tickets ADD COLUMN title TEXT DEFAULT ''`,
+];
+for (const sql of migrations) {
+  try { db.exec(sql); } catch { /* columna ya existe */ }
+}
+
 export default db;

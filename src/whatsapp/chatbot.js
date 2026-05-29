@@ -1,4 +1,4 @@
-import { getAISolution, getAISolutionFromImage } from './gemini-service.js';
+import { getAISolution, getAISolutionFromImage, generateTicketTitle } from './gemini-service.js';
 import { appEvents }         from '../events/broadcaster.js';
 import { createTechRequest } from '../tech-requests/tech-request-model.js';
 import { matchCiudad, CIUDADES, displaySede } from './sedes.js';
@@ -310,15 +310,27 @@ export class Chatbot {
             `1️⃣ 💰 Cartera\n2️⃣ 🛒 Compra\n3️⃣ 👥 Gestión Humana\n` +
             `4️⃣ 📋 PQRS\n5️⃣ 📊 Contabilidad\n6️⃣ 💊 Farmacia\n7️⃣ 🏥 Cuentas Médicas`;
         } else {
-          this._setStep(db, phone, 'awaiting_description', area, '{}');
-          const ejemplos = AREA_EXAMPLES[area] || '';
+          this._setStep(db, phone, 'ask_ticket_name', area, '{}');
           response =
             `👍 Área: *${AREA_NAMES[area]}*\n\n` +
-            `📝 *¿Qué problema tienes hoy?*\n\n` +
-            (ejemplos ? `Casos frecuentes en tu área:\n${ejemplos}\n\n` : '') +
-            `Descríbeme el problema con el mayor detalle posible _(programa, mensaje de error, qué hacías)_.\n\n` +
-            `📸 También puedes enviar una *captura de pantalla* del error.`;
+            `👤 *¿Cuál es tu nombre completo?*`;
         }
+
+      /* ══════════════════════════════════════════════════════
+         FLUJO PROBLEMA TÉCNICO — A2: Nombre del solicitante
+         ══════════════════════════════════════════════════════ */
+      } else if (step === 'ask_ticket_name') {
+        const area = session.area || 'general';
+        const ctx  = this._ctx(session);
+        ctx.requester_name = text.trim();
+        this._setStep(db, phone, 'awaiting_description', area, JSON.stringify(ctx));
+        const ejemplos = AREA_EXAMPLES[area] || '';
+        response =
+          `✅ Gracias, *${ctx.requester_name}*.\n\n` +
+          `📝 *¿Qué problema tienes hoy?*\n\n` +
+          (ejemplos ? `Casos frecuentes en tu área:\n${ejemplos}\n\n` : '') +
+          `Descríbeme el problema con el mayor detalle posible _(programa, mensaje de error, qué hacías)_.\n\n` +
+          `📸 También puedes enviar una *captura de pantalla* del error.`;
 
       /* ══════════════════════════════════════════════════════
          FLUJO PROBLEMA TÉCNICO — B: Descripción / imagen
@@ -424,7 +436,7 @@ export class Chatbot {
               `*2️⃣* No, es el mismo — agregar este mensaje al ticket existente`;
           } else {
             const priority = _detectPriority(ctx.description);
-            const ticketId = await this._crearTicket(phone, area, ctx.description || '(sin descripción)', db, priority);
+            const ticketId = await this._crearTicket(phone, area, ctx.description || '(sin descripción)', db, priority, ctx.requester_name);
             this._setStep(db, phone, 'idle', null, '{}');
             const { ticket_number } = db.prepare('SELECT ticket_number FROM tickets WHERE id=?').get(ticketId);
             response =
@@ -459,7 +471,7 @@ export class Chatbot {
 
         if (cleanText === '1') {
           const priority = _detectPriority(ctx.description);
-          const ticketId = await this._crearTicket(phone, area, ctx.description || '(sin descripción)', db, priority);
+          const ticketId = await this._crearTicket(phone, area, ctx.description || '(sin descripción)', db, priority, ctx.requester_name);
           this._setStep(db, phone, 'idle', null, '{}');
           const { ticket_number } = db.prepare('SELECT ticket_number FROM tickets WHERE id=?').get(ticketId);
           response =
@@ -498,7 +510,7 @@ export class Chatbot {
         const detail = /^no$/i.test(cleanText) ? (ctx.description || text) : text;
 
         const priority = _detectPriority(detail);
-        const ticketId = await this._crearTicket(phone, area, detail, db, priority);
+        const ticketId = await this._crearTicket(phone, area, detail, db, priority, ctx.requester_name);
         this._setStep(db, phone, 'idle', null, '{}');
         const { ticket_number } = db.prepare('SELECT ticket_number FROM tickets WHERE id=?').get(ticketId);
         response =
@@ -701,17 +713,20 @@ export class Chatbot {
     try { return JSON.parse(session.context || '{}'); } catch { return {}; }
   }
 
-  async _crearTicket(phone, area, description, db, priority = 'media') {
+  async _crearTicket(phone, area, description, db, priority = 'media', requesterName = 'Empleado WhatsApp') {
     const dateStr      = new Date().toISOString().slice(0, 10).replace(/-/g, '');
     const like         = `TK-${dateStr}-%`;
     const last         = db.prepare('SELECT ticket_number FROM tickets WHERE ticket_number LIKE ? ORDER BY id DESC LIMIT 1').get(like);
     const nextNum      = last ? parseInt(last.ticket_number.split('-')[2]) + 1 : 1;
     const ticketNumber = `TK-${dateStr}-${String(nextNum).padStart(3, '0')}`;
 
+    // Generar título con IA (no bloquea — usa fallback si falla)
+    const title = await generateTicketTitle(area, description);
+
     db.prepare(`
-      INSERT INTO tickets (ticket_number, phone, requester_name, area, description, status, priority)
-      VALUES (?, ?, 'Empleado WhatsApp', ?, ?, 'abierto', ?)
-    `).run(ticketNumber, phone, area, description, priority);
+      INSERT INTO tickets (ticket_number, phone, requester_name, area, description, title, status, priority)
+      VALUES (?, ?, ?, ?, ?, ?, 'abierto', ?)
+    `).run(ticketNumber, phone, requesterName, area, description, title, priority);
 
     const { id: ticketId } = db.prepare('SELECT last_insert_rowid() as id').get();
     db.prepare(`INSERT INTO messages (ticket_id, sender_type, content) VALUES (?, 'user', ?)`)
