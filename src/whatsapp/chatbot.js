@@ -1,7 +1,7 @@
 import { getAISolution, getAISolutionFromImage } from './gemini-service.js';
 import { appEvents }         from '../events/broadcaster.js';
 import { createTechRequest } from '../tech-requests/tech-request-model.js';
-import { matchSede, displaySede } from './sedes.js';
+import { matchCiudad, CIUDADES, displaySede } from './sedes.js';
 import { searchFaqsAll }     from '../knowledge/faq-service.js';
 
 /* ─────────────────────────────────────────────────────────────
@@ -192,11 +192,11 @@ export class Chatbot {
       } else if (step === 'select_type') {
         const typeMap = { '1': 'soporte', '2': 'requerimiento', '3': 'incidencia' };
         if (typeMap[cleanText]) {
-          this._setStep(db, phone, 'ask_sede', null, JSON.stringify({ flowType: cleanText }));
+          this._setStep(db, phone, 'ask_ciudad', null, JSON.stringify({ flowType: cleanText }));
           response =
-            `📍 *¿Desde qué sede o zona nos escribes?*\n\n` +
-            `Escribe el nombre de tu ciudad o punto de servicio.\n` +
-            `_Ej: Manizales, Cali Norte, Dosquebradas, La Virginia_`;
+            `📍 *¿Desde qué ciudad nos escribes?*\n\n` +
+            `Escribe el nombre de tu ciudad.\n` +
+            `_Ej: Cali, Manizales, Pereira, Popayán, Dosquebradas_`;
         } else {
           response =
             `⚠️ Opción no válida. Responde con *1*, *2* o *3*:\n\n` +
@@ -206,42 +206,96 @@ export class Chatbot {
         }
 
       /* ══════════════════════════════════════════════════════
-         PREGUNTA DE SEDE
+         PASO 1: PREGUNTA DE CIUDAD
          ══════════════════════════════════════════════════════ */
-      } else if (step === 'ask_sede') {
-        const ctx     = this._ctx(session);
-        const matches = matchSede(text);
+      } else if (step === 'ask_ciudad') {
+        const ctx      = this._ctx(session);
+        const ciudades = matchCiudad(text);
 
-        if (matches.length === 1) {
-          ctx.sede = matches[0];
-          const { step: ns, msg } = this._routeAfterSede(ctx.flowType, displaySede(ctx.sede));
-          this._setStep(db, phone, ns, null, JSON.stringify(ctx));
-          response = msg;
-        } else if (matches.length > 1) {
-          ctx.sede_candidates = matches;
-          this._setStep(db, phone, 'ask_sede_confirm', null, JSON.stringify(ctx));
-          const lista = matches.map((s, i) => `*${i + 1}️⃣* ${displaySede(s)}`).join('\n');
-          response = `⚠️ Encontré varias sedes. ¿Cuál es la tuya?\n\n${lista}\n\n_Responde con el número (ej. 1)_`;
-        } else {
+        if (ciudades.length === 0) {
           response =
-            `❓ No encontré ninguna sede con "*${text}*".\n\n` +
-            `Escribe el nombre de tu ciudad o punto.\n` +
-            `_Ej: Manizales, Pereira, Cali Sur, Santander de Quilichao_`;
+            `❓ No encontré ninguna ciudad con "*${text}*".\n\n` +
+            `Escribe el nombre de tu ciudad.\n` +
+            `_Ej: Cali, Manizales, Pereira, Popayán, Pasto, Buenaventura_`;
+
+        } else if (ciudades.length > 1) {
+          // Varias ciudades coinciden → pedir que aclare
+          ctx.ciudad_candidates = ciudades;
+          this._setStep(db, phone, 'ask_ciudad_confirm', null, JSON.stringify(ctx));
+          const lista = ciudades.map((c, i) => `*${i + 1}️⃣* ${c}`).join('\n');
+          response = `⚠️ Encontré varias ciudades. ¿Cuál es la tuya?\n\n${lista}\n\n_Responde con el número._`;
+
+        } else {
+          // Ciudad única encontrada
+          const ciudad = ciudades[0];
+          const puntos = CIUDADES[ciudad];
+
+          if (puntos.length === 1) {
+            // Un solo punto → seleccionar automáticamente
+            ctx.sede   = puntos[0];
+            ctx.ciudad = ciudad;
+            const { step: ns, msg } = this._routeAfterSede(ctx.flowType, displaySede(ctx.sede));
+            this._setStep(db, phone, ns, null, JSON.stringify(ctx));
+            response = `✅ Ciudad: *${ciudad}*\n\n` + msg;
+          } else {
+            // Varios puntos → mostrar lista numerada
+            ctx.ciudad         = ciudad;
+            ctx.punto_options  = puntos;
+            this._setStep(db, phone, 'ask_punto', null, JSON.stringify(ctx));
+            const lista = puntos.map((p, i) => `*${i + 1}️⃣* ${displaySede(p)}`).join('\n');
+            response =
+              `✅ Ciudad: *${ciudad}*\n\n` +
+              `📍 *¿Cuál es tu punto de atención?*\n\n${lista}\n\n` +
+              `_Responde con el número de tu punto (ej. 1)_`;
+          }
         }
 
-      } else if (step === 'ask_sede_confirm') {
+      } else if (step === 'ask_ciudad_confirm') {
         const ctx   = this._ctx(session);
         const idx   = parseInt(cleanText) - 1;
-        const cands = ctx.sede_candidates || [];
+        const cands = ctx.ciudad_candidates || [];
 
         if (idx >= 0 && idx < cands.length) {
-          ctx.sede = cands[idx];
-          delete ctx.sede_candidates;
+          const ciudad = cands[idx];
+          const puntos = CIUDADES[ciudad];
+          delete ctx.ciudad_candidates;
+          ctx.ciudad = ciudad;
+
+          if (puntos.length === 1) {
+            ctx.sede = puntos[0];
+            const { step: ns, msg } = this._routeAfterSede(ctx.flowType, displaySede(ctx.sede));
+            this._setStep(db, phone, ns, null, JSON.stringify(ctx));
+            response = `✅ Ciudad: *${ciudad}*\n\n` + msg;
+          } else {
+            ctx.punto_options = puntos;
+            this._setStep(db, phone, 'ask_punto', null, JSON.stringify(ctx));
+            const lista = puntos.map((p, i) => `*${i + 1}️⃣* ${displaySede(p)}`).join('\n');
+            response =
+              `✅ Ciudad: *${ciudad}*\n\n` +
+              `📍 *¿Cuál es tu punto de atención?*\n\n${lista}\n\n` +
+              `_Responde con el número de tu punto (ej. 1)_`;
+          }
+        } else {
+          const lista = cands.map((c, i) => `*${i + 1}️⃣* ${c}`).join('\n');
+          response = `⚠️ Opción no válida. Responde con un número:\n\n${lista}`;
+        }
+
+      /* ══════════════════════════════════════════════════════
+         PASO 2: SELECCIÓN DE PUNTO (ciudades con varios puntos)
+         ══════════════════════════════════════════════════════ */
+      } else if (step === 'ask_punto') {
+        const ctx    = this._ctx(session);
+        const idx    = parseInt(cleanText) - 1;
+        const puntos = ctx.punto_options || [];
+
+        if (idx >= 0 && idx < puntos.length) {
+          ctx.sede = puntos[idx];
+          delete ctx.punto_options;
           const { step: ns, msg } = this._routeAfterSede(ctx.flowType, displaySede(ctx.sede));
           this._setStep(db, phone, ns, null, JSON.stringify(ctx));
-          response = msg;
+          response = `✅ Punto: *${displaySede(ctx.sede)}*\n\n` + msg;
         } else {
-          const lista = cands.map((s, i) => `*${i + 1}️⃣* ${displaySede(s)}`).join('\n');
+          const lista = puntos.map((p, i) => `*${i + 1}️⃣* ${displaySede(p)}`).join('\n');
           response = `⚠️ Opción no válida. Responde con un número:\n\n${lista}`;
         }
 
