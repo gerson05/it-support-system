@@ -9,3 +9,7 @@ export function isSimulationMode() {
 export async function sendWhatsAppMessage(phone, message) {
   return await whatsappClient.sendMessage(phone, message);
 }
+
+export async function sendWhatsAppImage(phone, base64Data, mimetype, caption) {
+  return await whatsappClient.sendImage(phone, base64Data, mimetype, caption);
+}
