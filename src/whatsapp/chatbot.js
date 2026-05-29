@@ -695,7 +695,12 @@ export class Chatbot {
         response = `❓ No entendí eso. Escribe *Hola* para volver al menú principal.`;
       }
 
-      db.prepare(`UPDATE conversations SET last_activity=datetime('now','localtime') WHERE phone=?`).run(phone);
+      // Actualizar actividad y limpiar aviso de inactividad si existía
+      db.prepare(`
+        UPDATE conversations
+        SET last_activity = datetime('now','localtime'), warned_inactive = 0
+        WHERE phone = ?
+      `).run(phone);
 
     } catch (err) {
       console.error('[Chatbot] Error:', err);
