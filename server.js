@@ -12,6 +12,7 @@ import faqRouter from './src/knowledge/faq-routes.js';
 import sedesRouter from './src/sedes/sedes-routes.js';
 import Chatbot from './src/whatsapp/chatbot.js';
 import whatsappClient from './src/whatsapp/baileys-client.js';
+import { startInactivityMonitor } from './src/whatsapp/inactivity-monitor.js';
 import { addSseClient, removeSseClient } from './src/events/broadcaster.js';
 
 dotenv.config();
@@ -213,4 +214,7 @@ app.listen(PORT, () => {
       console.error('[WhatsApp] Error en conexión automática:', err);
     });
   }, 1000);
+
+  // Monitor de inactividad en conversaciones
+  startInactivityMonitor();
 });
