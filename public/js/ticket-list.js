@@ -14,8 +14,8 @@ export async function renderTicketList(container) {
   container.innerHTML = `
     <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
       <div>
-        <h2>Listado de Tickets</h2>
-        <p>Administra y responde los casos técnicos escalados por WhatsApp.</p>
+        <h2 style="font-size:20px;font-weight:700;letter-spacing:-.4px;margin-bottom:4px;">Tickets</h2>
+        <p style="color:var(--text-3);font-size:13px;">Administra y responde los casos técnicos escalados por WhatsApp.</p>
       </div>
       <button class="btn btn-primary" id="btn-refresh-tickets">🔄 Refrescar</button>
     </div>
