@@ -68,7 +68,7 @@ export async function renderTicketDetail(container, ticketId) {
         <div class="ticket-detail-grid">
           <!-- Timeline y Mensajes (Izquierda) -->
           <div class="card timeline-card">
-            <div class="section-title">💬 Conversación de WhatsApp</div>
+            <div class="section-title">Conversación de WhatsApp</div>
             
             <div class="timeline-messages" id="timeline-messages-container">
               <!-- Mensajes se inyectan aquí -->
@@ -85,7 +85,7 @@ export async function renderTicketDetail(container, ticketId) {
           <div style="display: flex; flex-direction: column; gap: 30px;">
             <!-- Ficha Técnica -->
             <div class="card">
-              <div class="section-title">📋 Detalles del Caso</div>
+              <div class="section-title">Detalles del Caso</div>
               <div class="info-details-list" style="margin-top: 20px;">
                 <div class="info-details-item">
                   <span class="info-details-label">Solicitante:</span>
@@ -120,7 +120,7 @@ export async function renderTicketDetail(container, ticketId) {
 
             <!-- Acciones Rápidas (IT) -->
             <div class="card">
-              <div class="section-title">⚙️ Acciones de Gestión</div>
+              <div class="section-title">Gestión</div>
               <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 15px;">
                 <div class="form-group" style="margin-bottom: 0;">
                   <label for="change-status">Estado del Ticket</label>
@@ -152,13 +152,13 @@ export async function renderTicketDetail(container, ticketId) {
                 </div>
 
                 <button class="btn btn-primary" id="btn-save-actions" style="margin-top: 5px;">Guardar Cambios</button>
-                <button class="btn btn-secondary" id="btn-add-to-faq" title="Convertir este caso en una FAQ reutilizable" style="font-size: 13px;">📚 Agregar a Base de Conocimiento</button>
+                <button class="btn btn-secondary" id="btn-add-to-faq" title="Convertir este caso en una FAQ reutilizable">Agregar a Base de Conocimiento</button>
               </div>
             </div>
 
             <!-- Notas Internas (Privado IT) -->
             <div class="card">
-              <div class="section-title">🔒 Notas Internas (Equipo IT)</div>
+              <div class="section-title">Notas Internas</div>
               <div class="internal-notes-section">
                 <div class="notes-list" id="notes-list-container">
                   <!-- Notas se cargan aquí -->

@@ -4,58 +4,57 @@ import { isOfflineMode } from './data-service.js';
 
 export async function renderSettings(container) {
   container.innerHTML = `
-    <div class="page-header">
-      <div>
-        <h2 class="page-title">⚙️ Configuración</h2>
-        <p class="page-subtitle">Administra el equipo de IT y la conexión del sistema</p>
-      </div>
+    <div style="margin-bottom:28px;">
+      <h2 style="font-size:20px;font-weight:700;letter-spacing:-.4px;margin-bottom:4px;">Configuración</h2>
+      <p style="color:var(--text-3);font-size:13px;">Administra el equipo de IT y la conexión del sistema</p>
     </div>
 
-    <div style="display:grid;gap:24px;max-width:700px;">
+    <div style="display:grid;gap:16px;max-width:680px;">
 
-      <!-- Sección Agentes -->
-      <div class="glass-card">
-        <h3 style="margin:0 0 16px;font-size:16px;color:var(--text-primary);">👥 Equipo de IT</h3>
-        <p style="font-size:13px;color:var(--text-muted);margin:0 0 20px;">
-          Actualiza los nombres de los 4 miembros del equipo. Estos nombres aparecen en el selector de agente y en los tickets.
-        </p>
-        <div id="agents-form" style="display:flex;flex-direction:column;gap:12px;">
-          <div style="text-align:center;color:var(--text-muted);font-size:13px;">Cargando agentes...</div>
+      <!-- Equipo de IT -->
+      <div class="card">
+        <div style="margin-bottom:16px;">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-3);margin-bottom:4px;">Equipo de IT</div>
+          <p style="font-size:13px;color:var(--text-2);line-height:1.5;">Actualiza los nombres de los 4 miembros. Aparecen en el selector de agente y en los tickets.</p>
         </div>
-        ${isOfflineMode ? '<p style="margin-top:12px;font-size:11px;color:#f59e0b;">⚠️ Modo demo: los cambios no se guardan permanentemente.</p>' : ''}
+        <div id="agents-form" style="display:flex;flex-direction:column;gap:10px;">
+          <div style="text-align:center;color:var(--text-3);font-size:13px;padding:16px;">Cargando agentes...</div>
+        </div>
+        ${isOfflineMode ? '<p style="margin-top:10px;font-size:11px;color:#f59e0b;padding:8px 12px;background:rgba(245,158,11,.08);border-radius:6px;">Modo demo: los cambios no se guardan permanentemente.</p>' : ''}
       </div>
 
-      <!-- Sección Acceso en Red -->
-      <div class="glass-card">
-        <h3 style="margin:0 0 16px;font-size:16px;color:var(--text-primary);">🌐 Acceso desde otras PCs</h3>
-        <p style="font-size:13px;color:var(--text-muted);margin:0 0 16px;">
-          Para que las 4 personas de IT accedan al panel desde sus computadoras, deben abrir esta dirección en su navegador:
+      <!-- Acceso en red -->
+      <div class="card">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-3);margin-bottom:14px;">Acceso desde otras PCs</div>
+        <p style="font-size:13px;color:var(--text-2);margin-bottom:14px;line-height:1.5;">
+          Para que el equipo de IT acceda al panel desde sus computadoras, deben abrir esta dirección en su navegador:
         </p>
-        <div style="background:rgba(0,0,0,0.3);border:1px solid var(--glass-border);border-radius:8px;padding:16px;">
-          <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">URL del servidor (reemplaza con la IP de esta PC):</div>
+        <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;">
+          <div style="font-size:11px;color:var(--text-3);margin-bottom:8px;font-weight:500;text-transform:uppercase;letter-spacing:.4px;">URL del servidor</div>
           <div style="display:flex;align-items:center;gap:8px;">
-            <code id="network-url" style="flex:1;font-size:14px;color:#667eea;background:rgba(102,126,234,0.1);padding:8px 12px;border-radius:6px;word-break:break-all;">http://&lt;IP-DE-ESTA-PC&gt;:3000</code>
-            <button id="btn-copy-url" style="padding:8px 12px;background:var(--primary);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:12px;white-space:nowrap;">📋 Copiar</button>
+            <code id="network-url" style="flex:1;font-size:13px;color:var(--primary);background:var(--primary-light);padding:8px 12px;border-radius:var(--radius-sm);word-break:break-all;border:1px solid rgba(99,102,241,.2);">http://&lt;IP&gt;:3000</code>
+            <button id="btn-copy-url" class="btn btn-primary btn-small" style="white-space:nowrap;">Copiar</button>
           </div>
-          <div style="margin-top:12px;font-size:12px;color:var(--text-muted);">
-            <strong style="color:var(--text-secondary);">¿Cómo encontrar la IP de esta PC?</strong><br>
-            Abre CMD o PowerShell y ejecuta: <code style="background:rgba(0,0,0,0.3);padding:2px 6px;border-radius:4px;">ipconfig</code><br>
-            Busca "Dirección IPv4" en tu red local (suele ser 192.168.X.X o 10.0.X.X).
+          <div style="margin-top:12px;font-size:12px;color:var(--text-3);line-height:1.6;">
+            <strong style="color:var(--text-2);">¿Cómo encontrar la IP?</strong><br>
+            Abre CMD y ejecuta <code style="background:var(--surface-3);padding:2px 6px;border-radius:3px;font-size:11px;">ipconfig</code> · busca "Dirección IPv4" (suele ser 192.168.X.X o 10.0.X.X).
           </div>
         </div>
       </div>
 
-      <!-- Sección WhatsApp -->
-      <div class="glass-card">
-        <h3 style="margin:0 0 16px;font-size:16px;color:var(--text-primary);">📱 Conexión WhatsApp</h3>
-        <div id="wa-settings-status" style="font-size:13px;color:var(--text-muted);">Consultando estado...</div>
-        <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
-          <button id="btn-wa-reconnect" style="padding:10px 18px;background:var(--success);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;">🔄 Reconectar</button>
-          <button id="btn-wa-reset" style="padding:10px 18px;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;">🆕 Nuevo QR (si no llegan mensajes)</button>
-          <button id="btn-wa-logout" style="padding:10px 18px;background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.3);border-radius:8px;cursor:pointer;font-size:13px;">🚪 Cerrar sesión</button>
+      <!-- WhatsApp -->
+      <div class="card">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-3);margin-bottom:14px;">Conexión WhatsApp</div>
+        <div id="wa-settings-status" style="font-size:13px;color:var(--text-2);padding:10px 14px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:14px;">
+          Consultando estado...
         </div>
-        <p style="margin-top:12px;font-size:11px;color:var(--text-muted);">
-          Si la conexión dice "Conectado" pero los mensajes no llegan, usa <strong>🆕 Nuevo QR</strong> para reiniciar la sesión.
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button id="btn-wa-reconnect" class="btn btn-success">Reconectar</button>
+          <button id="btn-wa-reset" class="btn btn-primary">Nuevo QR</button>
+          <button id="btn-wa-logout" class="btn btn-danger">Cerrar sesión</button>
+        </div>
+        <p style="margin-top:12px;font-size:12px;color:var(--text-3);">
+          Si la conexión dice "Conectado" pero los mensajes no llegan, usa <strong style="color:var(--text-2);">Nuevo QR</strong> para reiniciar la sesión.
         </p>
       </div>
 
@@ -80,17 +79,11 @@ async function loadAgentsForm() {
 
     form.innerHTML = agents.map(a => `
       <div style="display:flex;align-items:center;gap:10px;">
-        <div style="width:32px;height:32px;background:linear-gradient(135deg,#667eea,#764ba2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff;flex-shrink:0;">
+        <div style="width:32px;height:32px;background:linear-gradient(135deg,var(--primary),var(--purple));border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;flex-shrink:0;">
           ${a.name.charAt(0).toUpperCase()}
         </div>
-        <input
-          type="text"
-          data-agent-id="${a.id}"
-          value="${a.name}"
-          style="flex:1;padding:10px 14px;background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);border-radius:8px;color:var(--text-primary);font-size:14px;"
-          placeholder="Nombre del agente ${a.id}"
-        />
-        <button data-save-id="${a.id}" style="padding:10px 16px;background:var(--primary);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;">Guardar</button>
+        <input type="text" data-agent-id="${a.id}" value="${a.name}" placeholder="Nombre del agente ${a.id}"/>
+        <button data-save-id="${a.id}" class="btn btn-primary btn-small">Guardar</button>
       </div>
     `).join('');
 

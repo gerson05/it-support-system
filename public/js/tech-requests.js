@@ -48,7 +48,7 @@ export async function renderTechRequests(container) {
   container.innerHTML = `
     <div style="margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
       <div>
-        <h2 style="font-size:24px;font-weight:700;margin-bottom:4px;">📦 Requerimientos Tecnológicos</h2>
+        <h2 style="font-size:20px;font-weight:700;letter-spacing:-.4px;margin-bottom:4px;">Requerimientos Tecnológicos</h2>
         <p style="color:var(--text-muted);font-size:14px;">Gestiona solicitudes de equipos e incidencias enviadas desde las sedes.</p>
       </div>
       <button id="btn-new-request"
@@ -420,7 +420,7 @@ function openModal(defaultType, onSuccess) {
 
     <!-- Datos del solicitante -->
     <div class="tr-section">
-      <div class="tr-section-title">👤 Datos del solicitante</div>
+      <div class="tr-section-title">Datos del solicitante</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
         <div class="form-group">
           <label>Nombre completo *</label>
@@ -444,7 +444,7 @@ function openModal(defaultType, onSuccess) {
     <!-- EQUIPOS SOLICITADOS (solo requerimientos) -->
     <div id="tr-f-items-section" class="tr-section" style="${defaultType==='incidencia'?'display:none;':''}">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <div class="tr-section-title" style="margin-bottom:0;">📦 Equipos solicitados</div>
+        <div class="tr-section-title" style="margin-bottom:0;">Equipos solicitados</div>
         <button type="button" id="tr-btn-add-item">＋ Agregar equipo</button>
       </div>
       <div style="display:grid;grid-template-columns:2fr 58px 1fr 30px;gap:6px;padding:0 8px;margin-bottom:4px;">
@@ -458,7 +458,7 @@ function openModal(defaultType, onSuccess) {
 
     <!-- EQUIPO AFECTADO (solo incidencias) -->
     <div id="tr-f-equipo-wrap" class="tr-section" style="${defaultType==='requerimiento'?'display:none;':''}">
-      <div class="tr-section-title">🖥️ Equipo afectado</div>
+      <div class="tr-section-title">Equipo afectado</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
         <div class="form-group">
           <label>Nombre / tipo de equipo</label>
@@ -473,7 +473,7 @@ function openModal(defaultType, onSuccess) {
 
     <!-- Descripción + prioridad -->
     <div class="tr-section">
-      <div class="tr-section-title">📝 Detalles</div>
+      <div class="tr-section-title">Descripción y prioridad</div>
       <div style="display:grid;grid-template-columns:2fr 1fr;gap:12px;">
         <div class="form-group">
           <label>Descripción *</label>
