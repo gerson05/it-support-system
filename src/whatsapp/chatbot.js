@@ -30,7 +30,8 @@ function _detectPriority(text) {
 /* ══════════════════════════════════════════════════════════════
    MAPEOS DE ÁREA
    ══════════════════════════════════════════════════════════════ */
-const AREA_MAP = {
+// Menú COMPLETO — solo Sede Principal de Cali
+const AREA_MAP_FULL = {
   '1': 'cartera',
   '2': 'compra',
   '3': 'gestion_humana',
@@ -40,15 +41,30 @@ const AREA_MAP = {
   '7': 'cuentas_medicas',
 };
 
-const AREA_NAMES = {
-  cartera:        '💰 Cartera',
-  compra:         '🛒 Compra',
-  gestion_humana: '👥 Gestión Humana',
-  pqrs:           '📋 PQRS',
-  contabilidad:   '📊 Contabilidad',
-  farmacia:       '💊 Farmacia',
-  cuentas_medicas:'🏥 Cuentas Médicas',
+// Menú SIMPLIFICADO — todos los demás puntos
+const AREA_MAP_SIMPLE = {
+  '1': 'administrativo',
+  '2': 'farmacia',
 };
+
+// Mantener compatibilidad con código existente
+const AREA_MAP = AREA_MAP_FULL;
+
+const AREA_NAMES = {
+  cartera:         'Cartera',
+  compra:          'Compra',
+  gestion_humana:  'Gestión Humana',
+  pqrs:            'PQRS',
+  contabilidad:    'Contabilidad',
+  farmacia:        'Farmacia',
+  cuentas_medicas: 'Cuentas Médicas',
+  administrativo:  'Administrativo',
+};
+
+/** Determina si una sede tiene el menú de áreas completo */
+function isSedeCompleta(sede) {
+  return (sede || '').toUpperCase().includes('SEDE PRINCIPAL');
+}
 
 const STATUS_LABELS_WA = {
   abierto:     '🔵 Abierto',
@@ -88,6 +104,10 @@ const AREA_EXAMPLES = {
     '• _"Error al generar los archivos RIPS"_\n' +
     '• _"La plataforma de la EPS no reconoce la firma digital"_\n' +
     '• _"Error de conexión en el software de facturación"_',
+  administrativo:
+    '• _"No puedo entrar a algún sistema o aplicativo"_\n' +
+    '• _"Problemas con el equipo, impresora o red"_\n' +
+    '• _"Error en un programa o software de oficina"_',
 };
 
 /* ══════════════════════════════════════════════════════════════
@@ -234,7 +254,7 @@ export class Chatbot {
             // Un solo punto → seleccionar automáticamente
             ctx.sede   = puntos[0];
             ctx.ciudad = ciudad;
-            const { step: ns, msg } = this._routeAfterSede(ctx.flowType, displaySede(ctx.sede));
+            const { step: ns, msg } = this._routeAfterSede(ctx.flowType, displaySede(ctx.sede), ctx.sede);
             this._setStep(db, phone, ns, null, JSON.stringify(ctx));
             response = `✅ Ciudad: *${ciudad}*\n\n` + msg;
           } else {
@@ -263,7 +283,7 @@ export class Chatbot {
 
           if (puntos.length === 1) {
             ctx.sede = puntos[0];
-            const { step: ns, msg } = this._routeAfterSede(ctx.flowType, displaySede(ctx.sede));
+            const { step: ns, msg } = this._routeAfterSede(ctx.flowType, displaySede(ctx.sede), ctx.sede);
             this._setStep(db, phone, ns, null, JSON.stringify(ctx));
             response = `✅ Ciudad: *${ciudad}*\n\n` + msg;
           } else {
@@ -291,7 +311,7 @@ export class Chatbot {
         if (idx >= 0 && idx < puntos.length) {
           ctx.sede = puntos[idx];
           delete ctx.punto_options;
-          const { step: ns, msg } = this._routeAfterSede(ctx.flowType, displaySede(ctx.sede));
+          const { step: ns, msg } = this._routeAfterSede(ctx.flowType, displaySede(ctx.sede), ctx.sede);
           this._setStep(db, phone, ns, null, JSON.stringify(ctx));
           response = `✅ Punto: *${displaySede(ctx.sede)}*\n\n` + msg;
         } else {
@@ -300,15 +320,32 @@ export class Chatbot {
         }
 
       /* ══════════════════════════════════════════════════════
-         FLUJO PROBLEMA TÉCNICO — A: Selección de área
+         FLUJO PROBLEMA TÉCNICO — A1b: Menú simplificado (2 opciones)
+         ══════════════════════════════════════════════════════ */
+      } else if (step === 'menu_area_simple') {
+        const area = AREA_MAP_SIMPLE[cleanText];
+        if (!area) {
+          response =
+            `⚠️ Opción no válida. Responde con:\n\n` +
+            `*1* — Administrativo\n*2* — Farmacia`;
+        } else {
+          this._setStep(db, phone, 'ask_ticket_name', area, '{}');
+          const ejemplos = AREA_EXAMPLES[area] || '';
+          response =
+            `👍 Área: *${AREA_NAMES[area]}*\n\n` +
+            `*¿Cuál es tu nombre completo?*`;
+        }
+
+      /* ══════════════════════════════════════════════════════
+         FLUJO PROBLEMA TÉCNICO — A: Selección de área (completa)
          ══════════════════════════════════════════════════════ */
       } else if (step === 'menu_area') {
-        const area = AREA_MAP[cleanText];
+        const area = AREA_MAP_FULL[cleanText];
         if (!area) {
           response =
             `⚠️ Opción no válida. Selecciona tu área (1–7):\n\n` +
-            `1️⃣ 💰 Cartera\n2️⃣ 🛒 Compra\n3️⃣ 👥 Gestión Humana\n` +
-            `4️⃣ 📋 PQRS\n5️⃣ 📊 Contabilidad\n6️⃣ 💊 Farmacia\n7️⃣ 🏥 Cuentas Médicas`;
+            `*1* Cartera\n*2* Compra\n*3* Gestión Humana\n` +
+            `*4* PQRS\n*5* Contabilidad\n*6* Farmacia\n*7* Cuentas Médicas`;
         } else {
           this._setStep(db, phone, 'ask_ticket_name', area, '{}');
           response =
@@ -671,18 +708,31 @@ export class Chatbot {
 
   /* ─ Helpers privados ─────────────────────────────────────── */
 
-  _routeAfterSede(flowType, sedeLabel) {
-    const confirma = `✅ Sede: *${sedeLabel}*\n\n`;
+  _routeAfterSede(flowType, sedeLabel, sedeRaw = '') {
+    const confirma = `✅ Punto: *${sedeLabel}*\n\n`;
+    const completa = isSedeCompleta(sedeRaw || sedeLabel);
+
     if (flowType === '1') {
-      return {
-        step: 'menu_area',
-        msg:
-          confirma +
-          `🔧 *Soporte Técnico*\n\n*¿De qué área nos escribes?*\n\n` +
-          `1️⃣ 💰 Cartera\n2️⃣ 🛒 Compra\n3️⃣ 👥 Gestión Humana\n` +
-          `4️⃣ 📋 PQRS\n5️⃣ 📊 Contabilidad\n6️⃣ 💊 Farmacia\n7️⃣ 🏥 Cuentas Médicas\n\n` +
-          `_Responde con el número de tu área (ej. 1)_`,
-      };
+      if (completa) {
+        return {
+          step: 'menu_area',
+          msg:
+            confirma +
+            `🔧 *Soporte Técnico*\n\n*¿De qué área nos escribes?*\n\n` +
+            `*1️⃣* Cartera\n*2️⃣* Compra\n*3️⃣* Gestión Humana\n` +
+            `*4️⃣* PQRS\n*5️⃣* Contabilidad\n*6️⃣* Farmacia\n*7️⃣* Cuentas Médicas\n\n` +
+            `_Responde con el número de tu área._`,
+        };
+      } else {
+        return {
+          step: 'menu_area_simple',
+          msg:
+            confirma +
+            `🔧 *Soporte Técnico*\n\n*¿De qué área nos escribes?*\n\n` +
+            `*1️⃣* Administrativo\n*2️⃣* Farmacia\n\n` +
+            `_Responde con 1 o 2._`,
+        };
+      }
     }
     if (flowType === '2') {
       return {
