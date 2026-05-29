@@ -4,7 +4,7 @@
  */
 
 import wwebjs from 'whatsapp-web.js';
-const { Client, LocalAuth } = wwebjs;
+const { Client, LocalAuth, MessageMedia } = wwebjs;
 
 import QRCode from 'qrcode';
 import path from 'path';
@@ -214,6 +214,30 @@ class WhatsAppClient {
       return { success: true, simulation: false };
     } catch (err) {
       console.error('[WhatsApp] Error enviando:', err.message);
+      return { success: false, error: err.message };
+    }
+  }
+
+  /**
+   * Envía una imagen a un número de WhatsApp.
+   * @param {string} phone       - Número de teléfono (sin @c.us)
+   * @param {string} base64Data  - Imagen en base64 (sin el prefijo data:...)
+   * @param {string} mimetype    - ej: 'image/jpeg', 'image/png'
+   * @param {string} caption     - Texto que acompaña la imagen (opcional)
+   */
+  async sendImage(phone, base64Data, mimetype = 'image/jpeg', caption = '') {
+    if (!this.client || this.status !== 'connected') {
+      console.log('[WhatsApp] No conectado — imagen en modo simulación.');
+      return { success: true, simulation: true };
+    }
+    try {
+      const chatId = `${phone}@c.us`;
+      const media  = new MessageMedia(mimetype, base64Data, 'imagen.jpg');
+      await this.client.sendMessage(chatId, media, { caption });
+      console.log(`[WhatsApp] Imagen enviada a ${phone}`);
+      return { success: true, simulation: false };
+    } catch (err) {
+      console.error('[WhatsApp] Error enviando imagen:', err.message);
       return { success: false, error: err.message };
     }
   }

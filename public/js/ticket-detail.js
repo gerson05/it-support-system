@@ -74,11 +74,30 @@ export async function renderTicketDetail(container, ticketId) {
               <!-- Mensajes se inyectan aquí -->
             </div>
             
-            <!-- Responder -->
+            <!-- Responder texto -->
             <form id="reply-form" class="reply-form">
               <textarea id="reply-input" placeholder="Escribe tu respuesta para el empleado (se enviará a su WhatsApp)..." required autocomplete="off"></textarea>
-              <button type="submit" class="btn btn-primary" style="height: 50px;">Enviar respuesta ➔</button>
+              <div style="display:flex;flex-direction:column;gap:6px;">
+                <button type="submit" class="btn btn-primary" style="height:42px;">Enviar ➔</button>
+                <label class="btn btn-secondary" style="height:42px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;" title="Enviar imagen por WhatsApp">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                  Enviar imagen
+                  <input type="file" id="image-input" accept="image/*" style="display:none;">
+                </label>
+              </div>
             </form>
+            <!-- Preview imagen seleccionada -->
+            <div id="image-preview-container" style="display:none;margin-top:8px;padding:10px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);gap:10px;align-items:flex-start;">
+              <img id="image-preview" style="max-width:120px;max-height:120px;border-radius:6px;object-fit:cover;flex-shrink:0;">
+              <div style="flex:1;min-width:0;">
+                <input type="text" id="image-caption" placeholder="Añade un texto a la imagen (opcional)…"
+                  style="width:100%;margin-bottom:8px;font-size:12px;box-sizing:border-box;">
+                <div style="display:flex;gap:6px;">
+                  <button class="btn btn-primary btn-small" id="btn-send-image">Enviar imagen</button>
+                  <button class="btn btn-secondary btn-small" id="btn-cancel-image">Cancelar</button>
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Información y Acciones (Derecha) -->
@@ -182,14 +201,32 @@ export async function renderTicketDetail(container, ticketId) {
         } else {
           messagesContainer.innerHTML = ticket.messages.map(msg => {
             let senderName = '';
-            if (msg.sender_type === 'user') senderName = ticket.requester_name || 'Empleado';
-            else if (msg.sender_type === 'bot') senderName = 'Bot de IT 🤖';
-            else senderName = msg.sender_name || 'Agente IT 👨‍💻';
+            if (msg.sender_type === 'user')      senderName = ticket.requester_name || 'Empleado';
+            else if (msg.sender_type === 'bot')  senderName = 'Bot IT';
+            else                                  senderName = msg.sender_name || 'Agente IT';
+
+            // Detectar si el mensaje tiene adjunto de imagen
+            let attachment = null;
+            try { if (msg.attachment) attachment = JSON.parse(msg.attachment); } catch {}
+
+            // Detectar si el usuario envió una imagen (content = '__IMAGE__' o attachment)
+            const isIncomingImage = msg.content === '__IMAGE__' || (attachment?.type === 'image' && msg.sender_type === 'user');
+            const isOutgoingImage = attachment?.type === 'image' && msg.sender_type === 'agent';
+
+            let bodyHtml = '';
+            if (isIncomingImage) {
+              bodyHtml = `<div style="font-size:12px;color:var(--text-3);font-style:italic;">📎 Imagen recibida del empleado</div>`;
+            } else if (isOutgoingImage) {
+              const cap = attachment.caption ? `<div style="font-size:12px;margin-top:5px;">${cap}</div>` : '';
+              bodyHtml = `<div style="font-size:12px;color:var(--text-3);font-style:italic;">📤 Imagen enviada al empleado${attachment.caption ? ': ' + attachment.caption : ''}</div>`;
+            } else {
+              bodyHtml = `<div style="word-break:break-word;white-space:pre-wrap;">${msg.content}</div>`;
+            }
 
             return `
               <div class="message-bubble ${msg.sender_type}">
-                <div style="font-weight: 700; font-size: 12px; margin-bottom: 6px; opacity: 0.85;">${senderName}</div>
-                <div style="word-break: break-word; white-space: pre-wrap;">${msg.content}</div>
+                <div style="font-weight:600;font-size:11px;margin-bottom:5px;opacity:.75;text-transform:uppercase;letter-spacing:.3px;">${senderName}</div>
+                ${bodyHtml}
                 <div class="message-meta">
                   <span></span>
                   <span>${formatDate(msg.created_at)}</span>
@@ -285,6 +322,64 @@ export async function renderTicketDetail(container, ticketId) {
         } catch (err) {
           console.error(err);
           showToast('Fallo al aplicar cambios al ticket.', 'error');
+        }
+      });
+
+      // === EVENTO: SELECCIONAR IMAGEN ===
+      const imageInput = document.getElementById('image-input');
+      const previewContainer = document.getElementById('image-preview-container');
+      let selectedImageBase64 = null;
+      let selectedMimetype = 'image/jpeg';
+
+      imageInput?.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        selectedMimetype = file.type || 'image/jpeg';
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const dataUrl = ev.target.result;
+          // Extraer solo el base64 (sin el prefijo data:...;base64,)
+          selectedImageBase64 = dataUrl.split(',')[1];
+          document.getElementById('image-preview').src = dataUrl;
+          previewContainer.style.display = 'flex';
+        };
+        reader.readAsDataURL(file);
+      });
+
+      document.getElementById('btn-cancel-image')?.addEventListener('click', () => {
+        selectedImageBase64 = null;
+        previewContainer.style.display = 'none';
+        if (imageInput) imageInput.value = '';
+      });
+
+      document.getElementById('btn-send-image')?.addEventListener('click', async () => {
+        if (!selectedImageBase64) return;
+        const caption = document.getElementById('image-caption')?.value.trim() || '';
+        const btn = document.getElementById('btn-send-image');
+        btn.textContent = 'Enviando…';
+        btn.disabled = true;
+
+        try {
+          const res = await fetch(`/api/tickets/${ticketId}/send-image`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              base64: selectedImageBase64,
+              mimetype: selectedMimetype,
+              caption,
+              agentName: state.currentAgent.name,
+            }),
+          });
+          if (!res.ok) throw new Error((await res.json()).error);
+          showToast('Imagen enviada al WhatsApp del empleado.', 'success');
+          selectedImageBase64 = null;
+          previewContainer.style.display = 'none';
+          if (imageInput) imageInput.value = '';
+          await loadTicketData();
+        } catch (err) {
+          showToast(err.message || 'Error al enviar la imagen.', 'error');
+          btn.textContent = 'Enviar imagen';
+          btn.disabled = false;
         }
       });
 
