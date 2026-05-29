@@ -5,6 +5,7 @@ import { renderSettings } from './settings.js';
 import { renderTechRequests } from './tech-requests.js';
 import { renderTechRequestDetail } from './tech-request-detail.js';
 import { renderFaqs } from './faqs.js';
+import { renderSedesAdmin } from './sedes-admin.js';
 import { showToast } from './components.js';
 import { DataService, isOfflineMode } from './data-service.js';
 
@@ -157,6 +158,12 @@ function router() {
         const navSettings = document.getElementById('nav-settings');
         if (navSettings) navSettings.classList.add('active');
         renderSettings(appContainer);
+        break;
+      case '#sedes':
+        state.currentPage = 'sedes';
+        const navSedes = document.getElementById('nav-sedes');
+        if (navSedes) navSedes.classList.add('active');
+        renderSedesAdmin(appContainer);
         break;
       default:
         state.currentPage = 'dashboard';
