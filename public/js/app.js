@@ -36,11 +36,12 @@ export const PRIORITY_LABELS = {
 };
 
 export const STATUS_LABELS = {
-  'abierto':     'Abierto',
-  'en_progreso': 'En progreso',
-  'en_espera':   'En espera',
-  'resuelto':    'Resuelto',
-  'cerrado':     'Cerrado',
+  'abierto':        'Abierto',
+  'en_progreso':    'En progreso',
+  'en_espera':      'En espera',
+  'resuelto':       'Resuelto',
+  'cerrado':        'Cerrado',
+  'siguiente_dia':  'Siguiente día',
 };
 
 /* ==========================================================================

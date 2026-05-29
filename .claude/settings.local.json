@@ -66,7 +66,8 @@
       "Bash(curl -s -X POST http://localhost:3000/api/tech-requests/8/acta -H 'Content-Type: application/json' -d '{\"items\":[{\"idx\":0,\"marca\":\"Dell\",\"modelo\":\"Latitude 5420\",\"serial\":\"SN123\"}],\"accesorios\":\"Cargador\",\"observaciones\":\"\"}' -w '\\\\nHTTP_STATUS:%{http_code}\\\\nCONTENT_TYPE:%{content_type}')",
       "Bash(curl -s -o /tmp/test-acta.docx -w '%{http_code} %{size_download}b %{content_type}' -X POST http://localhost:3000/api/tech-requests/8/acta -H 'Content-Type: application/json' -d '{\"items\":[{\"idx\":0,\"marca\":\"Dell\",\"modelo\":\"Latitude 5420\",\"serial\":\"ABC123\"},{\"idx\":1,\"marca\":\"LG\",\"modelo\":\"27\\\\\" 4K\",\"serial\":\"MNT456\"}],\"accesorios\":\"Cargador, Cable HDMI\",\"observaciones\":\"Buen estado\"}')",
       "Bash(node --input-type=module)",
-      "Bash(2>&1)"
+      "Bash(2>&1)",
+      "Bash(node --input-type=module -e \"import './src/whatsapp/chatbot.js'; console.log\\('OK'\\)\")"
     ]
   }
 }
