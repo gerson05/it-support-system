@@ -13,15 +13,15 @@
 import db from '../config/database.js';
 import { sendWhatsAppMessage } from './messenger.js';
 
-const WARN_AFTER_MIN  = 5;    // minutos sin actividad → aviso
-const CLOSE_AFTER_MIN = 10;   // minutos adicionales sin respuesta → cierre
-const CHECK_INTERVAL_MS = 60 * 1000; // revisar cada 1 minuto
+const WARN_AFTER_MIN  = 8;    // minutos sin actividad → aviso
+const CLOSE_AFTER_MIN = 2;    // minutos adicionales sin respuesta → cierre (total ~10 min)
+const CHECK_INTERVAL_MS = 3 * 60 * 1000; // revisar cada 3 minutos
 
 let _timer = null;
 
 export function startInactivityMonitor() {
   if (_timer) return; // ya iniciado
-  console.log('[InactivityMonitor] Iniciado — check cada 1 min, aviso a los 5 min, cierre a los 10 min.');
+  console.log('[InactivityMonitor] Iniciado — check cada 3 min, aviso a los 8 min, cierre a los 10 min.');
   _timer = setInterval(_check, CHECK_INTERVAL_MS);
   _check(); // primera revisión inmediata al arrancar
 }
