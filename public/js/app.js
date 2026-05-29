@@ -18,29 +18,29 @@ export const state = {
 
 // Mapeos de traducción y visualización
 export const AREA_MAPPINGS = {
-  'cartera': { label: 'Cartera', emoji: '💰' },
-  'compra': { label: 'Compra', emoji: '🛒' },
-  'gestion_humana': { label: 'Gestión Humana', emoji: '👥' },
-  'pqrs': { label: 'PQRS', emoji: '📋' },
-  'contabilidad': { label: 'Contabilidad', emoji: '📊' },
-  'farmacia': { label: 'Farmacia', emoji: '💊' },
-  'cuentas_medicas': { label: 'Cuentas Médicas', emoji: '🏥' },
-  'general': { label: 'General / IT', emoji: '🖥️' }
+  'cartera':        { label: 'Cartera',        emoji: '' },
+  'compra':         { label: 'Compra',          emoji: '' },
+  'gestion_humana': { label: 'Gestión Humana',  emoji: '' },
+  'pqrs':           { label: 'PQRS',            emoji: '' },
+  'contabilidad':   { label: 'Contabilidad',    emoji: '' },
+  'farmacia':       { label: 'Farmacia',        emoji: '' },
+  'cuentas_medicas':{ label: 'Cuentas Médicas', emoji: '' },
+  'general':        { label: 'General / IT',    emoji: '' },
 };
 
 export const PRIORITY_LABELS = {
-  'baja': 'Baja',
-  'media': 'Media',
-  'alta': 'Alta',
-  'critica': 'Crítica'
+  'baja':    'Baja',
+  'media':   'Media',
+  'alta':    'Alta',
+  'critica': 'Crítica',
 };
 
 export const STATUS_LABELS = {
-  'abierto': 'Abierto',
-  'en_progreso': 'En Progreso',
-  'en_espera': 'En Espera',
-  'resuelto': 'Resuelto',
-  'cerrado': 'Cerrado'
+  'abierto':     'Abierto',
+  'en_progreso': 'En progreso',
+  'en_espera':   'En espera',
+  'resuelto':    'Resuelto',
+  'cerrado':     'Cerrado',
 };
 
 /* ==========================================================================
@@ -48,7 +48,7 @@ export const STATUS_LABELS = {
    ========================================================================== */
 
 export function getAreaEmoji(area) {
-  return AREA_MAPPINGS[area]?.emoji || '🖥️';
+  return ''; // Ya no usamos emojis de área
 }
 
 export function getAreaName(area) {
