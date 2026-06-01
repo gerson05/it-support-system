@@ -1,7 +1,7 @@
-import { 
-  createTicketRow, 
-  createEmptyState, 
-  createLoadingSpinner 
+import {
+  createTicketRow,
+  createEmptyState,
+  createLoadingSpinner
 } from './components.js';
 import { state } from './app.js';
 import DataService from './data-service.js';
@@ -9,7 +9,8 @@ import DataService from './data-service.js';
 export async function renderTicketList(container) {
   let currentPage = 1;
   const limit = 10;
-  
+  let mode = 'activos'; // 'activos' | 'archivo'
+
   // Estructura principal
   container.innerHTML = `
     <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
@@ -20,24 +21,28 @@ export async function renderTicketList(container) {
       <button class="btn btn-primary" id="btn-refresh-tickets">🔄 Refrescar</button>
     </div>
 
+    <!-- Tabs Activos / Archivo -->
+    <div style="display:flex;gap:0;margin-bottom:20px;border-bottom:2px solid var(--border);">
+      <button id="tab-activos" style="padding:10px 22px;font-size:14px;font-weight:600;border:none;background:none;cursor:pointer;color:var(--primary);border-bottom:2px solid var(--primary);margin-bottom:-2px;transition:color .15s;">Activos</button>
+      <button id="tab-archivo" style="padding:10px 22px;font-size:14px;font-weight:600;border:none;background:none;cursor:pointer;color:var(--text-3);border-bottom:2px solid transparent;margin-bottom:-2px;transition:color .15s;">Archivo</button>
+    </div>
+
     <!-- Barra de Filtros -->
-    <div class="card" style="margin-bottom: 25px; padding: 20px;">
+    <div class="card" style="margin-bottom: 25px; padding: 20px;" id="filters-card">
       <div class="filter-bar">
         <div class="form-group">
           <label for="filter-search">Buscar</label>
           <input type="text" id="filter-search" placeholder="ID, teléfono, descripción..." autocomplete="off">
         </div>
-        
-        <div class="form-group">
+
+        <div class="form-group" id="status-filter-group">
           <label for="filter-status">Estado</label>
           <select id="filter-status">
-            <option value="">Todos</option>
+            <option value="">Todos los activos</option>
             <option value="siguiente_dia">Siguiente día</option>
             <option value="abierto">Abiertos</option>
             <option value="en_progreso">En Progreso</option>
             <option value="en_espera">En Espera</option>
-            <option value="resuelto">Resueltos</option>
-            <option value="cerrado">Cerrados</option>
           </select>
         </div>
 
@@ -86,24 +91,69 @@ export async function renderTicketList(container) {
     </div>
   `;
 
+  function setTabUI() {
+    const tabActivos = document.getElementById('tab-activos');
+    const tabArchivo = document.getElementById('tab-archivo');
+    const statusGroup = document.getElementById('status-filter-group');
+    const statusSelect = document.getElementById('filter-status');
+
+    if (mode === 'activos') {
+      tabActivos.style.color = 'var(--primary)';
+      tabActivos.style.borderBottomColor = 'var(--primary)';
+      tabArchivo.style.color = 'var(--text-3)';
+      tabArchivo.style.borderBottomColor = 'transparent';
+      // Show status filter with active statuses
+      statusGroup.style.display = '';
+      statusSelect.innerHTML = `
+        <option value="">Todos los activos</option>
+        <option value="siguiente_dia">Siguiente día</option>
+        <option value="abierto">Abiertos</option>
+        <option value="en_progreso">En Progreso</option>
+        <option value="en_espera">En Espera</option>
+      `;
+    } else {
+      tabArchivo.style.color = 'var(--primary)';
+      tabArchivo.style.borderBottomColor = 'var(--primary)';
+      tabActivos.style.color = 'var(--text-3)';
+      tabActivos.style.borderBottomColor = 'transparent';
+      // Hide status filter — archive always shows resuelto+cerrado
+      statusGroup.style.display = 'none';
+    }
+  }
+
   // Función para obtener y renderizar los datos filtrados
   async function fetchTickets() {
     const tableContainer = document.getElementById('tickets-table-container');
     if (!tableContainer) return;
-    
+
     tableContainer.innerHTML = createLoadingSpinner();
 
     // Recoger filtros de la UI
     const search = document.getElementById('filter-search').value;
-    const status = document.getElementById('filter-status').value;
     const priority = document.getElementById('filter-priority').value;
     const area = document.getElementById('filter-area').value;
     const assigned_to = document.getElementById('filter-assigned').value;
 
+    // In activos mode, allow per-status filtering; in archivo mode use status_group
+    let statusParam = '';
+    let statusGroupParam = '';
+
+    if (mode === 'archivo') {
+      statusGroupParam = 'archivo';
+    } else {
+      const rawStatus = document.getElementById('filter-status')?.value || '';
+      if (rawStatus) {
+        statusParam = rawStatus;
+      } else {
+        statusGroupParam = 'activos';
+      }
+    }
+
     try {
       const data = await DataService.getTickets({
         search,
-        status,
+        status: statusParam,
+        status_group: statusGroupParam,
         priority,
         area,
         assigned_to,
@@ -176,6 +226,23 @@ export async function renderTicketList(container) {
     }
   }
 
+  // Tab click handlers
+  document.getElementById('tab-activos').addEventListener('click', () => {
+    if (mode === 'activos') return;
+    mode = 'activos';
+    currentPage = 1;
+    setTabUI();
+    fetchTickets();
+  });
+
+  document.getElementById('tab-archivo').addEventListener('click', () => {
+    if (mode === 'archivo') return;
+    mode = 'archivo';
+    currentPage = 1;
+    setTabUI();
+    fetchTickets();
+  });
+
   // Vincular eventos a los filtros para recargar automáticamente al cambiar
   const filters = ['filter-status', 'filter-priority', 'filter-area', 'filter-assigned'];
   filters.forEach(id => {
@@ -209,6 +276,10 @@ export async function renderTicketList(container) {
     });
   }
 
+  // Exponer modo actual para uso externo (SSE refresh)
+  container._ticketListMode = () => mode;
+
   // Carga inicial
+  setTabUI();
   await fetchTickets();
 }
