@@ -80,6 +80,14 @@ async function updateDespacho(id, data) {
   return json;
 }
 
+async function fetchActaInfo(entityType, entityId) {
+  try {
+    const res = await fetch(`/api/actas/info/${entityType}/${entityId}`);
+    if (!res.ok) return { token: null };
+    return res.json();
+  } catch { return { token: null }; }
+}
+
 /* ── Print view ─────────────────────────────────────────────────────── */
 
 function printDespacho(d) {
@@ -166,7 +174,8 @@ function openDetailModal(id) {
   overlay.querySelector('#modal-close').onclick = () => overlay.remove();
   overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
 
-  fetchDespacho(id).then(d => {
+  fetchDespacho(id).then(async d => {
+    const actaInfo = await fetchActaInfo('despacho', d.id);
     const body = overlay.querySelector('#modal-body');
     body.innerHTML = `
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px 20px;margin-bottom:18px;">
@@ -216,7 +225,7 @@ function openDetailModal(id) {
       <div style="margin-bottom:20px;">
         <div style="font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;margin-bottom:6px;">Acta</div>
         <div id="acta-section">
-          ${renderActaSection(d)}
+          ${renderActaSection(d, actaInfo)}
         </div>
       </div>
 
@@ -232,30 +241,64 @@ function openDetailModal(id) {
     body.querySelector('#btn-close-modal').onclick = () => overlay.remove();
 
     // Acta interaction
-    setupActaInteraction(body, d, overlay);
+    setupActaInteraction(body, d, actaInfo, overlay);
 
   }).catch(e => {
     overlay.querySelector('#modal-body').innerHTML = `<div style="color:#f87171;padding:20px;text-align:center;">${e.message}</div>`;
   });
 }
 
-function renderActaSection(d) {
+function renderActaSection(d, actaInfo = { token: null }) {
   if (!d.requiere_acta) {
     return `<div style="display:flex;align-items:center;gap:8px;">${actaBadge(d)}<span style="font-size:12px;color:var(--text-3);">Este despacho no requiere acta de entrega.</span></div>`;
   }
+
+  let firmaSection = '';
+  if (actaInfo.token && actaInfo.uploaded) {
+    firmaSection = `
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#d1fae5;border-radius:8px;border:1px solid #6ee7b7;margin-bottom:10px;">
+        <span style="font-size:18px;">✅</span>
+        <div style="flex:1;">
+          <div style="font-weight:600;color:#065f46;font-size:13px;">Acta firmada recibida</div>
+          <div style="font-size:12px;color:#047857;">${actaInfo.uploaded_at ? new Date(actaInfo.uploaded_at).toLocaleString('es-CO') : ''}</div>
+        </div>
+        <a id="btn-download-acta" href="/api/actas/download/${actaInfo.token}" style="padding:6px 12px;background:#059669;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;text-decoration:none;">📥 Descargar</a>
+      </div>`;
+  } else if (actaInfo.token && !actaInfo.uploaded) {
+    firmaSection = `
+      <div style="padding:10px 14px;background:var(--surface-3);border-radius:8px;border:1px solid var(--border);margin-bottom:10px;">
+        <div style="font-size:12px;font-weight:500;color:var(--text-2);margin-bottom:8px;">🔗 Link de firma activo — pendiente de subida</div>
+        <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px;">
+          <input id="link-firma-input" type="text" readonly value="${actaInfo.url || ''}"
+            style="flex:1;padding:6px 9px;border:1px solid var(--border);border-radius:5px;background:var(--surface);color:var(--text);font-size:11px;font-family:monospace;">
+          <button id="btn-copy-link" style="padding:6px 10px;border:1px solid var(--border);border-radius:5px;background:var(--surface-2);color:var(--text-2);font-size:11px;cursor:pointer;white-space:nowrap;">📋 Copiar</button>
+        </div>
+        <img src="/api/actas/qr/${actaInfo.token}" alt="QR" style="width:100px;height:100px;border-radius:6px;background:#fff;padding:4px;display:block;margin-bottom:8px;">
+        <button id="btn-regen-link" style="font-size:11px;color:var(--text-3);background:none;border:none;cursor:pointer;text-decoration:underline;">🔄 Regenerar link</button>
+      </div>`;
+  } else {
+    firmaSection = `
+      <div style="margin-bottom:10px;">
+        <button id="btn-get-link" class="btn btn-secondary" style="font-size:12px;padding:7px 14px;">🔗 Obtener link de firma</button>
+      </div>`;
+  }
+
   if (d.acta_firmada) {
     return `
       <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#d1fae5;border-radius:8px;border:1px solid #6ee7b7;">
         <span style="font-size:18px;">✓</span>
         <div>
-          <div style="font-weight:600;color:#065f46;font-size:13px;">Acta firmada</div>
+          <div style="font-weight:600;color:#065f46;font-size:13px;">Acta marcada como firmada</div>
           ${d.acta_numero ? `<div style="font-size:12px;color:#047857;">N° ${d.acta_numero}</div>` : ''}
         </div>
-      </div>`;
+      </div>
+      ${firmaSection}`;
   }
+
   return `
     <div style="padding:12px 14px;background:var(--surface-2);border-radius:8px;border:1px solid var(--border);">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">${actaBadge(d)}</div>
+      ${firmaSection}
       <div style="display:flex;gap:8px;align-items:center;">
         <input id="input-acta-numero" type="text" placeholder="N° de acta (opcional)" value="${d.acta_numero || ''}"
           style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:13px;">
@@ -264,29 +307,85 @@ function renderActaSection(d) {
     </div>`;
 }
 
-function setupActaInteraction(body, d, overlay) {
+function setupActaInteraction(body, d, actaInfo = { token: null }, overlay) {
   const btnFirmar = body.querySelector('#btn-firmar');
-  if (!btnFirmar) return;
-  btnFirmar.onclick = async () => {
-    const actaNumero = body.querySelector('#input-acta-numero')?.value.trim() || null;
-    btnFirmar.disabled = true;
-    btnFirmar.textContent = 'Guardando…';
-    try {
-      await updateDespacho(d.id, {
-        acta_firmada: 1,
-        acta_numero: actaNumero,
-        agente: state.currentAgent.name,
-      });
-      showToast('Acta marcada como firmada', 'success');
-      overlay.remove();
-      // Refresh page list
-      document.querySelector('#btn-refresh-despachos')?.click();
-    } catch (e) {
-      showToast(e.message, 'error');
-      btnFirmar.disabled = false;
-      btnFirmar.textContent = 'Marcar como firmada';
-    }
-  };
+  if (btnFirmar) {
+    btnFirmar.onclick = async () => {
+      const actaNumero = body.querySelector('#input-acta-numero')?.value.trim() || null;
+      btnFirmar.disabled = true;
+      btnFirmar.textContent = 'Guardando…';
+      try {
+        await updateDespacho(d.id, { acta_firmada: 1, acta_numero: actaNumero, agente: state.currentAgent.name });
+        showToast('Acta marcada como firmada', 'success');
+        overlay.remove();
+        document.querySelector('#btn-refresh-despachos')?.click();
+      } catch (e) {
+        showToast(e.message, 'error');
+        btnFirmar.disabled = false;
+        btnFirmar.textContent = 'Marcar como firmada';
+      }
+    };
+  }
+
+  const btnGetLink = body.querySelector('#btn-get-link');
+  if (btnGetLink) {
+    btnGetLink.onclick = async () => {
+      btnGetLink.disabled = true;
+      btnGetLink.textContent = 'Generando…';
+      try {
+        const res = await fetch('/api/actas/token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ entity_type: 'despacho', entity_id: d.id, entity_ref: d.acta_numero || d.numero }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        const newActaInfo = await fetchActaInfo('despacho', d.id);
+        body.querySelector('#acta-section').innerHTML = renderActaSection(d, newActaInfo);
+        setupActaInteraction(body, d, newActaInfo, overlay);
+        showToast('Link generado. Compártelo con el receptor.', 'success');
+      } catch (e) {
+        showToast(e.message, 'error');
+        btnGetLink.disabled = false;
+        btnGetLink.textContent = '🔗 Obtener link de firma';
+      }
+    };
+  }
+
+  const btnCopyLink = body.querySelector('#btn-copy-link');
+  if (btnCopyLink) {
+    btnCopyLink.onclick = () => {
+      const input = body.querySelector('#link-firma-input');
+      if (!input) return;
+      navigator.clipboard.writeText(input.value)
+        .then(() => showToast('Link copiado al portapapeles', 'success'))
+        .catch(() => { input.select(); document.execCommand('copy'); showToast('Link copiado', 'success'); });
+    };
+  }
+
+  const btnRegen = body.querySelector('#btn-regen-link');
+  if (btnRegen) {
+    btnRegen.onclick = async () => {
+      if (!confirm('¿Regenerar el link? El link anterior dejará de funcionar.')) return;
+      btnRegen.textContent = 'Regenerando…';
+      try {
+        const res = await fetch('/api/actas/token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ entity_type: 'despacho', entity_id: d.id, entity_ref: d.acta_numero || d.numero }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        const newActaInfo = await fetchActaInfo('despacho', d.id);
+        body.querySelector('#acta-section').innerHTML = renderActaSection(d, newActaInfo);
+        setupActaInteraction(body, d, newActaInfo, overlay);
+        showToast('Link regenerado', 'success');
+      } catch (e) {
+        showToast(e.message, 'error');
+        btnRegen.textContent = '🔄 Regenerar link';
+      }
+    };
+  }
 }
 
 /* ── Create Modal ────────────────────────────────────────────────────── */
