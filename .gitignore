@@ -22,3 +22,9 @@ wa_qr.png
 database/wwebjs-auth/
 .wwebjs_cache/
 .wwebjs_session/
+# Credenciales Google (nunca subir al repo)
+credentials/
+!credentials/.gitkeep
+
+# Added by code-review-graph
+.code-review-graph/
