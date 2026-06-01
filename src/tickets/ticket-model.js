@@ -17,9 +17,13 @@ const AREA_LABELS = {
 /**
  * Obtener todos los tickets aplicando filtros y paginación
  */
+const ACTIVE_STATUSES   = ['abierto', 'en_progreso', 'en_espera', 'siguiente_dia'];
+const ARCHIVE_STATUSES  = ['resuelto', 'cerrado'];
+
 export function getAllTickets(db, filters = {}) {
   const {
     status,
+    status_group,
     priority,
     area,
     assigned_to,
@@ -34,7 +38,19 @@ export function getAllTickets(db, filters = {}) {
   const params = [];
   const countParams = [];
 
-  if (status) {
+  if (status_group === 'activos') {
+    const placeholders = ACTIVE_STATUSES.map(() => '?').join(',');
+    query += ` AND t.status IN (${placeholders})`;
+    countQuery += ` AND t.status IN (${placeholders})`;
+    params.push(...ACTIVE_STATUSES);
+    countParams.push(...ACTIVE_STATUSES);
+  } else if (status_group === 'archivo') {
+    const placeholders = ARCHIVE_STATUSES.map(() => '?').join(',');
+    query += ` AND t.status IN (${placeholders})`;
+    countQuery += ` AND t.status IN (${placeholders})`;
+    params.push(...ARCHIVE_STATUSES);
+    countParams.push(...ARCHIVE_STATUSES);
+  } else if (status) {
     query += ' AND t.status = ?';
     countQuery += ' AND t.status = ?';
     params.push(status);

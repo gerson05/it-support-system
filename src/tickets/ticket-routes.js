@@ -9,6 +9,7 @@ import {
 } from './ticket-model.js';
 import { sendWhatsAppMessage, sendWhatsAppImage } from '../whatsapp/messenger.js';
 import { appEvents } from '../events/broadcaster.js';
+import { logAudit } from '../audit/audit-logger.js';
 
 const router = express.Router();
 
@@ -17,6 +18,7 @@ router.get('/api/tickets', (req, res) => {
   try {
     const filters = {
       status: req.query.status,
+      status_group: req.query.status_group,
       priority: req.query.priority,
       area: req.query.area,
       assigned_to: req.query.assigned_to,
@@ -92,9 +94,12 @@ router.put('/api/tickets/:id', (req, res) => {
       const waMsg = WA_STATUS_MSGS[status];
       if (waMsg) {
         const fullMsg = `${waMsg}\n\n🎟️ Ticket: *${ticket.ticket_number}*`;
-        sendWhatsAppMessage(ticket.phone, fullMsg).catch(() => {});
+        sendWhatsAppMessage(ticket.phone, fullMsg, ticket.chat_id || null).catch(() => {});
       }
     }
+
+    const agentName = db.prepare('SELECT name FROM agents WHERE id = ?').get(req.body.agent_id)?.name;
+    logAudit(agentName || 'Sistema', 'Ticket actualizado', 'ticket', ticketId, ticket?.ticket_number, { status, priority, assigned_to });
 
     appEvents.emit('ticket:updated', { id: ticketId });
     res.json({ success: true, message: 'Ticket actualizado correctamente.' });
@@ -128,7 +133,9 @@ router.post('/api/tickets/:id/messages', async (req, res) => {
 
     // 2. Enviar la respuesta directamente al WhatsApp del empleado
     const formattedMessage = `👨‍💻 *Soporte IT (${agentName || 'Agente'}):*\n\n${content}\n\n_Ref. Ticket: ${ticket.ticket_number}_`;
-    const waResponse = await sendWhatsAppMessage(ticket.phone, formattedMessage);
+    const waResponse = await sendWhatsAppMessage(ticket.phone, formattedMessage, ticket.chat_id || null);
+
+    logAudit(agentName || 'Agente', 'Mensaje enviado', 'ticket', ticketId, ticket.ticket_number, { content: content.slice(0, 100), wa_simulation: waResponse.simulation });
 
     appEvents.emit('ticket:message', { ticketId });
     res.json({
@@ -185,6 +192,7 @@ router.post('/api/tickets/:id/send-image', async (req, res) => {
     `).run(ticketId, agentName, caption || '[Imagen]', attachment);
 
     db.prepare(`UPDATE tickets SET updated_at = datetime('now','localtime') WHERE id = ?`).run(ticketId);
+    logAudit(agentName, 'Imagen enviada', 'ticket', ticketId, ticket.ticket_number);
     appEvents.emit('ticket:message', { ticketId });
 
     res.json({ success: true, simulation: result.simulation });
