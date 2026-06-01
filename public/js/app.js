@@ -6,6 +6,8 @@ import { renderTechRequests } from './tech-requests.js';
 import { renderTechRequestDetail } from './tech-request-detail.js';
 import { renderFaqs } from './faqs.js';
 import { renderSedesAdmin } from './sedes-admin.js';
+import { renderAudit } from './audit.js';
+import { renderDespacho } from './despacho.js';
 import { showToast } from './components.js';
 import { DataService, isOfflineMode } from './data-service.js';
 
@@ -165,6 +167,18 @@ function router() {
         const navSedes = document.getElementById('nav-sedes');
         if (navSedes) navSedes.classList.add('active');
         renderSedesAdmin(appContainer);
+        break;
+      case '#despacho':
+        state.currentPage = 'despacho';
+        const navDespacho = document.getElementById('nav-despacho');
+        if (navDespacho) navDespacho.classList.add('active');
+        renderDespacho(appContainer);
+        break;
+      case '#audit':
+        state.currentPage = 'audit';
+        const navAudit = document.getElementById('nav-audit');
+        if (navAudit) navAudit.classList.add('active');
+        renderAudit(appContainer);
         break;
       default:
         state.currentPage = 'dashboard';
@@ -371,8 +385,15 @@ function startRealTimeUpdates() {
   evtSource.addEventListener('ticket-created', (e) => {
     const data = JSON.parse(e.data);
     showToast(`🎟️ Nuevo ticket: ${data.ticket_number} (${getAreaName(data.area)})`, 'info');
-    if (state.currentPage === 'dashboard' || state.currentPage === 'tickets') {
+    if (state.currentPage === 'dashboard') {
       setTimeout(() => router(), 400);
+    } else if (state.currentPage === 'tickets') {
+      // Only auto-refresh if user is viewing activos (not the archive)
+      const appContainer = document.getElementById('app');
+      const currentMode = appContainer?._ticketListMode?.();
+      if (!currentMode || currentMode === 'activos') {
+        setTimeout(() => router(), 400);
+      }
     }
   });
 
@@ -400,6 +421,16 @@ function startRealTimeUpdates() {
   evtSource.addEventListener('tech-request-updated', () => {
     if (state.currentPage === 'tech-requests' || state.currentPage === 'tech-request-detail') {
       setTimeout(() => router(), 400);
+    }
+  });
+
+  evtSource.addEventListener('whatsapp-status', (e) => {
+    const data = JSON.parse(e.data);
+    // Actualizar el banner de estado WhatsApp en ticket-detail si está visible
+    const banner = document.getElementById('wa-status-banner');
+    if (banner) banner.style.display = data.connected ? 'none' : 'block';
+    if (data.connected) {
+      showToast('✅ WhatsApp conectado — los mensajes ahora llegarán al empleado.', 'success');
     }
   });
 
