@@ -123,3 +123,52 @@ export function parseBlock(cellText) {
     };
   });
 }
+
+const SEP = '======================';
+
+/**
+ * Reconstruye el texto de la celda col B a partir del array de farmacias.
+ * Produce el mismo formato WhatsApp que el bot externo espera.
+ */
+export function reconstructColB(municipioNombre, farmacias) {
+  if (!farmacias.length) return '';
+
+  const blocks = farmacias.map(f => [
+    `*FARMACIA*`,
+    SEP,
+    `📗Municipio: *${municipioNombre}*`,
+    `📋Farmacia: *${f.nombre}*`,
+    `📍Dir: *${f.direccion}*`,
+    `📧Correo: ${f.correo || ''}`,
+    `⏰Hr. Atención: *${f.horario || ''}*`,
+    `📱Telefonico: ${f.telefono || ''}`,
+    `📍 *Ubicación*`,
+    f.mapsUrl || '',
+    SEP,
+  ].join('\n'));
+
+  return blocks.join('\n\n') + '\n\nEscribe🔢 *00* para volver al menu principal';
+}
+
+/**
+ * Escribe el texto reconstruido en la celda B{sheetRow} del Sheet.
+ */
+export async function writeRow(sheetRow, cellText) {
+  const sheets    = await _auth();
+  const sheetName = await _getSheetName();
+
+  await sheets.spreadsheets.values.update({
+    spreadsheetId:    SPREADSHEET_ID,
+    range:            `${sheetName}!B${sheetRow}`,
+    valueInputOption: 'RAW',
+    requestBody:      { values: [[cellText]] },
+  });
+}
+
+/**
+ * Helper de alto nivel: reconstruye el texto y lo escribe al Sheet.
+ */
+export async function saveFarmacias(sheetRow, municipioNombre, farmacias) {
+  const text = reconstructColB(municipioNombre, farmacias);
+  await writeRow(sheetRow, text);
+}
