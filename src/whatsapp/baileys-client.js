@@ -12,6 +12,7 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import Chatbot from './chatbot.js';
 import db from '../config/database.js';
+import { broadcast } from '../events/broadcaster.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -41,6 +42,20 @@ class WhatsAppClient {
     this._readyTimeout = null;
   }
 
+  /** Fuerza reconexión limpia ignorando el flag _connecting */
+  forceConnect(clearAuth = false) {
+    if (this._readyTimeout) { clearTimeout(this._readyTimeout); this._readyTimeout = null; }
+    const c = this.client;
+    this.client      = null;
+    this.status      = 'disconnected';
+    this.qrCode      = null;
+    this.qrImageDataUrl = null;
+    this._connecting = false;
+    if (c) c.destroy().catch(() => {});
+    if (clearAuth) clearAuthData();
+    this.connect().catch(err => console.error('[WhatsApp] Error en forceConnect:', err));
+  }
+
   async connect() {
     if (this._connecting || this.status === 'connected') return;
     this._connecting = true;
@@ -50,13 +65,8 @@ class WhatsAppClient {
 
     this.client = new Client({
       authStrategy: new LocalAuth({ dataPath: AUTH_DIR }),
-      // Versión estable compatible con WhatsApp Business
-      webVersion: '2.2412.54',
-      webVersionCache: {
-        type: 'remote',
-        remotePath:
-          'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2412.54.html',
-      },
+      // Sin webVersionCache remoto — deja que WWebJS use su versión incorporada.
+      // El remotePath de GitHub puede colgar si está caído o la versión expiró.
       puppeteer: {
         headless: true,
         args: [
@@ -114,17 +124,20 @@ class WhatsAppClient {
       this.qrCode = null;
       this.qrImageDataUrl = null;
       this._connecting = false;
+      broadcast('whatsapp-status', { connected: true, status: 'connected' });
     });
 
     // ── Error de autenticación ──
     this.client.on('auth_failure', (msg) => {
       console.error('[WhatsApp] ❌ Error de autenticación:', msg);
+      broadcast('whatsapp-status', { connected: false, status: 'auth_failure' });
       this._forceReconnect(true);
     });
 
     // ── Desconexión ──
     this.client.on('disconnected', (reason) => {
       console.log(`[WhatsApp] Desconectado: ${reason}`);
+      broadcast('whatsapp-status', { connected: false, status: 'disconnected' });
 
       const isLogout =
         reason === 'LOGOUT' ||
@@ -141,7 +154,19 @@ class WhatsAppClient {
       if (msg.from === 'status@broadcast') return;
       if (msg.fromMe) return;
 
-      const phone = msg.from.replace('@c.us', '').replace(/\D/g, '');
+      // En WhatsApp multi-device msg.from puede ser LID ("237...@lid").
+      // Usamos msg.from como chatId para responder siempre correctamente.
+      // Para el número de teléfono intentamos getContact() con timeout de 2s.
+      const chatId = msg.from;
+      let phone = chatId.split('@')[0].split(':')[0].replace(/\D/g, '') || chatId;
+      try {
+        const contact = await Promise.race([
+          msg.getContact(),
+          new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 2000)),
+        ]);
+        if (contact?.number) phone = contact.number;
+      } catch {}
+      console.log(`[WhatsApp] chatId="${chatId}" phone="${phone}"`);
 
       // ── Imagen recibida → pasar a chatbot para análisis con Gemini Vision ──
       if (msg.hasMedia && msg.type === 'image') {
@@ -149,11 +174,13 @@ class WhatsAppClient {
         try {
           const media = await msg.downloadMedia();
           if (media?.data) {
+            const caption = msg.body?.trim() || '';
             const botResponse = await chatbot.processMessage(phone, '__IMAGE__', db, {
               imageBase64: media.data,
               mimetype:    media.mimetype || 'image/jpeg',
-            });
-            if (botResponse) await this.client.sendMessage(msg.from, botResponse);
+              caption,
+            }, chatId);
+            if (botResponse) await this.client.sendMessage(chatId, botResponse);
           }
         } catch (err) {
           console.error('[WhatsApp] Error procesando imagen:', err.message);
@@ -167,9 +194,9 @@ class WhatsAppClient {
       console.log(`[WhatsApp] Mensaje de ${phone}: "${text}"`);
 
       try {
-        const botResponse = await chatbot.processMessage(phone, text, db);
+        const botResponse = await chatbot.processMessage(phone, text, db, null, chatId);
         if (botResponse) {
-          await this.client.sendMessage(msg.from, botResponse);
+          await this.client.sendMessage(chatId, botResponse);
           console.log(`[WhatsApp] Respuesta enviada a ${phone}`);
         }
       } catch (err) {
@@ -202,15 +229,16 @@ class WhatsAppClient {
     setTimeout(() => this.connect(), delay);
   }
 
-  async sendMessage(phone, text) {
+  async sendMessage(phone, text, chatId = null) {
     if (!this.client || this.status !== 'connected') {
       console.log('[WhatsApp] No conectado, mensaje en modo simulación.');
       return { success: true, simulation: true };
     }
     try {
-      const chatId = `${phone}@c.us`;
-      await this.client.sendMessage(chatId, text);
-      console.log(`[WhatsApp] Mensaje enviado a ${phone}`);
+      // Usar chatId real si está disponible; si no, reconstruir desde phone
+      const target = chatId || (phone.includes('@') ? phone : `${phone}@c.us`);
+      await this.client.sendMessage(target, text);
+      console.log(`[WhatsApp] Mensaje enviado → ${target}`);
       return { success: true, simulation: false };
     } catch (err) {
       console.error('[WhatsApp] Error enviando:', err.message);

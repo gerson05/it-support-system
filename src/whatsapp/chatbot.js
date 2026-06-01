@@ -3,6 +3,7 @@ import { appEvents }         from '../events/broadcaster.js';
 import { createTechRequest } from '../tech-requests/tech-request-model.js';
 import { matchCiudad, getPuntosCiudad, displaySede } from './sedes.js';
 import { searchFaqsAll }     from '../knowledge/faq-service.js';
+import { logAudit }          from '../audit/audit-logger.js';
 
 /* ─────────────────────────────────────────────────────────────
    HORARIO DE ATENCIÓN (Colombia, UTC-5, sin DST)
@@ -158,12 +159,13 @@ const AREA_EXAMPLES = {
 export class Chatbot {
 
   /**
-   * @param {string} phone  - número de teléfono
-   * @param {string} text   - texto del mensaje (o '__IMAGE__' si es imagen)
-   * @param {object} db     - instancia de DatabaseSync
-   * @param {object|null} media - { imageBase64, mimetype } para imágenes
+   * @param {string} phone   - número de teléfono (para display y DB)
+   * @param {string} text    - texto del mensaje (o '__IMAGE__' si es imagen)
+   * @param {object} db      - instancia de DatabaseSync
+   * @param {object|null} media  - { imageBase64, mimetype } para imágenes
+   * @param {string|null} chatId - JID original de WhatsApp (msg.from) para envíos directos
    */
-  async processMessage(phone, text, db, media = null) {
+  async processMessage(phone, text, db, media = null, chatId = null) {
 
     // ── Rate limiting ──
     if (!_checkRateLimit(phone)) {
@@ -188,6 +190,17 @@ export class Chatbot {
     if (!session) {
       db.prepare('INSERT INTO conversations (phone, current_step) VALUES (?,?)').run(phone, 'idle');
       session = { phone, current_step: 'idle', area: null, context: '{}' };
+    }
+    // Persistir chatId (JID real de WhatsApp) en el contexto para usarlo al crear tickets
+    if (chatId && chatId !== phone) {
+      try {
+        const ctxObj = JSON.parse(session.context || '{}');
+        if (!ctxObj._chatId) {
+          ctxObj._chatId = chatId;
+          db.prepare('UPDATE conversations SET context=? WHERE phone=?').run(JSON.stringify(ctxObj), phone);
+          session = { ...session, context: JSON.stringify(ctxObj) };
+        }
+      } catch {}
     }
 
     let step     = session.current_step;
@@ -223,8 +236,14 @@ export class Chatbot {
       `).get(phone);
 
       if (activeTicket) {
-        db.prepare(`INSERT INTO messages (ticket_id, sender_type, content) VALUES (?, 'user', ?)`)
-          .run(activeTicket.id, text);
+        if (text === '__IMAGE__' && media?.imageBase64) {
+          const attachment = JSON.stringify({ type: 'image', mimetype: media.mimetype || 'image/jpeg', base64: media.imageBase64 });
+          db.prepare(`INSERT INTO messages (ticket_id, sender_type, content, attachment) VALUES (?, 'user', '__IMAGE__', ?)`)
+            .run(activeTicket.id, attachment);
+        } else {
+          db.prepare(`INSERT INTO messages (ticket_id, sender_type, content) VALUES (?, 'user', ?)`)
+            .run(activeTicket.id, text);
+        }
         db.prepare(`UPDATE tickets SET updated_at = datetime('now','localtime') WHERE id = ?`)
           .run(activeTicket.id);
         appEvents.emit('ticket:message', { ticketId: activeTicket.id });
@@ -482,9 +501,12 @@ export class Chatbot {
         if (text === '__IMAGE__' && media?.imageBase64) {
           // ── Gemini Vision ──
           console.log(`[Bot] Imagen de ${phone} → Gemini Vision (área: ${area})`);
-          aiSolution  = await getAISolutionFromImage(area, media.imageBase64, media.mimetype);
+          aiSolution  = await getAISolutionFromImage(area, media.imageBase64, media.mimetype, media.caption || '');
           msgHeader   = aiSolution ? `🔍 *Análisis de tu captura (${AREA_NAMES[area] || area}):*\n\n` : '';
-          description = '(captura de pantalla)';
+          description = media.caption ? `(captura de pantalla: ${media.caption})` : '(captura de pantalla)';
+          // Guardar base64 en contexto para adjuntarlo al ticket cuando se cree
+          ctx._imageBase64  = media.imageBase64;
+          ctx._imageMimetype = media.mimetype || 'image/jpeg';
         } else {
           // ── 1. FAQ-first ──
           if (!ctx.faq_tried) {
@@ -510,8 +532,9 @@ export class Chatbot {
         }
 
         if (aiSolution) {
-          this._setStep(db, phone, 'ask_resolved', area,
-            JSON.stringify({ description, area, faq_shown_id: faqId }));
+          const nextCtx = { description, area, faq_shown_id: faqId };
+          if (ctx._imageBase64) { nextCtx._imageBase64 = ctx._imageBase64; nextCtx._imageMimetype = ctx._imageMimetype; }
+          this._setStep(db, phone, 'ask_resolved', area, JSON.stringify(nextCtx));
           response =
             msgHeader + aiSolution + `\n\n` +
             `━━━━━━━━━━━━━━━\n` +
@@ -520,8 +543,9 @@ export class Chatbot {
             `*2️⃣* ❌ No, el problema continúa\n` +
             `*3️⃣* 🔄 Mi problema es diferente`;
         } else {
-          this._setStep(db, phone, 'create_ticket', area,
-            JSON.stringify({ description, area }));
+          const nextCtx = { description, area };
+          if (ctx._imageBase64) { nextCtx._imageBase64 = ctx._imageBase64; nextCtx._imageMimetype = ctx._imageMimetype; }
+          this._setStep(db, phone, 'create_ticket', area, JSON.stringify(nextCtx));
           response =
             `No encontré solución automática para este caso. 🤔\n\n` +
             `Voy a crear un *ticket de soporte* directamente.\n` +
@@ -572,7 +596,8 @@ export class Chatbot {
               `*2️⃣* No, es el mismo — agregar este mensaje al ticket existente`;
           } else {
             const priority = _detectPriority(ctx.description);
-            const ticketId = await this._crearTicket(phone, area, ctx.description || '(sin descripción)', db, priority, ctx.requester_name);
+            const imageCtx = ctx._imageBase64 ? { base64: ctx._imageBase64, mimetype: ctx._imageMimetype } : null;
+            const ticketId = await this._crearTicket(phone, area, ctx.description || '(sin descripción)', db, priority, ctx.requester_name, imageCtx, ctx._chatId || chatId);
             this._setStep(db, phone, 'idle', null, '{}');
             const { ticket_number } = db.prepare('SELECT ticket_number FROM tickets WHERE id=?').get(ticketId);
             response =
@@ -607,7 +632,8 @@ export class Chatbot {
 
         if (cleanText === '1') {
           const priority = _detectPriority(ctx.description);
-          const ticketId = await this._crearTicket(phone, area, ctx.description || '(sin descripción)', db, priority, ctx.requester_name);
+          const imageCtx = ctx._imageBase64 ? { base64: ctx._imageBase64, mimetype: ctx._imageMimetype } : null;
+          const ticketId = await this._crearTicket(phone, area, ctx.description || '(sin descripción)', db, priority, ctx.requester_name, imageCtx, ctx._chatId || chatId);
           this._setStep(db, phone, 'idle', null, '{}');
           const { ticket_number } = db.prepare('SELECT ticket_number FROM tickets WHERE id=?').get(ticketId);
           response =
@@ -646,7 +672,8 @@ export class Chatbot {
         const detail = /^no$/i.test(cleanText) ? (ctx.description || text) : text;
 
         const priority = _detectPriority(detail);
-        const ticketId = await this._crearTicket(phone, area, detail, db, priority, ctx.requester_name);
+        const imageCtx = ctx._imageBase64 ? { base64: ctx._imageBase64, mimetype: ctx._imageMimetype } : null;
+        const ticketId = await this._crearTicket(phone, area, detail, db, priority, ctx.requester_name, imageCtx, ctx._chatId || chatId);
         this._setStep(db, phone, 'idle', null, '{}');
         const { ticket_number } = db.prepare('SELECT ticket_number FROM tickets WHERE id=?').get(ticketId);
         response =
@@ -867,7 +894,7 @@ export class Chatbot {
     try { return JSON.parse(session.context || '{}'); } catch { return {}; }
   }
 
-  async _crearTicket(phone, area, description, db, priority = 'media', requesterName = 'Empleado WhatsApp') {
+  async _crearTicket(phone, area, description, db, priority = 'media', requesterName = 'Empleado WhatsApp', imageCtx = null, chatId = null) {
     const dateStr      = new Date().toISOString().slice(0, 10).replace(/-/g, '');
     const like         = `TK-${dateStr}-%`;
     const last         = db.prepare('SELECT ticket_number FROM tickets WHERE ticket_number LIKE ? ORDER BY id DESC LIMIT 1').get(like);
@@ -878,14 +905,22 @@ export class Chatbot {
     const title = await generateTicketTitle(area, description);
 
     db.prepare(`
-      INSERT INTO tickets (ticket_number, phone, requester_name, area, description, title, status, priority)
-      VALUES (?, ?, ?, ?, ?, ?, 'abierto', ?)
-    `).run(ticketNumber, phone, requesterName, area, description, title, priority);
+      INSERT INTO tickets (ticket_number, phone, chat_id, requester_name, area, description, title, status, priority)
+      VALUES (?, ?, ?, ?, ?, ?, ?, 'abierto', ?)
+    `).run(ticketNumber, phone, chatId || phone, requesterName, area, description, title, priority);
 
     const { id: ticketId } = db.prepare('SELECT last_insert_rowid() as id').get();
-    db.prepare(`INSERT INTO messages (ticket_id, sender_type, content) VALUES (?, 'user', ?)`)
-      .run(ticketId, description);
 
+    if (imageCtx?.base64) {
+      const attachment = JSON.stringify({ type: 'image', mimetype: imageCtx.mimetype || 'image/jpeg', base64: imageCtx.base64 });
+      db.prepare(`INSERT INTO messages (ticket_id, sender_type, content, attachment) VALUES (?, 'user', '__IMAGE__', ?)`)
+        .run(ticketId, attachment);
+    } else {
+      db.prepare(`INSERT INTO messages (ticket_id, sender_type, content) VALUES (?, 'user', ?)`)
+        .run(ticketId, description);
+    }
+
+    logAudit('Bot WhatsApp', 'Ticket creado', 'ticket', ticketId, ticketNumber, { area, phone });
     appEvents.emit('ticket:created', { id: ticketId, ticket_number: ticketNumber, area, phone });
     return ticketId;
   }
