@@ -6,31 +6,39 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);
 
 const SPREADSHEET_ID = process.env.GOOGLE_SHEETS_ID;
+if (!SPREADSHEET_ID) throw new Error('[FarmaciasService] GOOGLE_SHEETS_ID env var is required');
 const TARGET_GID     = 1516003101;
 
-let _sheetsClient = null;
-let _sheetName    = null;
+let _sheetsClientPromise = null;
+let _sheetNamePromise    = null;
 
 async function _auth() {
-  if (_sheetsClient) return _sheetsClient;
-  const auth = new google.auth.GoogleAuth({
-    keyFile: path.join(__dirname, '../../credentials/google-service-account.json'),
-    scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-  });
-  _sheetsClient = google.sheets({ version: 'v4', auth });
-  return _sheetsClient;
+  if (!_sheetsClientPromise) {
+    _sheetsClientPromise = (async () => {
+      const auth = new google.auth.GoogleAuth({
+        keyFile: path.join(__dirname, '../../credentials/google-service-account.json'),
+        scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+      });
+      return google.sheets({ version: 'v4', auth });
+    })();
+  }
+  return _sheetsClientPromise;
 }
 
 async function _getSheetName() {
-  if (_sheetName) return _sheetName;
-  const sheets = await _auth();
-  const meta   = await sheets.spreadsheets.get({
-    spreadsheetId: SPREADSHEET_ID,
-    fields: 'sheets.properties',
-  });
-  const found = meta.data.sheets.find(s => s.properties.sheetId === TARGET_GID);
-  _sheetName  = found?.properties?.title || 'Hoja1';
-  return _sheetName;
+  if (!_sheetNamePromise) {
+    _sheetNamePromise = (async () => {
+      const sheets = await _auth();
+      const meta   = await sheets.spreadsheets.get({
+        spreadsheetId: SPREADSHEET_ID,
+        fields: 'sheets.properties',
+      });
+      const found = meta.data.sheets.find(s => s.properties.sheetId === TARGET_GID);
+      if (!found) throw new Error(`[FarmaciasService] Sheet with GID ${TARGET_GID} not found in spreadsheet`);
+      return found.properties.title;
+    })();
+  }
+  return _sheetNamePromise;
 }
 
 /**
@@ -71,13 +79,13 @@ export async function readSheet() {
       const keywords = colA.split(',').map(k => k.trim()).filter(Boolean);
       // El primer keyword numérico es el número del municipio
       const numKw    = keywords.find(k => /^\d+$/.test(k));
-      const nombre   = keywords.find(k => !/^\d+$/.test(k)) || `Municipio ${numKw}`;
+      const nombre   = keywords.find(k => !/^\d+$/.test(k)) || `Municipio ${numKw ?? sheetRow}`;
 
       currentDept.municipios.push({
         sheetRow,
         nombre,
         keywords,
-        farmacias: parseBlock(colB, nombre),
+        farmacias: parseBlock(colB),
       });
     }
   });
@@ -89,7 +97,7 @@ export async function readSheet() {
  * Parsea el texto de una celda col B y extrae las farmacias individuales.
  * Devuelve: [{ index, nombre, direccion, correo, horario, telefono, mapsUrl }]
  */
-export function parseBlock(cellText, municipioNombre) {
+export function parseBlock(cellText) {
   // Dividir por el separador de farmacias
   const blocks = cellText
     .split(/={3,}/)
@@ -102,7 +110,7 @@ export function parseBlock(cellText, municipioNombre) {
       return m ? m[1].replace(/\*/g, '').trim() : '';
     };
 
-    const urlMatch = block.match(/https?:\/\/[^\s\n]+/);
+    const urlMatch = block.match(/https?:\/\/[^\s\n*,)]+/);
 
     return {
       index,
