@@ -13,6 +13,7 @@ import sedesRouter from './src/sedes/sedes-routes.js';
 import auditRouter from './src/audit/audit-routes.js';
 import despachoRouter from './src/despacho/despacho-routes.js';
 import farmaciasRouter from './src/farmacias/farmacias-routes.js';
+import actasRouter    from './src/actas/actas-routes.js';
 import Chatbot from './src/whatsapp/chatbot.js';
 import whatsappClient from './src/whatsapp/baileys-client.js';
 import { startInactivityMonitor } from './src/whatsapp/inactivity-monitor.js';
@@ -43,6 +44,12 @@ app.use(sedesRouter);
 app.use(auditRouter);
 app.use(despachoRouter);
 app.use(farmaciasRouter);
+app.use(actasRouter);
+
+// Página pública de subida de acta firmada
+app.get('/firmar/:token', (_req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'firmar.html'));
+});
 
 // Al arrancar, resetear todas las conversaciones al estado inicial para
 // evitar que sesiones del flujo viejo interfieran con el nuevo menú.
