@@ -5,6 +5,14 @@
 import { showToast } from './components.js';
 import { state, formatDate, formatTimeAgo } from './app.js';
 
+async function fetchActaInfoTR(entityId) {
+  try {
+    const res = await fetch(`/api/actas/info/tech_request/${entityId}`);
+    if (!res.ok) return { token: null };
+    return res.json();
+  } catch { return { token: null }; }
+}
+
 const STATUS_CFG = {
   pendiente:   { label: 'Pendiente',   cls: 'badge-pendiente'   },
   en_revision: { label: 'En Revisión', cls: 'badge-en_espera'   },
@@ -166,6 +174,22 @@ export async function renderTechRequestDetail(container, id) {
 
       </div>
     </div>
+
+    <!-- Sección link de firma -->
+    ${!isInc ? `
+    <div id="firma-section" style="background:var(--surface-2,#141422);border:1px solid var(--border,rgba(255,255,255,.07));border-radius:12px;padding:16px 20px;margin-bottom:20px;">
+      <div style="font-size:11px;font-weight:700;color:#10b981;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;">
+        📋 Acta Firmada
+      </div>
+      <div id="firma-content">
+        <div style="font-size:13px;color:#64748b;margin-bottom:10px;">
+          Genera el acta, compártela con el receptor y solicita que la suba firmada.
+        </div>
+        <button id="btn-get-firma-link" style="padding:8px 16px;background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.3);border-radius:8px;color:#818cf8;font-size:13px;font-weight:500;cursor:pointer;">
+          🔗 Obtener link de firma
+        </button>
+      </div>
+    </div>` : ''}
 
     <div style="display:grid;grid-template-columns:1fr 340px;gap:24px;align-items:start;">
 
@@ -457,6 +481,10 @@ export async function renderTechRequestDetail(container, id) {
     });
   }
 
+  if (!isInc) {
+    setupFirmaSection(container, req);
+  }
+
   /* ── Agregar nota ── */
   document.getElementById('tr-btn-add-note').addEventListener('click', async () => {
     const input = document.getElementById('tr-note-input');
@@ -518,6 +546,94 @@ function escHtml(str) {
   return String(str)
     .replace(/&/g,'&amp;').replace(/</g,'&lt;')
     .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function renderFirmaContent(actaInfo, req) {
+  if (actaInfo.token && actaInfo.uploaded) {
+    return `
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(16,185,129,.1);border-radius:8px;border:1px solid rgba(16,185,129,.3);margin-bottom:10px;">
+        <span style="font-size:18px;">✅</span>
+        <div style="flex:1;">
+          <div style="font-weight:600;color:#6ee7b7;font-size:13px;">Acta firmada recibida</div>
+          <div style="font-size:12px;color:#94a3b8;">${actaInfo.uploaded_at ? new Date(actaInfo.uploaded_at).toLocaleString('es-CO') : ''}</div>
+        </div>
+        <a href="/api/actas/download/${actaInfo.token}" style="padding:6px 12px;background:#059669;color:#fff;border-radius:6px;font-size:12px;font-weight:500;text-decoration:none;">📥 Descargar</a>
+      </div>`;
+  }
+  if (actaInfo.token && !actaInfo.uploaded) {
+    return `
+      <div style="font-size:12px;font-weight:500;color:#94a3b8;margin-bottom:8px;">🔗 Link activo — pendiente de subida por el receptor</div>
+      <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px;">
+        <input type="text" readonly value="${actaInfo.url || ''}"
+          style="flex:1;padding:6px 9px;border:1px solid rgba(255,255,255,.1);border-radius:5px;background:#0f172a;color:#e2e8f0;font-size:11px;font-family:monospace;">
+        <button id="btn-copy-link-tr" style="padding:6px 10px;border:1px solid rgba(255,255,255,.1);border-radius:5px;background:#1e293b;color:#94a3b8;font-size:11px;cursor:pointer;white-space:nowrap;">📋 Copiar</button>
+      </div>
+      <img src="/api/actas/qr/${actaInfo.token}" alt="QR" style="width:100px;height:100px;border-radius:6px;background:#fff;padding:4px;display:block;margin-bottom:8px;">
+      <button id="btn-regen-link-tr" style="font-size:11px;color:#64748b;background:none;border:none;cursor:pointer;text-decoration:underline;">🔄 Regenerar link</button>`;
+  }
+  return `
+    <div style="font-size:13px;color:#64748b;margin-bottom:10px;">Genera el acta, compártela con el receptor y solicita que la suba firmada.</div>
+    <button id="btn-get-firma-link" style="padding:8px 16px;background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.3);border-radius:8px;color:#818cf8;font-size:13px;font-weight:500;cursor:pointer;">🔗 Obtener link de firma</button>`;
+}
+
+async function setupFirmaSection(container, req) {
+  const section = container.querySelector('#firma-section');
+  if (!section) return;
+
+  const content = container.querySelector('#firma-content');
+
+  async function refresh() {
+    const actaInfo = await fetchActaInfoTR(req.id);
+    content.innerHTML = renderFirmaContent(actaInfo, req);
+    wireButtons(actaInfo);
+  }
+
+  function wireButtons(actaInfo) {
+    const btnGet = content.querySelector('#btn-get-firma-link');
+    if (btnGet) {
+      btnGet.onclick = async () => {
+        btnGet.disabled = true; btnGet.textContent = 'Generando…';
+        try {
+          const res = await fetch('/api/actas/token', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ entity_type: 'tech_request', entity_id: req.id, entity_ref: req.request_number }),
+          });
+          if (!res.ok) throw new Error((await res.json()).error);
+          await refresh();
+          showToast('Link generado. Compártelo con el receptor.', 'success');
+        } catch (e) { showToast(e.message, 'error'); btnGet.disabled = false; btnGet.textContent = '🔗 Obtener link de firma'; }
+      };
+    }
+
+    const btnCopy = content.querySelector('#btn-copy-link-tr');
+    if (btnCopy) {
+      const input = content.querySelector('input[readonly]');
+      btnCopy.onclick = () => {
+        navigator.clipboard.writeText(input?.value || '')
+          .then(() => showToast('Link copiado', 'success'))
+          .catch(() => { input?.select(); document.execCommand('copy'); showToast('Link copiado', 'success'); });
+      };
+    }
+
+    const btnRegen = content.querySelector('#btn-regen-link-tr');
+    if (btnRegen) {
+      btnRegen.onclick = async () => {
+        if (!confirm('¿Regenerar el link? El link anterior dejará de funcionar.')) return;
+        btnRegen.textContent = 'Regenerando…';
+        try {
+          const res = await fetch('/api/actas/token', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ entity_type: 'tech_request', entity_id: req.id, entity_ref: req.request_number }),
+          });
+          if (!res.ok) throw new Error((await res.json()).error);
+          await refresh();
+          showToast('Link regenerado', 'success');
+        } catch (e) { showToast(e.message, 'error'); btnRegen.textContent = '🔄 Regenerar link'; }
+      };
+    }
+  }
+
+  await refresh();
 }
 
 /** Muestra la tabla de equipos solicitados (requerimientos multi-ítem)
