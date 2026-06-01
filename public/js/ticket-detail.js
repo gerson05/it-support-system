@@ -75,6 +75,9 @@ export async function renderTicketDetail(container, ticketId) {
             </div>
             
             <!-- Responder texto -->
+            <div id="wa-status-banner" style="display:none;font-size:11px;padding:6px 10px;border-radius:6px;margin-bottom:8px;background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.35);color:#fbbf24;">
+              ⚠️ WhatsApp no está conectado — los mensajes se guardarán pero <strong>no llegarán al empleado</strong>.
+            </div>
             <form id="reply-form" class="reply-form">
               <textarea id="reply-input" placeholder="Escribe tu respuesta para el empleado (se enviará a su WhatsApp)..." required autocomplete="off"></textarea>
               <div style="display:flex;flex-direction:column;gap:6px;">
@@ -216,9 +219,13 @@ export async function renderTicketDetail(container, ticketId) {
 
             let bodyHtml = '';
             if (isIncomingImage) {
-              bodyHtml = `<div style="font-size:12px;color:var(--text-3);font-style:italic;">📎 Imagen recibida del empleado</div>`;
+              if (attachment?.base64) {
+                const src = `data:${attachment.mimetype || 'image/jpeg'};base64,${attachment.base64}`;
+                bodyHtml = `<img src="${src}" alt="Imagen del empleado" style="max-width:220px;max-height:220px;border-radius:6px;object-fit:contain;display:block;cursor:pointer;" onclick="window.open(this.src)">`;
+              } else {
+                bodyHtml = `<div style="font-size:12px;color:var(--text-3);font-style:italic;">📎 Imagen recibida del empleado</div>`;
+              }
             } else if (isOutgoingImage) {
-              const cap = attachment.caption ? `<div style="font-size:12px;margin-top:5px;">${cap}</div>` : '';
               bodyHtml = `<div style="font-size:12px;color:var(--text-3);font-style:italic;">📤 Imagen enviada al empleado${attachment.caption ? ': ' + attachment.caption : ''}</div>`;
             } else {
               bodyHtml = `<div style="word-break:break-word;white-space:pre-wrap;">${msg.content}</div>`;
@@ -269,6 +276,19 @@ export async function renderTicketDetail(container, ticketId) {
           ).join('');
       }
 
+      // Banner de estado WhatsApp — actualiza al cargar y via SSE
+      function updateWaBanner(connected) {
+        const banner = document.getElementById('wa-status-banner');
+        if (banner) banner.style.display = connected ? 'none' : 'block';
+      }
+      fetch('/api/whatsapp/status').then(r => r.json()).then(s => updateWaBanner(s.connected)).catch(() => {});
+      // Polling cada 8 s para mantener el banner actualizado aunque no haya SSE
+      const _waPoll = setInterval(() => {
+        fetch('/api/whatsapp/status').then(r => r.json()).then(s => updateWaBanner(s.connected)).catch(() => {});
+      }, 8000);
+      // Limpiar el interval cuando el usuario navegue a otra página
+      window.addEventListener('hashchange', () => clearInterval(_waPoll), { once: true });
+
       // === EVENTO: ENVIAR MENSAJE AL USUARIO ===
       const replyForm = document.getElementById('reply-form');
       replyForm.addEventListener('submit', async (e) => {
@@ -277,10 +297,16 @@ export async function renderTicketDetail(container, ticketId) {
         const content = input.value;
         
         try {
-          await DataService.addMessage(ticketId, 'agent', state.currentAgent.name, content);
+          const result = await DataService.addMessage(ticketId, 'agent', state.currentAgent.name, content);
           input.value = '';
-          showToast('Respuesta enviada al WhatsApp del empleado.', 'success');
-          
+          if (result?.whatsapp?.simulation) {
+            showToast('Mensaje guardado, pero WhatsApp no está conectado — no se envió al empleado.', 'warning');
+          } else if (result?.whatsapp?.success === false) {
+            showToast('Mensaje guardado, pero falló el envío a WhatsApp: ' + (result.whatsapp.error || 'error desconocido'), 'warning');
+          } else {
+            showToast('Respuesta enviada al WhatsApp del empleado.', 'success');
+          }
+
           // Recargar timeline
           await loadTicketData();
         } catch (err) {
@@ -371,7 +397,11 @@ export async function renderTicketDetail(container, ticketId) {
               agentName: state.currentAgent.name,
             }),
           });
-          if (!res.ok) throw new Error((await res.json()).error);
+          if (!res.ok) {
+            let errMsg = 'Error al enviar la imagen.';
+            try { errMsg = (await res.json()).error || errMsg; } catch {}
+            throw new Error(errMsg);
+          }
           showToast('Imagen enviada al WhatsApp del empleado.', 'success');
           selectedImageBase64 = null;
           previewContainer.style.display = 'none';
