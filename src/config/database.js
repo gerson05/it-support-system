@@ -66,6 +66,19 @@ const migrations = [
     ticket_id     INTEGER DEFAULT NULL,
     updated_at    TEXT DEFAULT (datetime('now','localtime'))
   )`,
+  `CREATE TABLE IF NOT EXISTS acta_uploads (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    token       TEXT NOT NULL UNIQUE,
+    entity_type TEXT NOT NULL CHECK(entity_type IN ('tech_request','despacho')),
+    entity_id   INTEGER NOT NULL,
+    entity_ref  TEXT NOT NULL,
+    filename    TEXT,
+    filepath    TEXT,
+    uploaded_at TEXT,
+    created_at  TEXT DEFAULT (datetime('now','localtime'))
+  )`,
+  `CREATE INDEX IF NOT EXISTS idx_acta_uploads_entity
+   ON acta_uploads(entity_type, entity_id)`,
 ];
 for (const sql of migrations) {
   try { db.exec(sql); } catch { /* columna ya existe */ }
