@@ -291,7 +291,7 @@ function setupActaInteraction(body, d, overlay) {
 
 /* ── Create Modal ────────────────────────────────────────────────────── */
 
-function openCreateModal(onSuccess) {
+async function openCreateModal(onSuccess) {
   const areaOptions = Object.entries(AREA_MAPPINGS)
     .map(([val, { label }]) => `<option value="${val}">${label}</option>`)
     .join('');
@@ -569,7 +569,8 @@ function openCreateModal(onSuccess) {
   // Consultar borrador al abrir
   try {
     const agente = encodeURIComponent(state.currentAgent.name);
-    const data   = await fetch(`/api/despachos/borrador?agente=${agente}`).then(r => r.json());
+    const data   = await fetch(`/api/despachos/borrador?agente=${agente}`)
+      .then(r => r.ok ? r.json() : Promise.resolve({ borrador: null }));
     if (data.borrador) {
       const { label, old } = _timeAgo(data.borrador.updated_at);
       bannerTxt.textContent = `📝 Tienes un borrador guardado (${label})`;
