@@ -20,7 +20,7 @@ async function _auth() {
         scopes: ['https://www.googleapis.com/auth/spreadsheets'],
       });
       return google.sheets({ version: 'v4', auth });
-    })();
+    })().catch(err => { _sheetsClientPromise = null; throw err; });
   }
   return _sheetsClientPromise;
 }
@@ -36,7 +36,7 @@ async function _getSheetName() {
       const found = meta.data.sheets.find(s => s.properties.sheetId === TARGET_GID);
       if (!found) throw new Error(`[FarmaciasService] Sheet with GID ${TARGET_GID} not found in spreadsheet`);
       return found.properties.title;
-    })();
+    })().catch(err => { _sheetNamePromise = null; throw err; });
   }
   return _sheetNamePromise;
 }

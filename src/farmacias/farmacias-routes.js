@@ -20,7 +20,9 @@ router.get('/api/farmacias', async (req, res) => {
    Body: { sheetRow, municipioNombre, index, nombre, direccion, correo, horario, telefono, mapsUrl } ── */
 router.put('/api/farmacias/punto', async (req, res) => {
   try {
-    const { sheetRow, municipioNombre, index, nombre, direccion, correo, horario, telefono, mapsUrl } = req.body;
+    const { municipioNombre, nombre, direccion, correo, horario, telefono, mapsUrl } = req.body;
+    const sheetRow = Number(req.body.sheetRow);
+    const index    = req.body.index !== undefined ? Number(req.body.index) : undefined;
     if (!sheetRow || index === undefined || !municipioNombre) {
       return res.status(400).json({ error: 'sheetRow, municipioNombre e index son obligatorios.' });
     }
@@ -47,7 +49,8 @@ router.put('/api/farmacias/punto', async (req, res) => {
    Body: { sheetRow, municipioNombre, nombre, direccion, correo, horario, telefono, mapsUrl } ── */
 router.post('/api/farmacias/punto', async (req, res) => {
   try {
-    const { sheetRow, municipioNombre, nombre, direccion, correo, horario, telefono, mapsUrl } = req.body;
+    const { municipioNombre, nombre, direccion, correo, horario, telefono, mapsUrl } = req.body;
+    const sheetRow = Number(req.body.sheetRow);
     if (!sheetRow || !municipioNombre || !nombre) {
       return res.status(400).json({ error: 'sheetRow, municipioNombre y nombre son obligatorios.' });
     }
@@ -70,7 +73,9 @@ router.post('/api/farmacias/punto', async (req, res) => {
    Body: { sheetRow, municipioNombre, index } ── */
 router.delete('/api/farmacias/punto', async (req, res) => {
   try {
-    const { sheetRow, municipioNombre, index } = req.body;
+    const { municipioNombre } = req.body;
+    const sheetRow = Number(req.body.sheetRow);
+    const index    = Number(req.body.index);
     if (!sheetRow || index === undefined || !municipioNombre) {
       return res.status(400).json({ error: 'sheetRow, municipioNombre e index son obligatorios.' });
     }
