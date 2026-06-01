@@ -10,6 +10,9 @@ import metricsRouter from './src/metrics/metrics-routes.js';
 import techRequestRouter from './src/tech-requests/tech-request-routes.js';
 import faqRouter from './src/knowledge/faq-routes.js';
 import sedesRouter from './src/sedes/sedes-routes.js';
+import auditRouter from './src/audit/audit-routes.js';
+import despachoRouter from './src/despacho/despacho-routes.js';
+import farmaciasRouter from './src/farmacias/farmacias-routes.js';
 import Chatbot from './src/whatsapp/chatbot.js';
 import whatsappClient from './src/whatsapp/baileys-client.js';
 import { startInactivityMonitor } from './src/whatsapp/inactivity-monitor.js';
@@ -24,8 +27,8 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middlewares estándar
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '15mb' }));
+app.use(express.urlencoded({ extended: true, limit: '15mb' }));
 
 // Servir el panel web de IT (Frontend)
 app.use(express.static(path.join(__dirname, 'public')));
@@ -37,6 +40,9 @@ app.use(metricsRouter);
 app.use(techRequestRouter);
 app.use(faqRouter);
 app.use(sedesRouter);
+app.use(auditRouter);
+app.use(despachoRouter);
+app.use(farmaciasRouter);
 
 // Al arrancar, resetear todas las conversaciones al estado inicial para
 // evitar que sesiones del flujo viejo interfieran con el nuevo menú.
@@ -141,15 +147,16 @@ app.get('/api/whatsapp/qr', (req, res) => {
   }
 });
 
-// Iniciar conexión de WhatsApp manualmente
-app.post('/api/whatsapp/connect', async (req, res) => {
+// Iniciar conexión de WhatsApp manualmente (force: ignora _connecting atascado)
+app.post('/api/whatsapp/connect', (req, res) => {
   try {
     const status = whatsappClient.getStatus();
     if (status.connected) {
       return res.json({ success: true, message: 'WhatsApp ya está conectado.', status });
     }
-    whatsappClient.connect().catch(err => console.error('Error conectando WhatsApp:', err));
-    res.json({ success: true, message: 'Iniciando conexión de WhatsApp...' });
+    // forceConnect limpia cualquier estado colgado antes de intentar
+    whatsappClient.forceConnect(false);
+    res.json({ success: true, message: 'Iniciando conexión. El QR aparecerá en Configuración en unos segundos.' });
   } catch (error) {
     console.error('Error al conectar WhatsApp:', error);
     res.status(500).json({ error: 'Error al iniciar conexión de WhatsApp.' });
@@ -168,13 +175,11 @@ app.post('/api/whatsapp/logout', async (req, res) => {
 });
 
 // Reinicio completo: borra auth y genera QR nuevo (para sesiones corruptas)
-app.post('/api/whatsapp/reset', async (req, res) => {
+app.post('/api/whatsapp/reset', (req, res) => {
   try {
-    await whatsappClient.logout();
-    setTimeout(() => {
-      whatsappClient.connect().catch(err => console.error('Error reconectando tras reset:', err));
-    }, 1500);
-    res.json({ success: true, message: 'Auth borrado. Escanea el nuevo QR en el panel.' });
+    // forceConnect(true) destruye el cliente, borra el auth y reconecta desde cero
+    whatsappClient.forceConnect(true);
+    res.json({ success: true, message: 'Auth borrado. El QR nuevo aparecerá en Configuración en unos segundos.' });
   } catch (error) {
     console.error('Error en reset de WhatsApp:', error);
     res.status(500).json({ error: 'Error al reiniciar WhatsApp.' });
