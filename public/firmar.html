@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subir Acta Firmada — Mi Farmacia IT</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0f172a; color: #e2e8f0;
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .card {
+      background: #1e293b; border: 1px solid rgba(255,255,255,.08);
+      border-radius: 16px; padding: 32px 28px; max-width: 420px; width: 100%;
+      box-shadow: 0 20px 60px rgba(0,0,0,.5);
+    }
+    .logo {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 24px;
+    }
+    .logo-icon {
+      width: 40px; height: 40px; background: #6366f1; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+    }
+    .logo-text h1 { font-size: 16px; font-weight: 700; color: #e2e8f0; }
+    .logo-text p  { font-size: 12px; color: #64748b; }
+    h2 { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+    .ref  { font-size: 13px; color: #94a3b8; margin-bottom: 24px; }
+    label { display: block; font-size: 13px; font-weight: 500; color: #94a3b8; margin-bottom: 8px; }
+    .file-zone {
+      border: 2px dashed rgba(255,255,255,.12); border-radius: 10px;
+      padding: 28px 20px; text-align: center; cursor: pointer;
+      transition: border-color .2s, background .2s; margin-bottom: 16px;
+    }
+    .file-zone:hover, .file-zone.drag-over {
+      border-color: #6366f1; background: rgba(99,102,241,.06);
+    }
+    .file-zone .icon { font-size: 28px; margin-bottom: 8px; }
+    .file-zone p { font-size: 13px; color: #64748b; }
+    .file-zone .file-name { font-size: 13px; color: #6366f1; font-weight: 500; margin-top: 6px; }
+    #file-input { display: none; }
+    .btn {
+      width: 100%; padding: 12px; border: none; border-radius: 9px;
+      font-size: 14px; font-weight: 600; cursor: pointer; transition: all .2s;
+    }
+    .btn-primary { background: #6366f1; color: #fff; }
+    .btn-primary:hover { background: #4f46e5; }
+    .btn-primary:disabled { background: #334155; color: #64748b; cursor: not-allowed; }
+    .hint { font-size: 11px; color: #475569; text-align: center; margin-top: 12px; }
+    .state-icon { font-size: 48px; text-align: center; margin-bottom: 16px; }
+    .state-title { font-size: 20px; font-weight: 700; text-align: center; margin-bottom: 8px; }
+    .state-msg   { font-size: 13px; color: #94a3b8; text-align: center; line-height: 1.6; }
+    .spinner {
+      width: 32px; height: 32px; border: 3px solid rgba(99,102,241,.2);
+      border-top-color: #6366f1; border-radius: 50%;
+      animation: spin .8s linear infinite; margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #state-loading, #state-ready, #state-success, #state-already, #state-invalid {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">
+      <div class="logo-icon">💊</div>
+      <div class="logo-text">
+        <h1>Mi Farmacia IT</h1>
+        <p>Sistema de Soporte</p>
+      </div>
+    </div>
+
+    <!-- Estado: cargando -->
+    <div id="state-loading">
+      <div class="spinner"></div>
+      <p style="text-align:center;color:#64748b;font-size:13px;">Verificando enlace…</p>
+    </div>
+
+    <!-- Estado: listo para subir -->
+    <div id="state-ready">
+      <h2>Acta de Entrega</h2>
+      <p class="ref" id="entity-ref"></p>
+      <label>Sube el acta firmada:</label>
+      <div class="file-zone" id="file-zone">
+        <div class="icon">📄</div>
+        <p>Toca aquí o arrastra el archivo</p>
+        <p class="file-name" id="file-name-display" style="display:none;"></p>
+      </div>
+      <input type="file" id="file-input" accept=".pdf,.docx">
+      <button class="btn btn-primary" id="btn-upload" disabled>Subir acta firmada</button>
+      <p class="hint">Formatos aceptados: PDF, DOCX &nbsp;·&nbsp; Máx. 10 MB</p>
+    </div>
+
+    <!-- Estado: subida exitosa -->
+    <div id="state-success">
+      <div class="state-icon">✅</div>
+      <div class="state-title">¡Acta recibida!</div>
+      <p class="state-msg">El equipo de IT ya recibió tu acta firmada.<br>Puedes cerrar esta ventana.</p>
+    </div>
+
+    <!-- Estado: ya subida -->
+    <div id="state-already">
+      <div class="state-icon">✅</div>
+      <div class="state-title">Acta ya entregada</div>
+      <p class="state-msg" id="already-msg"></p>
+    </div>
+
+    <!-- Estado: token inválido -->
+    <div id="state-invalid">
+      <div class="state-icon">❌</div>
+      <div class="state-title">Enlace no válido</div>
+      <p class="state-msg">Este enlace no existe o ya no es válido.<br>Contacta al equipo de IT.</p>
+    </div>
+  </div>
+
+  <script src="js/firmar.js"></script>
+</body>
+</html>
