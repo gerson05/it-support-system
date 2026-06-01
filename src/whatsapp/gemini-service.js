@@ -129,13 +129,14 @@ RESTRICCIONES:
       }
 
       const data = await res.json();
-      const text = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+      const parts = data.candidates?.[0]?.content?.parts;
+      const text  = parts?.map(p => p.text || '').join('').trim();
       if (!text) {
-        console.warn(`[Gemini] Respuesta vacía de ${model}.`);
+        console.warn(`[Gemini] Respuesta vacía de ${model}. Finish: ${data.candidates?.[0]?.finishReason}`);
         continue;
       }
 
-      console.log(`[Gemini] ✓ Solución generada con ${model} para área "${area}".`);
+      console.log(`[Gemini] ✓ Solución generada con ${model} para área "${area}" (${text.length} chars).`);
       return text;
 
     } catch (err) {
@@ -151,28 +152,33 @@ RESTRICCIONES:
  * Analiza una imagen con Gemini Vision y devuelve pasos de solución.
  * Recibe imageBase64 (string base64 puro, sin prefijo data:…) y mimetype.
  */
-export async function getAISolutionFromImage(area, imageBase64, mimetype = 'image/jpeg') {
+export async function getAISolutionFromImage(area, imageBase64, mimetype = 'image/jpeg', caption = '') {
   if (!API_KEY) return null;
 
   const areaName    = AREA_NAMES[area]   || 'Soporte IT';
   const areaContext = AREA_CONTEXT[area] || AREA_CONTEXT.general;
 
+  const captionLine = caption
+    ? `El empleado acompañó la imagen con este mensaje: "${caption}"`
+    : 'El empleado envió esta imagen sin mensaje adicional.';
+
   const textPrompt =
-`Eres el experto en soporte técnico IT de "Mi Farmacia", empresa colombiana del sector salud. El empleado trabaja en el área de *${areaName}*.
+`Eres el experto en soporte técnico IT de "Mi Farmacia", empresa colombiana del sector salud. El empleado trabaja en el área de ${areaName}.
 
-Contexto del área:
-${areaContext}
+Contexto del área: ${areaContext}
 
-El empleado ha enviado una captura de pantalla de su problema.
+${captionLine}
 
-TAREA: Analiza la imagen y escribe los pasos CONCRETOS para resolver el error o problema visible.
+TAREA: Mira la imagen y da los pasos CONCRETOS y ESPECÍFICOS para resolver exactamente lo que se ve (puede ser error de software, pantalla oscura, hardware dañado, impresora atascada, cualquier problema físico o digital).
 
-FORMATO OBLIGATORIO:
+REGLAS:
+- Responde SOLO con los pasos, sin saludos ni introducciones
 - Máximo 5 pasos numerados
-- Cada paso: acción específica + qué ver si funciona
-- Lenguaje simple, sin siglas técnicas
-- NO empieces con "Comunícate con IT"
-- Máximo 160 palabras — solo en español`;
+- Cada paso: acción específica → resultado esperado
+- Si es problema de hardware (brillo, cable, dispositivo), indica exactamente dónde tocar o ajustar
+- Lenguaje simple, sin tecnicismos
+- Solo en español
+- Máximo 180 palabras`;
 
   // Modelos con soporte de visión (multimodal)
   const VISION_MODELS = ['gemini-2.5-flash', 'gemini-2.5-flash-lite'];
@@ -210,10 +216,11 @@ FORMATO OBLIGATORIO:
       }
 
       const data = await res.json();
-      const text = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-      if (!text) { console.warn(`[Gemini Vision] Respuesta vacía de ${model}.`); continue; }
+      const parts = data.candidates?.[0]?.content?.parts;
+      const text  = parts?.map(p => p.text || '').join('').trim();
+      if (!text) { console.warn(`[Gemini Vision] Respuesta vacía de ${model}. Finish: ${data.candidates?.[0]?.finishReason}`); continue; }
 
-      console.log(`[Gemini Vision] ✓ Imagen analizada con ${model} para área "${area}".`);
+      console.log(`[Gemini Vision] ✓ Imagen analizada con ${model} para área "${area}" (${text.length} chars).`);
       return text;
 
     } catch (err) {
