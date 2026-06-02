@@ -16,6 +16,7 @@ if (!fs.existsSync(dbDir)) {
 }
 
 const db = new DatabaseSync(dbPath);
+db.exec('PRAGMA foreign_keys = ON');
 
 // Inicializar tablas usando el esquema
 const schema = fs.readFileSync(schemaPath, 'utf8');
