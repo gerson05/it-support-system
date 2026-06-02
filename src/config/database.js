@@ -79,10 +79,56 @@ const migrations = [
   )`,
   `CREATE INDEX IF NOT EXISTS idx_acta_uploads_entity
    ON acta_uploads(entity_type, entity_id)`,
+  `CREATE TABLE IF NOT EXISTS roles (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    name        TEXT NOT NULL UNIQUE,
+    description TEXT
+  )`,
+  `CREATE TABLE IF NOT EXISTS permissions (
+    id   INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL UNIQUE
+  )`,
+  `CREATE TABLE IF NOT EXISTS role_permissions (
+    role_id       INTEGER NOT NULL,
+    permission_id INTEGER NOT NULL,
+    PRIMARY KEY (role_id, permission_id),
+    FOREIGN KEY (role_id)       REFERENCES roles(id),
+    FOREIGN KEY (permission_id) REFERENCES permissions(id)
+  )`,
+  `CREATE TABLE IF NOT EXISTS users (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    username      TEXT NOT NULL UNIQUE,
+    password_hash TEXT NOT NULL,
+    role_id       INTEGER NOT NULL,
+    active        INTEGER DEFAULT 1,
+    created_at    TEXT DEFAULT (datetime('now','localtime')),
+    updated_at    TEXT DEFAULT (datetime('now','localtime')),
+    FOREIGN KEY (role_id) REFERENCES roles(id)
+  )`,
+  `CREATE TABLE IF NOT EXISTS sessions (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    token      TEXT NOT NULL UNIQUE,
+    user_id    INTEGER NOT NULL,
+    expires_at TEXT NOT NULL,
+    created_at TEXT DEFAULT (datetime('now','localtime')),
+    FOREIGN KEY (user_id) REFERENCES users(id)
+  )`,
+  `INSERT OR IGNORE INTO roles (id, name, description) VALUES
+    (1, 'it',        'Equipo IT — acceso completo'),
+    (2, 'farmacias', 'Acceso solo al directorio de farmacias')`,
+  `INSERT OR IGNORE INTO permissions (id, name) VALUES
+    (1, 'full'),
+    (2, 'farmacias')`,
+  `INSERT OR IGNORE INTO role_permissions (role_id, permission_id) VALUES (1,1),(1,2),(2,2)`,
 ];
 for (const sql of migrations) {
   try { db.exec(sql); } catch { /* columna ya existe */ }
 }
+
+// Limpiar sesiones expiradas al arrancar
+try {
+  db.exec("DELETE FROM sessions WHERE datetime(expires_at) <= datetime('now')");
+} catch {}
 
 // Poblar tabla sedes desde datos estáticos si está vacía
 const sedesCount = db.prepare('SELECT COUNT(*) as n FROM sedes').get().n;
