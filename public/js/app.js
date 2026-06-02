@@ -8,6 +8,7 @@ import { renderFaqs } from './faqs.js';
 import { renderSedesAdmin } from './sedes-admin.js';
 import { renderAudit } from './audit.js';
 import { renderDespacho } from './despacho.js';
+import { renderUsers } from './users.js';
 import { showToast } from './components.js';
 import { DataService, isOfflineMode } from './data-service.js';
 
@@ -15,7 +16,8 @@ import { DataService, isOfflineMode } from './data-service.js';
 export const state = {
   currentAgent: { id: 1, name: 'Agente 1' },
   agents: [],
-  currentPage: 'dashboard'
+  currentPage: 'dashboard',
+  currentUser: null,
 };
 
 // Mapeos de traducción y visualización
@@ -180,6 +182,12 @@ function router() {
         if (navAudit) navAudit.classList.add('active');
         renderAudit(appContainer);
         break;
+      case '#users':
+        state.currentPage = 'users';
+        const navUsers = document.getElementById('nav-users');
+        if (navUsers) navUsers.classList.add('active');
+        renderUsers(appContainer);
+        break;
       default:
         state.currentPage = 'dashboard';
         document.getElementById('nav-dashboard').classList.add('active');
@@ -193,6 +201,23 @@ function router() {
    ========================================================================== */
 
 async function init() {
+  // Verificar autenticación en modo online
+  if (!isOfflineMode) {
+    try {
+      const res = await fetch('/api/auth/me');
+      if (res.status === 401) {
+        window.location.replace('/login.html');
+        return;
+      }
+      if (res.ok) {
+        state.currentUser = await res.json();
+        _applyUserUI(state.currentUser);
+      }
+    } catch (_) {
+      // Sin servidor — continuar sin guard
+    }
+  }
+
   // Configurar banner de modo de ejecución en la interfaz
   if (isOfflineMode) {
     const pulseInd = document.querySelector('.pulse-indicator');
@@ -466,6 +491,31 @@ function initSidebarToggle() {
 
   // Cerrar al navegar (click en cualquier ítem del menú)
   document.querySelectorAll('.menu-item').forEach(item => item.addEventListener('click', close));
+}
+
+function _applyUserUI(user) {
+  // Mostrar nombre del usuario en el header
+  const label = document.getElementById('current-user-label');
+  if (label) { label.textContent = user.username; label.style.display = 'inline'; }
+
+  // Actualizar avatar
+  updateAgentAvatar(user.username);
+
+  // Mostrar botón de logout
+  const btnLogout = document.getElementById('btn-logout');
+  if (btnLogout) {
+    btnLogout.style.display = 'inline-block';
+    btnLogout.addEventListener('click', async () => {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      window.location.replace('/login.html');
+    });
+  }
+
+  // Mostrar nav de usuarios solo para rol 'it'
+  if (user.permissions?.includes('full')) {
+    const navUsers = document.getElementById('nav-users');
+    if (navUsers) navUsers.style.display = 'flex';
+  }
 }
 
 // Iniciar aplicación

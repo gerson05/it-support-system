@@ -14,6 +14,9 @@ import auditRouter from './src/audit/audit-routes.js';
 import despachoRouter from './src/despacho/despacho-routes.js';
 import farmaciasRouter from './src/farmacias/farmacias-routes.js';
 import actasRouter    from './src/actas/actas-routes.js';
+import authRouter     from './src/auth/auth-routes.js';
+import userRouter     from './src/auth/user-routes.js';
+import { initAdminUser } from './src/auth/auth-service.js';
 import Chatbot from './src/whatsapp/chatbot.js';
 import whatsappClient from './src/whatsapp/baileys-client.js';
 import { startInactivityMonitor } from './src/whatsapp/inactivity-monitor.js';
@@ -45,6 +48,8 @@ app.use(auditRouter);
 app.use(despachoRouter);
 app.use(farmaciasRouter);
 app.use(actasRouter);
+app.use(authRouter);
+app.use(userRouter);
 
 // Página pública de subida de acta firmada
 app.get('/firmar/:token', (_req, res) => {
@@ -211,7 +216,9 @@ process.on('unhandledRejection', (reason) => {
 });
 
 // Levantar el servidor
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
+  await initAdminUser();
+
   console.log(`\n======================================================`);
   console.log(`🚀 Sistema de Tickets IT corriendo exitosamente.`);
   console.log(`🖥️  Panel de Gestión: http://localhost:${PORT}`);
