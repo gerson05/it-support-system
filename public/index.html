@@ -67,6 +67,10 @@
         <span class="menu-icon"><i data-lucide="map-pin" class="lucide"></i></span>
         <span class="menu-label">Farmacias FOMAG</span>
       </a>
+      <a href="#users" class="menu-item" id="nav-users" style="display:none;">
+        <span class="menu-icon"><i data-lucide="users" class="lucide"></i></span>
+        <span class="menu-label">Usuarios</span>
+      </a>
       <a href="#settings" class="menu-item" id="nav-settings">
         <span class="menu-icon"><i data-lucide="settings" class="lucide"></i></span>
         <span class="menu-label">Configuración</span>
@@ -128,6 +132,13 @@
       </div>
       <div class="header-profile">
         <span class="agent-badge" id="header-connection-badge">Conectado</span>
+        <span id="current-user-label" style="font-size:13px;color:var(--text-2);display:none;"></span>
+        <button id="btn-logout" title="Cerrar sesión"
+          style="display:none;background:transparent;border:1px solid var(--border);
+                 color:var(--text-2);border-radius:6px;padding:4px 10px;font-size:12px;
+                 cursor:pointer;font-family:inherit;transition:all 0.15s ease;">
+          Salir
+        </button>
         <div class="avatar" id="current-agent-avatar">A</div>
       </div>
     </header>
