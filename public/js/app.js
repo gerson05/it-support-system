@@ -12,6 +12,23 @@ import { renderUsers } from './users.js';
 import { showToast } from './components.js';
 import { DataService, isOfflineMode } from './data-service.js';
 
+function can(permission) {
+  const user = state.currentUser;
+  if (!user) return false;
+  return user.permissions.includes('full') || user.permissions.includes(permission);
+}
+
+function _firstAccessibleHash() {
+  if (can('metrics:read'))       return '#dashboard';
+  if (can('tickets:read'))       return '#tickets';
+  if (can('tech-requests:read')) return '#tech-requests';
+  if (can('faqs:read'))          return '#faqs';
+  if (can('sedes:read'))         return '#sedes';
+  if (can('despacho:read'))      return '#despacho';
+  if (can('audit:read'))         return '#audit';
+  return '#settings';
+}
+
 // Estado global de la aplicación SPA
 export const state = {
   currentAgent: { id: 1, name: 'Agente 1' },
@@ -124,73 +141,76 @@ function router() {
   
   // Parsear rutas complejas (ej. #ticket/12, #tech-request/5)
   if (hash.startsWith('#ticket/')) {
+    if (state.currentUser && !can('tickets:read')) { window.location.hash = _firstAccessibleHash(); return; }
     const ticketId = hash.split('/')[1];
     state.currentPage = 'ticket-detail';
-    document.getElementById('nav-tickets').classList.add('active');
+    document.getElementById('nav-tickets')?.classList.add('active');
     renderTicketDetail(appContainer, ticketId);
   } else if (hash.startsWith('#tech-request/')) {
+    if (state.currentUser && !can('tech-requests:read')) { window.location.hash = _firstAccessibleHash(); return; }
     const reqId = hash.split('/')[1];
     state.currentPage = 'tech-request-detail';
-    const navTR = document.getElementById('nav-tech-requests');
-    if (navTR) navTR.classList.add('active');
+    document.getElementById('nav-tech-requests')?.classList.add('active');
     renderTechRequestDetail(appContainer, reqId);
   } else {
     switch (hash) {
       case '#dashboard':
+        if (state.currentUser && !can('metrics:read')) { window.location.hash = _firstAccessibleHash(); break; }
         state.currentPage = 'dashboard';
-        document.getElementById('nav-dashboard').classList.add('active');
+        document.getElementById('nav-dashboard')?.classList.add('active');
         renderDashboard(appContainer);
         break;
       case '#tickets':
+        if (state.currentUser && !can('tickets:read')) { window.location.hash = _firstAccessibleHash(); break; }
         state.currentPage = 'tickets';
-        document.getElementById('nav-tickets').classList.add('active');
+        document.getElementById('nav-tickets')?.classList.add('active');
         renderTicketList(appContainer);
         break;
       case '#tech-requests':
+        if (state.currentUser && !can('tech-requests:read')) { window.location.hash = _firstAccessibleHash(); break; }
         state.currentPage = 'tech-requests';
-        const navTR2 = document.getElementById('nav-tech-requests');
-        if (navTR2) navTR2.classList.add('active');
+        document.getElementById('nav-tech-requests')?.classList.add('active');
         renderTechRequests(appContainer);
         break;
       case '#faqs':
+        if (state.currentUser && !can('faqs:read')) { window.location.hash = _firstAccessibleHash(); break; }
         state.currentPage = 'faqs';
-        const navFaqs = document.getElementById('nav-faqs');
-        if (navFaqs) navFaqs.classList.add('active');
+        document.getElementById('nav-faqs')?.classList.add('active');
         renderFaqs(appContainer);
         break;
       case '#settings':
         state.currentPage = 'settings';
-        const navSettings = document.getElementById('nav-settings');
-        if (navSettings) navSettings.classList.add('active');
+        document.getElementById('nav-settings')?.classList.add('active');
         renderSettings(appContainer);
         break;
       case '#sedes':
+        if (state.currentUser && !can('sedes:read')) { window.location.hash = _firstAccessibleHash(); break; }
         state.currentPage = 'sedes';
-        const navSedes = document.getElementById('nav-sedes');
-        if (navSedes) navSedes.classList.add('active');
+        document.getElementById('nav-sedes')?.classList.add('active');
         renderSedesAdmin(appContainer);
         break;
       case '#despacho':
+        if (state.currentUser && !can('despacho:read')) { window.location.hash = _firstAccessibleHash(); break; }
         state.currentPage = 'despacho';
-        const navDespacho = document.getElementById('nav-despacho');
-        if (navDespacho) navDespacho.classList.add('active');
+        document.getElementById('nav-despacho')?.classList.add('active');
         renderDespacho(appContainer);
         break;
       case '#audit':
+        if (state.currentUser && !can('audit:read')) { window.location.hash = _firstAccessibleHash(); break; }
         state.currentPage = 'audit';
-        const navAudit = document.getElementById('nav-audit');
-        if (navAudit) navAudit.classList.add('active');
+        document.getElementById('nav-audit')?.classList.add('active');
         renderAudit(appContainer);
         break;
       case '#users':
+        if (state.currentUser && !can('full')) { window.location.hash = _firstAccessibleHash(); break; }
         state.currentPage = 'users';
-        const navUsers = document.getElementById('nav-users');
-        if (navUsers) navUsers.classList.add('active');
+        document.getElementById('nav-users')?.classList.add('active');
         renderUsers(appContainer);
         break;
       default:
+        if (state.currentUser && !can('metrics:read')) { window.location.hash = _firstAccessibleHash(); break; }
         state.currentPage = 'dashboard';
-        document.getElementById('nav-dashboard').classList.add('active');
+        document.getElementById('nav-dashboard')?.classList.add('active');
         renderDashboard(appContainer);
     }
   }
@@ -206,6 +226,7 @@ async function init() {
     try {
       const res = await fetch('/api/auth/me');
       if (res.status === 401) {
+        sessionStorage.removeItem('it_role');
         window.location.replace('/login.html');
         return;
       }
@@ -220,6 +241,7 @@ async function init() {
 
   // Configurar banner de modo de ejecución en la interfaz
   if (isOfflineMode) {
+    document.querySelectorAll('.menu-item').forEach(el => el.style.display = 'flex');
     const pulseInd = document.querySelector('.pulse-indicator');
     if (pulseInd) {
       pulseInd.style.background = '#f59e0b';
@@ -494,14 +516,12 @@ function initSidebarToggle() {
 }
 
 function _applyUserUI(user) {
-  // Mostrar nombre del usuario en el header
+  const show = (id) => { const el = document.getElementById(id); if (el) el.style.display = 'flex'; };
+
   const label = document.getElementById('current-user-label');
   if (label) { label.textContent = user.username; label.style.display = 'inline'; }
-
-  // Actualizar avatar
   updateAgentAvatar(user.username);
 
-  // Mostrar botón de logout
   const btnLogout = document.getElementById('btn-logout');
   if (btnLogout) {
     btnLogout.style.display = 'inline-block';
@@ -511,11 +531,15 @@ function _applyUserUI(user) {
     });
   }
 
-  // Mostrar nav de usuarios solo para rol 'it'
-  if (user.permissions?.includes('full')) {
-    const navUsers = document.getElementById('nav-users');
-    if (navUsers) navUsers.style.display = 'flex';
-  }
+  if (can('metrics:read'))       show('nav-dashboard');
+  if (can('tickets:read'))       show('nav-tickets');
+  if (can('tech-requests:read')) show('nav-tech-requests');
+  if (can('faqs:read'))          show('nav-faqs');
+  if (can('sedes:read'))         show('nav-sedes');
+  if (can('despacho:read'))      show('nav-despacho');
+  if (can('audit:read'))         show('nav-audit');
+  if (can('farmacias:read'))     show('nav-farmacias');
+  if (can('full'))               show('nav-users');
 }
 
 // Iniciar aplicación
