@@ -165,4 +165,114 @@ router.delete('/api/users/:id', ...itOnly, (req, res) => {
   res.json({ ok: true });
 });
 
+router.put('/api/roles/:id', ...itOnly, (req, res, next) => {
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) return res.status(400).json({ error: 'ID de rol inválido.' });
+  if (id === 1) return res.status(403).json({ error: 'El rol IT no se puede modificar.' });
+
+  if (!db.prepare('SELECT id FROM roles WHERE id = ?').get(id)) {
+    return res.status(404).json({ error: 'Rol no encontrado.' });
+  }
+
+  const { name, description } = req.body;
+  try {
+    if (name !== undefined) {
+      if (!String(name).trim()) return res.status(400).json({ error: 'El nombre no puede estar vacío.' });
+      db.prepare('UPDATE roles SET name = ? WHERE id = ?').run(String(name).trim(), id);
+    }
+    if (description !== undefined) {
+      db.prepare('UPDATE roles SET description = ? WHERE id = ?').run(description, id);
+    }
+    res.json({ ok: true });
+  } catch (err) {
+    if (err.message?.includes('UNIQUE')) return res.status(409).json({ error: 'Ya existe un rol con ese nombre.' });
+    next(err);
+  }
+});
+
+router.put('/api/roles/:id/permissions', ...itOnly, (req, res, next) => {
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) return res.status(400).json({ error: 'ID de rol inválido.' });
+  if (id === 1) return res.status(403).json({ error: 'El rol IT no se puede modificar.' });
+
+  if (!db.prepare('SELECT id FROM roles WHERE id = ?').get(id)) {
+    return res.status(404).json({ error: 'Rol no encontrado.' });
+  }
+
+  const { permission_ids } = req.body;
+  if (!Array.isArray(permission_ids)) {
+    return res.status(400).json({ error: 'permission_ids debe ser un array.' });
+  }
+
+  for (const pid of permission_ids) {
+    if (!db.prepare('SELECT id FROM permissions WHERE id = ?').get(pid)) {
+      return res.status(400).json({ error: `Permiso con id ${pid} no existe.` });
+    }
+  }
+
+  try {
+    db.exec('BEGIN');
+    db.prepare('DELETE FROM role_permissions WHERE role_id = ?').run(id);
+    const ins = db.prepare('INSERT INTO role_permissions (role_id, permission_id) VALUES (?, ?)');
+    for (const pid of permission_ids) ins.run(id, pid);
+    db.exec('COMMIT');
+    res.json({ ok: true });
+  } catch (err) {
+    try { db.exec('ROLLBACK'); } catch {}
+    next(err);
+  }
+});
+
+router.post('/api/roles', ...itOnly, (req, res, next) => {
+  const { name, description = '', permission_ids = [] } = req.body;
+  if (!String(name ?? '').trim()) return res.status(400).json({ error: 'El nombre es requerido.' });
+
+  try {
+    const result = db.prepare(
+      'INSERT INTO roles (name, description) VALUES (?, ?)'
+    ).run(String(name).trim(), description);
+    const roleId = result.lastInsertRowid;
+
+    if (permission_ids.length > 0) {
+      db.exec('BEGIN');
+      try {
+        const ins = db.prepare('INSERT INTO role_permissions (role_id, permission_id) VALUES (?, ?)');
+        for (const pid of permission_ids) ins.run(roleId, pid);
+        db.exec('COMMIT');
+      } catch (err) {
+        try { db.exec('ROLLBACK'); } catch {}
+        throw err;
+      }
+    }
+
+    res.status(201).json({ ok: true, id: roleId });
+  } catch (err) {
+    if (err.message?.includes('UNIQUE')) return res.status(409).json({ error: 'Ya existe un rol con ese nombre.' });
+    next(err);
+  }
+});
+
+router.delete('/api/roles/:id', ...itOnly, (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) return res.status(400).json({ error: 'ID de rol inválido.' });
+  if (id === 1) return res.status(400).json({ error: 'El rol IT no se puede eliminar.' });
+
+  if (!db.prepare('SELECT id FROM roles WHERE id = ?').get(id)) {
+    return res.status(404).json({ error: 'Rol no encontrado.' });
+  }
+
+  const n = db.prepare(
+    'SELECT COUNT(*) AS n FROM users WHERE role_id = ? AND active = 1'
+  ).get(id).n;
+  if (n > 0) {
+    return res.status(400).json({
+      error: `Este rol tiene ${n} usuario${n > 1 ? 's' : ''} activo${n > 1 ? 's' : ''}. Reasígnalos antes de eliminar.`,
+    });
+  }
+
+  db.prepare('DELETE FROM role_permissions WHERE role_id = ?').run(id);
+  db.prepare('DELETE FROM roles WHERE id = ?').run(id);
+  res.json({ ok: true });
+});
+
 export default router;
