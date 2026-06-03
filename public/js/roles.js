@@ -5,6 +5,7 @@ let _roles   = [];
 let _expandedId   = null;
 let _originalPerms = {};
 let _pendingPerms  = {};
+let _isLoading = false;
 
 export async function renderRolesTab(container) {
   container.innerHTML = `
@@ -75,7 +76,7 @@ function _cardHtml(role) {
         </div>
         <div style="display:flex;align-items:center;gap:10px;">
           <span style="font-size:11px;color:var(--text-3);background:var(--surface-3);border:1px solid var(--border);border-radius:4px;padding:2px 8px;">
-            ${role.user_count} usuario${role.user_count !== 1 ? 's' : ''}
+            ${escHtml(String(role.user_count))} usuario${role.user_count !== 1 ? 's' : ''}
           </span>
           ${isIT ? '' : `<span style="font-size:11px;color:var(--text-3);" id="chevron-${role.id}">▼</span>`}
         </div>
@@ -85,12 +86,15 @@ function _cardHtml(role) {
 }
 
 async function _toggleCard(roleId) {
+  if (_isLoading) return;
   if (roleId === 1) return;
 
   if (_expandedId && _expandedId !== roleId) {
     const orig = _originalPerms[_expandedId] ?? [];
     const pend = _pendingPerms[_expandedId] ?? [];
-    const hasChanges = orig.length !== pend.length || orig.some(id => !pend.includes(id));
+    const origSet = new Set(orig);
+    const pendSet = new Set(pend);
+    const hasChanges = origSet.size !== pendSet.size || [...origSet].some(id => !pendSet.has(id));
     if (hasChanges) {
       const role  = _roles.find(r => r.id === _expandedId);
       const other = _roles.find(r => r.id === roleId);
@@ -114,10 +118,26 @@ async function _toggleCard(roleId) {
   body.innerHTML = `<div style="padding:12px;"><div class="loading-spinner" style="width:20px;height:20px;"></div></div>`;
 
   if (!_originalPerms[roleId]) {
-    const res  = await fetch(`/api/roles/${roleId}/permissions`);
-    const data = await res.json();
-    _originalPerms[roleId] = data.permission_ids ?? [];
-    _pendingPerms[roleId]  = [..._originalPerms[roleId]];
+    _isLoading = true;
+    try {
+      const res  = await fetch(`/api/roles/${roleId}/permissions`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      _originalPerms[roleId] = data.permission_ids ?? [];
+      _pendingPerms[roleId]  = [..._originalPerms[roleId]];
+    } catch {
+      const body = document.getElementById(`role-body-${roleId}`);
+      if (body) body.innerHTML = `<p style="color:var(--danger);padding:12px;">Error cargando permisos.</p>`;
+      _expandedId = null;
+      const chevron = document.getElementById(`chevron-${roleId}`);
+      if (chevron) chevron.textContent = '▼';
+      const card = document.getElementById(`role-card-${roleId}`);
+      if (card) card.style.borderColor = 'var(--border)';
+      _isLoading = false;
+      return;
+    } finally {
+      _isLoading = false;
+    }
   }
 
   _renderCardBody(roleId);
