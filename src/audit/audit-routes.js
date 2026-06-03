@@ -1,9 +1,10 @@
 import express from 'express';
 import db from '../config/database.js';
+import { requireAuth, requirePermission } from '../auth/auth-middleware.js';
 
 const router = express.Router();
 
-router.get('/api/audit', (req, res) => {
+router.get('/api/audit', requireAuth, requirePermission('audit:read'), (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 50;
     const offset = parseInt(req.query.offset) || 0;
@@ -15,7 +16,7 @@ router.get('/api/audit', (req, res) => {
   }
 });
 
-router.get('/api/audit/actas', (req, res) => {
+router.get('/api/audit/actas', requireAuth, requirePermission('audit:read'), (req, res) => {
   try {
     const limit  = Math.min(parseInt(req.query.limit)  || 50, 200);
     const offset = parseInt(req.query.offset) || 0;
