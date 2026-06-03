@@ -1,10 +1,11 @@
 import express from 'express';
 import db from '../config/database.js';
+import { requireAuth, requirePermission } from '../auth/auth-middleware.js';
 
 const router = express.Router();
 
 /* ── Listar todas las sedes agrupadas por ciudad ── */
-router.get('/api/sedes', (req, res) => {
+router.get('/api/sedes', requireAuth, requirePermission('sedes:read'), (req, res) => {
   try {
     const rows = db.prepare(`
       SELECT id, ciudad, nombre_punto, activo, created_at
@@ -25,7 +26,7 @@ router.get('/api/sedes', (req, res) => {
 });
 
 /* ── Agregar nuevo punto ── */
-router.post('/api/sedes', (req, res) => {
+router.post('/api/sedes', requireAuth, requirePermission('sedes:create'), (req, res) => {
   try {
     const { ciudad, nombre_punto } = req.body;
     if (!ciudad?.trim() || !nombre_punto?.trim()) {
@@ -43,7 +44,7 @@ router.post('/api/sedes', (req, res) => {
 });
 
 /* ── Actualizar punto (nombre o activo) ── */
-router.put('/api/sedes/:id', (req, res) => {
+router.put('/api/sedes/:id', requireAuth, requirePermission('sedes:edit'), (req, res) => {
   try {
     const id = parseInt(req.params.id);
     const { ciudad, nombre_punto, activo } = req.body;
@@ -66,7 +67,7 @@ router.put('/api/sedes/:id', (req, res) => {
 });
 
 /* ── Eliminar punto (soft delete) ── */
-router.delete('/api/sedes/:id', (req, res) => {
+router.delete('/api/sedes/:id', requireAuth, requirePermission('sedes:delete'), (req, res) => {
   try {
     db.prepare(`UPDATE sedes SET activo=0 WHERE id=?`).run(parseInt(req.params.id));
     res.json({ success: true });
