@@ -1,8 +1,13 @@
 import express from 'express';
 import db from '../config/database.js';
 import { logAudit } from '../audit/audit-logger.js';
+import { requireAuth, requirePermission } from '../auth/auth-middleware.js';
 
 const router = express.Router();
+
+const canRead   = [requireAuth, requirePermission('despacho:read')];
+const canCreate = [requireAuth, requirePermission('despacho:create')];
+const canEdit   = [requireAuth, requirePermission('despacho:edit')];
 
 // Generate acta number: ACTA-YYYY-NNN
 function generateActaNumero() {
@@ -24,7 +29,7 @@ function generateNumero() {
 }
 
 // GET /api/despachos — list with optional filters
-router.get('/api/despachos', (req, res) => {
+router.get('/api/despachos', ...canRead, (req, res) => {
   try {
     const { search, requiere_acta, acta_firmada, limit = 20, offset = 0 } = req.query;
     let query = 'SELECT * FROM despachos WHERE 1=1';
@@ -54,7 +59,7 @@ router.get('/api/despachos', (req, res) => {
 });
 
 // GET /api/despachos/borrador?agente=X
-router.get('/api/despachos/borrador', (req, res) => {
+router.get('/api/despachos/borrador', ...canRead, (req, res) => {
   try {
     const { agente } = req.query;
     if (!agente) return res.status(400).json({ error: 'agente es obligatorio.' });
@@ -72,7 +77,7 @@ router.get('/api/despachos/borrador', (req, res) => {
 });
 
 // PUT /api/despachos/borrador — crea o sobreescribe el borrador del agente
-router.put('/api/despachos/borrador', (req, res) => {
+router.put('/api/despachos/borrador', ...canEdit, (req, res) => {
   try {
     const { agente, destinatario, sede, area, articulos, observaciones, requiere_acta, ticket_id } = req.body;
     if (!agente) return res.status(400).json({ error: 'agente es obligatorio.' });
@@ -105,7 +110,7 @@ router.put('/api/despachos/borrador', (req, res) => {
 });
 
 // DELETE /api/despachos/borrador?agente=X
-router.delete('/api/despachos/borrador', (req, res) => {
+router.delete('/api/despachos/borrador', ...canEdit, (req, res) => {
   try {
     const { agente } = req.query;
     if (!agente) return res.status(400).json({ error: 'agente es obligatorio.' });
@@ -117,7 +122,7 @@ router.delete('/api/despachos/borrador', (req, res) => {
 });
 
 // GET /api/despachos/:id
-router.get('/api/despachos/:id', (req, res) => {
+router.get('/api/despachos/:id', ...canRead, (req, res) => {
   try {
     const row = db.prepare('SELECT * FROM despachos WHERE id = ?').get(parseInt(req.params.id));
     if (!row) return res.status(404).json({ error: 'Despacho no encontrado.' });
@@ -128,7 +133,7 @@ router.get('/api/despachos/:id', (req, res) => {
 });
 
 // POST /api/despachos — create
-router.post('/api/despachos', (req, res) => {
+router.post('/api/despachos', ...canCreate, (req, res) => {
   try {
     const { destinatario, sede, area, articulos, observaciones, requiere_acta = 0, ticket_id, agente } = req.body;
     if (!destinatario || !articulos || !articulos.length) {
@@ -159,7 +164,7 @@ router.post('/api/despachos', (req, res) => {
 });
 
 // PUT /api/despachos/:id — update (mainly acta fields)
-router.put('/api/despachos/:id', (req, res) => {
+router.put('/api/despachos/:id', ...canEdit, (req, res) => {
   try {
     const id = parseInt(req.params.id);
     const { acta_numero, acta_firmada, observaciones, requiere_acta, agente } = req.body;
