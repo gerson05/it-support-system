@@ -361,7 +361,30 @@ async function _submitNewRole() {
   }
 }
 
-function _deleteRole(_roleId) {}
+async function _deleteRole(roleId) {
+  const role = _roles.find(r => r.id === roleId);
+  if (!role) return;
+
+  if (!confirm(`¿Eliminar el rol "${role.name}"? Esta acción no se puede deshacer.`)) return;
+
+  const btn = document.getElementById(`btn-delete-role-${roleId}`);
+  if (btn) { btn.disabled = true; btn.textContent = 'Eliminando...'; }
+
+  try {
+    const res = await fetch(`/api/roles/${roleId}`, { method: 'DELETE' });
+    const data = await res.json();
+    if (!res.ok) {
+      showToast(data.error || 'Error al eliminar.', 'error');
+      if (btn) { btn.disabled = false; btn.textContent = 'Eliminar rol'; }
+      return;
+    }
+    showToast(`Rol "${escHtml(role.name)}" eliminado.`, 'success');
+    await _loadAll();
+  } catch {
+    showToast('Error de conexión.', 'error');
+    if (btn) { btn.disabled = false; btn.textContent = 'Eliminar rol'; }
+  }
+}
 
 function escHtml(str) {
   return String(str ?? '').replace(/[&<>"']/g, c =>
