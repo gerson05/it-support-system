@@ -198,6 +198,12 @@ app.post('/api/whatsapp/reset', (req, res) => {
   }
 });
 
+// Manejador global de errores Express (debe ir antes del fallback SPA)
+app.use((err, req, res, _next) => {
+  console.error(err);
+  res.status(500).json({ error: 'Error interno del servidor.' });
+});
+
 // SPA fallback: cualquier ruta no coincidente sirve index.html (va al final)
 app.get('*', (req, res) => {
   if (req.path.startsWith('/api/')) {

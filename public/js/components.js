@@ -111,10 +111,17 @@ export function showToast(message, type = 'info') {
 
   const toast = document.createElement('div');
   toast.className = `toast toast-${type}`;
-  toast.innerHTML = `
-    <span class="toast-icon">${icons[type] || icons.info}</span>
-    <span style="font-size:13px;font-weight:500;flex:1;">${message}</span>
-  `;
+
+  const iconSpan = document.createElement('span');
+  iconSpan.className = 'toast-icon';
+  iconSpan.innerHTML = icons[type] || icons.info;
+
+  const msgSpan = document.createElement('span');
+  msgSpan.style.cssText = 'font-size:13px;font-weight:500;flex:1;';
+  msgSpan.textContent = message;
+
+  toast.appendChild(iconSpan);
+  toast.appendChild(msgSpan);
 
   container.appendChild(toast);
 

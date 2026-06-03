@@ -232,6 +232,12 @@ router.post('/api/roles', ...itOnly, (req, res, next) => {
   if (!String(name ?? '').trim()) return res.status(400).json({ error: 'El nombre es requerido.' });
   if (!Array.isArray(permission_ids)) return res.status(400).json({ error: 'permission_ids debe ser un array.' });
 
+  for (const pid of permission_ids) {
+    if (!db.prepare('SELECT id FROM permissions WHERE id = ?').get(pid)) {
+      return res.status(400).json({ error: `Permiso con id ${pid} no existe.` });
+    }
+  }
+
   try {
     db.exec('BEGIN');
     const result = db.prepare(
@@ -263,11 +269,11 @@ router.delete('/api/roles/:id', ...itOnly, (req, res, next) => {
     }
 
     const n = db.prepare(
-      'SELECT COUNT(*) AS n FROM users WHERE role_id = ? AND active = 1'
+      'SELECT COUNT(*) AS n FROM users WHERE role_id = ?'
     ).get(id).n;
     if (n > 0) {
       return res.status(400).json({
-        error: `Este rol tiene ${n} usuario${n > 1 ? 's' : ''} activo${n > 1 ? 's' : ''}. Reasígnalos antes de eliminar.`,
+        error: `Este rol tiene ${n} usuario${n > 1 ? 's' : ''} asignado${n > 1 ? 's' : ''}. Reasígnalos antes de eliminar.`,
       });
     }
 
