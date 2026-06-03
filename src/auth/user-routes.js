@@ -252,27 +252,31 @@ router.post('/api/roles', ...itOnly, (req, res, next) => {
   }
 });
 
-router.delete('/api/roles/:id', ...itOnly, (req, res) => {
+router.delete('/api/roles/:id', ...itOnly, (req, res, next) => {
   const id = parseInt(req.params.id, 10);
   if (isNaN(id)) return res.status(400).json({ error: 'ID de rol inválido.' });
   if (id === 1) return res.status(400).json({ error: 'El rol IT no se puede eliminar.' });
 
-  if (!db.prepare('SELECT id FROM roles WHERE id = ?').get(id)) {
-    return res.status(404).json({ error: 'Rol no encontrado.' });
-  }
+  try {
+    if (!db.prepare('SELECT id FROM roles WHERE id = ?').get(id)) {
+      return res.status(404).json({ error: 'Rol no encontrado.' });
+    }
 
-  const n = db.prepare(
-    'SELECT COUNT(*) AS n FROM users WHERE role_id = ? AND active = 1'
-  ).get(id).n;
-  if (n > 0) {
-    return res.status(400).json({
-      error: `Este rol tiene ${n} usuario${n > 1 ? 's' : ''} activo${n > 1 ? 's' : ''}. Reasígnalos antes de eliminar.`,
-    });
-  }
+    const n = db.prepare(
+      'SELECT COUNT(*) AS n FROM users WHERE role_id = ? AND active = 1'
+    ).get(id).n;
+    if (n > 0) {
+      return res.status(400).json({
+        error: `Este rol tiene ${n} usuario${n > 1 ? 's' : ''} activo${n > 1 ? 's' : ''}. Reasígnalos antes de eliminar.`,
+      });
+    }
 
-  db.prepare('DELETE FROM role_permissions WHERE role_id = ?').run(id);
-  db.prepare('DELETE FROM roles WHERE id = ?').run(id);
-  res.json({ ok: true });
+    db.prepare('DELETE FROM role_permissions WHERE role_id = ?').run(id);
+    db.prepare('DELETE FROM roles WHERE id = ?').run(id);
+    res.json({ ok: true });
+  } catch (err) {
+    next(err);
+  }
 });
 
 export default router;
