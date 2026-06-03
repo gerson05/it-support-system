@@ -10,11 +10,15 @@ import {
 import { sendWhatsAppMessage, sendWhatsAppImage } from '../whatsapp/messenger.js';
 import { appEvents } from '../events/broadcaster.js';
 import { logAudit } from '../audit/audit-logger.js';
+import { requireAuth, requirePermission } from '../auth/auth-middleware.js';
+
+const canRead  = [requireAuth, requirePermission('tickets:read')];
+const canEdit  = [requireAuth, requirePermission('tickets:edit')];
 
 const router = express.Router();
 
 // Listar todos los tickets con filtros
-router.get('/api/tickets', (req, res) => {
+router.get('/api/tickets', ...canRead, (req, res) => {
   try {
     const filters = {
       status: req.query.status,
@@ -36,7 +40,7 @@ router.get('/api/tickets', (req, res) => {
 });
 
 // Detalle de un ticket por ID
-router.get('/api/tickets/:id', (req, res) => {
+router.get('/api/tickets/:id', ...canRead, (req, res) => {
   try {
     const ticketId = parseInt(req.params.id);
     const ticket = getTicketById(db, ticketId);
@@ -53,7 +57,7 @@ router.get('/api/tickets/:id', (req, res) => {
 });
 
 // Actualizar campos de un ticket
-router.put('/api/tickets/:id', (req, res) => {
+router.put('/api/tickets/:id', ...canEdit, (req, res) => {
   try {
     const ticketId = parseInt(req.params.id);
     const { status, priority, assigned_to, requester_name, category } = req.body;
@@ -110,7 +114,7 @@ router.put('/api/tickets/:id', (req, res) => {
 });
 
 // Enviar un mensaje / responder al empleado desde IT (llega a WhatsApp)
-router.post('/api/tickets/:id/messages', async (req, res) => {
+router.post('/api/tickets/:id/messages', ...canEdit, async (req, res) => {
   try {
     const ticketId = parseInt(req.params.id);
     const { agentName, content } = req.body;
@@ -150,7 +154,7 @@ router.post('/api/tickets/:id/messages', async (req, res) => {
 });
 
 // Agregar una nota interna privada para el equipo IT
-router.post('/api/tickets/:id/notes', (req, res) => {
+router.post('/api/tickets/:id/notes', ...canEdit, (req, res) => {
   try {
     const ticketId = parseInt(req.params.id);
     const { agentId, agentName, content } = req.body;
@@ -172,7 +176,7 @@ router.post('/api/tickets/:id/notes', (req, res) => {
 });
 
 /* ── Enviar imagen al usuario del ticket por WhatsApp ── */
-router.post('/api/tickets/:id/send-image', async (req, res) => {
+router.post('/api/tickets/:id/send-image', ...canEdit, async (req, res) => {
   try {
     const ticketId = parseInt(req.params.id);
     const ticket   = getTicketById(db, ticketId);
@@ -203,7 +207,7 @@ router.post('/api/tickets/:id/send-image', async (req, res) => {
 });
 
 // Listar los agentes de IT
-router.get('/api/agents', (req, res) => {
+router.get('/api/agents', ...canRead, (req, res) => {
   try {
     const agents = db.prepare('SELECT * FROM agents WHERE active = 1').all();
     res.json(agents);
@@ -214,7 +218,7 @@ router.get('/api/agents', (req, res) => {
 });
 
 // Actualizar nombre de un agente
-router.put('/api/agents/:id', (req, res) => {
+router.put('/api/agents/:id', ...canEdit, (req, res) => {
   try {
     const agentId = parseInt(req.params.id);
     const { name } = req.body;
