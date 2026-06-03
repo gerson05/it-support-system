@@ -256,7 +256,110 @@ async function _savePerms(roleId) {
 }
 
 // Stubs — implemented in Tasks 5 & 6
-function _showNewRoleForm() {}
+function _showNewRoleForm() {
+  const area   = document.getElementById('new-role-area');
+  const addBtn = document.getElementById('btn-add-role');
+  if (!area) return;
+  if (addBtn) addBtn.style.display = 'none';
+
+  const ACTIONS = ['read', 'create', 'edit', 'delete'];
+  const rows = _modules.map(mod => {
+    const cells = ACTIONS.map(action => {
+      const perm = mod.permissions.find(p => p.action === action);
+      if (!perm) {
+        return `<td style="text-align:center;"><span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:var(--surface-3);opacity:.3;"></span></td>`;
+      }
+      return `<td style="text-align:center;">
+        <input type="checkbox" data-new-perm-id="${perm.id}"
+          style="width:14px;height:14px;cursor:pointer;accent-color:var(--primary);">
+      </td>`;
+    }).join('');
+    return `<tr>
+      <td style="padding:6px 0;font-size:13px;color:var(--text-1);">${escHtml(mod.label)}</td>
+      ${cells}
+    </tr>`;
+  }).join('');
+
+  area.innerHTML = `
+    <div style="background:var(--surface-2);border:1px solid var(--primary);border-radius:8px;padding:14px;margin-bottom:8px;">
+      <div style="font-size:13px;font-weight:600;color:var(--text-1);margin-bottom:12px;">Nuevo rol</div>
+      <div id="new-role-error" style="display:none;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);
+        color:#fca5a5;border-radius:6px;padding:8px 12px;font-size:13px;margin-bottom:10px;"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+        <div>
+          <label style="font-size:12px;color:var(--text-2);display:block;margin-bottom:4px;">Nombre *</label>
+          <input id="new-role-name" type="text" class="form-control" placeholder="ej: coordinador">
+        </div>
+        <div>
+          <label style="font-size:12px;color:var(--text-2);display:block;margin-bottom:4px;">Descripción</label>
+          <input id="new-role-desc" type="text" class="form-control" placeholder="Descripción breve">
+        </div>
+      </div>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:14px;">
+        <thead>
+          <tr>
+            <th style="text-align:left;font-size:11px;color:var(--text-3);font-weight:600;padding-bottom:8px;">Módulo</th>
+            <th style="text-align:center;font-size:11px;color:var(--text-3);font-weight:600;width:60px;">Leer</th>
+            <th style="text-align:center;font-size:11px;color:var(--text-3);font-weight:600;width:60px;">Crear</th>
+            <th style="text-align:center;font-size:11px;color:var(--text-3);font-weight:600;width:60px;">Editar</th>
+            <th style="text-align:center;font-size:11px;color:var(--text-3);font-weight:600;width:60px;">Eliminar</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <div style="display:flex;justify-content:flex-end;gap:8px;">
+        <button id="btn-cancel-new-role" class="btn btn-secondary btn-small">Cancelar</button>
+        <button id="btn-create-role" class="btn btn-primary btn-small">Crear rol</button>
+      </div>
+    </div>`;
+
+  document.getElementById('btn-cancel-new-role')?.addEventListener('click', () => {
+    area.innerHTML = '';
+    if (addBtn) addBtn.style.display = 'flex';
+  });
+  document.getElementById('btn-create-role')?.addEventListener('click', _submitNewRole);
+  setTimeout(() => document.getElementById('new-role-name')?.focus(), 50);
+}
+
+async function _submitNewRole() {
+  const errEl = document.getElementById('new-role-error');
+  const name  = document.getElementById('new-role-name')?.value?.trim();
+  const desc  = document.getElementById('new-role-desc')?.value?.trim() ?? '';
+
+  if (!name) {
+    errEl.textContent = 'El nombre es requerido.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  const permIds = [...document.querySelectorAll('[data-new-perm-id]:checked')]
+    .map(cb => Number(cb.dataset.newPermId));
+
+  const btn = document.getElementById('btn-create-role');
+  if (btn) { btn.disabled = true; btn.textContent = 'Creando...'; }
+
+  try {
+    const res = await fetch('/api/roles', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, description: desc, permission_ids: permIds }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      errEl.textContent = data.error || 'Error al crear.';
+      errEl.style.display = 'block';
+      return;
+    }
+    showToast(`Rol "${escHtml(name)}" creado.`, 'success');
+    await _loadAll();
+  } catch {
+    errEl.textContent = 'Error de conexión.';
+    errEl.style.display = 'block';
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Crear rol'; }
+  }
+}
+
 function _deleteRole(_roleId) {}
 
 function escHtml(str) {
