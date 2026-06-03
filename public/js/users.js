@@ -79,22 +79,24 @@ export async function renderUsers(container) {
 
   // Tab switching
   container.querySelectorAll('.users-tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', async () => {
       container.querySelectorAll('.users-tab-btn').forEach(b => {
         b.style.borderBottomColor = 'transparent';
         b.style.color = 'var(--text-2)';
         b.style.fontWeight = '500';
+        b.classList.remove('active');
       });
       btn.style.borderBottomColor = 'var(--primary)';
       btn.style.color = 'var(--primary)';
       btn.style.fontWeight = '600';
+      btn.classList.add('active');
 
       const tabContent = document.getElementById('users-tab-content');
       const newUserBtn = document.getElementById('btn-new-user');
 
       if (btn.dataset.tab === 'users') {
         newUserBtn.style.display = 'block';
-        loadUsers(tabContent);
+        await loadUsers(tabContent);
       } else {
         newUserBtn.style.display = 'none';
         import('./roles.js').then(m => m.renderRolesTab(tabContent)).catch(err => {
@@ -116,7 +118,7 @@ export async function renderUsers(container) {
 
 async function loadUsers(tabContainer) {
   tabContainer.innerHTML = `<div class="card"><div id="users-table-wrap"><div class="loading-spinner"></div></div></div>`;
-  const wrap = document.getElementById('users-table-wrap');
+  const wrap = tabContainer.querySelector('#users-table-wrap');
   if (!wrap) return;
 
   try {
