@@ -17,9 +17,8 @@ export function requireAuth(req, res, next) {
 
 export function requirePermission(name) {
   return (req, res, next) => {
-    if (!req.permissions?.includes(name)) {
-      return res.status(403).json({ error: 'Acceso denegado.' });
-    }
-    next();
+    const perms = req.permissions ?? [];
+    if (perms.includes('full') || perms.includes(name)) return next();
+    return res.status(403).json({ error: 'Acceso denegado.' });
   };
 }
