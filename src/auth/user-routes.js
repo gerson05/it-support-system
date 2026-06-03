@@ -6,8 +6,53 @@ import { requireAuth, requirePermission } from './auth-middleware.js';
 const router = express.Router();
 const itOnly = [requireAuth, requirePermission('full')];
 
+const PERMISSION_MODULES = [
+  { module: 'metrics',       label: 'Métricas',             actions: ['read'] },
+  { module: 'tickets',       label: 'Tickets',              actions: ['read', 'create', 'edit', 'delete'] },
+  { module: 'tech-requests', label: 'Requerimientos',       actions: ['read', 'create', 'edit', 'delete'] },
+  { module: 'faqs',          label: 'Base de conocimiento', actions: ['read', 'create', 'edit', 'delete'] },
+  { module: 'sedes',         label: 'Red de Puntos',        actions: ['read', 'create', 'edit', 'delete'] },
+  { module: 'despacho',      label: 'Despacho',             actions: ['read', 'create', 'edit', 'delete'] },
+  { module: 'audit',         label: 'Auditoría',            actions: ['read'] },
+  { module: 'farmacias',     label: 'Farmacias FOMAG',      actions: ['read', 'create', 'edit', 'delete'] },
+];
+
 router.get('/api/roles', requireAuth, (_req, res) => {
-  res.json(db.prepare('SELECT id, name, description FROM roles').all());
+  const roles = db.prepare(
+    `SELECT r.id, r.name, r.description,
+            COUNT(CASE WHEN u.active = 1 THEN 1 END) AS user_count
+     FROM roles r
+     LEFT JOIN users u ON u.role_id = r.id
+     GROUP BY r.id
+     ORDER BY r.id`
+  ).all();
+  res.json(roles);
+});
+
+router.get('/api/permissions', requireAuth, (_req, res) => {
+  const allPerms = db.prepare('SELECT id, name FROM permissions').all();
+  const result = PERMISSION_MODULES.map(mod => ({
+    module: mod.module,
+    label:  mod.label,
+    permissions: mod.actions
+      .map(action => {
+        const perm = allPerms.find(p => p.name === `${mod.module}:${action}`);
+        return perm ? { id: perm.id, name: perm.name, action } : null;
+      })
+      .filter(Boolean),
+  }));
+  res.json(result);
+});
+
+router.get('/api/roles/:id/permissions', requireAuth, (req, res) => {
+  const roleId = Number(req.params.id);
+  if (!db.prepare('SELECT id FROM roles WHERE id = ?').get(roleId)) {
+    return res.status(404).json({ error: 'Rol no encontrado.' });
+  }
+  const ids = db.prepare(
+    'SELECT permission_id FROM role_permissions WHERE role_id = ?'
+  ).all(roleId).map(r => r.permission_id);
+  res.json({ permission_ids: ids });
 });
 
 router.get('/api/users', ...itOnly, (_req, res) => {
@@ -20,7 +65,7 @@ router.get('/api/users', ...itOnly, (_req, res) => {
   res.json(users);
 });
 
-router.post('/api/users', ...itOnly, async (req, res) => {
+router.post('/api/users', ...itOnly, async (req, res, next) => {
   const { username, password, role_id } = req.body;
   if (!username || !password || !role_id) {
     return res.status(400).json({ error: 'username, password y role_id son requeridos.' });
@@ -41,55 +86,59 @@ router.post('/api/users', ...itOnly, async (req, res) => {
     if (err.message?.includes('UNIQUE')) {
       return res.status(409).json({ error: 'El nombre de usuario ya existe.' });
     }
-    throw err;
+    next(err);
   }
 });
 
-router.put('/api/users/:id', ...itOnly, async (req, res) => {
+router.put('/api/users/:id', ...itOnly, async (req, res, next) => {
   const targetId = Number(req.params.id);
   const { password, role_id, active } = req.body;
 
-  const target = db.prepare('SELECT id, role_id FROM users WHERE id = ?').get(targetId);
-  if (!target) return res.status(404).json({ error: 'Usuario no encontrado.' });
+  try {
+    const target = db.prepare('SELECT id, role_id FROM users WHERE id = ?').get(targetId);
+    if (!target) return res.status(404).json({ error: 'Usuario no encontrado.' });
 
-  if (targetId === req.user.id && (role_id !== undefined || active === 0)) {
-    return res.status(400).json({ error: 'No puedes cambiar tu propio rol ni desactivar tu cuenta.' });
-  }
+    if (targetId === req.user.id && (role_id !== undefined || active === 0)) {
+      return res.status(400).json({ error: 'No puedes cambiar tu propio rol ni desactivar tu cuenta.' });
+    }
 
-  if (active === 0) {
-    const itRole = db.prepare("SELECT id FROM roles WHERE name = 'it'").get();
-    if (itRole && target.role_id === itRole.id) {
-      const itCount = db.prepare(
-        'SELECT COUNT(*) AS n FROM users WHERE role_id = ? AND active = 1'
-      ).get(itRole.id).n;
-      if (itCount <= 1) {
-        return res.status(400).json({ error: 'No puedes desactivar al único usuario IT activo.' });
+    if (active === 0) {
+      const itRole = db.prepare("SELECT id FROM roles WHERE name = 'it'").get();
+      if (itRole && target.role_id === itRole.id) {
+        const itCount = db.prepare(
+          'SELECT COUNT(*) AS n FROM users WHERE role_id = ? AND active = 1'
+        ).get(itRole.id).n;
+        if (itCount <= 1) {
+          return res.status(400).json({ error: 'No puedes desactivar al único usuario IT activo.' });
+        }
       }
     }
-  }
 
-  if (password !== undefined && password !== '') {
-    if (password.length < 6) {
-      return res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres.' });
+    if (password !== undefined && password !== '') {
+      if (password.length < 6) {
+        return res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres.' });
+      }
+      const hash = await hashPassword(password);
+      db.prepare("UPDATE users SET password_hash = ?, updated_at = datetime('now','localtime') WHERE id = ?")
+        .run(hash, targetId);
     }
-    const hash = await hashPassword(password);
-    db.prepare("UPDATE users SET password_hash = ?, updated_at = datetime('now','localtime') WHERE id = ?")
-      .run(hash, targetId);
-  }
-  if (role_id !== undefined) {
-    if (!db.prepare('SELECT id FROM roles WHERE id = ?').get(role_id)) {
-      return res.status(400).json({ error: 'Rol no válido.' });
+    if (role_id !== undefined) {
+      if (!db.prepare('SELECT id FROM roles WHERE id = ?').get(role_id)) {
+        return res.status(400).json({ error: 'Rol no válido.' });
+      }
+      db.prepare("UPDATE users SET role_id = ?, updated_at = datetime('now','localtime') WHERE id = ?")
+        .run(role_id, targetId);
     }
-    db.prepare("UPDATE users SET role_id = ?, updated_at = datetime('now','localtime') WHERE id = ?")
-      .run(role_id, targetId);
-  }
-  if (active !== undefined) {
-    db.prepare("UPDATE users SET active = ?, updated_at = datetime('now','localtime') WHERE id = ?")
-      .run(active ? 1 : 0, targetId);
-    if (!active) deleteUserSessions(targetId);
-  }
+    if (active !== undefined) {
+      db.prepare("UPDATE users SET active = ?, updated_at = datetime('now','localtime') WHERE id = ?")
+        .run(active ? 1 : 0, targetId);
+      if (!active) deleteUserSessions(targetId);
+    }
 
-  res.json({ ok: true });
+    res.json({ ok: true });
+  } catch (err) {
+    next(err);
+  }
 });
 
 router.delete('/api/users/:id', ...itOnly, (req, res) => {
