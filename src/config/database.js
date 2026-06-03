@@ -138,7 +138,7 @@ const migrations = [
     (24, 'audit:read'),
     (25, 'farmacias:read'),     (26, 'farmacias:create'),
     (27, 'farmacias:edit'),     (28, 'farmacias:delete'),
-    (29, 'settings:read'),      (30, 'settings:edit')`,
+    (29, 'settings:read'),      (30, 'settings:edit')  -- reserved: it role accesses via full bypass`,
 
   `INSERT OR IGNORE INTO roles (id, name, description) VALUES
     (3, 'supervisor', 'Gestión de tickets y requerimientos'),
@@ -146,7 +146,8 @@ const migrations = [
     (5, 'auditor',    'Lectura completa + auditoría'),
     (6, 'viewer',     'Solo lectura en todos los módulos')`,
 
-  // supervisor (3): metrics+tickets:rce + tech-requests:rce + faqs:rce + sedes:r + despacho:r
+  // r=read c=create e=edit d=delete
+  // supervisor (3): metrics:r + tickets:rce + tech-requests:rce + faqs:rce + sedes:r + despacho:r
   // almacen   (4): metrics:r + sedes:r + despacho:rce
   // auditor   (5): metrics:r + tickets:r + tech-requests:r + faqs:r + sedes:r + despacho:r + audit:r
   // viewer    (6): metrics:r + tickets:r + tech-requests:r + faqs:r + sedes:r + despacho:r
