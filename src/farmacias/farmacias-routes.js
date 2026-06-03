@@ -1,11 +1,12 @@
 import express from 'express';
 import { readSheet, saveFarmacias } from './sheets-service.js';
+import { requireAuth, requirePermission } from '../auth/auth-middleware.js';
 
 const router = express.Router();
 
 /* ── GET /api/farmacias
    Devuelve todos los departamentos con municipios y farmacias parseadas ── */
-router.get('/api/farmacias', async (req, res) => {
+router.get('/api/farmacias', requireAuth, requirePermission('farmacias:read'), async (req, res) => {
   try {
     const data = await readSheet();
     res.json(data);
@@ -18,7 +19,7 @@ router.get('/api/farmacias', async (req, res) => {
 /* ── PUT /api/farmacias/punto
    Edita los campos de una farmacia existente en un municipio.
    Body: { sheetRow, municipioNombre, index, nombre, direccion, correo, horario, telefono, mapsUrl } ── */
-router.put('/api/farmacias/punto', async (req, res) => {
+router.put('/api/farmacias/punto', requireAuth, requirePermission('farmacias:edit'), async (req, res) => {
   try {
     const { municipioNombre, nombre, direccion, correo, horario, telefono, mapsUrl } = req.body;
     const sheetRow = Number(req.body.sheetRow);
@@ -47,7 +48,7 @@ router.put('/api/farmacias/punto', async (req, res) => {
 /* ── POST /api/farmacias/punto
    Agrega una farmacia nueva a un municipio.
    Body: { sheetRow, municipioNombre, nombre, direccion, correo, horario, telefono, mapsUrl } ── */
-router.post('/api/farmacias/punto', async (req, res) => {
+router.post('/api/farmacias/punto', requireAuth, requirePermission('farmacias:create'), async (req, res) => {
   try {
     const { municipioNombre, nombre, direccion, correo, horario, telefono, mapsUrl } = req.body;
     const sheetRow = Number(req.body.sheetRow);
@@ -71,7 +72,7 @@ router.post('/api/farmacias/punto', async (req, res) => {
 /* ── DELETE /api/farmacias/punto
    Elimina una farmacia de un municipio por índice.
    Body: { sheetRow, municipioNombre, index } ── */
-router.delete('/api/farmacias/punto', async (req, res) => {
+router.delete('/api/farmacias/punto', requireAuth, requirePermission('farmacias:delete'), async (req, res) => {
   try {
     const { municipioNombre } = req.body;
     const sheetRow = Number(req.body.sheetRow);

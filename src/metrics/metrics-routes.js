@@ -1,9 +1,10 @@
 import express from 'express';
 import db from '../config/database.js';
+import { requireAuth, requirePermission } from '../auth/auth-middleware.js';
 
 const router = express.Router();
 
-router.get('/api/metrics', (req, res) => {
+router.get('/api/metrics', requireAuth, requirePermission('metrics:read'), (req, res) => {
   try {
     // 1. Contador de tickets por estado
     const totalOpen = db.prepare("SELECT COUNT(*) as count FROM tickets WHERE status = 'abierto'").get().count;
@@ -116,7 +117,7 @@ router.get('/api/metrics', (req, res) => {
 });
 
 /* ─ GET /api/metrics/trend — Tendencia de los últimos 7 días + SLA ─ */
-router.get('/api/metrics/trend', (req, res) => {
+router.get('/api/metrics/trend', requireAuth, requirePermission('metrics:read'), (req, res) => {
   try {
     // 1. Tickets creados por día (últimos 7 días)
     const trendRows = db.prepare(`
