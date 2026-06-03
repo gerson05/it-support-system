@@ -4,11 +4,12 @@
 import express from 'express';
 import db from '../config/database.js';
 import { faqs as staticFaqs } from './faq-data.js';
+import { requireAuth, requirePermission } from '../auth/auth-middleware.js';
 
 const router = express.Router();
 
 /* ─ GET /api/faqs — Lista todas las FAQs (estáticas + personalizadas) ─ */
-router.get('/api/faqs', (req, res) => {
+router.get('/api/faqs', requireAuth, requirePermission('faqs:read'), (req, res) => {
   try {
     const { area } = req.query;
 
@@ -54,7 +55,7 @@ router.get('/api/faqs', (req, res) => {
 });
 
 /* ─ POST /api/faqs — Crear FAQ personalizada ─ */
-router.post('/api/faqs', (req, res) => {
+router.post('/api/faqs', requireAuth, requirePermission('faqs:create'), (req, res) => {
   try {
     const { area = 'general', title, keywords = [], category = 'general', solution } = req.body;
 
@@ -82,7 +83,7 @@ router.post('/api/faqs', (req, res) => {
 });
 
 /* ─ PUT /api/faqs/:id — Actualizar FAQ personalizada ─ */
-router.put('/api/faqs/:id', (req, res) => {
+router.put('/api/faqs/:id', requireAuth, requirePermission('faqs:edit'), (req, res) => {
   try {
     const id = parseInt(req.params.id);
     const { area, title, keywords, category, solution, active } = req.body;
@@ -119,7 +120,7 @@ router.put('/api/faqs/:id', (req, res) => {
 });
 
 /* ─ DELETE /api/faqs/:id — Eliminar FAQ personalizada ─ */
-router.delete('/api/faqs/:id', (req, res) => {
+router.delete('/api/faqs/:id', requireAuth, requirePermission('faqs:delete'), (req, res) => {
   try {
     const id = parseInt(req.params.id);
     const result = db.prepare('DELETE FROM custom_faqs WHERE id=?').run(id);
