@@ -10,11 +10,16 @@ import {
 } from './tech-request-model.js';
 import { generateActa } from './acta-generator.js';
 import { appEvents } from '../events/broadcaster.js';
+import { requireAuth, requirePermission } from '../auth/auth-middleware.js';
 
 const router = express.Router();
 
+const canRead   = [requireAuth, requirePermission('tech-requests:read')];
+const canCreate = [requireAuth, requirePermission('tech-requests:create')];
+const canEdit   = [requireAuth, requirePermission('tech-requests:edit')];
+
 /* ── Estadísticas generales del módulo ── */
-router.get('/api/tech-requests/stats', (req, res) => {
+router.get('/api/tech-requests/stats', ...canRead, (req, res) => {
   try {
     res.json(getTechRequestStats(db));
   } catch (err) {
@@ -24,7 +29,7 @@ router.get('/api/tech-requests/stats', (req, res) => {
 });
 
 /* ── Listar solicitudes con filtros y paginación ── */
-router.get('/api/tech-requests', (req, res) => {
+router.get('/api/tech-requests', ...canRead, (req, res) => {
   try {
     const filters = {
       type:        req.query.type,
@@ -44,7 +49,7 @@ router.get('/api/tech-requests', (req, res) => {
 });
 
 /* ── Crear nueva solicitud ── */
-router.post('/api/tech-requests', (req, res) => {
+router.post('/api/tech-requests', ...canCreate, (req, res) => {
   try {
     const {
       type, requester_name, cedula, cargo, sede,
@@ -73,7 +78,7 @@ router.post('/api/tech-requests', (req, res) => {
 });
 
 /* ── Detalle de una solicitud ── */
-router.get('/api/tech-requests/:id', (req, res) => {
+router.get('/api/tech-requests/:id', ...canRead, (req, res) => {
   try {
     const req2 = getTechRequestById(db, parseInt(req.params.id));
     if (!req2) return res.status(404).json({ error: 'Solicitud no encontrada.' });
@@ -85,7 +90,7 @@ router.get('/api/tech-requests/:id', (req, res) => {
 });
 
 /* ── Actualizar solicitud (estado, prioridad, asignación) ── */
-router.put('/api/tech-requests/:id', (req, res) => {
+router.put('/api/tech-requests/:id', ...canEdit, (req, res) => {
   try {
     const id        = parseInt(req.params.id);
     const agentName = req.body.agentName || 'IT';
@@ -100,7 +105,7 @@ router.put('/api/tech-requests/:id', (req, res) => {
 });
 
 /* ── Agregar nota interna ── */
-router.post('/api/tech-requests/:id/notes', (req, res) => {
+router.post('/api/tech-requests/:id/notes', ...canEdit, (req, res) => {
   try {
     const id = parseInt(req.params.id);
     const { agentName, content } = req.body;
@@ -116,7 +121,7 @@ router.post('/api/tech-requests/:id/notes', (req, res) => {
 });
 
 /* ── Generar Acta de Entrega (.docx) ── */
-router.post('/api/tech-requests/:id/acta', async (req, res) => {
+router.post('/api/tech-requests/:id/acta', ...canEdit, async (req, res) => {
   try {
     const id  = parseInt(req.params.id);
     const req2 = getTechRequestById(db, id);
