@@ -170,19 +170,23 @@ router.put('/api/roles/:id', ...itOnly, (req, res, next) => {
   if (isNaN(id)) return res.status(400).json({ error: 'ID de rol inválido.' });
   if (id === 1) return res.status(403).json({ error: 'El rol IT no se puede modificar.' });
 
-  if (!db.prepare('SELECT id FROM roles WHERE id = ?').get(id)) {
-    return res.status(404).json({ error: 'Rol no encontrado.' });
+  const { name, description } = req.body;
+  if (name === undefined && description === undefined) {
+    return res.status(400).json({ error: 'Nada que actualizar.' });
   }
 
-  const { name, description } = req.body;
   try {
-    if (name !== undefined) {
-      if (!String(name).trim()) return res.status(400).json({ error: 'El nombre no puede estar vacío.' });
-      db.prepare('UPDATE roles SET name = ? WHERE id = ?').run(String(name).trim(), id);
+    const role = db.prepare('SELECT id, name, description FROM roles WHERE id = ?').get(id);
+    if (!role) return res.status(404).json({ error: 'Rol no encontrado.' });
+
+    const newName = name !== undefined ? String(name).trim() : role.name;
+    const newDesc = description !== undefined ? String(description ?? '') : role.description;
+
+    if (name !== undefined && !newName) {
+      return res.status(400).json({ error: 'El nombre no puede estar vacío.' });
     }
-    if (description !== undefined) {
-      db.prepare('UPDATE roles SET description = ? WHERE id = ?').run(description, id);
-    }
+
+    db.prepare('UPDATE roles SET name = ?, description = ? WHERE id = ?').run(newName, newDesc, id);
     res.json({ ok: true });
   } catch (err) {
     if (err.message?.includes('UNIQUE')) return res.status(409).json({ error: 'Ya existe un rol con ese nombre.' });
@@ -226,27 +230,23 @@ router.put('/api/roles/:id/permissions', ...itOnly, (req, res, next) => {
 router.post('/api/roles', ...itOnly, (req, res, next) => {
   const { name, description = '', permission_ids = [] } = req.body;
   if (!String(name ?? '').trim()) return res.status(400).json({ error: 'El nombre es requerido.' });
+  if (!Array.isArray(permission_ids)) return res.status(400).json({ error: 'permission_ids debe ser un array.' });
 
   try {
+    db.exec('BEGIN');
     const result = db.prepare(
       'INSERT INTO roles (name, description) VALUES (?, ?)'
     ).run(String(name).trim(), description);
     const roleId = result.lastInsertRowid;
 
     if (permission_ids.length > 0) {
-      db.exec('BEGIN');
-      try {
-        const ins = db.prepare('INSERT INTO role_permissions (role_id, permission_id) VALUES (?, ?)');
-        for (const pid of permission_ids) ins.run(roleId, pid);
-        db.exec('COMMIT');
-      } catch (err) {
-        try { db.exec('ROLLBACK'); } catch {}
-        throw err;
-      }
+      const ins = db.prepare('INSERT INTO role_permissions (role_id, permission_id) VALUES (?, ?)');
+      for (const pid of permission_ids) ins.run(roleId, pid);
     }
-
+    db.exec('COMMIT');
     res.status(201).json({ ok: true, id: roleId });
   } catch (err) {
+    try { db.exec('ROLLBACK'); } catch {}
     if (err.message?.includes('UNIQUE')) return res.status(409).json({ error: 'Ya existe un rol con ese nombre.' });
     next(err);
   }
@@ -255,7 +255,7 @@ router.post('/api/roles', ...itOnly, (req, res, next) => {
 router.delete('/api/roles/:id', ...itOnly, (req, res, next) => {
   const id = parseInt(req.params.id, 10);
   if (isNaN(id)) return res.status(400).json({ error: 'ID de rol inválido.' });
-  if (id === 1) return res.status(400).json({ error: 'El rol IT no se puede eliminar.' });
+  if (id === 1) return res.status(403).json({ error: 'El rol IT no se puede eliminar.' });
 
   try {
     if (!db.prepare('SELECT id FROM roles WHERE id = ?').get(id)) {
