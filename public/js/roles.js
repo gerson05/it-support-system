@@ -288,7 +288,7 @@ function _showNewRoleForm() {
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
         <div>
           <label style="font-size:12px;color:var(--text-2);display:block;margin-bottom:4px;">Nombre *</label>
-          <input id="new-role-name" type="text" class="form-control" placeholder="ej: coordinador">
+          <input id="new-role-name" type="text" class="form-control" placeholder="ej: coordinador" required>
         </div>
         <div>
           <label style="font-size:12px;color:var(--text-2);display:block;margin-bottom:4px;">Descripción</label>
@@ -323,6 +323,7 @@ function _showNewRoleForm() {
 
 async function _submitNewRole() {
   const errEl = document.getElementById('new-role-error');
+  if (!errEl) return;
   const name  = document.getElementById('new-role-name')?.value?.trim();
   const desc  = document.getElementById('new-role-desc')?.value?.trim() ?? '';
 
