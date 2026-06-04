@@ -1,4 +1,5 @@
 import { renderDashboard } from './dashboard.js';
+import { renderInventario } from './inventario.js';
 import { renderTicketList } from './ticket-list.js';
 import { renderTicketDetail } from './ticket-detail.js';
 import { renderSettings } from './settings.js';
@@ -26,6 +27,7 @@ function _firstAccessibleHash() {
   if (can('sedes:read'))         return '#sedes';
   if (can('despacho:read'))      return '#despacho';
   if (can('audit:read'))         return '#audit';
+  if (can('inventario:read'))     return '#inventario';
   return '#settings';
 }
 
@@ -200,6 +202,12 @@ function router() {
         state.currentPage = 'audit';
         document.getElementById('nav-audit')?.classList.add('active');
         renderAudit(appContainer);
+        break;
+      case '#inventario':
+        if (state.currentUser && !can('inventario:read')) { window.location.hash = _firstAccessibleHash(); break; }
+        state.currentPage = 'inventario';
+        document.getElementById('nav-inventario')?.classList.add('active');
+        renderInventario(appContainer);
         break;
       case '#users':
         if (state.currentUser && !can('full')) { window.location.hash = _firstAccessibleHash(); break; }
@@ -538,6 +546,7 @@ function _applyUserUI(user) {
   if (can('sedes:read'))         show('nav-sedes');
   if (can('despacho:read'))      show('nav-despacho');
   if (can('audit:read'))         show('nav-audit');
+  if (can('inventario:read'))    show('nav-inventario');
   if (can('farmacias:read'))     show('nav-farmacias');
   if (can('full'))               show('nav-users');
 }
