@@ -296,57 +296,60 @@ router.post('/api/inventario/:type/import/confirm', ...canCreate, (req, res) => 
   let inserted = 0, skipped = 0;
   const errors = [];
 
-  if (type === 'equipos') {
-    const stmt = db.prepare(`
-      INSERT ${orClause} INTO inventario_equipos
-        (placa,marca,nombre_equipo,serial,procesador,ram,tipo_ram,cap_disco,
-         tipo_disco,serial_cargador,area,responsable,fecha_compra)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
-    `);
-    rows.forEach((r, i) => {
-      if (!r.placa?.trim() || !r.serial?.trim()) {
-        errors.push({ row: i + 2, message: `Fila ${i + 2}: placa y serial son requeridos.` });
-        return;
-      }
-      try {
-        const result = stmt.run(
-          r.placa?.trim()||null, r.marca?.trim()||null, r.nombre_equipo?.trim()||null,
-          r.serial?.trim()||null, r.procesador||null, r.ram||null, r.tipo_ram||null,
-          r.cap_disco||null, r.tipo_disco||null, r.serial_cargador||null,
-          r.area||null, r.responsable||null, r.fecha_compra||null
-        );
-        result.changes ? inserted++ : skipped++;
-      } catch (err) {
-        errors.push({ row: i + 2, message: err.message });
-      }
-    });
-  } else {
-    const stmt = db.prepare(`
-      INSERT ${orClause} INTO inventario_celulares
-        (fecha_registro,area,ciudad,nombre_completo,cedula,linea,operador,equipo,
-         almacenamiento,ram,modelo,imei,imei2,estado,accesorio,fecha_entrega,entregado_por)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
-    `);
-    rows.forEach((r, i) => {
-      if (!r.imei?.trim()) {
-        errors.push({ row: i + 2, message: `Fila ${i + 2}: imei es requerido.` });
-        return;
-      }
-      try {
-        const result = stmt.run(
-          r.fecha_registro||null, r.area||null, r.ciudad||null,
-          r.nombre_completo?.trim()||null, r.cedula||null, r.linea||null,
-          r.operador||null, r.equipo||null, r.almacenamiento||null,
-          r.ram||null, r.modelo||null, r.imei.trim(),
-          r.imei2||null, r.estado||'nuevo', r.accesorio||null,
-          r.fecha_entrega||null, r.entregado_por||null
-        );
-        result.changes ? inserted++ : skipped++;
-      } catch (err) {
-        errors.push({ row: i + 2, message: err.message });
-      }
-    });
-  }
+  const runBatch = db.transaction(() => {
+    if (type === 'equipos') {
+      const stmt = db.prepare(`
+        INSERT ${orClause} INTO inventario_equipos
+          (placa,marca,nombre_equipo,serial,procesador,ram,tipo_ram,cap_disco,
+           tipo_disco,serial_cargador,area,responsable,fecha_compra)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
+      `);
+      rows.forEach((r, i) => {
+        if (!r.placa?.trim() || !r.serial?.trim() || !r.marca?.trim() || !r.nombre_equipo?.trim()) {
+          errors.push({ row: i + 2, message: `Fila ${i + 2}: placa, serial, marca y nombre de equipo son requeridos.` });
+          return;
+        }
+        try {
+          const result = stmt.run(
+            r.placa?.trim()||null, r.marca?.trim()||null, r.nombre_equipo?.trim()||null,
+            r.serial?.trim()||null, r.procesador||null, r.ram||null, r.tipo_ram||null,
+            r.cap_disco||null, r.tipo_disco||null, r.serial_cargador||null,
+            r.area||null, r.responsable||null, r.fecha_compra||null
+          );
+          result.changes ? inserted++ : skipped++;
+        } catch (err) {
+          errors.push({ row: i + 2, message: err.message });
+        }
+      });
+    } else {
+      const stmt = db.prepare(`
+        INSERT ${orClause} INTO inventario_celulares
+          (fecha_registro,area,ciudad,nombre_completo,cedula,linea,operador,equipo,
+           almacenamiento,ram,modelo,imei,imei2,estado,accesorio,fecha_entrega,entregado_por)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+      `);
+      rows.forEach((r, i) => {
+        if (!r.imei?.trim() || !r.nombre_completo?.trim()) {
+          errors.push({ row: i + 2, message: `Fila ${i + 2}: imei y nombre completo son requeridos.` });
+          return;
+        }
+        try {
+          const result = stmt.run(
+            r.fecha_registro||null, r.area||null, r.ciudad||null,
+            r.nombre_completo?.trim()||null, r.cedula||null, r.linea||null,
+            r.operador||null, r.equipo||null, r.almacenamiento||null,
+            r.ram||null, r.modelo||null, r.imei.trim(),
+            r.imei2||null, r.estado||'nuevo', r.accesorio||null,
+            r.fecha_entrega||null, r.entregado_por||null
+          );
+          result.changes ? inserted++ : skipped++;
+        } catch (err) {
+          errors.push({ row: i + 2, message: err.message });
+        }
+      });
+    }
+  });
+  runBatch();
 
   res.json({ inserted, skipped, errors });
 });
