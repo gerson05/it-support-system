@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import path from 'path';
 import os from 'os';
+import { spawn } from 'child_process';
 import { fileURLToPath } from 'url';
 import db from './src/config/database.js';
 import webhookRouter from './src/whatsapp/webhook.js';
@@ -251,4 +252,50 @@ app.listen(PORT, async () => {
 
   // Monitor de inactividad en conversaciones
   startInactivityMonitor();
+
+  // Túnel HTTPS público via Cloudflare (habilita cámara en móviles)
+  startCloudflaredTunnel(PORT);
 });
+
+function startCloudflaredTunnel(port) {
+  let cf;
+  try {
+    cf = spawn('npx', ['cloudflared', 'tunnel', '--url', `http://localhost:${port}`], {
+      stdio: ['ignore', 'pipe', 'pipe'],
+      shell: true,
+      windowsHide: true,
+    });
+  } catch {
+    console.warn('[Tunnel] cloudflared no disponible — cámara solo funciona en HTTPS externo.');
+    return;
+  }
+
+  const handleOutput = (data) => {
+    const text = data.toString();
+    const match = text.match(/https:\/\/[a-z0-9-]+\.trycloudflare\.com/);
+    if (match) {
+      process.env.PUBLIC_TUNNEL_URL = match[0];
+      console.log(`\n🌐 Túnel HTTPS activo: ${match[0]}`);
+      console.log(`   Usa esta URL en el celular para habilitar la cámara.\n`);
+    }
+  };
+
+  cf.stdout.on('data', handleOutput);
+  cf.stderr.on('data', handleOutput);
+
+  cf.on('error', () =>
+    console.warn('[Tunnel] No se pudo iniciar cloudflared.')
+  );
+
+  cf.on('exit', (code) => {
+    if (code !== 0 && code !== null) {
+      console.warn(`[Tunnel] cloudflared terminó (código ${code}). Reiniciando en 10s…`);
+      setTimeout(() => startCloudflaredTunnel(port), 10_000);
+    }
+  });
+
+  // Matar túnel limpiamente al cerrar el servidor
+  process.on('exit',    () => cf.kill());
+  process.on('SIGINT',  () => { cf.kill(); process.exit(0); });
+  process.on('SIGTERM', () => { cf.kill(); process.exit(0); });
+}
