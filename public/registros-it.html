@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registros IT</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <script>(function(){ var t=localStorage.getItem('theme'); if(t==='light') document.documentElement.setAttribute('data-theme','light'); })();</script>
+  <style>
+    body { display:block; padding:0; background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; min-height:100vh; }
+
+    .page-wrap { max-width:1400px; margin:0 auto; padding:28px 24px 48px; }
+
+    /* Header */
+    .page-header {
+      display:flex; align-items:center; justify-content:space-between;
+      flex-wrap:wrap; gap:12px; margin-bottom:24px;
+    }
+    .page-header-left { display:flex; align-items:center; gap:14px; }
+    .btn-back {
+      display:flex; align-items:center; gap:6px;
+      padding:7px 14px; background:var(--surface); border:1px solid var(--border);
+      border-radius:var(--radius-sm); color:var(--text-2); font-size:13px;
+      cursor:pointer; text-decoration:none; transition:var(--transition);
+    }
+    .btn-back:hover { background:var(--surface-hover); color:var(--text); }
+    .page-title { font-size:22px; font-weight:700; letter-spacing:-.4px; }
+    .page-sub   { font-size:13px; color:var(--text-2); margin-top:3px; }
+
+    /* Toggle theme */
+    .btn-theme-toggle {
+      display:flex; align-items:center; justify-content:center;
+      width:34px; height:34px; background:var(--surface);
+      border:1px solid var(--border-2); border-radius:var(--radius-sm);
+      color:var(--text-2); cursor:pointer; transition:var(--transition); flex-shrink:0;
+    }
+    .btn-theme-toggle:hover { background:var(--surface-hover); color:var(--text); }
+    .btn-theme-toggle svg { width:15px; height:15px; stroke-width:1.75; flex-shrink:0; }
+    .btn-theme-toggle .icon-sun  { display:none; }
+    .btn-theme-toggle .icon-moon { display:block; }
+    [data-theme="light"] .btn-theme-toggle .icon-sun  { display:block; }
+    [data-theme="light"] .btn-theme-toggle .icon-moon { display:none; }
+
+    /* Filtros */
+    .filters {
+      display:flex; flex-wrap:wrap; gap:10px; align-items:center;
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:var(--radius); padding:14px 18px; margin-bottom:20px;
+    }
+    .filters input, .filters select {
+      background:var(--surface-2); border:1px solid var(--border);
+      border-radius:var(--radius-sm); color:var(--text); font-size:13px;
+      padding:7px 11px; outline:none; transition:var(--transition);
+      font-family:inherit;
+    }
+    .filters input:focus, .filters select:focus {
+      border-color:var(--border-focus); box-shadow:0 0 0 3px var(--primary-light);
+    }
+    .filters input[type="search"] { min-width:200px; flex:1; }
+    .filter-label { font-size:12px; font-weight:500; color:var(--text-3); white-space:nowrap; }
+    .btn-refresh {
+      display:flex; align-items:center; gap:6px; padding:7px 14px;
+      background:var(--primary); color:#fff; border:none;
+      border-radius:var(--radius-sm); font-size:13px; font-weight:500;
+      cursor:pointer; transition:var(--transition); margin-left:auto;
+    }
+    .btn-refresh:hover { background:var(--primary-dark); }
+
+    /* Stats chips */
+    .stats-row { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px; }
+    .stat-chip {
+      display:flex; align-items:center; gap:8px;
+      padding:8px 14px; background:var(--surface);
+      border:1px solid var(--border); border-radius:var(--radius);
+      font-size:13px; cursor:pointer; transition:var(--transition);
+    }
+    .stat-chip:hover, .stat-chip.active { border-color:var(--primary); background:var(--primary-light); }
+    .stat-chip .chip-count { font-weight:700; font-size:15px; }
+    .stat-chip .chip-label { color:var(--text-2); }
+
+    /* Tabla */
+    .table-wrap {
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:var(--radius-lg); overflow:hidden;
+      box-shadow:var(--shadow);
+    }
+    .table-meta {
+      display:flex; justify-content:space-between; align-items:center;
+      padding:12px 18px; border-bottom:1px solid var(--border);
+      font-size:13px; color:var(--text-2);
+    }
+    table { width:100%; border-collapse:collapse; font-size:13px; }
+    thead th {
+      background:var(--surface-2); padding:10px 14px;
+      text-align:left; font-weight:600; font-size:11px;
+      color:var(--text-3); text-transform:uppercase; letter-spacing:.5px;
+      border-bottom:1px solid var(--border); white-space:nowrap;
+    }
+    tbody tr { border-bottom:1px solid var(--border); transition:background .1s; }
+    tbody tr:last-child { border-bottom:none; }
+    tbody tr:hover { background:var(--surface-hover); }
+    td { padding:10px 14px; vertical-align:middle; }
+    .td-fecha  { color:var(--text-2); white-space:nowrap; font-size:12px; }
+    .td-num    { font-family:monospace; font-size:12px; color:var(--text-2); white-space:nowrap; }
+    .td-nombre { font-weight:500; }
+    .td-desc   { color:var(--text-2); max-width:280px; }
+    .td-desc span { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+
+    /* Badges */
+    .badge {
+      display:inline-flex; align-items:center; padding:3px 9px;
+      border-radius:99px; font-size:11px; font-weight:600;
+      white-space:nowrap; letter-spacing:.2px;
+    }
+    .badge-req   { background:rgba(59,130,246,.15); color:#3b82f6; }
+    .badge-inc   { background:rgba(249,115,22,.15);  color:#f97316; }
+    .badge-des   { background:rgba(16,185,129,.15);  color:#10b981; }
+
+    .badge-status-pendiente   { background:rgba(100,116,139,.15); color:#64748b; }
+    .badge-status-en_proceso  { background:rgba(59,130,246,.15);  color:#3b82f6; }
+    .badge-status-completado  { background:rgba(16,185,129,.15);  color:#10b981; }
+    .badge-status-cancelado   { background:rgba(239,68,68,.15);   color:#ef4444; }
+    .badge-status-en_espera   { background:rgba(139,92,246,.15);  color:#8b5cf6; }
+
+    [data-theme="light"] .badge-req  { color:#1d4ed8; }
+    [data-theme="light"] .badge-inc  { color:#c2410c; }
+    [data-theme="light"] .badge-des  { color:#059669; }
+    [data-theme="light"] .badge-status-pendiente { color:#475569; }
+    [data-theme="light"] .badge-status-en_proceso { color:#1d4ed8; }
+    [data-theme="light"] .badge-status-completado { color:#059669; }
+    [data-theme="light"] .badge-status-cancelado  { color:#dc2626; }
+    [data-theme="light"] .badge-status-en_espera  { color:#6d28d9; }
+
+    /* Paginación */
+    .pagination {
+      display:flex; align-items:center; justify-content:center;
+      gap:8px; padding:16px; border-top:1px solid var(--border);
+    }
+    .btn-page {
+      padding:5px 12px; background:var(--surface-2); border:1px solid var(--border);
+      border-radius:var(--radius-sm); color:var(--text-2); font-size:13px;
+      cursor:pointer; transition:var(--transition);
+    }
+    .btn-page:hover:not(:disabled) { background:var(--surface-hover); color:var(--text); }
+    .btn-page:disabled { opacity:.4; cursor:not-allowed; }
+    .btn-page.active   { background:var(--primary); color:#fff; border-color:var(--primary); }
+    .page-info { font-size:13px; color:var(--text-2); padding:0 4px; }
+
+    /* Empty / Loading */
+    .state-msg { text-align:center; padding:56px 24px; color:var(--text-3); }
+    .state-msg svg { width:40px; height:40px; margin-bottom:12px; opacity:.4; }
+    .state-msg p { font-size:15px; }
+
+    @media (max-width:768px) {
+      .page-wrap { padding:16px 12px; }
+      .td-fecha, .td-num, .th-sede, .th-cargo { display:none; }
+    }
+  </style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="page-header-left">
+      <a href="/" class="btn-back">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15 18l-6-6 6-6"/>
+        </svg>
+        Panel IT
+      </a>
+      <div>
+        <div class="page-title">Registros IT</div>
+        <div class="page-sub">Requerimientos, incidencias y despachos</div>
+      </div>
+    </div>
+    <button id="btn-theme-toggle" class="btn-theme-toggle" title="Cambiar tema" aria-label="Cambiar tema">
+      <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="6"/>
+        <line x1="12" y1="18" x2="12" y2="22"/><line x1="4.22" y1="4.22" x2="7.05" y2="7.05"/>
+        <line x1="16.95" y1="16.95" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="6" y2="12"/>
+        <line x1="18" y1="12" x2="22" y2="12"/><line x1="4.22" y1="19.78" x2="7.05" y2="16.95"/>
+        <line x1="16.95" y1="7.05" x2="19.78" y2="4.22"/>
+      </svg>
+      <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Stats chips -->
+  <div class="stats-row" id="stats-row">
+    <div class="stat-chip active" data-filter="">
+      <span class="chip-count" id="cnt-all">—</span>
+      <span class="chip-label">Todos</span>
+    </div>
+    <div class="stat-chip" data-filter="requerimiento">
+      <span class="chip-count" id="cnt-req">—</span>
+      <span class="chip-label">Requerimientos</span>
+    </div>
+    <div class="stat-chip" data-filter="incidencia">
+      <span class="chip-count" id="cnt-inc">—</span>
+      <span class="chip-label">Incidencias</span>
+    </div>
+    <div class="stat-chip" data-filter="despacho">
+      <span class="chip-count" id="cnt-des">—</span>
+      <span class="chip-label">Despachos</span>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filters">
+    <span class="filter-label">Buscar</span>
+    <input type="search" id="f-search" placeholder="Número, nombre, sede…">
+    <span class="filter-label">Desde</span>
+    <input type="date" id="f-desde">
+    <span class="filter-label">Hasta</span>
+    <input type="date" id="f-hasta">
+    <button class="btn-refresh" id="btn-refresh">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+           fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+      </svg>
+      Actualizar
+    </button>
+  </div>
+
+  <!-- Tabla -->
+  <div class="table-wrap">
+    <div class="table-meta">
+      <span id="lbl-total">Cargando…</span>
+    </div>
+    <div id="table-container">
+      <div class="state-msg">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <p>Cargando registros…</p>
+      </div>
+    </div>
+    <div class="pagination" id="pagination" style="display:none;"></div>
+  </div>
+
+</div>
+
+<script>
+  /* ── Tema ── */
+  document.getElementById('btn-theme-toggle').addEventListener('click', () => {
+    const h = document.documentElement;
+    const light = h.getAttribute('data-theme') === 'light';
+    light ? h.removeAttribute('data-theme') : h.setAttribute('data-theme','light');
+    localStorage.setItem('theme', light ? 'dark' : 'light');
+  });
+
+  /* ── Estado ── */
+  let currentTipo = '', currentPage = 1;
+  const LIMIT = 50;
+
+  /* ── Chips ── */
+  document.querySelectorAll('.stat-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.stat-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      currentTipo = chip.dataset.filter;
+      currentPage = 1;
+      load();
+    });
+  });
+
+  /* ── Filtros ── */
+  let debounceTimer;
+  document.getElementById('f-search').addEventListener('input', () => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => { currentPage = 1; load(); }, 300);
+  });
+  document.getElementById('f-desde').addEventListener('change', () => { currentPage=1; load(); });
+  document.getElementById('f-hasta').addEventListener('change', () => { currentPage=1; load(); });
+  document.getElementById('btn-refresh').addEventListener('click', () => load());
+
+  /* ── Helpers ── */
+  function tipoBadge(tipo) {
+    const map = {
+      requerimiento: ['badge-req',  'Requerimiento'],
+      incidencia:    ['badge-inc',  'Incidencia'],
+      despacho:      ['badge-des',  'Despacho'],
+    };
+    const [cls, label] = map[tipo] || ['', tipo];
+    return `<span class="badge ${cls}">${label}</span>`;
+  }
+
+  function estadoBadge(estado) {
+    if (!estado) return '—';
+    const map = {
+      pendiente:   'badge-status-pendiente',
+      en_proceso:  'badge-status-en_proceso',
+      completado:  'badge-status-completado',
+      cancelado:   'badge-status-cancelado',
+      en_espera:   'badge-status-en_espera',
+    };
+    const labels = {
+      pendiente:'Pendiente', en_proceso:'En proceso',
+      completado:'Completado', cancelado:'Cancelado', en_espera:'En espera',
+    };
+    return `<span class="badge ${map[estado]||''}">${labels[estado]||estado}</span>`;
+  }
+
+  function fmtDate(iso) {
+    if (!iso) return '—';
+    return iso.replace('T',' ').slice(0,16);
+  }
+
+  function fmtDesc(row) {
+    if (row.tipo === 'despacho') {
+      try {
+        const arts = JSON.parse(row.descripcion || '[]');
+        return arts.map(a => `${a.nombre} ×${a.cantidad||1}`).join(', ');
+      } catch { return row.descripcion || '—'; }
+    }
+    return row.descripcion || '—';
+  }
+
+  /* ── Render tabla ── */
+  function renderTable(registros, total) {
+    document.getElementById('lbl-total').textContent =
+      `${total} registro${total !== 1 ? 's' : ''}`;
+
+    if (!registros.length) {
+      document.getElementById('table-container').innerHTML =
+        `<div class="state-msg"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><p>Sin resultados para los filtros aplicados.</p></div>`;
+      document.getElementById('pagination').style.display = 'none';
+      return;
+    }
+
+    const rows = registros.map(r => `
+      <tr>
+        <td class="td-fecha">${fmtDate(r.created_at)}</td>
+        <td>${tipoBadge(r.tipo)}</td>
+        <td class="td-num">${r.numero || '—'}</td>
+        <td class="td-nombre">${r.nombre || '—'}</td>
+        <td class="td-sede">${r.sede || '—'}</td>
+        <td class="td-desc"><span title="${(fmtDesc(r)||'').replace(/"/g,'&quot;')}">${fmtDesc(r)}</span></td>
+        <td>${r.prioridad ? `<span class="badge badge-status-${r.prioridad==='alta'?'cancelado':r.prioridad==='critica'?'cancelado':r.prioridad==='media'?'en_proceso':'en_espera'}" style="font-size:11px;">${r.prioridad}</span>` : '—'}</td>
+        <td>${estadoBadge(r.estado)}</td>
+        <td class="td-fecha">${fmtDate(r.updated_at)}</td>
+      </tr>`).join('');
+
+    document.getElementById('table-container').innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Tipo</th>
+            <th>Número</th>
+            <th>Nombre / Destinatario</th>
+            <th class="th-sede">Sede</th>
+            <th>Descripción / Artículos</th>
+            <th>Prioridad</th>
+            <th>Estado</th>
+            <th>Actualizado</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+
+    /* Paginación */
+    const totalPages = Math.ceil(total / LIMIT);
+    const pg = document.getElementById('pagination');
+    if (totalPages <= 1) { pg.style.display = 'none'; return; }
+
+    pg.style.display = 'flex';
+    let btns = `<button class="btn-page" ${currentPage===1?'disabled':''} id="pg-prev">‹</button>`;
+    for (let i = 1; i <= totalPages; i++) {
+      if (i===1 || i===totalPages || Math.abs(i-currentPage)<=2)
+        btns += `<button class="btn-page${i===currentPage?' active':''}" data-p="${i}">${i}</button>`;
+      else if (Math.abs(i-currentPage)===3)
+        btns += `<span class="page-info">…</span>`;
+    }
+    btns += `<button class="btn-page" ${currentPage===totalPages?'disabled':''} id="pg-next">›</button>`;
+    pg.innerHTML = btns;
+
+    pg.querySelectorAll('[data-p]').forEach(b =>
+      b.addEventListener('click', () => { currentPage=parseInt(b.dataset.p); load(); }));
+    pg.querySelector('#pg-prev')?.addEventListener('click', () => { currentPage--; load(); });
+    pg.querySelector('#pg-next')?.addEventListener('click', () => { currentPage++; load(); });
+  }
+
+  /* ── Carga de datos ── */
+  async function load() {
+    const search = document.getElementById('f-search').value.trim();
+    const desde  = document.getElementById('f-desde').value;
+    const hasta  = document.getElementById('f-hasta').value;
+
+    const params = new URLSearchParams({ page: currentPage, limit: LIMIT });
+    if (currentTipo) params.set('tipo', currentTipo);
+    if (search)      params.set('search', search);
+    if (desde)       params.set('desde', desde);
+    if (hasta)       params.set('hasta', hasta);
+
+    try {
+      const res  = await fetch(`/api/registros-it?${params}`);
+      if (res.status === 401) { location.href = '/login.html'; return; }
+      const data = await res.json();
+
+      /* Actualizar counts (solo cuando no hay filtro de tipo) */
+      if (!currentTipo && !search && !desde && !hasta) {
+        document.getElementById('cnt-all').textContent = data.total;
+        const byTipo = { requerimiento:0, incidencia:0, despacho:0 };
+        data.registros.forEach(r => { if (byTipo[r.tipo]!==undefined) byTipo[r.tipo]++; });
+        /* Totales reales requieren llamadas adicionales; usamos aproximación de la página */
+      }
+
+      renderTable(data.registros, data.total);
+    } catch (err) {
+      document.getElementById('table-container').innerHTML =
+        `<div class="state-msg"><p>Error al cargar: ${err.message}</p></div>`;
+    }
+  }
+
+  /* Cargar totales por tipo al inicio */
+  async function loadCounts() {
+    const tipos = ['', 'requerimiento', 'incidencia', 'despacho'];
+    const ids   = ['cnt-all','cnt-req','cnt-inc','cnt-des'];
+    await Promise.all(tipos.map(async (t, i) => {
+      try {
+        const p = new URLSearchParams({ page:1, limit:1 });
+        if (t) p.set('tipo', t);
+        const r = await fetch(`/api/registros-it?${p}`);
+        const d = await r.json();
+        document.getElementById(ids[i]).textContent = d.total ?? '—';
+      } catch { document.getElementById(ids[i]).textContent = '?'; }
+    }));
+  }
+
+  load();
+  loadCounts();
+</script>
+</body>
+</html>

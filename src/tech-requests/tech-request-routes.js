@@ -10,6 +10,8 @@ import {
 } from './tech-request-model.js';
 import { generateActa } from './acta-generator.js';
 import { appEvents } from '../events/broadcaster.js';
+import { logTechRequest, updateTechRequestRow } from '../excel/excel-logger.js';
+import { logTechRequestSheet, updateTechRequestSheet } from '../excel/sheets-logger.js';
 import { requireAuth, requirePermission } from '../auth/auth-middleware.js';
 
 const router = express.Router();
@@ -70,6 +72,18 @@ router.post('/api/tech-requests', ...canCreate, (req, res) => {
 
     const result = createTechRequest(db, req.body);
     appEvents.emit('tech-request:created', { id: result.id, request_number: result.request_number, type });
+
+    const trData = {
+      tipo:             type,
+      numero:           result.request_number,
+      requester_name,   cedula, cargo, sede,
+      description,      priority,
+      equipment_name,   equipment_serial,
+      items:            req.body.items || [],
+    };
+    logTechRequest(trData).catch(err => console.error('[excel-logger] tech-request:', err.message));
+    logTechRequestSheet(trData).catch(err => console.error('[sheets-logger] tech-request:', err.message));
+
     res.status(201).json({ success: true, ...result });
   } catch (err) {
     console.error('Error en POST /api/tech-requests:', err);
@@ -97,6 +111,17 @@ router.put('/api/tech-requests/:id', ...canEdit, (req, res) => {
     const updated   = updateTechRequest(db, id, req.body, agentName);
     if (!updated) return res.status(404).json({ error: 'Solicitud no encontrada o sin cambios.' });
     appEvents.emit('tech-request:updated', { id });
+
+    if (req.body.status) {
+      const row = db.prepare('SELECT request_number FROM tech_requests WHERE id = ?').get(id);
+      if (row) {
+        updateTechRequestRow(row.request_number, req.body.status)
+          .catch(err => console.error('[excel-logger] update status:', err.message));
+        updateTechRequestSheet(row.request_number, req.body.status)
+          .catch(err => console.error('[sheets-logger] update status:', err.message));
+      }
+    }
+
     res.json({ success: true, message: 'Solicitud actualizada.' });
   } catch (err) {
     console.error('Error en PUT /api/tech-requests/:id:', err);
