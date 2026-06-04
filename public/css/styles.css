@@ -689,10 +689,108 @@ textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
 .filter-bar {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  align-items: flex-end;
+  gap: 8px;
+  align-items: center;
 }
 .filter-bar .form-group { margin:0; min-width:140px; flex:1; }
+
+/* ── Modal scroll lock ── */
+body.modal-open {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+}
+
+/* ── Inventario filter bar ── */
+.inv-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  margin-bottom: 16px;
+}
+.inv-search-wrap {
+  flex: 1;
+  position: relative;
+  min-width: 180px;
+}
+.inv-search-wrap svg {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-3);
+  pointer-events: none;
+  flex-shrink: 0;
+}
+.inv-search-wrap input {
+  width: 100%;
+  padding: 7px 10px 7px 32px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  transition: var(--transition);
+}
+.inv-search-wrap input:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+.inv-search-wrap input::placeholder { color: var(--text-3); }
+.inv-filter-sep {
+  width: 1px;
+  height: 20px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+.inv-area-input {
+  width: 140px;
+  padding: 7px 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  transition: var(--transition);
+}
+.inv-area-input:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+.inv-area-input::placeholder { color: var(--text-3); }
+.inv-clear-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-3);
+  cursor: pointer;
+  transition: var(--transition);
+  flex-shrink: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+.inv-clear-btn.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+.inv-clear-btn:hover {
+  background: rgba(239,68,68,.1);
+  color: var(--danger);
+}
 
 /* ==========================================================================
    INTERNAL NOTES
