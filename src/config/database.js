@@ -214,6 +214,19 @@ const migrations = [
     (4,31),
     (5,31),
     (6,31)`,
+
+  `CREATE TABLE IF NOT EXISTS registro_tokens (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    token      TEXT NOT NULL UNIQUE,
+    tipo       TEXT NOT NULL DEFAULT 'equipos',
+    label      TEXT,
+    created_by TEXT,
+    expires_at TEXT,
+    max_uses   INTEGER,
+    use_count  INTEGER DEFAULT 0,
+    active     INTEGER DEFAULT 1,
+    created_at TEXT DEFAULT (datetime('now','localtime'))
+  )`,
 ];
 for (const sql of migrations) {
   try { db.exec(sql); } catch { /* columna ya existe */ }

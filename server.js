@@ -60,6 +60,11 @@ app.get('/firmar/:token', (_req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'firmar.html'));
 });
 
+// Página móvil pública de registro de inventario
+app.get('/registrar/:token', (_req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'registrar-equipo.html'));
+});
+
 // Al arrancar, resetear todas las conversaciones al estado inicial para
 // evitar que sesiones del flujo viejo interfieran con el nuevo menú.
 try {
