@@ -51,6 +51,17 @@ const EQUIPOS_COLMAP = {
   fecha_compra:    ['fecha de compra', 'fecha compra'],
 };
 
+const UPS_COLMAP = {
+  placa:          ['placa'],
+  marca:          ['marca'],
+  nombre_equipo:  ['nombre de equipo', 'nombre equipo'],
+  serial:         ['serial', 's/n', 'serial/emei'],
+  area:           ['area'],
+  voltaje:        ['voltaje'],
+  fecha_compra:   ['fecha de compra', 'fecha compra'],
+  fecha_despacho: ['fecha de despacho', 'fecha despacho', 'despacho'],
+};
+
 const CELULARES_COLMAP = {
   fecha_registro:  ['fecha'],
   area:            ['area'],
@@ -270,13 +281,13 @@ router.delete('/api/inventario/celulares/:id', ...canDelete, (req, res) => {
 /* ── IMPORT: parse xlsx ── */
 router.post('/api/inventario/:type/import', ...canCreate, upload.single('file'), async (req, res) => {
   const type = req.params.type;
-  if (!['equipos', 'celulares'].includes(type)) return res.status(400).json({ error: 'Tipo inválido.' });
+  if (!['equipos', 'celulares', 'ups'].includes(type)) return res.status(400).json({ error: 'Tipo inválido.' });
   if (!req.file) return res.status(400).json({ error: 'No se recibió archivo.' });
 
   try {
     const wb = new ExcelJS.Workbook();
     await wb.xlsx.load(req.file.buffer);
-    const ws = wb.worksheets[0];
+    const ws = ws2;
     if (!ws) return res.status(400).json({ error: 'El archivo no tiene hojas.' });
 
     /* Read headers + their actual column numbers */
@@ -287,7 +298,14 @@ router.post('/api/inventario/:type/import', ...canCreate, upload.single('file'),
     });
     const headers = headerEntries.map(e => e.name);
 
-    const colmap  = type === 'equipos' ? EQUIPOS_COLMAP : CELULARES_COLMAP;
+    /* sheet selection: ?sheet=name or defaults to first sheet */
+    const sheetName = req.query.sheet;
+    const ws2 = sheetName ? wb.getWorksheet(sheetName) : wb.worksheets[0];
+    if (!ws2) return res.status(400).json({ error: `Hoja "${sheetName}" no encontrada.` });
+    /* expose available sheet names */
+    const sheetNames = wb.worksheets.map(s => s.name);
+
+    const colmap  = type === 'equipos' ? EQUIPOS_COLMAP : type === 'ups' ? UPS_COLMAP : CELULARES_COLMAP;
     const mapping = buildMapping(headers, colmap);
 
     const rows = [];
@@ -306,7 +324,7 @@ router.post('/api/inventario/:type/import', ...canCreate, upload.single('file'),
       if (hasData) rows.push(obj);
     });
 
-    res.json({ preview: rows.slice(0, 5), mapping, total: rows.length, rows });
+    res.json({ preview: rows.slice(0, 5), mapping, total: rows.length, rows, sheets: sheetNames, activeSheet: ws.name });
   } catch (err) {
     console.error('POST /api/inventario/:type/import:', err);
     res.status(400).json({ error: 'No se pudo leer el archivo. Verifica que sea un .xlsx válido.' });
@@ -316,7 +334,7 @@ router.post('/api/inventario/:type/import', ...canCreate, upload.single('file'),
 /* ── IMPORT: confirm insert ── */
 router.post('/api/inventario/:type/import/confirm', ...canCreate, (req, res) => {
   const type = req.params.type;
-  if (!['equipos', 'celulares'].includes(type)) return res.status(400).json({ error: 'Tipo inválido.' });
+  if (!['equipos', 'celulares', 'ups'].includes(type)) return res.status(400).json({ error: 'Tipo inválido.' });
 
   const { rows, mode = 'skip' } = req.body;
   if (!Array.isArray(rows) || rows.length === 0) return res.status(400).json({ error: 'Sin filas.' });
@@ -381,6 +399,29 @@ router.post('/api/inventario/:type/import/confirm', ...canCreate, (req, res) => 
       });
     }
 
+    if (type === 'ups') {
+      const stmt = db.prepare(`
+        INSERT ${orClause} INTO inventario_ups
+          (placa,marca,nombre_equipo,serial,area,voltaje,fecha_compra,fecha_despacho)
+        VALUES (?,?,?,?,?,?,?,?)
+      `);
+      rows.forEach((r, i) => {
+        if (!r.placa?.trim()) {
+          errors.push({ row: i + 2, message: `Fila ${i + 2}: placa es requerida.` });
+          return;
+        }
+        try {
+          const result = stmt.run(
+            r.placa.trim(), r.marca||null, r.nombre_equipo||null, r.serial||null,
+            r.area||null, r.voltaje||null, r.fecha_compra||null, r.fecha_despacho||null
+          );
+          result.changes ? inserted++ : skipped++;
+        } catch (err) {
+          errors.push({ row: i + 2, message: err.message });
+        }
+      });
+    }
+
     db.exec('COMMIT');
   } catch (err) {
     try { db.exec('ROLLBACK'); } catch {}
@@ -389,6 +430,61 @@ router.post('/api/inventario/:type/import/confirm', ...canCreate, (req, res) => 
   }
 
   res.json({ inserted, skipped, errors });
+});
+
+/* ══════════════════════════════════════════════════════════
+   UPS — CRUD
+   ══════════════════════════════════════════════════════════ */
+
+router.get('/api/inventario/ups', ...canRead, (req, res) => {
+  try {
+    const { search, area, page = 1, limit = 20 } = req.query;
+    const where = [], params = [];
+    if (search) {
+      where.push('(placa LIKE ? OR marca LIKE ? OR nombre_equipo LIKE ? OR serial LIKE ? OR area LIKE ?)');
+      const s = `%${search}%`;
+      params.push(s, s, s, s, s);
+    }
+    if (area) { where.push('area LIKE ?'); params.push(`%${area}%`); }
+    const wc = where.length ? 'WHERE ' + where.join(' AND ') : '';
+    const offset = (parseInt(page) - 1) * parseInt(limit);
+    const rows = db.prepare(`SELECT * FROM inventario_ups ${wc} ORDER BY created_at DESC LIMIT ? OFFSET ?`).all(...params, parseInt(limit), offset);
+    const { total } = db.prepare(`SELECT COUNT(*) AS total FROM inventario_ups ${wc}`).get(...params);
+    res.json({ ups: rows, total, page: parseInt(page), limit: parseInt(limit), total_pages: Math.ceil(total / parseInt(limit)) });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+router.post('/api/inventario/ups', ...canCreate, (req, res) => {
+  try {
+    const { placa, marca, nombre_equipo, serial, area, voltaje, fecha_compra, fecha_despacho } = req.body;
+    if (!placa?.trim()) return res.status(400).json({ error: 'placa es requerida.' });
+    const result = db.prepare(`INSERT INTO inventario_ups (placa,marca,nombre_equipo,serial,area,voltaje,fecha_compra,fecha_despacho) VALUES (?,?,?,?,?,?,?,?)`).run(placa.trim(), marca||null, nombre_equipo||null, serial||null, area||null, voltaje||null, fecha_compra||null, fecha_despacho||null);
+    res.status(201).json({ ok: true, id: result.lastInsertRowid });
+  } catch (err) {
+    if (err.message?.includes('UNIQUE')) return res.status(409).json({ error: 'Ya existe una UPS con esa placa.' });
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.put('/api/inventario/ups/:id', ...canEdit, (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (!db.prepare('SELECT id FROM inventario_ups WHERE id=?').get(id)) return res.status(404).json({ error: 'UPS no encontrada.' });
+    const { placa, marca, nombre_equipo, serial, area, voltaje, fecha_compra, fecha_despacho } = req.body;
+    db.prepare(`UPDATE inventario_ups SET placa=?,marca=?,nombre_equipo=?,serial=?,area=?,voltaje=?,fecha_compra=?,fecha_despacho=?,updated_at=datetime('now','localtime') WHERE id=?`).run(placa, marca||null, nombre_equipo||null, serial||null, area||null, voltaje||null, fecha_compra||null, fecha_despacho||null, id);
+    res.json({ ok: true });
+  } catch (err) {
+    if (err.message?.includes('UNIQUE')) return res.status(409).json({ error: 'Placa ya existe en otra UPS.' });
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.delete('/api/inventario/ups/:id', ...canDelete, (req, res) => {
+  try {
+    const result = db.prepare('DELETE FROM inventario_ups WHERE id=?').run(parseInt(req.params.id));
+    if (!result.changes) return res.status(404).json({ error: 'UPS no encontrada.' });
+    res.json({ ok: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 /* ══════════════════════════════════════════════════════════
