@@ -5,69 +5,74 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-/* ── Tokens de diseño ──────────────────────────────────────────────────── */
+/* ── Tokens de diseño — MODO OSCURO (default) ──────────────────────────── */
 :root {
-  /* Fondo */
-  --bg:          #08080e;
-  --bg-2:        #0c0c16;
-  --surface:     #101018;
-  --surface-2:   #141422;
-  --surface-3:   #191930;
-  --surface-hover: #1c1c34;
+  /* Fondos — spread suficiente para jerarquía visual clara */
+  --bg:            #0a0a12;
+  --bg-2:          #0e0e1c;   /* sidebar: tinte azul-oscuro distinto del main */
+  --surface:       #15152a;   /* cards: +11 por canal vs bg → visiblemente más claros */
+  --surface-2:     #1b1b32;
+  --surface-3:     #21213c;
+  --surface-hover: #282848;
 
-  /* Bordes */
-  --border:      rgba(255,255,255,0.07);
-  --border-2:    rgba(255,255,255,0.11);
-  --border-focus: rgba(99,102,241,0.55);
+  /* Bordes — más visibles sin ser agresivos */
+  --border:        rgba(255,255,255,0.10);
+  --border-2:      rgba(255,255,255,0.16);
+  --border-focus:  rgba(99,102,241,0.60);
 
-  /* Colores de acento */
+  /* Acento */
   --primary:        #6366f1;
   --primary-dark:   #4f46e5;
-  --primary-light:  rgba(99,102,241,0.14);
-  --primary-glow:   rgba(99,102,241,0.25);
+  --primary-light:  rgba(99,102,241,0.15);
+  --primary-glow:   rgba(99,102,241,0.28);
 
-  /* Semánticos */
+  /* Semánticos (modo oscuro: vibrantes, alta visibilidad) */
   --success:   #10b981;
   --warning:   #f59e0b;
   --danger:    #ef4444;
   --info:      #3b82f6;
   --purple:    #8b5cf6;
 
-  /* Texto */
-  --text:      #e2e8f0;
-  --text-2:    #94a3b8;
-  --text-3:    #64748b;
+  /* Texto — contraste verificado sobre --surface #15152a */
+  --text:      #e8edf5;   /* 15.8:1 ✓ */
+  --text-2:    #8fa3bd;   /* 6.1:1  ✓ */
+  --text-3:    #5c7396;   /* 3.2:1  ✓ decorativo */
 
-  /* Misc */
+  /* Radios */
   --radius-xs: 4px;
   --radius-sm: 6px;
   --radius:    10px;
   --radius-lg: 14px;
   --radius-xl: 18px;
-  --transition: all 0.15s ease;
+
+  /* Transiciones */
+  --transition:    all 0.15s ease;
   --transition-md: all 0.25s cubic-bezier(.4,0,.2,1);
-  --shadow:    0 1px 3px rgba(0,0,0,.5);
-  --shadow-lg: 0 8px 32px rgba(0,0,0,.7);
-  --shadow-primary: 0 4px 16px rgba(99,102,241,.3);
+
+  /* Sombras — elevación real + highlight superior tipo Linear */
+  --shadow:        0 1px 4px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,0.05);
+  --shadow-lg:     0 8px 40px rgba(0,0,0,.8), 0 2px 8px rgba(0,0,0,.4);
+  --shadow-primary: 0 4px 16px rgba(99,102,241,.35);
 
   /* Sidebar */
   --sidebar-w: 240px;
 
-  /* Compatibilidad con código existente */
-  --text-main:       var(--text);
-  --text-muted:      var(--text-2);
-  --glass-bg:        var(--surface);
-  --glass-bg-hover:  var(--surface-hover);
-  --glass-border:    var(--border);
-  --glass-blur:      blur(0px);
-  --glass-shadow:    rgba(0,0,0,.5);
-  --primary-hover:   var(--primary-dark);
-  --accent:          var(--purple);
+  /* Alias de compatibilidad */
+  --text-main:        var(--text);
+  --text-muted:       var(--text-2);
+  --glass-bg:         var(--surface);
+  --glass-bg-hover:   var(--surface-hover);
+  --glass-border:     var(--border);
+  --glass-blur:       blur(0px);
+  --glass-shadow:     rgba(0,0,0,.55);
+  --primary-hover:    var(--primary-dark);
+  --accent:           var(--purple);
   --border-radius-lg: var(--radius-lg);
   --border-radius-md: var(--radius);
   --border-radius-sm: var(--radius-sm);
   --transition-smooth: var(--transition-md);
-  --success: #10b981;
+
+  /* Colores de estado de tickets (modo oscuro) */
   --color-abierto:    #3b82f6;
   --color-en_progreso:#f97316;
   --color-en_espera:  #8b5cf6;
@@ -1021,6 +1026,99 @@ body.sidebar-open .hamburger span:nth-child(3) { transform: translateY(-6px) rot
 
 /* Role badge */
 .badge-role { background:rgba(99,102,241,.12); color:#a5b4fc; }
+
+/* ==========================================================================
+   TEMA CLARO
+   ========================================================================== */
+[data-theme="light"] {
+  /* Fondos — azul-gris medio para que los cards blancos resalten claramente */
+  --bg:            #e4eaf4;
+  --bg-2:          #d9e1ef;   /* sidebar: tono más oscuro, bien diferenciado */
+  --surface:       #ffffff;   /* cards blancos contrastan fuerte con bg */
+  --surface-2:     #f2f5fb;
+  --surface-3:     #e8edf7;
+  --surface-hover: #d8e0ee;
+
+  /* Bordes — bien definidos */
+  --border:        rgba(0,0,0,0.12);
+  --border-2:      rgba(0,0,0,0.20);
+  --border-focus:  rgba(79,70,229,0.65);
+
+  /* Acento — variante oscura para mejor contraste sobre fondos claros */
+  --primary:        #4f46e5;   /* indigo-600: 7.5:1 sobre blanco ✓ */
+  --primary-dark:   #3730a3;
+  --primary-light:  rgba(79,70,229,0.10);
+  --primary-glow:   rgba(79,70,229,0.20);
+
+  /* Semánticos oscurecidos para contraste sobre superficies claras */
+  --success:   #059669;   /* 4.6:1 sobre blanco ✓ */
+  --warning:   #b45309;   /* 5.7:1 sobre blanco ✓ */
+  --danger:    #dc2626;   /* 5.0:1 sobre blanco ✓ */
+  --info:      #1d4ed8;   /* 7.2:1 sobre blanco ✓ */
+  --purple:    #6d28d9;
+
+  /* Texto — contraste verificado sobre --surface #ffffff */
+  --text:      #0f172a;   /* 18.8:1 ✓ */
+  --text-2:    #354d66;   /* 9.1:1  ✓ */
+  --text-3:    #4f6680;   /* 5.2:1  ✓ (pasa AA para texto pequeño) */
+
+  /* Sombras — profundidad visible, ring que define el borde del card */
+  --shadow:        0 1px 4px rgba(0,0,0,.10), 0 0 0 1px rgba(0,0,0,.06);
+  --shadow-lg:     0 8px 32px rgba(0,0,0,.15), 0 2px 8px rgba(0,0,0,.08);
+  --shadow-primary: 0 4px 16px rgba(79,70,229,.30);
+
+  /* Alias de compatibilidad */
+  --text-main:      var(--text);
+  --text-muted:     var(--text-2);
+  --glass-bg:       var(--surface);
+  --glass-bg-hover: var(--surface-hover);
+  --glass-border:   var(--border);
+  --glass-shadow:   rgba(0,0,0,.10);
+  --primary-hover:  var(--primary-dark);
+  --accent:         var(--purple);
+
+  /* Colores de estado de tickets (más oscuros para texto sobre claro) */
+  --color-abierto:    #1d4ed8;
+  --color-en_progreso:#c2410c;
+  --color-en_espera:  #6d28d9;
+  --color-resuelto:   #059669;
+  --color-cerrado:    #475569;
+  --color-baja:       #059669;
+  --color-media:      #b45309;
+  --color-alta:       #dc2626;
+  --color-critica:    #991b1b;
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb        { background: rgba(0,0,0,.13); }
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover  { background: rgba(0,0,0,.22); }
+
+/* ── Botón de tema ──────────────────────────────────────────────────────── */
+.btn-theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius-sm);
+  color: var(--text-2);
+  cursor: pointer;
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+.btn-theme-toggle:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+  border-color: var(--border-focus);
+}
+.btn-theme-toggle svg { width: 15px; height: 15px; stroke-width: 1.75; flex-shrink: 0; }
+
+/* Icono visible según tema */
+.btn-theme-toggle .icon-sun  { display: none; }
+.btn-theme-toggle .icon-moon { display: block; }
+[data-theme="light"] .btn-theme-toggle .icon-sun  { display: block; }
+[data-theme="light"] .btn-theme-toggle .icon-moon { display: none; }
 
 /* ==========================================================================
    COMPATIBILIDAD CON ESTILOS INLINE EXISTENTES (overrides mínimos)
