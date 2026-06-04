@@ -38,6 +38,7 @@ router.put('/api/farmacias/punto', requireAuth, requirePermission('farmacias:edi
     muni.farmacias[index] = { ...muni.farmacias[index], nombre, direccion, correo, horario, telefono, mapsUrl };
 
     await saveFarmacias(sheetRow, municipioNombre, muni.farmacias);
+    console.log(`[Farmacias] PUT ok — sheetRow:${sheetRow} municipio:${municipioNombre}`);
     res.json({ ok: true });
   } catch (err) {
     console.error('[Farmacias] PUT error:', err.message);
