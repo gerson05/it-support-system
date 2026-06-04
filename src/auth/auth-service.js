@@ -22,35 +22,33 @@ export function createSession(userId) {
 export function getSession(token) {
   if (!token) return null;
 
-  return db.transaction(() => {
-    const session = db.prepare(
-      `SELECT s.user_id, s.expires_at, u.username, u.active, u.role_id,
-              r.name AS role_name
-       FROM sessions s
-       JOIN users u ON u.id = s.user_id
-       JOIN roles r ON r.id = u.role_id
-       WHERE s.token = ? AND datetime(s.expires_at) > datetime('now')`
-    ).get(token);
+  const session = db.prepare(
+    `SELECT s.user_id, s.expires_at, u.username, u.active, u.role_id,
+            r.name AS role_name
+     FROM sessions s
+     JOIN users u ON u.id = s.user_id
+     JOIN roles r ON r.id = u.role_id
+     WHERE s.token = ? AND datetime(s.expires_at) > datetime('now')`
+  ).get(token);
 
-    if (!session || !session.active) return null;
+  if (!session || !session.active) return null;
 
-    const permissions = db.prepare(
-      `SELECT p.name FROM permissions p
-       JOIN role_permissions rp ON rp.permission_id = p.id
-       WHERE rp.role_id = ?`
-    ).all(session.role_id).map(p => p.name);
+  const permissions = db.prepare(
+    `SELECT p.name FROM permissions p
+     JOIN role_permissions rp ON rp.permission_id = p.id
+     WHERE rp.role_id = ?`
+  ).all(session.role_id).map(p => p.name);
 
-    // Sliding window — extender sesión 8h más en cada uso
-    const newExpiry = new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString();
-    db.prepare('UPDATE sessions SET expires_at = ? WHERE token = ?').run(newExpiry, token);
+  // Sliding window — extender sesión 8h más en cada uso
+  const newExpiry = new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString();
+  db.prepare('UPDATE sessions SET expires_at = ? WHERE token = ?').run(newExpiry, token);
 
-    return {
-      id:          session.user_id,
-      username:    session.username,
-      role:        session.role_name,
-      permissions,
-    };
-  })();
+  return {
+    id:          session.user_id,
+    username:    session.username,
+    role:        session.role_name,
+    permissions,
+  };
 }
 
 export function deleteSession(token) {
