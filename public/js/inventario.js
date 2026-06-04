@@ -41,14 +41,16 @@ export function renderInventario(container) {
       </button>
     </div>
 
-    <div class="card" style="margin-top:0;border-radius:0 0 12px 12px;padding:14px 20px;">
-      <div class="filter-bar">
-        <input type="search" id="inv-search" placeholder="Buscar placa, serial, nombre, área…"
-          style="flex:1;min-width:180px;" value="">
-        <input type="text" id="inv-area" placeholder="Filtrar por área"
-          style="width:160px;">
-        <button id="btn-inv-clear" class="btn btn-secondary btn-small">Limpiar</button>
+    <div class="inv-filter-bar">
+      <div class="inv-search-wrap">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="search" id="inv-search" placeholder="Buscar placa, serial, nombre, área…" value="">
       </div>
+      <div class="inv-filter-sep"></div>
+      <input type="text" id="inv-area" class="inv-area-input" placeholder="Área">
+      <button id="btn-inv-clear" class="inv-clear-btn" title="Limpiar filtros">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
     </div>
 
     <div id="inv-table-wrap" style="margin-top:16px;"></div>
@@ -66,19 +68,25 @@ export function renderInventario(container) {
     });
   });
 
+  const updateClearBtn = () => {
+    const active = _search || _filterArea;
+    document.getElementById('btn-inv-clear').classList.toggle('visible', !!active);
+  };
+
   let debounce;
   document.getElementById('inv-search').addEventListener('input', e => {
     clearTimeout(debounce);
-    debounce = setTimeout(() => { _search = e.target.value.trim(); _page = 1; loadTable(); }, 300);
+    debounce = setTimeout(() => { _search = e.target.value.trim(); _page = 1; updateClearBtn(); loadTable(); }, 300);
   });
   document.getElementById('inv-area').addEventListener('input', e => {
     clearTimeout(debounce);
-    debounce = setTimeout(() => { _filterArea = e.target.value.trim(); _page = 1; loadTable(); }, 300);
+    debounce = setTimeout(() => { _filterArea = e.target.value.trim(); _page = 1; updateClearBtn(); loadTable(); }, 300);
   });
   document.getElementById('btn-inv-clear').addEventListener('click', () => {
     _search = ''; _filterArea = ''; _page = 1;
     document.getElementById('inv-search').value = '';
     document.getElementById('inv-area').value   = '';
+    updateClearBtn();
     loadTable();
   });
 
