@@ -227,6 +227,20 @@ const migrations = [
     active     INTEGER DEFAULT 1,
     created_at TEXT DEFAULT (datetime('now','localtime'))
   )`,
+
+  `CREATE TABLE IF NOT EXISTS inventario_ups (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    placa           TEXT NOT NULL UNIQUE,
+    marca           TEXT,
+    nombre_equipo   TEXT,
+    serial          TEXT,
+    area            TEXT,
+    voltaje         TEXT,
+    fecha_compra    TEXT,
+    fecha_despacho  TEXT,
+    created_at      TEXT DEFAULT (datetime('now','localtime')),
+    updated_at      TEXT DEFAULT (datetime('now','localtime'))
+  )`,
 ];
 for (const sql of migrations) {
   try { db.exec(sql); } catch { /* columna ya existe */ }

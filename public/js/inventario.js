@@ -39,6 +39,9 @@ export function renderInventario(container) {
       <button id="tab-celulares" class="tab-btn" data-tab="celulares">
         📱 Celulares <span class="tab-count" id="count-celulares">…</span>
       </button>
+      <button id="tab-ups" class="tab-btn" data-tab="ups">
+        ⚡ UPS <span class="tab-count" id="count-ups">…</span>
+      </button>
     </div>
 
     <div class="inv-filter-bar">
@@ -111,7 +114,7 @@ async function loadTable() {
     if (!res.ok) throw new Error(res.statusText);
     const data = await res.json();
 
-    const rows  = _activeTab === 'equipos' ? data.equipos : data.celulares;
+    const rows  = _activeTab === 'equipos' ? data.equipos : _activeTab === 'celulares' ? data.celulares : data.ups;
 
     if (!rows.length) {
       wrap.innerHTML = '<div style="padding:60px;text-align:center;color:var(--text-muted);">Sin registros.</div>';
@@ -119,7 +122,9 @@ async function loadTable() {
       return;
     }
 
-    wrap.innerHTML = _activeTab === 'equipos' ? renderEquiposTable(rows) : renderCelularesTable(rows);
+    wrap.innerHTML = _activeTab === 'equipos' ? renderEquiposTable(rows)
+                   : _activeTab === 'celulares' ? renderCelularesTable(rows)
+                   : renderUpsTable(rows);
 
     wrap.querySelectorAll('.btn-inv-edit').forEach(btn => {
       btn.addEventListener('click', () => openForm(JSON.parse(decodeURIComponent(btn.dataset.row))));
@@ -228,6 +233,44 @@ function renderCelularesTable(rows) {
   </div>`;
 }
 
+function renderUpsTable(rows) {
+  return `
+  <div class="inv-table-card">
+    <div class="inv-table-scroll">
+      <table class="data-table">
+        <thead><tr>
+          <th>Placa</th>
+          <th>Dispositivo</th>
+          <th>Serial</th>
+          <th>Área</th>
+          <th>Voltaje</th>
+          <th>F. Compra</th>
+          <th>F. Despacho</th>
+          <th></th>
+        </tr></thead>
+        <tbody>
+          ${rows.map(r => `<tr>
+            <td class="td-mono">${esc(r.placa)}</td>
+            <td>
+              <div class="td-primary">${esc(r.marca||'—')}</div>
+              <div class="td-sub">${esc(r.nombre_equipo||'')}</div>
+            </td>
+            <td class="td-mono">${esc(r.serial||'—')}</td>
+            <td style="font-size:12px;">${esc(r.area||'—')}</td>
+            <td style="font-size:12px;">${esc(r.voltaje||'—')}</td>
+            <td style="font-size:12px;">${esc(r.fecha_compra||'—')}</td>
+            <td style="font-size:12px;">${esc(r.fecha_despacho||'—')}</td>
+            <td class="td-actions">
+              <button class="tbl-btn btn-inv-edit" data-row="${encodeURIComponent(JSON.stringify(r))}" title="Editar">${_ICON_EDIT}</button>
+              <button class="tbl-btn tbl-btn--del btn-inv-del" data-id="${r.id}" data-label="${esc(r.placa)} — ${esc(r.marca||'')}" title="Eliminar">${_ICON_DEL}</button>
+            </td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
 function renderPagination(total, totalPages) {
   const pg = document.getElementById('inv-pagination');
   if (totalPages <= 1) { pg.innerHTML = ''; return; }
@@ -246,7 +289,7 @@ function renderPagination(total, totalPages) {
 }
 
 async function loadCounts() {
-  for (const tab of ['equipos', 'celulares']) {
+  for (const tab of ['equipos', 'celulares', 'ups']) {
     try {
       const r = await fetch(`/api/inventario/${tab}?page=1&limit=1`);
       const d = await r.json();
@@ -278,9 +321,10 @@ function esc(str) {
 function openForm(row) {
   const isEdit    = !!row;
   const isEquipo  = _activeTab === 'equipos';
+  const isUps     = _activeTab === 'ups';
   const modalWrap = document.getElementById('inv-modal-wrap');
 
-  modalWrap.innerHTML = isEquipo ? equipoFormHTML(row) : celularFormHTML(row);
+  modalWrap.innerHTML = isUps ? upsFormHTML(row) : isEquipo ? equipoFormHTML(row) : celularFormHTML(row);
 
   const overlay = modalWrap.querySelector('.modal-overlay');
   const form    = modalWrap.querySelector('#inv-form');
@@ -411,6 +455,46 @@ function celularFormHTML(r) {
           <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:12px;">
             ${inputField('Fecha de registro','fecha_registro',v('fecha_registro'),'date')}
             ${inputField('Fecha de entrega','fecha_entrega',v('fecha_entrega'),'date')}
+          </div>
+          <div class="modal-footer" style="margin-top:16px;padding:0;">
+            <button type="button" class="btn btn-secondary" id="btn-inv-form-cancel">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Guardar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>`;
+}
+
+function upsFormHTML(r) {
+  const v = k => esc(r?.[k] ?? '');
+  return `
+  <div class="modal-overlay" style="display:flex;">
+    <div class="modal-content" style="max-width:480px;max-height:90vh;overflow-y:auto;">
+      <div class="modal-header" style="flex-direction:column;align-items:flex-start;gap:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;width:100%;">
+          <h3>${r ? 'Editar UPS' : 'Nueva UPS'}</h3>
+          <button class="modal-close" id="btn-inv-form-cancel">&times;</button>
+        </div>
+        <button type="button" id="btn-smart-scan"
+          style="display:flex;align-items:center;gap:8px;padding:8px 16px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;width:100%;justify-content:center;">
+          📷 Escanear etiqueta — llenar campos automáticamente
+        </button>
+      </div>
+      <div class="modal-body">
+        <div id="inv-form-err" style="display:none;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:#fca5a5;border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:14px;"></div>
+        <form id="inv-form">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            ${scanField('Placa *','placa',v('placa'),true)}
+            ${inputField('Marca','marca',v('marca'))}
+            ${inputField('Nombre del equipo','nombre_equipo',v('nombre_equipo'))}
+            ${scanField('Serial','serial',v('serial'),false)}
+            ${inputField('Área','area',v('area'))}
+            ${inputField('Voltaje','voltaje',v('voltaje'))}
+          </div>
+          <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            ${inputField('Fecha de compra','fecha_compra',v('fecha_compra'),'date')}
+            ${inputField('Fecha de despacho','fecha_despacho',v('fecha_despacho'),'date')}
           </div>
           <div class="modal-footer" style="margin-top:16px;padding:0;">
             <button type="button" class="btn btn-secondary" id="btn-inv-form-cancel">Cancelar</button>
