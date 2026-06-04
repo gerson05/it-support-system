@@ -1,71 +1,51 @@
-import { google } from 'googleapis';
-import { fileURLToPath } from 'url';
-import path from 'path';
+const CSV_URL    = process.env.GOOGLE_SHEETS_CSV_URL;
+const SCRIPT_URL = process.env.GOOGLE_APPS_SCRIPT_URL;
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname  = path.dirname(__filename);
+if (!CSV_URL) throw new Error('[FarmaciasService] GOOGLE_SHEETS_CSV_URL env var is required');
 
-const SPREADSHEET_ID = process.env.GOOGLE_SHEETS_ID;
-if (!SPREADSHEET_ID) throw new Error('[FarmaciasService] GOOGLE_SHEETS_ID env var is required');
-const TARGET_GID     = 1516003101;
-
-let _sheetsClientPromise = null;
-let _sheetNamePromise    = null;
-
-async function _auth() {
-  if (!_sheetsClientPromise) {
-    _sheetsClientPromise = (async () => {
-      const auth = new google.auth.GoogleAuth({
-        keyFile: path.join(__dirname, '../../credentials/google-service-account.json'),
-        scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-      });
-      return google.sheets({ version: 'v4', auth });
-    })().catch(err => { _sheetsClientPromise = null; throw err; });
+function parseCSV(text) {
+  const rows = [];
+  let i = 0;
+  while (i < text.length) {
+    const row = [];
+    while (i < text.length && text[i] !== '\n') {
+      if (text[i] === '"') {
+        let field = '';
+        i++;
+        while (i < text.length) {
+          if (text[i] === '"' && text[i + 1] === '"') { field += '"'; i += 2; }
+          else if (text[i] === '"') { i++; break; }
+          else { field += text[i++]; }
+        }
+        row.push(field);
+        if (text[i] === ',') i++;
+      } else {
+        let field = '';
+        while (i < text.length && text[i] !== ',' && text[i] !== '\n') field += text[i++];
+        row.push(field);
+        if (text[i] === ',') i++;
+      }
+    }
+    if (text[i] === '\n') i++;
+    if (row.length > 0 && !(row.length === 1 && row[0] === '')) rows.push(row);
   }
-  return _sheetsClientPromise;
+  return rows;
 }
 
-async function _getSheetName() {
-  if (!_sheetNamePromise) {
-    _sheetNamePromise = (async () => {
-      const sheets = await _auth();
-      const meta   = await sheets.spreadsheets.get({
-        spreadsheetId: SPREADSHEET_ID,
-        fields: 'sheets.properties',
-      });
-      const found = meta.data.sheets.find(s => s.properties.sheetId === TARGET_GID);
-      if (!found) throw new Error(`[FarmaciasService] Sheet with GID ${TARGET_GID} not found in spreadsheet`);
-      return found.properties.title;
-    })().catch(err => { _sheetNamePromise = null; throw err; });
-  }
-  return _sheetNamePromise;
-}
-
-/**
- * Lee el Sheet completo y devuelve un array de departamentos con sus municipios y farmacias.
- * Estructura: [{ nombre, municipios: [{ sheetRow, nombre, keywords, farmacias: [...] }] }]
- */
 export async function readSheet() {
-  const sheets    = await _auth();
-  const sheetName = await _getSheetName();
+  const res = await fetch(CSV_URL, { redirect: 'follow' });
+  if (!res.ok) throw new Error(`CSV fetch error: ${res.status}`);
+  const rows = parseCSV(await res.text());
 
-  const res  = await sheets.spreadsheets.values.get({
-    spreadsheetId: SPREADSHEET_ID,
-    range: `${sheetName}!A:B`,
-  });
-
-  const rows        = res.data.values || [];
-  const result      = [];
-  let   currentDept = null;
+  const result = [];
+  let currentDept = null;
 
   rows.forEach((row, idx) => {
     const sheetRow = idx + 1;
     const colA = (row[0] || '').trim();
     const colB = (row[1] || '').trim();
-
     if (!colA || !colB) return;
 
-    // ── Fila de departamento: col B contiene "Elegiste los municipios"
     if (/elegiste los municipios/i.test(colB)) {
       const match = colB.match(/municipios\s+del?\s+\*?([^*\n]+)\*?/i);
       const nombre = match ? match[1].trim() : `Departamento ${result.length + 1}`;
@@ -74,31 +54,18 @@ export async function readSheet() {
       return;
     }
 
-    // ── Fila de municipio: col B contiene "Farmacia:"
     if (/farmacia:/i.test(colB) && currentDept) {
       const keywords = colA.split(',').map(k => k.trim()).filter(Boolean);
-      // El primer keyword numérico es el número del municipio
-      const numKw    = keywords.find(k => /^\d+$/.test(k));
-      const nombre   = keywords.find(k => !/^\d+$/.test(k)) || `Municipio ${numKw ?? sheetRow}`;
-
-      currentDept.municipios.push({
-        sheetRow,
-        nombre,
-        keywords,
-        farmacias: parseBlock(colB),
-      });
+      const numKw = keywords.find(k => /^\d+$/.test(k));
+      const nombre = keywords.find(k => !/^\d+$/.test(k)) || `Municipio ${numKw ?? sheetRow}`;
+      currentDept.municipios.push({ sheetRow, nombre, keywords, farmacias: parseBlock(colB) });
     }
   });
 
   return result;
 }
 
-/**
- * Parsea el texto de una celda col B y extrae las farmacias individuales.
- * Devuelve: [{ index, nombre, direccion, correo, horario, telefono, mapsUrl }]
- */
 export function parseBlock(cellText) {
-  // Dividir por el separador de farmacias
   const blocks = cellText
     .split(/={3,}/)
     .map(b => b.trim())
@@ -109,9 +76,7 @@ export function parseBlock(cellText) {
       const m = block.match(pattern);
       return m ? m[1].replace(/\*/g, '').trim() : '';
     };
-
     const urlMatch = block.match(/https?:\/\/[^\s\n*,)]+/);
-
     return {
       index,
       nombre:    get(/Farmacia:\s*\*?(.+?)(?:\*?\s*$|\n)/im),
@@ -126,13 +91,8 @@ export function parseBlock(cellText) {
 
 const SEP = '======================';
 
-/**
- * Reconstruye el texto de la celda col B a partir del array de farmacias.
- * Produce el mismo formato WhatsApp que el bot externo espera.
- */
 export function reconstructColB(municipioNombre, farmacias) {
   if (!farmacias.length) return '';
-
   const blocks = farmacias.map(f => [
     `*FARMACIA*`,
     SEP,
@@ -146,29 +106,40 @@ export function reconstructColB(municipioNombre, farmacias) {
     f.mapsUrl || '',
     SEP,
   ].join('\n'));
-
   return blocks.join('\n\n') + '\n\nEscribe🔢 *00* para volver al menu principal';
 }
 
-/**
- * Escribe el texto reconstruido en la celda B{sheetRow} del Sheet.
- */
 export async function writeRow(sheetRow, cellText) {
-  const sheets    = await _auth();
-  const sheetName = await _getSheetName();
+  if (!SCRIPT_URL) throw new Error('[FarmaciasService] GOOGLE_APPS_SCRIPT_URL no configurado — edición deshabilitada');
+  const payload = { sheetRow, cellText };
 
-  await sheets.spreadsheets.values.update({
-    spreadsheetId:    SPREADSHEET_ID,
-    range:            `${sheetName}!B${sheetRow}`,
-    valueInputOption: 'RAW',
-    requestBody:      { values: [[cellText]] },
+  // Apps Script devuelve 302 → seguir redirect con GET para obtener la respuesta de doPost
+  const first = await fetch(SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+    redirect: 'manual',
   });
+
+  let res;
+  if (first.status === 301 || first.status === 302) {
+    const location = first.headers.get('location');
+    if (!location) throw new Error('Apps Script redirect sin Location header');
+    res = await fetch(location, { method: 'GET' });
+  } else {
+    res = first;
+  }
+
+  if (!res.ok) throw new Error(`Apps Script HTTP error: ${res.status}`);
+
+  // Leer cuerpo — Apps Script puede retornar 200 con mensaje de error
+  const body = await res.text();
+  console.log(`[Farmacias] Apps Script response (row ${sheetRow}):`, body?.slice(0, 200));
+  if (body && body.toLowerCase().startsWith('error')) {
+    throw new Error(`Apps Script respondió: ${body}`);
+  }
 }
 
-/**
- * Helper de alto nivel: reconstruye el texto y lo escribe al Sheet.
- */
 export async function saveFarmacias(sheetRow, municipioNombre, farmacias) {
-  const text = reconstructColB(municipioNombre, farmacias);
-  await writeRow(sheetRow, text);
+  await writeRow(sheetRow, reconstructColB(municipioNombre, farmacias));
 }
