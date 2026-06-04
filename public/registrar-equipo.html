@@ -351,8 +351,17 @@ function routeBarcode(val, detectedKeys) {
 
 function applyDetected() {
   for (const [field, val] of detected) {
-    const inp = document.getElementById(`f-${field}`);
-    if (inp && !inp.value.trim()) { inp.value = val; }
+    const el = document.querySelector(`#inv-form [name="${field}"]`);
+    if (!el || el.value.trim()) continue;
+    if (el.tagName === 'SELECT') {
+      // Normalize: strip spaces, lowercase for comparison
+      const norm = val.toLowerCase().replace(/\s+/g,'');
+      const opt  = [...el.options].find(o => o.value && o.value.toLowerCase().replace(/\s+/g,'') === norm);
+      if (opt) el.value = opt.value;
+    } else {
+      el.value = val;
+    }
+    el.dispatchEvent(new Event('change'));
   }
   document.getElementById('detected-panel').style.display = 'none';
   detected.clear();
@@ -493,7 +502,16 @@ async function openSmartScanner() {
           for (const c of codes) {
             if (seenValues.has(c.rawValue)) continue;
             const field = routeBarcode(c.rawValue, new Set(localDetected.keys()));
-            if (field) { seenValues.add(c.rawValue); localDetected.set(field, c.rawValue); updateScDet(); }
+            if (field) {
+          seenValues.add(c.rawValue);
+          localDetected.set(field, c.rawValue);
+          updateScDet();
+          /* hint: after IMEI1 detected in celulares, prompt for IMEI2 */
+          if (field === 'imei' && tipo === 'celulares') {
+            const hint = document.querySelector('#sc-pane-codes .scan-hint');
+            if (hint) hint.textContent = '✓ IMEI 1 capturado — apunta al segundo código para IMEI 2';
+          }
+        }
           }
         } catch {}
       }
@@ -606,26 +624,67 @@ async function loadTesseract() {
 function parseOcr(text) {
   const r = new Map();
   if (!text) return r;
-  const m1 = text.match(/IMEI[\s:]+(\d{15})/i);
-  if (m1) r.set('imei', m1[1]);
-  const m2 = text.match(/S\/?N[\s:]+([A-Z0-9\-]{5,20})/i);
-  if (m2) r.set('serial', m2[1].toUpperCase());
-  if (!r.has('imei')) { const m=text.match(/\b(\d{15})\b/); if(m) r.set('imei',m[1]); }
-  const mRam = text.match(/RAM[^\n]{0,30}?(\d+)\s*GB/i) || text.match(/(\d+)\s*GB[^\n]{0,30}?RAM/i);
-  if (mRam) r.set('ram', mRam[1]+'GB');
-  const mAlm = text.match(/(?:ROM|Storage|Almacenamiento|Internal)[^\n]{0,30}?(\d+)\s*GB/i)
-            || text.match(/(\d+)\s*GB[^\n]{0,30}?(?:ROM|Storage|Almacenamiento|Internal)/i);
-  if (mAlm) r.set('almacenamiento', mAlm[1]+'GB');
+  const t = text.replace(/\r/g,'\n');
+
+  /* IMEI 1 con etiqueta */
+  const mi1 = t.match(/IMEI\s*[1:]?\s*[:\-]?\s*(\d{14,16})/i);
+  if (mi1) r.set('imei', mi1[1].replace(/\D/g,'').slice(0,15));
+
+  /* IMEI 2 con etiqueta */
+  const mi2 = t.match(/IMEI\s*2\s*[:\-]?\s*(\d{14,16})/i);
+  if (mi2) r.set('imei2', mi2[1].replace(/\D/g,'').slice(0,15));
+
+  /* IMEI bare 15 dígitos */
+  if (!r.has('imei')) {
+    const bm = t.match(/\b(\d{15})\b/g);
+    if (bm?.[0]) r.set('imei',  bm[0]);
+    if (bm?.[1] && bm[1] !== bm[0]) r.set('imei2', bm[1]);
+  }
+
+  /* Serial */
+  const sn = t.match(/S[\/]?N\s*[:\-]?\s*([A-Z0-9][A-Z0-9\-]{4,19})/i);
+  if (sn) r.set('serial', sn[1].toUpperCase());
+
+  /* Combinado RAM+Storage: "6GB+128GB", "6GB/128GB", "6GB RAM + 128GB ROM", "RAM:6GB ROM:128GB" */
+  const combo = t.match(/(\d+)\s*GB\s*(?:RAM)?\s*[+\/]\s*(\d+)\s*GB/i)
+             || t.match(/(\d+)\s*GB\s*(?:RAM)\D{0,10}(\d+)\s*GB/i);
+  if (combo) {
+    const a = parseInt(combo[1]), b = parseInt(combo[2]);
+    const ram  = Math.min(a,b), stor = Math.max(a,b);
+    if (ram  <= 24) r.set('ram',           ram+'GB');
+    if (stor >= 16) r.set('almacenamiento', stor+'GB');
+  }
+
+  /* RAM sola */
+  if (!r.has('ram')) {
+    const rm = t.match(/(?:RAM|MEM[^\n]{0,5}RAM)\s*[:\-]?\s*(\d+)\s*GB/i)
+            || t.match(/(\d+)\s*GB\s*RAM/i);
+    if (rm) r.set('ram', rm[1]+'GB');
+  }
+
+  /* Storage solo */
+  if (!r.has('almacenamiento')) {
+    const sm = t.match(/(?:ROM|Storage|Almacen[^\n]{0,10}|Internal|Intern[^\s]{0,5})\s*[:\-]?\s*(\d+)\s*GB/i)
+            || t.match(/(\d+)\s*GB\s*(?:ROM|Storage|Internal)/i);
+    if (sm && parseInt(sm[1]) >= 16) r.set('almacenamiento', sm[1]+'GB');
+  }
+
+  /* Procesador para equipos */
+  const cpu = t.match(/(?:Intel\s+Core\s+i[3579]|AMD\s+Ryzen\s+[357])[^\n]{0,20}/i);
+  if (cpu) r.set('procesador', cpu[0].trim().slice(0,30));
+
+  /* Marca / modelo */
   const BRANDS = ['Samsung','Xiaomi','Redmi','Honor','ZTE','Infinix','Motorola','Apple','iPhone','Dell','HP','Lenovo','Asus','Acer','Toshiba'];
   for (const b of BRANDS) {
-    if (new RegExp(`\\b${b}\\b`,'i').test(text)) {
-      const f = ['Dell','HP','Lenovo','Asus','Acer','Toshiba'].includes(b) ? 'marca' : 'equipo';
-      r.set(f, b);
-      const mm = text.match(new RegExp(`${b}[\\s]+([A-Z0-9][A-Z0-9 \\-]{2,30})`, 'i'));
-      if (mm) r.set('modelo', mm[1].trim());
+    if (new RegExp(`\\b${b}\\b`,'i').test(t)) {
+      const isLaptop = ['Dell','HP','Lenovo','Asus','Acer','Toshiba'].includes(b);
+      r.set(isLaptop ? 'marca' : 'equipo', b);
+      const mm = t.match(new RegExp(`${b}\\s+([A-Z0-9][A-Z0-9 \\-]{2,30})`, 'i'));
+      if (mm) r.set('modelo', mm[1].trim().replace(/\s{2,}/g,' ').slice(0,40));
       break;
     }
   }
+
   return r;
 }
 
