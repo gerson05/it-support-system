@@ -51,12 +51,26 @@ export async function renderTechRequests(container) {
         <h2 style="font-size:20px;font-weight:700;letter-spacing:-.4px;margin-bottom:4px;">Requerimientos Tecnológicos</h2>
         <p style="color:var(--text-muted);font-size:14px;">Gestiona solicitudes de equipos e incidencias enviadas desde las sedes.</p>
       </div>
-      <button id="btn-new-request"
-        style="display:flex;align-items:center;gap:8px;padding:10px 22px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(99,102,241,.35);transition:all .2s;"
-        onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 22px rgba(99,102,241,.5)'"
-        onmouseout="this.style.transform='';this.style.boxShadow='0 4px 16px rgba(99,102,241,.35)'">
-        ＋ Nueva Solicitud
-      </button>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <button id="btn-ver-registros"
+          style="display:flex;align-items:center;gap:7px;padding:10px 18px;background:var(--surface);border:1px solid var(--border-2);border-radius:10px;color:var(--text-2);font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;"
+          onmouseover="this.style.background='var(--surface-hover)';this.style.color='var(--text)'"
+          onmouseout="this.style.background='var(--surface)';this.style.color='var(--text-2)'">
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+          </svg>
+          Ver Registros
+        </button>
+        <button id="btn-new-request"
+          style="display:flex;align-items:center;gap:8px;padding:10px 22px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(99,102,241,.35);transition:all .2s;"
+          onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 22px rgba(99,102,241,.5)'"
+          onmouseout="this.style.transform='';this.style.boxShadow='0 4px 16px rgba(99,102,241,.35)'">
+          ＋ Nueva Solicitud
+        </button>
+      </div>
     </div>
 
     <!-- Pestañas -->
@@ -355,6 +369,20 @@ export async function renderTechRequests(container) {
   });
 
   /* ── Botón Nueva Solicitud ── */
+  /* Botón Ver Registros: abre Google Sheet si está configurado, si no la página interna */
+  fetch('/api/registros-it/sheet-url')
+    .then(r => r.json())
+    .then(({ url }) => {
+      document.getElementById('btn-ver-registros').addEventListener('click', () => {
+        window.open(url || '/registros-it.html', '_blank');
+      });
+    })
+    .catch(() => {
+      document.getElementById('btn-ver-registros').addEventListener('click', () => {
+        window.open('/registros-it.html', '_blank');
+      });
+    });
+
   document.getElementById('btn-new-request').addEventListener('click', () => {
     openModal(activeTab, loadTable);
   });
@@ -572,11 +600,20 @@ function openModal(defaultType, onSuccess) {
   document.getElementById('tr-modal-cancel').addEventListener('click', closeModal);
   overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
 
+  /* Capitaliza la primera letra de cada palabra al salir del campo */
+  const toTitleCase = s => s.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+  document.getElementById('tr-f-name').addEventListener('blur', e => {
+    e.target.value = toTitleCase(e.target.value.trim());
+  });
+  document.getElementById('tr-f-cargo').addEventListener('blur', e => {
+    e.target.value = toTitleCase(e.target.value.trim());
+  });
+
   document.getElementById('tr-modal-save').addEventListener('click', async () => {
     const type   = modal.querySelector('input[name="tr-type"]:checked')?.value;
-    const name   = document.getElementById('tr-f-name').value.trim();
+    const name   = toTitleCase(document.getElementById('tr-f-name').value.trim());
     const cedula = document.getElementById('tr-f-cedula').value.trim();
-    const cargo  = document.getElementById('tr-f-cargo').value.trim();
+    const cargo  = toTitleCase(document.getElementById('tr-f-cargo').value.trim());
     const sede   = document.getElementById('tr-f-sede').value.trim();
     const desc   = document.getElementById('tr-f-desc').value.trim();
     const prio   = document.getElementById('tr-f-priority').value;

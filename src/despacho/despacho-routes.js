@@ -1,6 +1,8 @@
 import express from 'express';
 import db from '../config/database.js';
-import { logAudit } from '../audit/audit-logger.js';
+import { logAudit }    from '../audit/audit-logger.js';
+import { logDespacho }      from '../excel/excel-logger.js';
+import { logDespachoSheet } from '../excel/sheets-logger.js';
 import { requireAuth, requirePermission } from '../auth/auth-middleware.js';
 
 const router = express.Router();
@@ -157,6 +159,11 @@ router.post('/api/despachos', ...canCreate, (req, res) => {
       );
     const { id } = db.prepare('SELECT last_insert_rowid() as id').get();
     logAudit(agente || 'Sistema', 'Despacho creado', 'despacho', id, numero, { destinatario, sede });
+
+    const desData = { numero, destinatario, sede, area, articulos, observaciones, requiere_acta, acta_numero, agente };
+    logDespacho(desData).catch(err => console.error('[excel-logger] despacho:', err.message));
+    logDespachoSheet(desData).catch(err => console.error('[sheets-logger] despacho:', err.message));
+
     res.json({ success: true, id, numero });
   } catch (e) {
     res.status(500).json({ error: e.message });
