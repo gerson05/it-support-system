@@ -17,6 +17,10 @@ export function renderInventario(container) {
         <p style="color:var(--text-muted);font-size:14px;">Gestión de equipos, celulares y dispositivos.</p>
       </div>
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <button id="btn-inv-enlace"
+          style="display:flex;align-items:center;gap:7px;padding:10px 16px;background:var(--surface);border:1px solid var(--border-2);border-radius:10px;color:var(--text-2);font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;">
+          📲 Generar enlace
+        </button>
         <button id="btn-inv-import"
           style="display:flex;align-items:center;gap:7px;padding:10px 16px;background:var(--surface);border:1px solid var(--border-2);border-radius:10px;color:var(--text-2);font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;">
           ⬆ Importar Excel
@@ -80,6 +84,7 @@ export function renderInventario(container) {
 
   document.getElementById('btn-inv-new').addEventListener('click', () => openForm(null));
   document.getElementById('btn-inv-import').addEventListener('click', () => openImportModal());
+  document.getElementById('btn-inv-enlace').addEventListener('click', () => openGenerarEnlaceModal());
 
   loadTable();
   loadCounts();
@@ -928,4 +933,140 @@ function parseOcrText(text) {
   }
 
   return result;
+}
+
+/* ── Generar enlace de registro móvil ── */
+async function openGenerarEnlaceModal() {
+  const modalWrap = document.getElementById('inv-modal-wrap');
+  modalWrap.innerHTML = `
+    <div class="modal-overlay" style="display:flex;" id="enlace-overlay">
+      <div class="modal-content" style="max-width:520px;">
+        <div class="modal-header">
+          <h3>📲 Generar enlace de registro móvil</h3>
+          <button class="modal-close" id="btn-enlace-close">&times;</button>
+        </div>
+        <div class="modal-body" id="enlace-body">
+
+          <!-- Paso 1: configurar -->
+          <div id="enlace-step1">
+            <p style="font-size:13px;color:var(--text-2);margin-bottom:18px;">
+              Genera un enlace o QR para que tus compañeros registren equipos desde el celular — sin necesidad de iniciar sesión.
+            </p>
+            <div class="form-group" style="margin-bottom:14px;">
+              <label style="font-size:12px;font-weight:500;color:var(--text-muted);display:block;margin-bottom:6px;">Tipo de registro</label>
+              <div style="display:flex;gap:10px;">
+                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:10px 16px;flex:1;">
+                  <input type="radio" name="enlace-tipo" value="equipos" checked> 🖥 Equipos
+                </label>
+                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:10px 16px;flex:1;">
+                  <input type="radio" name="enlace-tipo" value="celulares"> 📱 Celulares
+                </label>
+              </div>
+            </div>
+            <div class="form-group" style="margin-bottom:14px;">
+              <label style="font-size:12px;font-weight:500;color:var(--text-muted);display:block;margin-bottom:6px;">Nombre / etiqueta (opcional)</label>
+              <input type="text" id="enlace-label" class="form-control" placeholder="Ej: Bodega Bogotá, Inventario junio…">
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;">
+              <div class="form-group">
+                <label style="font-size:12px;font-weight:500;color:var(--text-muted);display:block;margin-bottom:6px;">Vence en</label>
+                <select id="enlace-expires" class="form-control">
+                  <option value="">Sin límite de tiempo</option>
+                  <option value="24">24 horas</option>
+                  <option value="72">3 días</option>
+                  <option value="168" selected>7 días</option>
+                  <option value="720">30 días</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label style="font-size:12px;font-weight:500;color:var(--text-muted);display:block;margin-bottom:6px;">Máx. registros</label>
+                <select id="enlace-uses" class="form-control">
+                  <option value="">Sin límite</option>
+                  <option value="10">10 usos</option>
+                  <option value="25">25 usos</option>
+                  <option value="50" selected>50 usos</option>
+                  <option value="100">100 usos</option>
+                </select>
+              </div>
+            </div>
+            <div id="enlace-step1-err" style="display:none;color:var(--danger);font-size:13px;margin-bottom:12px;"></div>
+            <button class="btn btn-primary" id="btn-enlace-generar" style="width:100%;">Generar enlace y QR</button>
+          </div>
+
+          <!-- Paso 2: resultado -->
+          <div id="enlace-step2" style="display:none;">
+            <div style="text-align:center;margin-bottom:18px;">
+              <div style="font-size:13px;color:var(--text-2);margin-bottom:12px;">Escanea este QR o comparte el enlace</div>
+              <img id="enlace-qr-img" src="" alt="QR" style="border-radius:12px;background:#fff;padding:8px;width:200px;height:200px;display:block;margin:0 auto;">
+            </div>
+            <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+              <input type="text" id="enlace-url" class="form-control" readonly style="flex:1;font-size:12px;font-family:monospace;background:transparent;border:none;padding:0;">
+              <button class="btn btn-secondary btn-small" id="btn-enlace-copy">Copiar</button>
+            </div>
+            <p style="font-size:12px;color:var(--text-3);text-align:center;margin-bottom:16px;" id="enlace-info"></p>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-secondary" id="btn-enlace-nuevo" style="flex:1;">Crear otro</button>
+              <button class="btn btn-primary"   id="btn-enlace-done"  style="flex:1;">Listo</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>`;
+
+  const overlay = modalWrap.querySelector('#enlace-overlay');
+  const close   = () => overlay.remove();
+  document.getElementById('btn-enlace-close').addEventListener('click', close);
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+  document.getElementById('btn-enlace-done').addEventListener('click', close);
+
+  document.getElementById('btn-enlace-nuevo').addEventListener('click', () => {
+    document.getElementById('enlace-step2').style.display = 'none';
+    document.getElementById('enlace-step1').style.display = '';
+  });
+
+  document.getElementById('btn-enlace-copy').addEventListener('click', () => {
+    const url = document.getElementById('enlace-url').value;
+    navigator.clipboard?.writeText(url).then(() => {
+      document.getElementById('btn-enlace-copy').textContent = '✓ Copiado';
+      setTimeout(() => { document.getElementById('btn-enlace-copy').textContent = 'Copiar'; }, 2000);
+    });
+  });
+
+  document.getElementById('btn-enlace-generar').addEventListener('click', async () => {
+    const tipo         = document.querySelector('input[name="enlace-tipo"]:checked')?.value || 'equipos';
+    const label        = document.getElementById('enlace-label').value.trim();
+    const expires_hours= document.getElementById('enlace-expires').value || null;
+    const max_uses     = document.getElementById('enlace-uses').value || null;
+    const errEl        = document.getElementById('enlace-step1-err');
+    const btn          = document.getElementById('btn-enlace-generar');
+    errEl.style.display = 'none';
+    btn.disabled = true; btn.textContent = 'Generando…';
+
+    try {
+      const res  = await fetch('/api/inventario/registro-token', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ tipo, label: label || null, expires_hours, max_uses }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+
+      document.getElementById('enlace-url').value = data.url;
+      document.getElementById('enlace-qr-img').src = `/api/inventario/registro-qr/${data.token}`;
+
+      const parts = [];
+      if (expires_hours) parts.push(`Vence en ${expires_hours >= 168 ? (expires_hours/168)+'d' : expires_hours+'h'}`);
+      if (max_uses)      parts.push(`Máx. ${max_uses} registros`);
+      document.getElementById('enlace-info').textContent = parts.join(' · ') || 'Sin límites';
+
+      document.getElementById('enlace-step1').style.display = 'none';
+      document.getElementById('enlace-step2').style.display = '';
+    } catch (err) {
+      errEl.textContent  = err.message || 'Error al generar el enlace.';
+      errEl.style.display = '';
+    } finally {
+      btn.disabled = false; btn.textContent = 'Generar enlace y QR';
+    }
+  });
 }
