@@ -59,6 +59,14 @@ function buildMapping(headers, colmap) {
   return mapping;
 }
 
+function cellText(raw) {
+  if (raw === null || raw === undefined) return '';
+  if (raw instanceof Date) return raw.toISOString().slice(0, 10);
+  if (typeof raw === 'object' && 'result' in raw) return String(raw.result ?? '').trim();
+  if (typeof raw === 'object' && 'text'   in raw) return String(raw.text   ?? '').trim();
+  return String(raw).trim();
+}
+
 const router = express.Router();
 
 const canRead   = [requireAuth, requirePermission('inventario:read')];
@@ -261,7 +269,7 @@ router.post('/api/inventario/:type/import', ...canCreate, upload.single('file'),
         const field = mapping[h];
         if (!field) return;
         const raw = row.getCell(i + 1).value;
-        const val = raw === null || raw === undefined ? '' : String(raw).trim();
+        const val = cellText(raw);
         if (val) hasData = true;
         obj[field] = val || null;
       });
