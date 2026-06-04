@@ -158,6 +158,62 @@ const migrations = [
     (5,3),(5,4),(5,8),(5,12),(5,16),(5,20),(5,24),
     (6,3),(6,4),(6,8),(6,12),(6,16),(6,20),
     (2,25),(2,26),(2,27),(2,28)`,
+
+  // ── Inventario ────────────────────────────────────────────────────────────
+  `CREATE TABLE IF NOT EXISTS inventario_equipos (
+    id               INTEGER PRIMARY KEY AUTOINCREMENT,
+    placa            TEXT NOT NULL UNIQUE,
+    marca            TEXT NOT NULL,
+    nombre_equipo    TEXT NOT NULL,
+    serial           TEXT NOT NULL UNIQUE,
+    procesador       TEXT,
+    ram              TEXT,
+    tipo_ram         TEXT,
+    cap_disco        TEXT,
+    tipo_disco       TEXT,
+    serial_cargador  TEXT,
+    area             TEXT,
+    responsable      TEXT,
+    fecha_compra     TEXT,
+    created_at       TEXT DEFAULT (datetime('now','localtime')),
+    updated_at       TEXT DEFAULT (datetime('now','localtime'))
+  )`,
+
+  `CREATE TABLE IF NOT EXISTS inventario_celulares (
+    id               INTEGER PRIMARY KEY AUTOINCREMENT,
+    fecha_registro   TEXT DEFAULT (date('now','localtime')),
+    area             TEXT,
+    ciudad           TEXT,
+    nombre_completo  TEXT NOT NULL,
+    cedula           TEXT,
+    linea            TEXT,
+    operador         TEXT,
+    equipo           TEXT,
+    almacenamiento   TEXT,
+    ram              TEXT,
+    modelo           TEXT,
+    imei             TEXT UNIQUE,
+    imei2            TEXT,
+    estado           TEXT DEFAULT 'nuevo',
+    accesorio        TEXT,
+    fecha_entrega    TEXT,
+    entregado_por    TEXT,
+    created_at       TEXT DEFAULT (datetime('now','localtime')),
+    updated_at       TEXT DEFAULT (datetime('now','localtime'))
+  )`,
+
+  `INSERT OR IGNORE INTO permissions (id, name) VALUES
+    (31, 'inventario:read'),
+    (32, 'inventario:create'),
+    (33, 'inventario:edit'),
+    (34, 'inventario:delete')`,
+
+  `INSERT OR IGNORE INTO role_permissions (role_id, permission_id) VALUES
+    (1,31),(1,32),(1,33),(1,34),
+    (3,31),(3,32),(3,33),
+    (4,31),
+    (5,31),
+    (6,31)`,
 ];
 for (const sql of migrations) {
   try { db.exec(sql); } catch { /* columna ya existe */ }
