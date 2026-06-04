@@ -8,6 +8,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
+  <!-- Aplica el tema guardado ANTES de pintar para evitar flash -->
+  <script>
+    (function(){
+      var t = localStorage.getItem('theme');
+      if (t === 'light') document.documentElement.setAttribute('data-theme','light');
+    })();
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
@@ -62,6 +69,10 @@
       <a href="#audit" class="menu-item" id="nav-audit" style="display:none;">
         <span class="menu-icon"><i data-lucide="shield-check" class="lucide"></i></span>
         <span class="menu-label">Auditoría</span>
+      </a>
+      <a href="#inventario" class="menu-item" id="nav-inventario" style="display:none;">
+        <span class="menu-icon"><i data-lucide="package-search" class="lucide"></i></span>
+        <span class="menu-label">Inventario</span>
       </a>
       <a href="/farmacias.html" class="menu-item" id="nav-farmacias" style="display:none;">
         <span class="menu-icon"><i data-lucide="map-pin" class="lucide"></i></span>
@@ -139,6 +150,22 @@
                  cursor:pointer;font-family:inherit;transition:all 0.15s ease;">
           Salir
         </button>
+        <button id="btn-theme-toggle" class="btn-theme-toggle" title="Cambiar tema" aria-label="Cambiar tema">
+          <!-- Sol (modo claro activo) -->
+          <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="6"/>
+            <line x1="12" y1="18" x2="12" y2="22"/><line x1="4.22" y1="4.22" x2="7.05" y2="7.05"/>
+            <line x1="16.95" y1="16.95" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="6" y2="12"/>
+            <line x1="18" y1="12" x2="22" y2="12"/><line x1="4.22" y1="19.78" x2="7.05" y2="16.95"/>
+            <line x1="16.95" y1="7.05" x2="19.78" y2="4.22"/>
+          </svg>
+          <!-- Luna (modo oscuro activo) -->
+          <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </button>
         <div class="avatar" id="current-agent-avatar">A</div>
       </div>
     </header>
@@ -153,6 +180,19 @@
     // Inicializar Lucide icons y re-inicializar en cada navegación
     document.addEventListener('DOMContentLoaded', () => {
       if (window.lucide) lucide.createIcons();
+
+      // Toggle modo oscuro / claro
+      document.getElementById('btn-theme-toggle').addEventListener('click', function () {
+        var html = document.documentElement;
+        var isLight = html.getAttribute('data-theme') === 'light';
+        if (isLight) {
+          html.removeAttribute('data-theme');
+          localStorage.setItem('theme', 'dark');
+        } else {
+          html.setAttribute('data-theme', 'light');
+          localStorage.setItem('theme', 'light');
+        }
+      });
     });
     // Re-render icons cuando el SPA cambia de página
     const _observer = new MutationObserver(() => {
