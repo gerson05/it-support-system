@@ -8,6 +8,7 @@ import multer from 'multer';
 import ExcelJS from 'exceljs';
 
 function getBaseUrl(req) {
+  if (process.env.PUBLIC_TUNNEL_URL) return process.env.PUBLIC_TUNNEL_URL;
   const host = req.headers.host || '';
   const isLocal = /^(localhost|127\.|::1)/i.test(host);
   if (isLocal) {
