@@ -1,6 +1,63 @@
 import express from 'express';
 import db from '../config/database.js';
 import { requireAuth, requirePermission } from '../auth/auth-middleware.js';
+import multer from 'multer';
+import ExcelJS from 'exceljs';
+
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
+
+function normalizeHeader(h) {
+  return String(h ?? '').toLowerCase().normalize('NFD').replace(/\p{Mn}/gu, '').trim();
+}
+
+const EQUIPOS_COLMAP = {
+  placa:           ['placa'],
+  marca:           ['marca'],
+  nombre_equipo:   ['nombre de equipo', 'nombre equipo'],
+  serial:          ['serial/emei', 'serial', 's/n', 'serial/imei'],
+  procesador:      ['procesador'],
+  ram:             ['ram'],
+  tipo_ram:        ['tipo de ram', 'tipo ram'],
+  cap_disco:       ['capacidad disco', 'cap disco'],
+  tipo_disco:      ['tipo de disco', 'tipo disco'],
+  serial_cargador: ['serial cargador'],
+  area:            ['area'],
+  responsable:     ['responsable'],
+  fecha_compra:    ['fecha de compra', 'fecha compra'],
+};
+
+const CELULARES_COLMAP = {
+  fecha_registro:  ['fecha'],
+  area:            ['area'],
+  ciudad:          ['ciudad'],
+  nombre_completo: ['nombre completo'],
+  cedula:          ['cedula'],
+  linea:           ['linea'],
+  operador:        ['operador'],
+  equipo:          ['equipo'],
+  almacenamiento:  ['alm', 'almacenamiento'],
+  ram:             ['ram'],
+  modelo:          ['modelo'],
+  imei:            ['imei'],
+  imei2:           ['imei 2', 'imei2'],
+  estado:          ['estado'],
+  accesorio:       ['accesorio'],
+  fecha_entrega:   ['fecha de entrega'],
+  entregado_por:   ['entregado por'],
+};
+
+function buildMapping(headers, colmap) {
+  const mapping = {};
+  for (const h of headers) {
+    const norm = normalizeHeader(h);
+    let matched = null;
+    for (const [field, aliases] of Object.entries(colmap)) {
+      if (aliases.includes(norm)) { matched = field; break; }
+    }
+    mapping[h] = matched;
+  }
+  return mapping;
+}
 
 const router = express.Router();
 
@@ -174,6 +231,47 @@ router.delete('/api/inventario/celulares/:id', ...canDelete, (req, res) => {
   } catch (err) {
     console.error('DELETE /api/inventario/celulares/:id:', err);
     res.status(500).json({ error: 'Error al eliminar celular.' });
+  }
+});
+
+/* ── IMPORT: parse xlsx ── */
+router.post('/api/inventario/:type/import', ...canCreate, upload.single('file'), async (req, res) => {
+  const type = req.params.type;
+  if (!['equipos', 'celulares'].includes(type)) return res.status(400).json({ error: 'Tipo inválido.' });
+  if (!req.file) return res.status(400).json({ error: 'No se recibió archivo.' });
+
+  try {
+    const wb = new ExcelJS.Workbook();
+    await wb.xlsx.load(req.file.buffer);
+    const ws = wb.worksheets[0];
+    if (!ws) return res.status(400).json({ error: 'El archivo no tiene hojas.' });
+
+    const headers = [];
+    ws.getRow(1).eachCell({ includeEmpty: false }, cell => headers.push(String(cell.value ?? '')));
+
+    const colmap  = type === 'equipos' ? EQUIPOS_COLMAP : CELULARES_COLMAP;
+    const mapping = buildMapping(headers, colmap);
+
+    const rows = [];
+    ws.eachRow((row, rowNum) => {
+      if (rowNum === 1) return;
+      const obj = {};
+      let hasData = false;
+      headers.forEach((h, i) => {
+        const field = mapping[h];
+        if (!field) return;
+        const raw = row.getCell(i + 1).value;
+        const val = raw === null || raw === undefined ? '' : String(raw).trim();
+        if (val) hasData = true;
+        obj[field] = val || null;
+      });
+      if (hasData) rows.push(obj);
+    });
+
+    res.json({ preview: rows.slice(0, 5), mapping, total: rows.length, rows });
+  } catch (err) {
+    console.error('POST /api/inventario/:type/import:', err);
+    res.status(400).json({ error: 'No se pudo leer el archivo. Verifica que sea un .xlsx válido.' });
   }
 });
 
