@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Registrar Equipo — IT</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh;padding:16px}
+    .card{background:#1e293b;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:24px 20px;max-width:480px;width:100%;margin:0 auto;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+    .logo{display:flex;align-items:center;gap:10px;margin-bottom:20px}
+    .logo-icon{width:36px;height:36px;background:#6366f1;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+    .logo-text h1{font-size:15px;font-weight:700;color:#e2e8f0}
+    .logo-text p{font-size:11px;color:#64748b}
+    .token-info{background:#0f172a;border-radius:8px;padding:10px 14px;margin-bottom:18px;font-size:12px;color:#64748b;display:flex;justify-content:space-between;align-items:center}
+    .token-label{font-weight:600;color:#94a3b8;font-size:13px}
+    .use-badge{background:#1e3a5f;color:#60a5fa;border-radius:20px;padding:2px 10px;font-size:11px;font-weight:600}
+    h2{font-size:17px;font-weight:700;margin-bottom:4px}
+    .sub{font-size:12px;color:#64748b;margin-bottom:18px}
+    /* Scanner button */
+    .btn-scan-main{width:100%;padding:14px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:20px;box-shadow:0 4px 20px rgba(99,102,241,.4)}
+    .btn-scan-main:active{transform:scale(.98)}
+    /* Form */
+    .form-section{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#475569;margin:16px 0 8px}
+    .form-group{margin-bottom:12px}
+    .form-group label{display:block;font-size:12px;font-weight:500;color:#94a3b8;margin-bottom:5px}
+    .form-group input,.form-group select{width:100%;background:#0f172a;border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#e2e8f0;font-size:14px;padding:10px 12px;outline:none;font-family:inherit;-webkit-appearance:none}
+    .form-group input:focus,.form-group select:focus{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.2)}
+    .form-group select option{background:#1e293b}
+    .required-star{color:#f87171}
+    .scan-row{display:flex;gap:8px}
+    .scan-row input{flex:1}
+    .btn-scan-field{background:#334155;border:none;border-radius:8px;color:#94a3b8;font-size:16px;padding:0 12px;cursor:pointer;flex-shrink:0}
+    .btn-scan-field:active{background:#1e293b}
+    /* Detected panel */
+    .detected-panel{background:#0f172a;border:1px solid rgba(99,102,241,.3);border-radius:10px;padding:12px;margin-bottom:16px;display:none}
+    .detected-panel .dp-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#6366f1;margin-bottom:8px}
+    .detected-panel .dp-row{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:12px}
+    .detected-panel .dp-row:last-child{border:none}
+    .detected-panel .dp-field{color:#64748b}
+    .detected-panel .dp-val{font-family:monospace;color:#e2e8f0}
+    .btn-apply{width:100%;padding:10px;background:#1e3a5f;border:1px solid rgba(99,102,241,.4);border-radius:8px;color:#60a5fa;font-size:13px;font-weight:600;cursor:pointer;margin-top:8px}
+    /* Submit */
+    .btn-submit{width:100%;padding:14px;background:#10b981;border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px}
+    .btn-submit:disabled{background:#1e3a5f;color:#475569;cursor:not-allowed}
+    .form-err{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#fca5a5;border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:12px;display:none}
+    /* States */
+    .spinner{width:32px;height:32px;border:3px solid rgba(99,102,241,.2);border-top-color:#6366f1;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .state-icon{font-size:48px;text-align:center;margin-bottom:12px}
+    .state-title{font-size:20px;font-weight:700;text-align:center;margin-bottom:8px}
+    .state-msg{font-size:13px;color:#94a3b8;text-align:center;line-height:1.6;margin-bottom:16px}
+    .btn-secondary{width:100%;padding:12px;background:#334155;border:none;border-radius:10px;color:#e2e8f0;font-size:14px;font-weight:600;cursor:pointer}
+    #s-loading,#s-form,#s-success,#s-invalid{display:none}
+    /* Scanner overlay */
+    .scan-overlay{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center}
+    .scan-modal{background:#1e293b;border-radius:16px;padding:18px;width:min(400px,96vw);max-height:92vh;overflow-y:auto}
+    .scan-modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+    .scan-modal-header span{font-weight:700;font-size:15px}
+    .btn-close-scan{background:transparent;border:none;font-size:22px;cursor:pointer;color:#64748b;line-height:1}
+    .scan-tabs{display:flex;border-bottom:2px solid rgba(255,255,255,.08);margin-bottom:12px}
+    .scan-tab{flex:1;padding:8px;background:transparent;border:none;color:#64748b;font-size:13px;cursor:pointer;font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-2px;transition:.15s}
+    .scan-tab.active{color:#6366f1;border-bottom-color:#6366f1;font-weight:600}
+    .scan-tab:disabled{opacity:.4;cursor:not-allowed}
+    .scan-video-wrap{position:relative;border-radius:10px;overflow:hidden;background:#000;margin-bottom:10px}
+    .scan-video-wrap video{width:100%;display:block;max-height:220px;object-fit:cover}
+    .scan-line{position:absolute;top:50%;left:10%;right:10%;height:2px;background:#6366f1;transform:translateY(-50%);box-shadow:0 0 8px #6366f1;pointer-events:none}
+    .scan-frame{position:absolute;inset:8px;border:2px dashed rgba(99,102,241,.5);border-radius:8px;pointer-events:none}
+    .scan-hint{font-size:11px;color:#475569;text-align:center;margin-bottom:8px}
+    .scan-detected{background:#0f172a;border-radius:8px;padding:10px;min-height:44px;margin-bottom:10px}
+    .scan-detected-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#475569;margin-bottom:6px}
+    .scan-detected-empty{font-size:12px;color:#334155;padding:4px 0}
+    .scan-det-row{display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px}
+    .scan-det-row:last-child{border:none}
+    .scan-det-f{color:#64748b}.scan-det-v{font-family:monospace;color:#e2e8f0;max-width:55%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .btn-capture{width:100%;padding:10px;background:#6366f1;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:10px}
+    .ocr-progress{font-size:12px;color:#64748b;text-align:center;margin-bottom:8px;display:none}
+    .scan-actions{display:flex;gap:8px}
+    .btn-scan-cancel{flex:1;padding:10px;background:#0f172a;border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#94a3b8;font-size:13px;cursor:pointer}
+    .btn-scan-apply{flex:2;padding:10px;background:#6366f1;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer}
+    .btn-scan-apply:disabled{background:#334155;color:#475569;cursor:not-allowed}
+  </style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">
+    <div class="logo-icon">📦</div>
+    <div class="logo-text"><h1>Inventario IT</h1><p>Registro de equipos</p></div>
+  </div>
+
+  <div id="s-loading">
+    <div class="spinner"></div>
+    <p style="text-align:center;color:#475569;font-size:13px;">Verificando enlace…</p>
+  </div>
+
+  <div id="s-form">
+    <div class="token-info">
+      <span class="token-label" id="token-label">Cargando…</span>
+      <span class="use-badge" id="use-badge"></span>
+    </div>
+
+    <button class="btn-scan-main" id="btn-scan-main">
+      <span style="font-size:22px;">📷</span>
+      Escanear etiqueta del equipo
+    </button>
+
+    <div class="detected-panel" id="detected-panel">
+      <div class="dp-title">Campos detectados</div>
+      <div id="detected-list"></div>
+      <button class="btn-apply" id="btn-apply-detected">✓ Aplicar al formulario</button>
+    </div>
+
+    <div class="form-err" id="form-err"></div>
+    <form id="inv-form" autocomplete="off">
+      <div id="form-fields"></div>
+      <button type="submit" class="btn-submit" id="btn-submit">Guardar registro</button>
+    </form>
+    <p style="font-size:11px;color:#334155;text-align:center;margin-top:12px;">Los campos con <span class="required-star">*</span> son obligatorios</p>
+  </div>
+
+  <div id="s-success">
+    <div class="state-icon">✅</div>
+    <div class="state-title">¡Registrado!</div>
+    <p class="state-msg" id="success-msg">El equipo fue guardado en el inventario.</p>
+    <button class="btn-secondary" id="btn-nuevo">Registrar otro equipo</button>
+  </div>
+
+  <div id="s-invalid">
+    <div class="state-icon">❌</div>
+    <div class="state-title">Enlace no válido</div>
+    <p class="state-msg" id="invalid-msg">Este enlace no existe, expiró o alcanzó el límite de usos.</p>
+  </div>
+</div>
+
+<script>
+'use strict';
+const token = window.location.pathname.split('/registrar/')[1]?.trim();
+let   tipo  = 'equipos';
+const detected = new Map();
+
+/* ── helpers ── */
+function show(id) {
+  ['s-loading','s-form','s-success','s-invalid'].forEach(s =>
+    document.getElementById(s).style.display = s === id ? 'block' : 'none');
+}
+function esc(s) {
+  return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function sel(name, opts, val='', req=false) {
+  const o = opts.map(o=>`<option value="${esc(o)}"${val===o?' selected':''}>${esc(o)}</option>`).join('');
+  return `<div class="form-group">
+    <label>${esc(name.replace('*',''))}<span class="required-star">${req?'*':''}</span></label>
+    <select name="${name.split(' ')[0].replace('*','').toLowerCase().replace(/ /g,'_')}">${'<option value="">— Seleccionar —</option>'}${o}</select>
+  </div>`;
+}
+function inp(label, name, val='', req=false, type='text', scanBtn=false) {
+  const r = req ? 'required' : '';
+  const scanHtml = scanBtn
+    ? `<button type="button" class="btn-scan-field" data-field="${name}" title="Escanear">📷</button>`
+    : '';
+  return `<div class="form-group">
+    <label>${esc(label)}<span class="required-star">${req?'*':''}</span></label>
+    <div class="${scanBtn?'scan-row':''}">
+      <input type="${type}" name="${name}" id="f-${name}" value="${esc(val)}" ${r} placeholder="${esc(label)}">
+      ${scanHtml}
+    </div>
+  </div>`;
+}
+
+/* ── form builder ── */
+function buildForm(t) {
+  const el = document.getElementById('form-fields');
+  if (t === 'equipos') {
+    el.innerHTML = `
+      <div class="form-section">Identificación</div>
+      ${inp('Placa','placa','',true,  'text',true)}
+      ${inp('Serial','serial','',true,'text',true)}
+      <div class="form-section">Especificaciones</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="form-group"><label>Marca <span class="required-star">*</span></label>
+          <select name="marca" required>
+            <option value="">— Seleccionar —</option>
+            ${['Lenovo','Dell','HP','Samsung','Toshiba','Acer','Asus','Apple','Otro'].map(o=>`<option>${o}</option>`).join('')}
+          </select></div>
+        ${inp('Nombre del equipo','nombre_equipo','',true)}
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="form-group"><label>Procesador</label>
+          <select name="procesador">
+            <option value="">—</option>
+            ${['Intel Core i3','Intel Core i5','Intel Core i7','Intel Core i9','AMD Ryzen 3','AMD Ryzen 5','AMD Ryzen 7','Otro'].map(o=>`<option>${o}</option>`).join('')}
+          </select></div>
+        <div class="form-group"><label>RAM</label>
+          <select name="ram">
+            <option value="">—</option>
+            ${['4GB','8GB','16GB','32GB','64GB'].map(o=>`<option>${o}</option>`).join('')}
+          </select></div>
+        <div class="form-group"><label>Tipo RAM</label>
+          <select name="tipo_ram">
+            <option value="">—</option>
+            ${['DDR3','DDR4','DDR5','LPDDR4','LPDDR5'].map(o=>`<option>${o}</option>`).join('')}
+          </select></div>
+        <div class="form-group"><label>Disco</label>
+          <select name="cap_disco">
+            <option value="">—</option>
+            ${['128GB','256GB','512GB','1TB','2TB'].map(o=>`<option>${o}</option>`).join('')}
+          </select></div>
+        <div class="form-group"><label>Tipo disco</label>
+          <select name="tipo_disco">
+            <option value="">—</option>
+            ${['SSD','HDD','M2','SATA','NVMe'].map(o=>`<option>${o}</option>`).join('')}
+          </select></div>
+      </div>
+      <div class="form-section">Asignación</div>
+      ${inp('Área','area')}
+      ${inp('Responsable','responsable')}
+      ${inp('Serial cargador','serial_cargador','',false,'text',true)}
+    `;
+  } else {
+    el.innerHTML = `
+      <div class="form-section">Identificación</div>
+      ${inp('IMEI','imei','',true,'text',true)}
+      ${inp('IMEI 2 (opcional)','imei2','',false,'text',true)}
+      <div class="form-section">Dispositivo</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="form-group"><label>Marca</label>
+          <select name="equipo">
+            <option value="">—</option>
+            ${['Samsung','Xiaomi Redmi','Honor','ZTE','Infinix','Motorola','iPhone','Otro'].map(o=>`<option>${o}</option>`).join('')}
+          </select></div>
+        ${inp('Modelo','modelo')}
+        <div class="form-group"><label>Almacenamiento</label>
+          <select name="almacenamiento">
+            <option value="">—</option>
+            ${['32GB','64GB','128GB','256GB','512GB'].map(o=>`<option>${o}</option>`).join('')}
+          </select></div>
+        <div class="form-group"><label>RAM</label>
+          <select name="ram">
+            <option value="">—</option>
+            ${['2GB','3GB','4GB','6GB','8GB','12GB','16GB'].map(o=>`<option>${o}</option>`).join('')}
+          </select></div>
+        <div class="form-group"><label>Operador</label>
+          <select name="operador">
+            <option value="">—</option>
+            ${['CLARO','TIGO','MOVISTAR','WOM','ETB','AVANTEL'].map(o=>`<option>${o}</option>`).join('')}
+          </select></div>
+        ${inp('Línea','linea')}
+        <div class="form-group"><label>Estado</label>
+          <select name="estado">
+            ${['nuevo','seminuevo','usado'].map(o=>`<option>${o}</option>`).join('')}
+          </select></div>
+      </div>
+      <div class="form-section">Asignado a</div>
+      ${inp('Nombre completo','nombre_completo','',true)}
+      ${inp('Cédula','cedula')}
+      ${inp('Área','area')}
+      ${inp('Ciudad','ciudad')}
+      ${inp('Entregado por','entregado_por')}
+    `;
+  }
+
+  /* per-field scan buttons */
+  document.querySelectorAll('.btn-scan-field').forEach(btn => {
+    btn.addEventListener('click', () => openSingleScan(btn.dataset.field));
+  });
+}
+
+/* ── init ── */
+async function init() {
+  if (!token) { show('s-invalid'); return; }
+  show('s-loading');
+  try {
+    const res  = await fetch(`/api/inventario/registro-status/${token}`);
+    const data = await res.json();
+    if (!data.valid) {
+      document.getElementById('invalid-msg').textContent = data.reason || 'Enlace no válido.';
+      show('s-invalid'); return;
+    }
+    tipo = data.tipo;
+    document.getElementById('token-label').textContent = data.label || (tipo === 'equipos' ? '🖥 Equipos' : '📱 Celulares');
+    const badge = document.getElementById('use-badge');
+    badge.textContent = data.max_uses
+      ? `${data.use_count}/${data.max_uses} usos`
+      : `${data.use_count} registros`;
+    buildForm(tipo);
+    show('s-form');
+
+    document.getElementById('btn-scan-main').addEventListener('click', openSmartScanner);
+    document.getElementById('btn-apply-detected').addEventListener('click', applyDetected);
+    document.getElementById('btn-nuevo').addEventListener('click', () => {
+      detected.clear();
+      document.getElementById('detected-panel').style.display = 'none';
+      buildForm(tipo);
+      document.getElementById('form-err').style.display = 'none';
+      show('s-form');
+    });
+    document.getElementById('inv-form').addEventListener('submit', handleSubmit);
+  } catch {
+    show('s-invalid');
+  }
+}
+
+/* ── submit ── */
+async function handleSubmit(e) {
+  e.preventDefault();
+  const btn  = document.getElementById('btn-submit');
+  const errEl = document.getElementById('form-err');
+  errEl.style.display = 'none';
+  btn.disabled = true; btn.textContent = 'Guardando…';
+  try {
+    const body = Object.fromEntries(new FormData(document.getElementById('inv-form')));
+    const res  = await fetch(`/api/inventario/registrar/${token}`, {
+      method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    document.getElementById('success-msg').textContent =
+      tipo === 'equipos'
+        ? `Equipo "${body.placa || body.serial}" guardado en inventario.`
+        : `Celular IMEI ${body.imei} guardado en inventario.`;
+    show('s-success');
+  } catch (err) {
+    errEl.textContent  = err.message || 'Error al guardar.';
+    errEl.style.display = 'block';
+    btn.disabled = false; btn.textContent = 'Guardar registro';
+  }
+}
+
+/* ── barcode routing ── */
+function routeBarcode(val, detectedKeys) {
+  if (/^\d{15}$/.test(val)) {
+    if (tipo === 'celulares') {
+      if (!detectedKeys.has('imei'))  return 'imei';
+      if (!detectedKeys.has('imei2')) return 'imei2';
+    } else {
+      return 'serial';
+    }
+    return null;
+  }
+  if (/^[A-Z0-9\-]{5,20}$/i.test(val)) {
+    if (tipo === 'equipos') {
+      if (!detectedKeys.has('placa'))  return 'placa';
+      if (!detectedKeys.has('serial')) return 'serial';
+    } else {
+      return 'serial';
+    }
+    return null;
+  }
+  return null;
+}
+
+function applyDetected() {
+  for (const [field, val] of detected) {
+    const inp = document.getElementById(`f-${field}`);
+    if (inp && !inp.value.trim()) { inp.value = val; }
+  }
+  document.getElementById('detected-panel').style.display = 'none';
+  detected.clear();
+}
+
+function updateDetectedPanel() {
+  if (!detected.size) return;
+  const panel = document.getElementById('detected-panel');
+  panel.style.display = 'block';
+  document.getElementById('detected-list').innerHTML =
+    [...detected.entries()].map(([f,v]) =>
+      `<div class="dp-row"><span class="dp-field">${f}</span><span class="dp-val">${esc(v)}</span></div>`
+    ).join('');
+}
+
+/* ── smart scanner modal ── */
+async function openSmartScanner() {
+  if (!navigator.mediaDevices?.getUserMedia) {
+    alert('La cámara no está disponible en este navegador. Asegúrate de usar HTTPS o Chrome.');
+    return;
+  }
+
+  let stream, rafId;
+  const localDetected = new Map();
+  const seenValues    = new Set();
+  const hasBD         = 'BarcodeDetector' in window;
+
+  const overlay = document.createElement('div');
+  overlay.className = 'scan-overlay';
+  overlay.innerHTML = `
+    <div class="scan-modal">
+      <div class="scan-modal-header">
+        <span>📷 Escanear equipo</span>
+        <button class="btn-close-scan" id="sc-close">✕</button>
+      </div>
+      <div class="scan-tabs">
+        <button class="scan-tab${hasBD?' active':''}" id="sc-tab-codes" ${!hasBD?'disabled':''}>📷 Códigos</button>
+        <button class="scan-tab${!hasBD?' active':''}" id="sc-tab-ocr">🔤 Leer etiqueta</button>
+      </div>
+      <div id="sc-pane-codes" style="display:${hasBD?'block':'none'}">
+        <div class="scan-video-wrap">
+          <video id="sc-video" autoplay playsinline></video>
+          <div class="scan-line"></div>
+        </div>
+        <p class="scan-hint">Apunta a la etiqueta — detecta todos los códigos</p>
+      </div>
+      <div id="sc-pane-ocr" style="display:${!hasBD?'block':'none'}">
+        <div class="scan-video-wrap">
+          <video id="sc-video-ocr" autoplay playsinline></video>
+          <div class="scan-frame"></div>
+        </div>
+        <canvas id="sc-canvas" style="display:none"></canvas>
+        <div class="ocr-progress" id="sc-ocr-p"></div>
+        <button class="btn-capture" id="sc-capture">📸 Capturar y leer etiqueta</button>
+      </div>
+      <div class="scan-detected">
+        <div class="scan-detected-title">Detectado</div>
+        <div id="sc-det-list" class="scan-detected-empty">Esperando…</div>
+      </div>
+      <div class="scan-actions">
+        <button class="btn-scan-cancel" id="sc-cancel">Cancelar</button>
+        <button class="btn-scan-apply" id="sc-apply" disabled>Aplicar campos</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  const close = () => {
+    if (rafId)  cancelAnimationFrame(rafId);
+    if (stream) stream.getTracks().forEach(t => t.stop());
+    overlay.remove();
+  };
+
+  document.getElementById('sc-close').onclick  = close;
+  document.getElementById('sc-cancel').onclick = close;
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+
+  document.getElementById('sc-apply').addEventListener('click', () => {
+    for (const [f,v] of localDetected) { detected.set(f, v); }
+    updateDetectedPanel();
+    close();
+    document.getElementById('btn-apply-detected').click();
+  });
+
+  function updateScDet() {
+    const list   = document.getElementById('sc-det-list');
+    const applyB = document.getElementById('sc-apply');
+    if (!localDetected.size) {
+      list.innerHTML = '<span class="scan-detected-empty">Esperando…</span>';
+      applyB.disabled = true; return;
+    }
+    list.innerHTML = [...localDetected.entries()].map(([f,v]) =>
+      `<div class="scan-det-row"><span class="scan-det-f">${f}</span><span class="scan-det-v">${esc(v)}</span></div>`
+    ).join('');
+    applyB.disabled = false;
+  }
+
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: {ideal:'environment'}, width:{ideal:1280}, height:{ideal:720} },
+    });
+    const v1 = document.getElementById('sc-video');
+    const v2 = document.getElementById('sc-video-ocr');
+    if (v1) v1.srcObject = stream;
+    if (v2) v2.srcObject = stream;
+  } catch (err) {
+    close();
+    alert(err.name === 'NotAllowedError'
+      ? 'Permiso de cámara denegado. Actívalo en los ajustes del navegador.'
+      : 'No se pudo acceder a la cámara. Verifica que la página use HTTPS.');
+    return;
+  }
+
+  /* tab switching */
+  document.getElementById('sc-tab-codes')?.addEventListener('click', () => {
+    document.getElementById('sc-tab-codes').classList.add('active');
+    document.getElementById('sc-tab-ocr').classList.remove('active');
+    document.getElementById('sc-pane-codes').style.display = '';
+    document.getElementById('sc-pane-ocr').style.display = 'none';
+    startBarcodes();
+  });
+  document.getElementById('sc-tab-ocr').addEventListener('click', () => {
+    document.getElementById('sc-tab-ocr').classList.add('active');
+    document.getElementById('sc-tab-codes')?.classList.remove('active');
+    document.getElementById('sc-pane-ocr').style.display = '';
+    document.getElementById('sc-pane-codes').style.display = 'none';
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+  });
+
+  /* barcode loop */
+  function startBarcodes() {
+    if (!hasBD) return;
+    const det   = new BarcodeDetector({formats:['code_128','code_39','qr_code','ean_13','ean_8','data_matrix','itf']});
+    const video = document.getElementById('sc-video');
+    const loop  = async () => {
+      if (video?.readyState >= HTMLMediaElement.HAVE_ENOUGH_DATA) {
+        try {
+          const codes = await det.detect(video);
+          for (const c of codes) {
+            if (seenValues.has(c.rawValue)) continue;
+            const field = routeBarcode(c.rawValue, new Set(localDetected.keys()));
+            if (field) { seenValues.add(c.rawValue); localDetected.set(field, c.rawValue); updateScDet(); }
+          }
+        } catch {}
+      }
+      rafId = requestAnimationFrame(loop);
+    };
+    if (video?.readyState >= HTMLMediaElement.HAVE_ENOUGH_DATA) rafId = requestAnimationFrame(loop);
+    else video?.addEventListener('loadeddata', () => { rafId = requestAnimationFrame(loop); }, {once:true});
+  }
+  if (hasBD) startBarcodes();
+
+  /* OCR capture */
+  document.getElementById('sc-capture')?.addEventListener('click', async () => {
+    const video   = document.getElementById('sc-video-ocr');
+    const canvas  = document.getElementById('sc-canvas');
+    const prog    = document.getElementById('sc-ocr-p');
+    const captBtn = document.getElementById('sc-capture');
+    canvas.width  = video.videoWidth  || 640;
+    canvas.height = video.videoHeight || 480;
+    canvas.getContext('2d').drawImage(video, 0, 0);
+    captBtn.disabled = true; captBtn.textContent = 'Procesando…';
+    prog.style.display = ''; prog.textContent = 'Cargando motor OCR…';
+    try {
+      const Tesseract = await loadTesseract();
+      prog.textContent = 'Reconociendo texto…';
+      const worker = await Tesseract.createWorker('spa+eng', 1, {
+        logger: m => { if (m.status==='recognizing text') prog.textContent=`Reconociendo… ${Math.round((m.progress||0)*100)}%`; },
+      });
+      const { data: { text } } = await worker.recognize(canvas);
+      await worker.terminate();
+      const parsed = parseOcr(text);
+      if (!parsed.size) {
+        prog.textContent = 'No se detectaron datos. Intenta con mejor iluminación.';
+      } else {
+        prog.style.display = 'none';
+        for (const [f,v] of parsed) if (!localDetected.has(f)) localDetected.set(f, v);
+        updateScDet();
+      }
+    } catch (err) {
+      prog.textContent = `Error: ${err.message}`;
+    } finally {
+      captBtn.disabled = false; captBtn.textContent = '📸 Capturar y leer etiqueta';
+    }
+  });
+}
+
+/* ── single field scanner ── */
+async function openSingleScan(fieldName) {
+  if (!navigator.mediaDevices?.getUserMedia) {
+    alert('Cámara no disponible. Usa HTTPS o ingresa el dato manualmente.');
+    return;
+  }
+  if (!('BarcodeDetector' in window)) {
+    alert('Tu navegador no soporta escáner. Ingresa el dato manualmente.');
+    return;
+  }
+  let stream, rafId;
+  const overlay = document.createElement('div');
+  overlay.className = 'scan-overlay';
+  overlay.innerHTML = `
+    <div class="scan-modal" style="max-width:340px">
+      <div class="scan-modal-header">
+        <span>Escanear ${fieldName.toUpperCase()}</span>
+        <button class="btn-close-scan" id="sf-close">✕</button>
+      </div>
+      <div class="scan-video-wrap"><video id="sf-video" autoplay playsinline></video><div class="scan-line"></div></div>
+      <p class="scan-hint" style="margin-bottom:12px">Apunta al código de barras</p>
+    </div>`;
+  document.body.appendChild(overlay);
+  const close = () => { if(rafId) cancelAnimationFrame(rafId); if(stream) stream.getTracks().forEach(t=>t.stop()); overlay.remove(); };
+  document.getElementById('sf-close').onclick = close;
+  overlay.addEventListener('click', e => { if(e.target===overlay) close(); });
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}}});
+    const video = document.getElementById('sf-video');
+    video.srcObject = stream;
+    const det = new BarcodeDetector({formats:['code_128','code_39','qr_code','ean_13','ean_8','data_matrix','itf']});
+    const loop = async () => {
+      if (video.readyState >= HTMLMediaElement.HAVE_ENOUGH_DATA) {
+        try {
+          const codes = await det.detect(video);
+          if (codes.length) {
+            const inp = document.getElementById(`f-${fieldName}`);
+            if (inp) { inp.value = codes[0].rawValue; }
+            close(); return;
+          }
+        } catch {}
+      }
+      rafId = requestAnimationFrame(loop);
+    };
+    video.addEventListener('loadeddata', () => { rafId = requestAnimationFrame(loop); }, {once:true});
+  } catch (err) {
+    close();
+    alert(err.name==='NotAllowedError' ? 'Permiso de cámara denegado.' : 'No se pudo acceder a la cámara.');
+  }
+}
+
+/* ── Tesseract lazy ── */
+async function loadTesseract() {
+  if (window.Tesseract) return window.Tesseract;
+  await new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+    s.onload = res; s.onerror = () => rej(new Error('No se pudo cargar Tesseract.js'));
+    document.head.appendChild(s);
+  });
+  return window.Tesseract;
+}
+
+/* ── OCR parser ── */
+function parseOcr(text) {
+  const r = new Map();
+  if (!text) return r;
+  const m1 = text.match(/IMEI[\s:]+(\d{15})/i);
+  if (m1) r.set('imei', m1[1]);
+  const m2 = text.match(/S\/?N[\s:]+([A-Z0-9\-]{5,20})/i);
+  if (m2) r.set('serial', m2[1].toUpperCase());
+  if (!r.has('imei')) { const m=text.match(/\b(\d{15})\b/); if(m) r.set('imei',m[1]); }
+  const mRam = text.match(/RAM[^\n]{0,30}?(\d+)\s*GB/i) || text.match(/(\d+)\s*GB[^\n]{0,30}?RAM/i);
+  if (mRam) r.set('ram', mRam[1]+'GB');
+  const mAlm = text.match(/(?:ROM|Storage|Almacenamiento|Internal)[^\n]{0,30}?(\d+)\s*GB/i)
+            || text.match(/(\d+)\s*GB[^\n]{0,30}?(?:ROM|Storage|Almacenamiento|Internal)/i);
+  if (mAlm) r.set('almacenamiento', mAlm[1]+'GB');
+  const BRANDS = ['Samsung','Xiaomi','Redmi','Honor','ZTE','Infinix','Motorola','Apple','iPhone','Dell','HP','Lenovo','Asus','Acer','Toshiba'];
+  for (const b of BRANDS) {
+    if (new RegExp(`\\b${b}\\b`,'i').test(text)) {
+      const f = ['Dell','HP','Lenovo','Asus','Acer','Toshiba'].includes(b) ? 'marca' : 'equipo';
+      r.set(f, b);
+      const mm = text.match(new RegExp(`${b}[\\s]+([A-Z0-9][A-Z0-9 \\-]{2,30})`, 'i'));
+      if (mm) r.set('modelo', mm[1].trim());
+      break;
+    }
+  }
+  return r;
+}
+
+init();
+</script>
+</body>
+</html>
