@@ -349,22 +349,53 @@ function routeBarcode(val, detectedKeys) {
   return null;
 }
 
+function setField(field, val) {
+  const el = document.querySelector(`#inv-form [name="${field}"]`);
+  if (!el) return false;
+  if (el.tagName === 'SELECT') {
+    const norm = val.toLowerCase().replace(/\s+/g,'');
+    const num  = parseInt(val);
+    // 1) exact normalized  2) numeric match  3) starts-with
+    const opt = [...el.options].find(o => {
+      if (!o.value) return false;
+      const on = o.value.toLowerCase().replace(/\s+/g,'');
+      return on === norm
+          || (!isNaN(num) && parseInt(o.value) === num)
+          || on.startsWith(norm);
+    });
+    if (!opt) return false;
+    el.value = opt.value;
+  } else {
+    el.value = val;
+  }
+  /* flash verde para feedback visual */
+  el.style.transition = 'background .2s';
+  el.style.background = 'rgba(16,185,129,.25)';
+  setTimeout(() => { el.style.background = ''; }, 1200);
+  return true;
+}
+
 function applyDetected() {
+  let filled = 0;
   for (const [field, val] of detected) {
     const el = document.querySelector(`#inv-form [name="${field}"]`);
-    if (!el || el.value.trim()) continue;
-    if (el.tagName === 'SELECT') {
-      // Normalize: strip spaces, lowercase for comparison
-      const norm = val.toLowerCase().replace(/\s+/g,'');
-      const opt  = [...el.options].find(o => o.value && o.value.toLowerCase().replace(/\s+/g,'') === norm);
-      if (opt) el.value = opt.value;
-    } else {
-      el.value = val;
-    }
-    el.dispatchEvent(new Event('change'));
+    /* skip if already has a non-default value */
+    if (!el) continue;
+    const cur = el.value;
+    const isDefaultEmpty = cur === '' || (el.tagName === 'SELECT' && el.selectedIndex <= 0);
+    if (!isDefaultEmpty) continue;
+    if (setField(field, val)) filled++;
   }
   document.getElementById('detected-panel').style.display = 'none';
   detected.clear();
+  if (filled > 0) {
+    const fb = document.createElement('div');
+    fb.textContent = `✓ ${filled} campo(s) llenado(s) automáticamente`;
+    fb.style.cssText = 'background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.4);color:#34d399;border-radius:8px;padding:8px 12px;font-size:12px;margin-bottom:10px;text-align:center;';
+    const form = document.getElementById('inv-form');
+    form.insertBefore(fb, form.firstChild);
+    setTimeout(() => fb.remove(), 3000);
+  }
 }
 
 function updateDetectedPanel() {
@@ -440,9 +471,8 @@ async function openSmartScanner() {
 
   document.getElementById('sc-apply').addEventListener('click', () => {
     for (const [f,v] of localDetected) { detected.set(f, v); }
-    updateDetectedPanel();
     close();
-    document.getElementById('btn-apply-detected').click();
+    applyDetected();  /* direct call — no btn.click() indirection */
   });
 
   function updateScDet() {
