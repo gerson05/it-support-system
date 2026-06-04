@@ -497,6 +497,7 @@ async function openScanner(targetInputId) {
 function openImportModal() {
   const modalWrap = document.getElementById('inv-modal-wrap');
   let _importRows = [];
+  let _importTipo = _activeTab;   /* can be overridden in the modal */
 
   const FIELD_LABELS = {
     placa:'Placa', marca:'Marca', nombre_equipo:'Nombre equipo', serial:'Serial',
@@ -514,11 +515,19 @@ function openImportModal() {
     <div class="modal-overlay" style="display:flex;" id="import-overlay">
       <div class="modal-content" style="max-width:680px;max-height:90vh;overflow-y:auto;">
         <div class="modal-header">
-          <h3>Importar Excel — ${_activeTab === 'equipos' ? 'Equipos' : 'Celulares'}</h3>
+          <h3>⬆ Importar Excel</h3>
           <button class="modal-close" id="btn-import-close">&times;</button>
         </div>
         <div class="modal-body" id="import-body">
           <div id="import-step1">
+            <div style="display:flex;gap:8px;margin-bottom:16px;">
+              <button id="import-tipo-equipos" class="btn ${_activeTab==='equipos'?'btn-primary':'btn-secondary'}" style="flex:1;padding:8px;">
+                🖥 Equipos
+              </button>
+              <button id="import-tipo-celulares" class="btn ${_activeTab==='celulares'?'btn-primary':'btn-secondary'}" style="flex:1;padding:8px;">
+                📱 Celulares
+              </button>
+            </div>
             <p style="font-size:13px;color:var(--text-2);margin-bottom:16px;">
               Sube el archivo Excel con tus registros existentes. La primera fila debe contener los encabezados.
             </p>
@@ -571,6 +580,15 @@ function openImportModal() {
   document.getElementById('btn-import-close').addEventListener('click', close);
   overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
 
+  /* tipo selector */
+  const setImportTipo = (t) => {
+    _importTipo = t;
+    document.getElementById('import-tipo-equipos').className   = `btn ${t==='equipos'  ?'btn-primary':'btn-secondary'}`;
+    document.getElementById('import-tipo-celulares').className = `btn ${t==='celulares'?'btn-primary':'btn-secondary'}`;
+  };
+  document.getElementById('import-tipo-equipos').addEventListener('click',   () => setImportTipo('equipos'));
+  document.getElementById('import-tipo-celulares').addEventListener('click', () => setImportTipo('celulares'));
+
   const dropZone  = document.getElementById('import-drop-zone');
   const fileInput = document.getElementById('import-file-input');
   dropZone.addEventListener('dragover',  e => { e.preventDefault(); dropZone.style.borderColor = 'var(--primary)'; });
@@ -594,14 +612,14 @@ function openImportModal() {
     const fd = new FormData();
     fd.append('file', file);
     try {
-      const res  = await fetch(`/api/inventario/${_activeTab}/import`, { method: 'POST', body: fd });
+      const res  = await fetch(`/api/inventario/${_importTipo}/import`, { method: 'POST', body: fd });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       _importRows = data.rows;
       document.getElementById('import-total-msg').textContent = `${data.total} filas encontradas en "${file.name}".`;
       document.getElementById('import-count').textContent = data.total;
 
-      const allFields = Object.keys(_activeTab === 'equipos'
+      const allFields = Object.keys(_importTipo === 'equipos'
         ? { placa:1,marca:1,nombre_equipo:1,serial:1,procesador:1,ram:1,tipo_ram:1,cap_disco:1,tipo_disco:1,serial_cargador:1,area:1,responsable:1,fecha_compra:1 }
         : { fecha_registro:1,area:1,ciudad:1,nombre_completo:1,cedula:1,linea:1,operador:1,equipo:1,almacenamiento:1,ram:1,modelo:1,imei:1,imei2:1,estado:1,accesorio:1,fecha_entrega:1,entregado_por:1 });
 
@@ -650,7 +668,7 @@ function openImportModal() {
     btn.disabled    = true;
     btn.textContent = 'Importando…';
     try {
-      const res  = await fetch(`/api/inventario/${_activeTab}/import/confirm`, {
+      const res  = await fetch(`/api/inventario/${_importTipo}/import/confirm`, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({ rows: _importRows, mode }),

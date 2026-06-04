@@ -25,7 +25,14 @@ function getBaseUrl(req) {
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 
 function normalizeHeader(h) {
-  return String(h ?? '').toLowerCase().normalize('NFD').replace(/\p{Mn}/gu, '').trim();
+  return String(h ?? '')
+    .normalize('NFD')
+    .replace(/\p{Mn}/gu, '')              // diacritics
+    .replace(/[​-‍ ﻿­]/g, '')  // invisible/non-breaking
+    .replace(/[^\p{L}\p{N}\s]/gu, ' ')   // punctuation/symbols → space
+    .replace(/\s+/g, ' ')
+    .toLowerCase()
+    .trim();
 }
 
 const EQUIPOS_COLMAP = {
@@ -272,8 +279,13 @@ router.post('/api/inventario/:type/import', ...canCreate, upload.single('file'),
     const ws = wb.worksheets[0];
     if (!ws) return res.status(400).json({ error: 'El archivo no tiene hojas.' });
 
-    const headers = [];
-    ws.getRow(1).eachCell({ includeEmpty: false }, cell => headers.push(String(cell.value ?? '')));
+    /* Read headers + their actual column numbers */
+    const headerEntries = [];
+    ws.getRow(1).eachCell({ includeEmpty: false }, (cell, colNum) => {
+      const h = String(cell.value ?? '').trim();
+      if (h) headerEntries.push({ name: h, col: colNum });
+    });
+    const headers = headerEntries.map(e => e.name);
 
     const colmap  = type === 'equipos' ? EQUIPOS_COLMAP : CELULARES_COLMAP;
     const mapping = buildMapping(headers, colmap);
@@ -283,10 +295,10 @@ router.post('/api/inventario/:type/import', ...canCreate, upload.single('file'),
       if (rowNum === 1) return;
       const obj = {};
       let hasData = false;
-      headers.forEach((h, i) => {
+      headerEntries.forEach(({ name: h, col }) => {
         const field = mapping[h];
         if (!field) return;
-        const raw = row.getCell(i + 1).value;
+        const raw = row.getCell(col).value;   /* use actual column number */
         const val = cellText(raw);
         if (val) hasData = true;
         obj[field] = val || null;
