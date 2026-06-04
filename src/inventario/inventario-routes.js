@@ -314,7 +314,9 @@ router.post('/api/inventario/:type/import/confirm', ...canCreate, (req, res) => 
   let inserted = 0, skipped = 0;
   const errors = [];
 
-  const runBatch = db.transaction(() => {
+  try {
+    db.exec('BEGIN');
+
     if (type === 'equipos') {
       const stmt = db.prepare(`
         INSERT ${orClause} INTO inventario_equipos
@@ -366,8 +368,13 @@ router.post('/api/inventario/:type/import/confirm', ...canCreate, (req, res) => 
         }
       });
     }
-  });
-  runBatch();
+
+    db.exec('COMMIT');
+  } catch (err) {
+    try { db.exec('ROLLBACK'); } catch {}
+    console.error('Import confirm error:', err);
+    return res.status(500).json({ error: err.message });
+  }
 
   res.json({ inserted, skipped, errors });
 });
