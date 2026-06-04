@@ -126,65 +126,97 @@ async function loadTable() {
   }
 }
 
+const _ICON_EDIT = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
+const _ICON_DEL  = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>`;
+
 function renderEquiposTable(rows) {
   return `
-  <div class="card" style="padding:0;overflow:hidden;">
-    <table class="data-table">
-      <thead><tr>
-        <th>Placa</th><th>Marca / Equipo</th><th>Serial</th>
-        <th>Procesador</th><th>RAM</th><th>Disco</th>
-        <th>Área</th><th>Responsable</th><th></th>
-      </tr></thead>
-      <tbody>
-        ${rows.map(r => `<tr>
-          <td style="font-family:monospace;font-size:12px;">${esc(r.placa)}</td>
-          <td><strong>${esc(r.marca)}</strong><br><small style="color:var(--text-muted);">${esc(r.nombre_equipo)}</small></td>
-          <td style="font-family:monospace;font-size:12px;">${esc(r.serial)}</td>
-          <td style="font-size:12px;">${esc(r.procesador||'—')}</td>
-          <td style="font-size:12px;">${esc(r.ram||'—')} ${esc(r.tipo_ram||'')}</td>
-          <td style="font-size:12px;">${esc(r.cap_disco||'—')} ${esc(r.tipo_disco||'')}</td>
-          <td style="font-size:12px;">${esc(r.area||'—')}</td>
-          <td style="font-size:12px;">${esc(r.responsable||'—')}</td>
-          <td style="white-space:nowrap;">
-            <button class="btn-inv-edit btn btn-small btn-secondary"
-              data-row="${encodeURIComponent(JSON.stringify(r))}">✏</button>
-            <button class="btn-inv-del btn btn-small" style="background:rgba(239,68,68,.12);color:var(--danger);border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12px;margin-left:4px;"
-              data-id="${r.id}" data-label="${esc(r.placa)} — ${esc(r.marca)}">🗑</button>
-          </td>
-        </tr>`).join('')}
-      </tbody>
-    </table>
+  <div class="inv-table-card">
+    <div class="inv-table-scroll">
+      <table class="data-table">
+        <thead><tr>
+          <th>Placa</th>
+          <th>Equipo</th>
+          <th>Serial</th>
+          <th>Procesador</th>
+          <th>RAM</th>
+          <th>Disco</th>
+          <th>Área</th>
+          <th>Responsable</th>
+          <th></th>
+        </tr></thead>
+        <tbody>
+          ${rows.map(r => `<tr>
+            <td class="td-mono">${esc(r.placa)}</td>
+            <td>
+              <div class="td-primary">${esc(r.marca)}</div>
+              <div class="td-sub">${esc(r.nombre_equipo)}</div>
+            </td>
+            <td class="td-mono">${esc(r.serial)}</td>
+            <td style="font-size:12px;">${esc(r.procesador||'—')}</td>
+            <td style="font-size:12px;">
+              ${r.ram
+                ? `${esc(r.ram)}<span style="color:var(--text-3);margin-left:3px;">${esc(r.tipo_ram||'')}</span>`
+                : '<span style="color:var(--text-3)">—</span>'}
+            </td>
+            <td style="font-size:12px;">
+              ${r.cap_disco
+                ? `${esc(r.cap_disco)}<span style="color:var(--text-3);margin-left:3px;">${esc(r.tipo_disco||'')}</span>`
+                : '<span style="color:var(--text-3)">—</span>'}
+            </td>
+            <td style="font-size:12px;">${esc(r.area||'—')}</td>
+            <td style="font-size:12px;">${esc(r.responsable||'—')}</td>
+            <td class="td-actions">
+              <button class="tbl-btn btn-inv-edit" data-row="${encodeURIComponent(JSON.stringify(r))}" title="Editar">${_ICON_EDIT}</button>
+              <button class="tbl-btn tbl-btn--del btn-inv-del" data-id="${r.id}" data-label="${esc(r.placa)} — ${esc(r.marca)}" title="Eliminar">${_ICON_DEL}</button>
+            </td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
   </div>`;
 }
 
 function renderCelularesTable(rows) {
   return `
-  <div class="card" style="padding:0;overflow:hidden;">
-    <table class="data-table">
-      <thead><tr>
-        <th>IMEI</th><th>Modelo / Equipo</th><th>Asignado a</th>
-        <th>Área</th><th>Ciudad</th><th>Estado</th>
-        <th>Operador</th><th>F. Entrega</th><th></th>
-      </tr></thead>
-      <tbody>
-        ${rows.map(r => `<tr>
-          <td style="font-family:monospace;font-size:12px;">${esc(r.imei)}</td>
-          <td><strong>${esc(r.modelo||r.equipo||'—')}</strong><br><small style="color:var(--text-muted);">${esc(r.almacenamiento||'')} ${esc(r.ram||'')}</small></td>
-          <td style="font-size:12px;">${esc(r.nombre_completo)}<br><small style="color:var(--text-muted);">${esc(r.cedula||'')}</small></td>
-          <td style="font-size:12px;">${esc(r.area||'—')}</td>
-          <td style="font-size:12px;">${esc(r.ciudad||'—')}</td>
-          <td><span class="badge badge-${r.estado||'nuevo'}">${esc(r.estado||'nuevo')}</span></td>
-          <td style="font-size:12px;">${esc(r.operador||'—')}</td>
-          <td style="font-size:12px;">${esc(r.fecha_entrega||'—')}</td>
-          <td style="white-space:nowrap;">
-            <button class="btn-inv-edit btn btn-small btn-secondary"
-              data-row="${encodeURIComponent(JSON.stringify(r))}">✏</button>
-            <button class="btn-inv-del btn btn-small" style="background:rgba(239,68,68,.12);color:var(--danger);border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12px;margin-left:4px;"
-              data-id="${r.id}" data-label="${esc(r.imei)} — ${esc(r.modelo||r.equipo||'')}">🗑</button>
-          </td>
-        </tr>`).join('')}
-      </tbody>
-    </table>
+  <div class="inv-table-card">
+    <div class="inv-table-scroll">
+      <table class="data-table">
+        <thead><tr>
+          <th>IMEI</th>
+          <th>Dispositivo</th>
+          <th>Asignado a</th>
+          <th>Área</th>
+          <th>Ciudad</th>
+          <th>Estado</th>
+          <th>Operador</th>
+          <th>F. Entrega</th>
+          <th></th>
+        </tr></thead>
+        <tbody>
+          ${rows.map(r => `<tr>
+            <td class="td-mono">${esc(r.imei)}</td>
+            <td>
+              <div class="td-primary">${esc(r.modelo||r.equipo||'—')}</div>
+              <div class="td-sub">${[r.almacenamiento, r.ram].filter(Boolean).map(esc).join(' · ') || ''}</div>
+            </td>
+            <td>
+              <div style="font-size:13px;">${esc(r.nombre_completo||'—')}</div>
+              ${r.cedula ? `<div class="td-sub">${esc(r.cedula)}</div>` : ''}
+            </td>
+            <td style="font-size:12px;">${esc(r.area||'—')}</td>
+            <td style="font-size:12px;">${esc(r.ciudad||'—')}</td>
+            <td><span class="badge badge-${esc(r.estado||'nuevo')}">${esc(r.estado||'nuevo')}</span></td>
+            <td style="font-size:12px;">${esc(r.operador||'—')}</td>
+            <td style="font-size:12px;">${esc(r.fecha_entrega||'—')}</td>
+            <td class="td-actions">
+              <button class="tbl-btn btn-inv-edit" data-row="${encodeURIComponent(JSON.stringify(r))}" title="Editar">${_ICON_EDIT}</button>
+              <button class="tbl-btn tbl-btn--del btn-inv-del" data-id="${r.id}" data-label="${esc(r.imei)} — ${esc(r.modelo||r.equipo||'')}" title="Eliminar">${_ICON_DEL}</button>
+            </td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
   </div>`;
 }
 
