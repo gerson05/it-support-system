@@ -15,6 +15,7 @@ const PERMISSION_MODULES = [
   { module: 'despacho',      label: 'Despacho',             actions: ['read', 'create', 'edit', 'delete'] },
   { module: 'audit',         label: 'Auditoría',            actions: ['read'] },
   { module: 'farmacias',     label: 'Farmacias FOMAG',      actions: ['read', 'create', 'edit', 'delete'] },
+  { module: 'inventario',   label: 'Inventario',           actions: ['read', 'create', 'edit', 'delete'] },
 ];
 
 router.get('/api/roles', requireAuth, (_req, res) => {
