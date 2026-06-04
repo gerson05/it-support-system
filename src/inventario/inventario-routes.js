@@ -1,10 +1,25 @@
 import express from 'express';
 import crypto  from 'crypto';
+import os      from 'os';
 import QRCode  from 'qrcode';
 import db from '../config/database.js';
 import { requireAuth, requirePermission } from '../auth/auth-middleware.js';
 import multer from 'multer';
 import ExcelJS from 'exceljs';
+
+function getBaseUrl(req) {
+  const host = req.headers.host || '';
+  const isLocal = /^(localhost|127\.|::1)/i.test(host);
+  if (isLocal) {
+    const port = host.split(':')[1] || '3000';
+    for (const addrs of Object.values(os.networkInterfaces())) {
+      for (const a of addrs) {
+        if (a.family === 'IPv4' && !a.internal) return `${req.protocol}://${a.address}:${port}`;
+      }
+    }
+  }
+  return `${req.protocol}://${host}`;
+}
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 
@@ -377,7 +392,7 @@ router.post('/api/inventario/registro-token', ...canCreate, (req, res) => {
                 VALUES (?,?,?,?,?,?)`)
       .run(token, tipo, label||null, createdBy, expiresAt, maxUses);
 
-    const url = `${req.protocol}://${req.headers.host}/registrar/${token}`;
+    const url = `${getBaseUrl(req)}/registrar/${token}`;
     res.json({ token, url });
   } catch (err) {
     console.error('POST /api/inventario/registro-token:', err);
@@ -435,7 +450,7 @@ router.get('/api/inventario/registro-qr/:token', async (req, res) => {
   try {
     const row = db.prepare('SELECT token FROM registro_tokens WHERE token=?').get(req.params.token);
     if (!row) return res.status(404).json({ error: 'Token no encontrado.' });
-    const url = `${req.protocol}://${req.headers.host}/registrar/${req.params.token}`;
+    const url = `${getBaseUrl(req)}/registrar/${req.params.token}`;
     const png = await QRCode.toBuffer(url, { type:'png', width:280, margin:1 });
     res.setHeader('Content-Type','image/png');
     res.send(png);

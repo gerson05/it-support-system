@@ -3,9 +3,24 @@ import multer     from 'multer';
 import path       from 'path';
 import fs         from 'fs';
 import crypto     from 'crypto';
+import os         from 'os';
 import QRCode     from 'qrcode';
 import { fileURLToPath } from 'url';
 import db         from '../config/database.js';
+
+function getBaseUrl(req) {
+  const host = req.headers.host || '';
+  const isLocal = /^(localhost|127\.|::1)/i.test(host);
+  if (isLocal) {
+    const port = host.split(':')[1] || '3000';
+    for (const addrs of Object.values(os.networkInterfaces())) {
+      for (const a of addrs) {
+        if (a.family === 'IPv4' && !a.internal) return `${req.protocol}://${a.address}:${port}`;
+      }
+    }
+  }
+  return `${req.protocol}://${host}`;
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);
@@ -72,7 +87,7 @@ router.post('/api/actas/token', (req, res) => {
       `).run(token, entity_type, Number(entity_id), entity_ref);
     }
 
-    const url = `${req.protocol}://${req.headers.host}/firmar/${token}`;
+    const url = `${getBaseUrl(req)}/firmar/${token}`;
     res.json({ token, url });
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -139,7 +154,7 @@ router.get('/api/actas/qr/:token', async (req, res) => {
     const row = db.prepare('SELECT token FROM acta_uploads WHERE token = ?').get(req.params.token);
     if (!row) return res.status(404).json({ error: 'Token no encontrado.' });
 
-    const url = `${req.protocol}://${req.headers.host}/firmar/${req.params.token}`;
+    const url = `${getBaseUrl(req)}/firmar/${req.params.token}`;
     const png = await QRCode.toBuffer(url, { type: 'png', width: 200, margin: 1 });
     res.setHeader('Content-Type', 'image/png');
     res.send(png);
@@ -158,7 +173,7 @@ router.get('/api/actas/info/:entityType/:entityId', (req, res) => {
 
     if (!row) return res.json({ token: null });
 
-    const url = `${req.protocol}://${req.headers.host}/firmar/${row.token}`;
+    const url = `${getBaseUrl(req)}/firmar/${row.token}`;
     res.json({
       token:       row.token,
       url,
