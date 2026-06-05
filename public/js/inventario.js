@@ -332,7 +332,7 @@ function openForm(row) {
 
   const close = () => { overlay.style.display = 'none'; };
   overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
-  modalWrap.querySelector('#btn-inv-form-cancel').addEventListener('click', close);
+  modalWrap.querySelectorAll('#btn-inv-form-cancel').forEach(b => b.addEventListener('click', close));
 
   form.querySelectorAll('input[type=text]').forEach(inp => {
     inp.addEventListener('blur', e => {
@@ -383,19 +383,19 @@ function equipoFormHTML(r) {
           <h3>${r ? 'Editar equipo' : 'Nuevo equipo'}</h3>
           <button class="modal-close" id="btn-inv-form-cancel">&times;</button>
         </div>
-        <button type="button" id="btn-smart-scan"
+        ${r ? '' : `<button type="button" id="btn-smart-scan"
           style="display:flex;align-items:center;gap:8px;padding:8px 16px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;width:100%;justify-content:center;">
           📷 Escanear equipo — llenar campos automáticamente
-        </button>
+        </button>`}
       </div>
       <div class="modal-body">
         <div id="inv-form-err" style="display:none;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:#fca5a5;border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:14px;"></div>
         <form id="inv-form">
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-            ${scanField('Placa *','placa',v('placa'),true)}
+            ${scanField('Placa *','placa',v('placa'),true,!r)}
             ${selectField('Marca *','marca',v('marca'),['Lenovo','Dell','HP','Samsung','Toshiba','Acer','Asus','Apple','Otro'])}
             ${inputField('Nombre del equipo *','nombre_equipo',v('nombre_equipo'))}
-            ${scanField('Serial *','serial',v('serial'),true)}
+            ${scanField('Serial *','serial',v('serial'),true,!r)}
             ${selectField('Procesador','procesador',v('procesador'),['Intel Core i3','Intel Core i5','Intel Core i7','Intel Core i9','AMD Ryzen 3','AMD Ryzen 5','AMD Ryzen 7','Otro'])}
             ${selectField('RAM','ram',v('ram'),['4GB','8GB','16GB','32GB','64GB'])}
             ${selectField('Tipo de RAM','tipo_ram',v('tipo_ram'),['DDR3','DDR4','DDR5','LPDDR4','LPDDR5'])}
@@ -428,16 +428,16 @@ function celularFormHTML(r) {
           <h3>${r ? 'Editar celular' : 'Nuevo celular'}</h3>
           <button class="modal-close" id="btn-inv-form-cancel">&times;</button>
         </div>
-        <button type="button" id="btn-smart-scan"
+        ${r ? '' : `<button type="button" id="btn-smart-scan"
           style="display:flex;align-items:center;gap:8px;padding:8px 16px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;width:100%;justify-content:center;">
           📷 Escanear equipo — llenar campos automáticamente
-        </button>
+        </button>`}
       </div>
       <div class="modal-body">
         <div id="inv-form-err" style="display:none;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:#fca5a5;border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:14px;"></div>
         <form id="inv-form">
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-            ${scanField('IMEI *','imei',v('imei'),true)}
+            ${scanField('IMEI *','imei',v('imei'),true,!r)}
             ${inputField('IMEI 2','imei2',v('imei2'))}
             ${selectField('Marca / Equipo','equipo',v('equipo'),['Samsung','Xiaomi Redmi','Honor','ZTE','Infinix','Motorola','iPhone','Otro'])}
             ${inputField('Modelo','modelo',v('modelo'))}
@@ -477,19 +477,19 @@ function upsFormHTML(r) {
           <h3>${r ? 'Editar UPS' : 'Nueva UPS'}</h3>
           <button class="modal-close" id="btn-inv-form-cancel">&times;</button>
         </div>
-        <button type="button" id="btn-smart-scan"
+        ${r ? '' : `<button type="button" id="btn-smart-scan"
           style="display:flex;align-items:center;gap:8px;padding:8px 16px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;width:100%;justify-content:center;">
           📷 Escanear etiqueta — llenar campos automáticamente
-        </button>
+        </button>`}
       </div>
       <div class="modal-body">
         <div id="inv-form-err" style="display:none;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:#fca5a5;border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:14px;"></div>
         <form id="inv-form">
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-            ${scanField('Placa *','placa',v('placa'),true)}
+            ${scanField('Placa *','placa',v('placa'),true,!r)}
             ${inputField('Marca','marca',v('marca'))}
             ${inputField('Nombre del equipo','nombre_equipo',v('nombre_equipo'))}
-            ${scanField('Serial','serial',v('serial'),false)}
+            ${scanField('Serial','serial',v('serial'),false,!r)}
             ${inputField('Área','area',v('area'))}
             ${inputField('Voltaje','voltaje',v('voltaje'))}
           </div>
@@ -527,15 +527,15 @@ function selectField(label, name, value, options) {
   </div>`;
 }
 
-function scanField(label, name, value = '', required = false) {
+function scanField(label, name, value = '', required = false, showScan = true) {
   return `
   <div class="form-group">
     <label style="font-size:12px;font-weight:500;color:var(--text-muted);margin-bottom:4px;display:block;">${esc(label)}</label>
     <div style="display:flex;gap:6px;">
       <input type="text" name="${name}" id="scan-input-${name}" class="form-control" value="${esc(value)}" ${required?'required':''} style="flex:1;">
-      <button type="button" class="btn-scan" data-target="scan-input-${name}"
+      ${showScan ? `<button type="button" class="btn-scan" data-target="scan-input-${name}"
         style="padding:0 10px;background:var(--primary);color:#fff;border:none;border-radius:var(--radius-sm);cursor:pointer;font-size:16px;flex-shrink:0;"
-        title="Escanear código de barras">📷</button>
+        title="Escanear código de barras">📷</button>` : ''}
     </div>
   </div>`;
 }
