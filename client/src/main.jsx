@@ -9,6 +9,7 @@ import Login from './pages/Login';
 import Farmacias from './pages/Farmacias';
 import RegistrosIT from './pages/RegistrosIT';
 import QrTool from './pages/QrTool';
+import InventarioApp from './components/InventarioApp';
 
 const root = createRoot(document.getElementById('root'));
 if (window.location.pathname.startsWith('/firmar/')) {
@@ -23,6 +24,8 @@ if (window.location.pathname.startsWith('/firmar/')) {
 	root.render(<RegistrosIT />);
 } else if (window.location.pathname.startsWith('/qr-tool')) {
 	root.render(<QrTool />);
+} else if (window.location.pathname.startsWith('/inventario')) {
+	root.render(<InventarioApp />);
 } else if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
 	root.render(<Home />);
 } else {
