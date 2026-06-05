@@ -18,6 +18,13 @@ export default function App() {
     return () => window.removeEventListener('hashchange', onHash);
   }, []);
 
+  // Initialize SSE connection for real-time updates
+  useEffect(() => {
+    let mounted = true;
+    import('./hooks/useSSE').then(mod => { if (mounted) mod.default(); }).catch(()=>{});
+    return () => { mounted = false; };
+  }, []);
+
   if (hash.startsWith('#ticket/')) return <TicketDetail />;
   if (hash === '#tickets') return <TicketsList />;
   if (hash === '#tech-requests') return <TechRequests />;
