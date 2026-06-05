@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import Sidebar from './Sidebar';
 import fetchJson from '../utils/fetchJson';
 import DataService from '../utils/dataService';
 import { showToast } from '../utils/ui';
@@ -67,6 +68,8 @@ export default function AppShell({ children }) {
 
   return (
     <div className="app-shell">
+      <Sidebar />
+      <div id="sidebar-overlay" style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.4)',display:'none',zIndex:40}} onClick={()=>document.body.classList.remove('sidebar-open')} />
       <header style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:12,borderBottom:'1px solid #e6eef6'}}>
         <div style={{display:'flex',alignItems:'center',gap:12}}>
           <button id="sidebar-toggle" onClick={()=>document.body.classList.toggle('sidebar-open')}>☰</button>
