@@ -1,4 +1,4 @@
-import { showToast } from './components.js';
+import { showToast, copyToClipboard } from './components.js';
 
 const toTitleCase = s => (s || '').toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
 
@@ -336,7 +336,8 @@ function openForm(row) {
 
   form.querySelectorAll('input[type=text]').forEach(inp => {
     inp.addEventListener('blur', e => {
-      const skip = ['placa','serial','imei','imei2','serial_cargador'];
+      // Excluir identificadores técnicos y valores numéricos/especiales
+      const skip = ['placa','serial','imei','imei2','serial_cargador','cedula','linea','voltaje'];
       if (!skip.includes(e.target.name)) e.target.value = toTitleCase(e.target.value.trim());
     });
   });
@@ -1167,12 +1168,15 @@ async function openGenerarEnlaceModal() {
     document.getElementById('enlace-step1').style.display = '';
   });
 
-  document.getElementById('btn-enlace-copy').addEventListener('click', () => {
+  document.getElementById('btn-enlace-copy').addEventListener('click', async () => {
     const url = document.getElementById('enlace-url').value;
-    navigator.clipboard?.writeText(url).then(() => {
+    const ok = await copyToClipboard(url);
+    if (ok) {
       document.getElementById('btn-enlace-copy').textContent = '✓ Copiado';
       setTimeout(() => { document.getElementById('btn-enlace-copy').textContent = 'Copiar'; }, 2000);
-    });
+    } else {
+      showToast('No se pudo copiar el enlace', 'error');
+    }
   });
 
   document.getElementById('btn-enlace-generar').addEventListener('click', async () => {

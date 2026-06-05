@@ -10,7 +10,7 @@ import { renderSedesAdmin } from './sedes-admin.js';
 import { renderAudit } from './audit.js';
 import { renderDespacho } from './despacho.js';
 import { renderUsers } from './users.js';
-import { showToast } from './components.js';
+import { showToast, copyToClipboard } from './components.js';
 import { DataService, isOfflineMode } from './data-service.js';
 
 function can(permission) {
@@ -467,16 +467,15 @@ function startWhatsAppMonitor() {
   // Botón copiar QR
   const btnCopy = document.getElementById('btn-copy-qr');
   if (btnCopy) {
-    btnCopy.addEventListener('click', () => {
+    btnCopy.addEventListener('click', async () => {
       const textEl = document.getElementById('wa-qr-text');
       if (textEl && textEl.value) {
-        navigator.clipboard.writeText(textEl.value).then(() => {
+        const ok = await copyToClipboard(textEl.value);
+        if (ok) {
           showToast('QR copiado al portapapeles!', 'success');
-        }).catch(() => {
-          textEl.select();
-          document.execCommand('copy');
-          showToast('QR copiado!', 'success');
-        });
+        } else {
+          showToast('No se pudo copiar el QR', 'error');
+        }
       }
     });
   }
