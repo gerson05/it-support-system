@@ -1,5 +1,5 @@
 import { state, AREA_MAPPINGS, formatDate } from './app.js';
-import { showToast, createLoadingSpinner, createEmptyState } from './components.js';
+import { showToast, createLoadingSpinner, createEmptyState, attachSedeSearch, copyToClipboard } from './components.js';
 
 function _timeAgo(dateStr) {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -35,10 +35,18 @@ function articulosList(d) {
     const arr = JSON.parse(d.articulos || '[]');
     if (!arr.length) return '<em style="color:var(--text-3);">Sin artículos</em>';
     return arr.map(a => `
-      <div style="display:flex;align-items:baseline;gap:10px;padding:6px 0;border-bottom:1px solid var(--border);">
-        <span style="font-weight:600;min-width:32px;color:var(--primary);">${a.cantidad}×</span>
-        <span style="font-weight:500;color:var(--text);">${a.nombre}</span>
-        ${a.descripcion ? `<span style="font-size:12px;color:var(--text-3);">${a.descripcion}</span>` : ''}
+      <div style="display:flex;flex-direction:column;gap:4px;padding:8px 0;border-bottom:1px solid var(--border);">
+        <div style="display:flex;align-items:baseline;gap:10px;">
+          <span style="font-weight:600;min-width:32px;color:var(--primary);">${a.cantidad}×</span>
+          <span style="font-weight:500;color:var(--text);">${a.nombre}</span>
+          ${a.descripcion ? `<span style="font-size:12px;color:var(--text-3);">${a.descripcion}</span>` : ''}
+        </div>
+        ${(a.marca || a.modelo || a.serial) ? `
+        <div style="display:flex;gap:12px;font-size:11px;color:var(--text-3);padding-left:42px;">
+          ${a.marca ? `<span><strong>Marca:</strong> ${a.marca}</span>` : ''}
+          ${a.modelo ? `<span><strong>Modelo:</strong> ${a.modelo}</span>` : ''}
+          ${a.serial ? `<span><strong>Serial:</strong> ${a.serial}</span>` : ''}
+        </div>` : ''}
       </div>`).join('');
   } catch { return '<em style="color:var(--text-3);">Error al leer artículos</em>'; }
 }
@@ -95,9 +103,14 @@ function printDespacho(d) {
   try { arts = JSON.parse(d.articulos || '[]'); } catch {}
   const artRows = arts.map(a => `
     <tr>
-      <td style="padding:6px 10px;border:1px solid #ccc;">${a.nombre}</td>
+      <td style="padding:6px 10px;border:1px solid #ccc;">
+        <strong>${a.nombre}</strong>
+        ${a.descripcion ? `<br><small style="color:#555;">${a.descripcion}</small>` : ''}
+      </td>
+      <td style="padding:6px 10px;border:1px solid #ccc;text-align:center;">${a.marca || '—'}</td>
+      <td style="padding:6px 10px;border:1px solid #ccc;text-align:center;">${a.modelo || '—'}</td>
+      <td style="padding:6px 10px;border:1px solid #ccc;text-align:center;">${a.serial || '—'}</td>
       <td style="padding:6px 10px;border:1px solid #ccc;text-align:center;">${a.cantidad}</td>
-      <td style="padding:6px 10px;border:1px solid #ccc;">${a.descripcion || ''}</td>
     </tr>`).join('');
 
   const win = window.open('', '_blank');
@@ -138,7 +151,7 @@ function printDespacho(d) {
     </dl>
     <table>
       <thead><tr>
-        <th>Artículo</th><th style="width:70px;">Cantidad</th><th>Descripción</th>
+        <th>Artículo</th><th style="width:100px;text-align:center;">Marca</th><th style="width:100px;text-align:center;">Modelo</th><th style="width:120px;text-align:center;">Serial</th><th style="width:70px;text-align:center;">Cantidad</th>
       </tr></thead>
       <tbody>${artRows}</tbody>
     </table>
@@ -159,10 +172,10 @@ function printDespacho(d) {
 function openDetailModal(id) {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;';
 
   overlay.innerHTML = `
-    <div style="background:var(--surface);border-radius:12px;padding:28px;width:100%;max-width:620px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.4);position:relative;">
+    <div style="background:var(--surface);border-radius:12px;padding:28px;width:100%;max-width:620px;margin:auto 0;box-shadow:0 20px 60px rgba(0,0,0,.4);position:relative;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
         <h2 style="margin:0;font-size:17px;font-weight:700;color:var(--text);">Detalle de Despacho</h2>
         <button id="modal-close" style="background:none;border:none;cursor:pointer;color:var(--text-3);font-size:20px;line-height:1;">✕</button>
@@ -234,11 +247,32 @@ function openDetailModal(id) {
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
           Imprimir
         </button>
+        <button id="btn-acta-word" class="btn btn-secondary" style="gap:6px;display:inline-flex;align-items:center;">📄 Acta Word</button>
+        <button id="btn-edit-despacho" class="btn btn-secondary" style="gap:6px;display:inline-flex;align-items:center;">✏️ Editar</button>
         <button id="btn-close-modal" class="btn btn-secondary">Cerrar</button>
       </div>`;
 
     body.querySelector('#btn-print').onclick = () => printDespacho(d);
     body.querySelector('#btn-close-modal').onclick = () => overlay.remove();
+    body.querySelector('#btn-edit-despacho').onclick = () => {
+      overlay.remove();
+      openEditDespachoModal(d.id, () => document.querySelector('#btn-refresh-despachos')?.click());
+    };
+    body.querySelector('#btn-acta-word').onclick = async () => {
+      const btn = body.querySelector('#btn-acta-word');
+      btn.textContent = '⏳ Generando…'; btn.disabled = true;
+      try {
+        const res = await fetch(`/api/despachos/${d.id}/acta-word`, { method: 'POST' });
+        if (!res.ok) throw new Error((await res.json()).error || 'Error');
+        const blob = await res.blob();
+        const filename = res.headers.get('Content-Disposition')?.match(/filename="?([^"]+)"?/)?.[1] || `Acta_${d.numero}.docx`;
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob); a.download = decodeURIComponent(filename);
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        showToast('✅ Acta descargada', 'success');
+      } catch(e) { showToast(e.message, 'error'); }
+      finally { btn.textContent = '📄 Acta Word'; btn.disabled = false; }
+    };
 
     // Acta interaction
     setupActaInteraction(body, d, actaInfo, overlay);
@@ -262,8 +296,12 @@ function renderActaSection(d, actaInfo = { token: null }) {
           <div style="font-weight:600;color:#065f46;font-size:13px;">Acta firmada recibida</div>
           <div style="font-size:12px;color:#047857;">${actaInfo.uploaded_at ? new Date(actaInfo.uploaded_at).toLocaleString('es-CO') : ''}</div>
         </div>
-        <a id="btn-download-acta" href="/api/actas/download/${actaInfo.token}" style="padding:6px 12px;background:#059669;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;text-decoration:none;">📥 Descargar</a>
-      </div>`;
+        <div style="display:flex;gap:6px;align-items:center;">
+          <a id="btn-download-acta" href="/api/actas/download/${actaInfo.token}" style="padding:6px 12px;background:#059669;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;text-decoration:none;">📥 Descargar</a>
+          <button id="btn-reupload-acta" class="btn btn-secondary btn-small" style="font-size:12px;padding:6px 12px;display:inline-flex;align-items:center;gap:4px;">🔄 Reemplazar</button>
+        </div>
+      </div>
+      <input type="file" id="acta-direct-upload-file" accept=".pdf,.docx" style="display:none;">`;
   } else if (actaInfo.token && !actaInfo.uploaded) {
     firmaSection = `
       <div style="padding:10px 14px;background:var(--surface-3);border-radius:8px;border:1px solid var(--border);margin-bottom:10px;">
@@ -273,9 +311,15 @@ function renderActaSection(d, actaInfo = { token: null }) {
             style="flex:1;padding:6px 9px;border:1px solid var(--border);border-radius:5px;background:var(--surface);color:var(--text);font-size:11px;font-family:monospace;">
           <button id="btn-copy-link" style="padding:6px 10px;border:1px solid var(--border);border-radius:5px;background:var(--surface-2);color:var(--text-2);font-size:11px;cursor:pointer;white-space:nowrap;">📋 Copiar</button>
         </div>
-        <img src="/api/actas/qr/${actaInfo.token}" alt="QR" style="width:100px;height:100px;border-radius:6px;background:#fff;padding:4px;display:block;margin-bottom:8px;">
-        <button id="btn-regen-link" style="font-size:11px;color:var(--text-3);background:none;border:none;cursor:pointer;text-decoration:underline;">🔄 Regenerar link</button>
-      </div>`;
+        <div style="display:flex;align-items:center;gap:15px;flex-wrap:wrap;margin-bottom:8px;">
+          <img src="/api/actas/qr/${actaInfo.token}" alt="QR" style="width:100px;height:100px;border-radius:6px;background:#fff;padding:4px;display:block;">
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <button id="btn-direct-upload" class="btn btn-secondary btn-small" style="gap:5px;display:inline-flex;align-items:center;font-size:12px;padding:6px 12px;">📤 Subir Acta Firmada</button>
+            <button id="btn-regen-link" style="font-size:11px;color:var(--text-3);background:none;border:none;cursor:pointer;text-decoration:underline;text-align:left;">🔄 Regenerar link</button>
+          </div>
+        </div>
+      </div>
+      <input type="file" id="acta-direct-upload-file" accept=".pdf,.docx" style="display:none;">`;
   } else {
     firmaSection = `
       <div style="margin-bottom:10px;">
@@ -354,12 +398,15 @@ function setupActaInteraction(body, d, actaInfo = { token: null }, overlay) {
 
   const btnCopyLink = body.querySelector('#btn-copy-link');
   if (btnCopyLink) {
-    btnCopyLink.onclick = () => {
+    btnCopyLink.onclick = async () => {
       const input = body.querySelector('#link-firma-input');
       if (!input) return;
-      navigator.clipboard.writeText(input.value)
-        .then(() => showToast('Link copiado al portapapeles', 'success'))
-        .catch(() => { input.select(); document.execCommand('copy'); showToast('Link copiado', 'success'); });
+      const ok = await copyToClipboard(input.value);
+      if (ok) {
+        showToast('Link copiado al portapapeles', 'success');
+      } else {
+        showToast('No se pudo copiar el link', 'error');
+      }
     };
   }
 
@@ -386,6 +433,82 @@ function setupActaInteraction(body, d, actaInfo = { token: null }, overlay) {
       }
     };
   }
+
+  // ── Subida directa y reemplazo de acta ───────────────────────────
+  const fileInput = body.querySelector('#acta-direct-upload-file');
+  const handleUpload = async (file) => {
+    if (!file) return;
+    const ext = file.name.split('.').pop().toLowerCase();
+    if (!['pdf', 'docx'].includes(ext)) {
+      showToast('Solo se aceptan archivos PDF o DOCX.', 'error');
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      showToast('El archivo supera el límite de 10 MB.', 'error');
+      return;
+    }
+
+    const fd = new FormData();
+    fd.append('acta', file);
+
+    const uploadBtn = body.querySelector('#btn-direct-upload') || body.querySelector('#btn-reupload-acta');
+    const originalText = uploadBtn ? uploadBtn.textContent : '';
+    if (uploadBtn) {
+      uploadBtn.disabled = true;
+      uploadBtn.textContent = 'Subiendo…';
+    }
+
+    try {
+      const res = await fetch(`/api/actas/upload/${actaInfo.token}`, { method: 'POST', body: fd });
+      const resData = await res.json();
+      if (!res.ok) throw new Error(resData.error || 'Error al subir el archivo');
+
+      showToast('✅ Acta subida correctamente', 'success');
+      d.acta_firmada = 1;
+      const newActaInfo = await fetchActaInfo('despacho', d.id);
+      body.querySelector('#acta-section').innerHTML = renderActaSection(d, newActaInfo);
+      setupActaInteraction(body, d, newActaInfo, overlay);
+      document.querySelector('#btn-refresh-despachos')?.click();
+    } catch (e) {
+      showToast(e.message, 'error');
+      if (uploadBtn) {
+        uploadBtn.disabled = false;
+        uploadBtn.textContent = originalText;
+      }
+    }
+  };
+
+  if (fileInput) {
+    fileInput.onchange = () => {
+      if (fileInput.files[0]) handleUpload(fileInput.files[0]);
+    };
+  }
+
+  body.querySelector('#btn-direct-upload')?.addEventListener('click', () => fileInput?.click());
+  body.querySelector('#btn-reupload-acta')?.addEventListener('click', () => fileInput?.click());
+
+  // ── Auto-polling: detecta cuando el receptor sube el acta ────────────
+  // Sólo corre cuando el link está activo pero el acta aún no fue recibida.
+  if (actaInfo.token && !actaInfo.uploaded) {
+    const pollTimer = setInterval(async () => {
+      // Si el cuerpo del modal ya no está en el DOM (se cerró), detener.
+      if (!document.contains(body)) { clearInterval(pollTimer); return; }
+      try {
+        const newInfo = await fetchActaInfo('despacho', d.id);
+        if (newInfo.uploaded) {
+          clearInterval(pollTimer);
+          d.acta_firmada = 1;
+          const section = body.querySelector('#acta-section');
+          if (section) {
+            section.innerHTML = renderActaSection(d, newInfo);
+            setupActaInteraction(body, d, newInfo, overlay);
+          }
+          showToast('✅ ¡Acta firmada recibida automáticamente!', 'success');
+          document.querySelector('#btn-refresh-despachos')?.click();
+        }
+      } catch { /* ignorar errores de red */ }
+    }, 8000);
+  }
 }
 
 /* ── Create Modal ────────────────────────────────────────────────────── */
@@ -397,10 +520,10 @@ async function openCreateModal(onSuccess) {
 
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;';
 
   overlay.innerHTML = `
-    <div style="background:var(--surface);border-radius:12px;padding:28px;width:100%;max-width:640px;max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.4);position:relative;">
+    <div style="background:var(--surface);border-radius:12px;padding:28px;width:100%;max-width:640px;margin:auto 0;box-shadow:0 20px 60px rgba(0,0,0,.4);position:relative;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;">
         <h2 style="margin:0;font-size:17px;font-weight:700;color:var(--text);">Nuevo Despacho</h2>
         <button id="create-modal-close" style="background:none;border:none;cursor:pointer;color:var(--text-3);font-size:20px;line-height:1;">✕</button>
@@ -419,17 +542,25 @@ async function openCreateModal(onSuccess) {
           </div>
         </div>
 
-        <!-- Destinatario / Sede -->
+        <!-- Destinatario / Sede / Area -->
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
           <div style="grid-column:1/-1;">
             <label style="display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:4px;">Destinatario *</label>
             <input name="destinatario" required type="text" placeholder="Nombre del receptor"
               style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:13px;box-sizing:border-box;">
           </div>
-          <div style="grid-column:1/-1;">
+          <div>
             <label style="display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:4px;">Sede</label>
             <input name="sede" type="text" placeholder="Ej. Sede Norte"
               style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:13px;box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:4px;">Área</label>
+            <select name="area"
+              style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:13px;box-sizing:border-box;">
+              <option value="">Selecciona área...</option>
+              ${areaOptions}
+            </select>
           </div>
         </div>
 
@@ -485,6 +616,18 @@ async function openCreateModal(onSuccess) {
     </div>`;
 
   document.body.appendChild(overlay);
+  attachSedeSearch(overlay.querySelector('input[name="sede"]'));
+
+  // ── Formateo uniforme de campos al salir (blur) ─────────────────
+  const _tc  = s => (s || '').toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+  const _sc  = s => { const v = (s || '').trim(); return v ? v.charAt(0).toUpperCase() + v.slice(1) : v; };
+
+  overlay.querySelector('[name="destinatario"]').addEventListener('blur', e => {
+    e.target.value = _tc(e.target.value.trim());
+  });
+  overlay.querySelector('[name="observaciones"]').addEventListener('blur', e => {
+    e.target.value = _sc(e.target.value);
+  });
 
   const closeModal = () => overlay.remove();
   overlay.querySelector('#create-modal-close').onclick = closeModal;
@@ -494,6 +637,35 @@ async function openCreateModal(onSuccess) {
   // Dynamic article rows
   let rowCount = 1;
 
+  function wireRow(row) {
+    row.querySelector('.btn-remove-row')?.addEventListener('click', function () {
+      this.closest('.articulo-row').remove();
+    });
+    row.querySelector('.btn-dup-row')?.addEventListener('click', function () {
+      const curr = this.closest('.articulo-row');
+      const nombre = curr.querySelector('[data-field="nombre"]').value;
+      const descripcion = curr.querySelector('[data-field="descripcion"]').value;
+      const marca = curr.querySelector('[data-field="marca"]').value;
+      const modelo = curr.querySelector('[data-field="modelo"]').value;
+      const div = document.createElement('div');
+      div.innerHTML = buildArticuloRow(rowCount++, false);
+      const newRow = div.firstElementChild;
+      curr.insertAdjacentElement('afterend', newRow);
+      newRow.querySelector('[data-field="nombre"]').value = nombre;
+      newRow.querySelector('[data-field="descripcion"]').value = descripcion;
+      newRow.querySelector('[data-field="marca"]').value = marca;
+      newRow.querySelector('[data-field="modelo"]').value = modelo;
+      wireRow(newRow);
+      newRow.querySelector('[data-field="nombre"]')?.focus();
+    });
+    // Formateo Title Case al salir de campos descriptivos
+    ['nombre','marca','modelo'].forEach(field => {
+      row.querySelector(`[data-field="${field}"]`)?.addEventListener('blur', e => {
+        e.target.value = _tc(e.target.value.trim());
+      });
+    });
+  }
+
   // ── Borrador helpers ─────────────────────────────────────────────
   function serializarFormulario() {
     const rows = overlay.querySelectorAll('.articulo-row');
@@ -502,7 +674,10 @@ async function openCreateModal(onSuccess) {
       const nombre = row.querySelector('[data-field="nombre"]').value.trim();
       const cantidad = parseInt(row.querySelector('[data-field="cantidad"]').value) || 1;
       const descripcion = row.querySelector('[data-field="descripcion"]').value.trim();
-      if (nombre) articulos.push({ nombre, cantidad, descripcion });
+      const marca = row.querySelector('[data-field="marca"]').value.trim();
+      const modelo = row.querySelector('[data-field="modelo"]').value.trim();
+      const serial = row.querySelector('[data-field="serial"]').value.trim();
+      if (nombre) articulos.push({ nombre, cantidad, descripcion, marca, modelo, serial });
     }
     const fd = new FormData(overlay.querySelector('#form-despacho'));
     return {
@@ -521,7 +696,7 @@ async function openCreateModal(onSuccess) {
     const list = overlay.querySelector('#articulos-list');
     list.innerHTML = '';
     rowCount = 0;
-    const items = articulos.length ? articulos : [{ nombre: '', cantidad: 1, descripcion: '' }];
+    const items = articulos.length ? articulos : [{ nombre: '', cantidad: 1, descripcion: '', marca: '', modelo: '', serial: '' }];
     items.forEach((art, idx) => {
       const div = document.createElement('div');
       div.innerHTML = buildArticuloRow(rowCount++, idx === 0);
@@ -530,11 +705,10 @@ async function openCreateModal(onSuccess) {
       row.querySelector('[data-field="nombre"]').value      = art.nombre      || '';
       row.querySelector('[data-field="cantidad"]').value    = art.cantidad    || 1;
       row.querySelector('[data-field="descripcion"]').value = art.descripcion || '';
-      if (idx > 0) {
-        row.querySelector('.btn-remove-row').addEventListener('click', function () {
-          this.closest('.articulo-row').remove();
-        });
-      }
+      row.querySelector('[data-field="marca"]').value       = art.marca       || '';
+      row.querySelector('[data-field="modelo"]').value      = art.modelo      || '';
+      row.querySelector('[data-field="serial"]').value      = art.serial      || '';
+      wireRow(row);
     });
   }
 
@@ -542,16 +716,14 @@ async function openCreateModal(onSuccess) {
     const list = overlay.querySelector('#articulos-list');
     const div = document.createElement('div');
     div.innerHTML = buildArticuloRow(rowCount++, false);
-    list.appendChild(div.firstElementChild);
-    list.querySelector(`[data-row="${rowCount - 1}"] .btn-remove-row`)?.addEventListener('click', function () {
-      this.closest('.articulo-row').remove();
-    });
+    const row = div.firstElementChild;
+    list.appendChild(row);
+    wireRow(row);
+    row.querySelector('[data-field="nombre"]')?.focus();
   };
 
-  // Wire up existing remove buttons (first row has no remove)
-  overlay.querySelectorAll('.btn-remove-row').forEach(btn => {
-    btn.onclick = function () { this.closest('.articulo-row').remove(); };
-  });
+  // Wire initial rows (from HTML string)
+  overlay.querySelectorAll('.articulo-row').forEach(r => wireRow(r));
 
   // Show/hide acta info
   const checkAcata = overlay.querySelector('#check-requiere-acta');
@@ -559,6 +731,9 @@ async function openCreateModal(onSuccess) {
   checkAcata.onchange = () => {
     actaInfo.style.display = checkAcata.checked ? 'block' : 'none';
   };
+
+  // Sede autocomplete
+  attachSedeSearch(overlay.querySelector('[name="sede"]'));
 
   // Ticket search
   const ticketSearchInput = overlay.querySelector('#ticket-search-input');
@@ -716,7 +891,10 @@ async function openCreateModal(onSuccess) {
       const nombre = row.querySelector('[data-field="nombre"]').value.trim();
       const cantidad = parseInt(row.querySelector('[data-field="cantidad"]').value) || 1;
       const descripcion = row.querySelector('[data-field="descripcion"]').value.trim();
-      if (nombre) articulos.push({ nombre, cantidad, descripcion });
+      const marca = row.querySelector('[data-field="marca"]').value.trim();
+      const modelo = row.querySelector('[data-field="modelo"]').value.trim();
+      const serial = row.querySelector('[data-field="serial"]').value.trim();
+      if (nombre) articulos.push({ nombre, cantidad, descripcion, marca, modelo, serial });
     }
     if (!articulos.length) {
       showToast('Agrega al menos un artículo con nombre.', 'warning');
@@ -755,16 +933,29 @@ async function openCreateModal(onSuccess) {
 function buildArticuloRow(idx, isFirst) {
   return `
     <div class="articulo-row" data-row="${idx}"
-      style="display:grid;grid-template-columns:1fr 70px 1fr auto;gap:6px;align-items:center;">
-      <input data-field="nombre" type="text" placeholder="Nombre del artículo" required
-        style="padding:7px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;min-width:0;">
-      <input data-field="cantidad" type="number" min="1" value="1"
-        style="padding:7px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;text-align:center;">
-      <input data-field="descripcion" type="text" placeholder="Descripción (opcional)"
-        style="padding:7px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;min-width:0;">
-      <button type="button" class="btn-remove-row"
-        style="padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface-2);color:#f87171;cursor:pointer;font-size:14px;line-height:1;${isFirst ? 'visibility:hidden;' : ''}"
-        title="Eliminar fila">✕</button>
+      style="border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 8px; background: var(--surface-2); display: flex; flex-direction: column; gap: 8px; position: relative;">
+      <div style="display: grid; grid-template-columns: 1fr 70px auto auto; gap: 8px; align-items: center;">
+        <input data-field="nombre" type="text" placeholder="Nombre del artículo *" required
+          style="padding:7px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;min-width:0;">
+        <input data-field="cantidad" type="number" min="1" value="1"
+          style="padding:7px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;text-align:center;">
+        <button type="button" class="btn-dup-row"
+          style="padding:6px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface-3);color:var(--text-2);cursor:pointer;font-size:13px;line-height:1;"
+          title="Duplicar fila">📋</button>
+        <button type="button" class="btn-remove-row"
+          style="padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface-3);color:#f87171;cursor:pointer;font-size:14px;line-height:1;${isFirst ? 'visibility:hidden;' : ''}"
+          title="Eliminar fila">✕</button>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px;">
+        <input data-field="marca" type="text" placeholder="Marca (opcional)"
+          style="padding:7px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;min-width:0;">
+        <input data-field="modelo" type="text" placeholder="Modelo (opcional)"
+          style="padding:7px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;min-width:0;">
+        <input data-field="serial" type="text" placeholder="Serial (opcional)"
+          style="padding:7px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;min-width:0;">
+        <input data-field="descripcion" type="text" placeholder="Descripción (opcional)"
+          style="padding:7px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;min-width:0;">
+      </div>
     </div>`;
 }
 
@@ -864,16 +1055,22 @@ export function renderDespacho(container) {
                 <td style="padding:11px 14px;font-size:12px;color:var(--text-2);">${d.sede || '—'}</td>
                 <td style="padding:11px 14px;font-size:12px;color:var(--text-2);">${articulosCount(d)}</td>
                 <td style="padding:11px 14px;">${actaBadge(d)}</td>
-                <td style="padding:11px 14px;text-align:right;">
-                  <button class="btn btn-secondary" style="font-size:11px;padding:4px 10px;"
-                    onclick="event.stopPropagation();document.dispatchEvent(new CustomEvent('open-despacho', {detail:${d.id}}))">
-                    Ver
-                  </button>
+                <td style="padding:11px 14px;text-align:right;white-space:nowrap;">
+                  <button class="btn btn-secondary" style="font-size:11px;padding:4px 10px;margin-right:4px;"
+                    onclick="event.stopPropagation();document.dispatchEvent(new CustomEvent('open-despacho', {detail:${d.id}}))">Ver</button>
+                  <button class="btn-despacho-edit" data-id="${d.id}"
+                    style="font-size:11px;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface-2);color:var(--text-2);cursor:pointer;"
+                    onclick="event.stopPropagation();">✏️ Editar</button>
                 </td>
               </tr>`).join('')}
           </tbody>
         </table>
       </div>`;
+
+    // Conectar botones Editar de la tabla
+    wrap.querySelectorAll('.btn-despacho-edit').forEach(btn => {
+      btn.addEventListener('click', () => openEditDespachoModal(parseInt(btn.dataset.id), loadTable));
+    });
   }
 
   // Event listeners
@@ -906,3 +1103,159 @@ export function renderDespacho(container) {
   // Initial load
   loadTable();
 }
+
+/* ═══════════════════════════════════════════════════
+   MODAL EDITAR DESPACHO
+   ═══════════════════════════════════════════════════ */
+
+async function openEditDespachoModal(id, onSuccess) {
+  let d;
+  try { d = await fetchDespacho(id); }
+  catch (err) { showToast(err.message, 'error'); return; }
+
+  let articulos = [];
+  try { articulos = JSON.parse(d.articulos || '[]'); } catch {}
+
+  const areaOptions = Object.entries(AREA_MAPPINGS)
+    .map(([v, { label }]) => `<option value="${v}" ${d.area === v ? 'selected' : ''}>${label}</option>`)
+    .join('');
+
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;display:flex;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;';
+  overlay.innerHTML = `
+    <div style="background:var(--surface);border-radius:16px;padding:32px;width:100%;max-width:680px;margin:auto 0;box-shadow:0 20px 60px rgba(0,0,0,.4);position:relative;">
+      <div id="edit-modal-close" style="position:absolute;top:14px;right:14px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);border-radius:8px;background:var(--surface-2);cursor:pointer;color:var(--text-2);font-size:16px;">✕</div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:22px;">
+        <div style="width:40px;height:40px;background:linear-gradient(135deg,#f59e0b,#ea580c);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">✏️</div>
+        <div>
+          <h2 style="margin:0;font-size:17px;font-weight:700;color:var(--text);">Editar Despacho</h2>
+          <p style="margin:2px 0 0;font-size:12px;color:var(--text-3);">${d.numero} — modifica los datos y guarda los cambios</p>
+        </div>
+      </div>
+      <form id="form-edit-despacho">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+          <div style="grid-column:1/-1;">
+            <label style="display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:4px;">Destinatario *</label>
+            <input name="destinatario" required type="text" value="${d.destinatario || ''}"
+              style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:13px;box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:4px;">Sede</label>
+            <input name="sede" type="text" value="${d.sede || ''}"
+              style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:13px;box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:4px;">Área</label>
+            <select name="area" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:13px;box-sizing:border-box;">
+              <option value="">Selecciona área...</option>${areaOptions}
+            </select>
+          </div>
+        </div>
+        <div style="margin-bottom:14px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <label style="font-size:12px;font-weight:600;color:var(--text-2);">Artículos *</label>
+            <button type="button" id="btn-add-art-edit" style="font-size:12px;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface-2);color:var(--text-2);cursor:pointer;">+ Agregar fila</button>
+          </div>
+          <div id="arts-list-edit" style="display:flex;flex-direction:column;gap:6px;"></div>
+        </div>
+        <div style="margin-bottom:14px;">
+          <label style="display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:4px;">Observaciones</label>
+          <textarea name="observaciones" rows="2" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:13px;resize:vertical;box-sizing:border-box;">${d.observaciones || ''}</textarea>
+        </div>
+        <div style="margin-bottom:20px;display:flex;align-items:center;gap:10px;">
+          <input type="checkbox" id="edit-check-acta" name="requiere_acta" style="width:16px;height:16px;" ${d.requiere_acta ? 'checked' : ''}>
+          <label for="edit-check-acta" style="font-size:13px;font-weight:500;color:var(--text);cursor:pointer;">¿Requiere acta de entrega?</label>
+        </div>
+        <div style="display:flex;gap:10px;justify-content:flex-end;padding-top:16px;border-top:1px solid var(--border);">
+          <button type="button" id="btn-cancel-edit" class="btn btn-secondary">Cancelar</button>
+          <button type="submit" id="btn-submit-edit" class="btn btn-primary" style="background:linear-gradient(135deg,#f59e0b,#ea580c);border:none;">💾 Guardar Cambios</button>
+        </div>
+      </form>
+    </div>`;
+
+  document.body.appendChild(overlay);
+  attachSedeSearch(overlay.querySelector('input[name="sede"]'));
+
+  const _tc = s => (s || '').toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+  const _sc = s => { const v = (s || '').trim(); return v ? v.charAt(0).toUpperCase() + v.slice(1) : v; };
+  overlay.querySelector('[name="destinatario"]').addEventListener('blur', e => { e.target.value = _tc(e.target.value.trim()); });
+  overlay.querySelector('[name="observaciones"]').addEventListener('blur', e => { e.target.value = _sc(e.target.value); });
+
+  let rowCount = 0;
+
+  function buildArtRow(art = {}, isFirst = false) {
+    const i = rowCount++;
+    return `<div class="art-row-edit" style="border:1px solid var(--border);border-radius:8px;padding:12px;background:var(--surface-2);display:flex;flex-direction:column;gap:8px;">
+      <div style="display:grid;grid-template-columns:1fr 70px auto auto;gap:8px;align-items:center;">
+        <input data-field="nombre" type="text" value="${art.nombre||''}" placeholder="Nombre del artículo *" required style="padding:7px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;min-width:0;">
+        <input data-field="cantidad" type="number" min="1" value="${art.cantidad||1}" style="padding:7px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;text-align:center;">
+        <button type="button" class="btn-dup-art" style="padding:6px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface-3);color:var(--text-2);cursor:pointer;" title="Duplicar">📋</button>
+        <button type="button" class="btn-rem-art" style="padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface-3);color:#f87171;cursor:pointer;${isFirst?'visibility:hidden;':''}" title="Eliminar">✕</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;">
+        <input data-field="marca"       type="text" value="${art.marca||''}"       placeholder="Marca"       style="padding:7px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;">
+        <input data-field="modelo"      type="text" value="${art.modelo||''}"      placeholder="Modelo"      style="padding:7px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;">
+        <input data-field="serial"      type="text" value="${art.serial||''}"      placeholder="Serial"      style="padding:7px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;">
+        <input data-field="descripcion" type="text" value="${art.descripcion||''}" placeholder="Descripción" style="padding:7px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;">
+      </div>
+    </div>`;
+  }
+
+  function wireArtRow(row) {
+    row.querySelector('.btn-rem-art')?.addEventListener('click', function() { this.closest('.art-row-edit').remove(); });
+    row.querySelector('.btn-dup-art')?.addEventListener('click', function() {
+      const curr = this.closest('.art-row-edit');
+      const art  = { nombre: curr.querySelector('[data-field="nombre"]').value, cantidad: curr.querySelector('[data-field="cantidad"]').value, marca: curr.querySelector('[data-field="marca"]').value, modelo: curr.querySelector('[data-field="modelo"]').value, descripcion: curr.querySelector('[data-field="descripcion"]').value };
+      const div  = document.createElement('div'); div.innerHTML = buildArtRow(art, false);
+      const newRow = div.firstElementChild;
+      curr.insertAdjacentElement('afterend', newRow);
+      wireArtRow(newRow);
+    });
+    ['nombre','marca','modelo'].forEach(f => {
+      row.querySelector(`[data-field="${f}"]`)?.addEventListener('blur', e => { e.target.value = _tc(e.target.value.trim()); });
+    });
+  }
+
+  const list = overlay.querySelector('#arts-list-edit');
+  (articulos.length ? articulos : [{}]).forEach((art, idx) => {
+    const div = document.createElement('div'); div.innerHTML = buildArtRow(art, idx === 0);
+    const row = div.firstElementChild; list.appendChild(row); wireArtRow(row);
+  });
+
+  overlay.querySelector('#btn-add-art-edit').onclick = () => {
+    const div = document.createElement('div'); div.innerHTML = buildArtRow({}, false);
+    const row = div.firstElementChild; list.appendChild(row); wireArtRow(row);
+    row.querySelector('[data-field="nombre"]')?.focus();
+  };
+
+  const close = () => overlay.remove();
+  overlay.querySelector('#edit-modal-close').onclick = close;
+  overlay.querySelector('#btn-cancel-edit').onclick   = close;
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+
+  overlay.querySelector('#form-edit-despacho').onsubmit = async e => {
+    e.preventDefault();
+    const fd   = new FormData(e.target);
+    const rows = overlay.querySelectorAll('.art-row-edit');
+    const arts = [];
+    for (const row of rows) {
+      const nombre = row.querySelector('[data-field="nombre"]').value.trim();
+      if (!nombre) continue;
+      arts.push({ nombre, cantidad: parseInt(row.querySelector('[data-field="cantidad"]').value)||1, marca: row.querySelector('[data-field="marca"]').value.trim(), modelo: row.querySelector('[data-field="modelo"]').value.trim(), serial: row.querySelector('[data-field="serial"]').value.trim(), descripcion: row.querySelector('[data-field="descripcion"]').value.trim() });
+    }
+    if (!arts.length) { showToast('Agrega al menos un artículo.', 'warning'); return; }
+
+    const btn = overlay.querySelector('#btn-submit-edit');
+    btn.textContent = 'Guardando…'; btn.disabled = true;
+    try {
+      await updateDespacho(id, { destinatario: fd.get('destinatario'), sede: fd.get('sede')||null, area: fd.get('area')||null, articulos: arts, observaciones: fd.get('observaciones')||null, requiere_acta: overlay.querySelector('#edit-check-acta').checked ? 1 : 0, agente: state.currentAgent.name });
+      showToast('✅ Despacho actualizado', 'success');
+      close(); onSuccess();
+    } catch (err) {
+      showToast(err.message, 'error');
+      btn.textContent = '💾 Guardar Cambios'; btn.disabled = false;
+    }
+  };
+}
+

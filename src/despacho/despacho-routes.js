@@ -1,6 +1,7 @@
 import express from 'express';
 import db from '../config/database.js';
 import { logAudit }    from '../audit/audit-logger.js';
+import { generateActa } from '../tech-requests/acta-generator.js';
 import { logDespacho }      from '../excel/excel-logger.js';
 import { logDespachoSheet } from '../excel/sheets-logger.js';
 import { requireAuth, requirePermission } from '../auth/auth-middleware.js';
@@ -170,28 +171,88 @@ router.post('/api/despachos', ...canCreate, (req, res) => {
   }
 });
 
-// PUT /api/despachos/:id — update (mainly acta fields)
+// PUT /api/despachos/:id — update content fields and/or acta fields
 router.put('/api/despachos/:id', ...canEdit, (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    const { acta_numero, acta_firmada, observaciones, requiere_acta, agente } = req.body;
-    db.prepare(`UPDATE despachos SET
-      acta_numero = COALESCE(?, acta_numero),
-      acta_firmada = COALESCE(?, acta_firmada),
-      observaciones = COALESCE(?, observaciones),
-      requiere_acta = COALESCE(?, requiere_acta)
-      WHERE id = ?`)
-      .run(
-        acta_numero ?? null,
-        acta_firmada ?? null,
-        observaciones ?? null,
-        requiere_acta ?? null,
-        id
-      );
+    const {
+      // Campos de acta (solo se sobreescriben si vienen explícitos)
+      acta_numero, acta_firmada,
+      // Campos de contenido (edición completa)
+      destinatario, sede, area, articulos, observaciones, requiere_acta, ticket_id,
+      agente,
+    } = req.body;
+
+    const fields  = [];
+    const params  = [];
+
+    // Campos de acta: preservar valor existente si no vienen en el body
+    if (acta_numero   !== undefined) { fields.push('acta_numero = ?');   params.push(acta_numero); }
+    if (acta_firmada  !== undefined) { fields.push('acta_firmada = ?');  params.push(acta_firmada); }
+
+    // Campos de contenido: sobreescribir cuando vienen
+    if (destinatario  !== undefined) { fields.push('destinatario = ?');  params.push(destinatario); }
+    if (sede          !== undefined) { fields.push('sede = ?');          params.push(sede || null); }
+    if (area          !== undefined) { fields.push('area = ?');          params.push(area || null); }
+    if (articulos     !== undefined) { fields.push('articulos = ?');     params.push(JSON.stringify(articulos)); }
+    if (observaciones !== undefined) { fields.push('observaciones = ?'); params.push(observaciones || null); }
+    if (requiere_acta !== undefined) { fields.push('requiere_acta = ?'); params.push(requiere_acta ? 1 : 0); }
+    if (ticket_id     !== undefined) { fields.push('ticket_id = ?');     params.push(ticket_id || null); }
+
+    if (!fields.length) return res.status(400).json({ error: 'No se enviaron campos para actualizar.' });
+
+    params.push(id);
+    db.prepare(`UPDATE despachos SET ${fields.join(', ')} WHERE id = ?`).run(...params);
+
     const row = db.prepare('SELECT * FROM despachos WHERE id = ?').get(id);
-    logAudit(agente || 'Sistema', 'Despacho actualizado', 'despacho', id, row?.numero, { acta_firmada });
+    logAudit(agente || 'Sistema', 'Despacho actualizado', 'despacho', id, row?.numero, { acta_firmada, destinatario });
     res.json({ success: true });
   } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /api/despachos/:id/acta-word — genera acta Word con plantilla corporativa
+router.post('/api/despachos/:id/acta-word', ...canRead, async (req, res) => {
+  try {
+    const d = db.prepare('SELECT * FROM despachos WHERE id = ?').get(parseInt(req.params.id));
+    if (!d) return res.status(404).json({ error: 'Despacho no encontrado.' });
+
+    const articulos = JSON.parse(d.articulos || '[]');
+    const items = articulos.map(a => ({
+      equipment_name: a.nombre || a.descripcion || a.articulo || 'Artículo',
+      quantity: a.cantidad || a.qty || 1,
+      serial: a.serial || '',
+    }));
+    if (items.length === 0) items.push({ equipment_name: 'Ver observaciones', quantity: 1, serial: '' });
+
+    const requestObj = {
+      request_number: d.acta_numero || d.numero,
+      requester_name: d.destinatario || '',
+      cedula: '',
+      cargo: d.area || '',
+      sede: d.sede || '',
+      items,
+    };
+
+    const eqItems = articulos.map(a => ({
+      marca: a.marca || '',
+      modelo: a.modelo || '',
+      serial: a.serial || '',
+      accesorios: '',
+      observaciones: d.observaciones || '',
+    }));
+    if (eqItems.length === 0) {
+      eqItems.push({ marca: '', modelo: '', serial: '', accesorios: '', observaciones: d.observaciones || '' });
+    }
+
+    const buffer = await generateActa(requestObj, eqItems, d.agente || 'Soporte IT');
+    const filename = `Acta_${(d.acta_numero || d.numero).replace(/\//g, '-')}_${(d.destinatario || '').replace(/\s+/g, '_')}.docx`;
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+    res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(filename)}"`);
+    res.send(buffer);
+  } catch (e) {
+    console.error('Error generando acta Word despacho:', e);
     res.status(500).json({ error: e.message });
   }
 });
