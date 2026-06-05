@@ -5,6 +5,7 @@ import {
   getAllTechRequests,
   getTechRequestById,
   updateTechRequest,
+  replaceRequestItems,
   addTechRequestNote,
   getTechRequestStats,
 } from './tech-request-model.js';
@@ -103,7 +104,7 @@ router.get('/api/tech-requests/:id', ...canRead, (req, res) => {
   }
 });
 
-/* ── Actualizar solicitud (estado, prioridad, asignación) ── */
+/* ── Actualizar solicitud (estado, prioridad, asignación y datos del solicitante) ── */
 router.put('/api/tech-requests/:id', ...canEdit, (req, res) => {
   try {
     const id        = parseInt(req.params.id);
@@ -111,6 +112,11 @@ router.put('/api/tech-requests/:id', ...canEdit, (req, res) => {
     const updated   = updateTechRequest(db, id, req.body, agentName);
     if (!updated) return res.status(404).json({ error: 'Solicitud no encontrada o sin cambios.' });
     appEvents.emit('tech-request:updated', { id });
+
+    // Reemplazar ítems si vienen en el body (solo requerimientos)
+    if (Array.isArray(req.body.items)) {
+      replaceRequestItems(db, id, req.body.items);
+    }
 
     if (req.body.status) {
       const row = db.prepare('SELECT request_number FROM tech_requests WHERE id = ?').get(id);
@@ -151,32 +157,36 @@ router.post('/api/tech-requests/:id/acta', ...canEdit, async (req, res) => {
     const id  = parseInt(req.params.id);
     const req2 = getTechRequestById(db, id);
     if (!req2) return res.status(404).json({ error: 'Solicitud no encontrada.' });
-    if (req2.type !== 'requerimiento') {
-      return res.status(400).json({ error: 'El acta de entrega solo aplica para requerimientos.' });
-    }
 
     const { items, accesorios, observaciones, agentName } = req.body;
 
-    // items: [{ idx, marca, modelo, serial }, ...]
-    if (!items || !Array.isArray(items) || items.length === 0) {
-      return res.status(400).json({ error: 'Se requiere al menos un equipo para generar el acta.' });
-    }
-    if (!items[0].marca || !items[0].modelo) {
-      return res.status(400).json({ error: 'Marca y Modelo son obligatorios para el primer equipo.' });
-    }
-
-    const buffer = await generateActa(
-      req2,
-      items.map(item => ({
+    let eqItems;
+    if (req2.type === 'incidencia') {
+      // Para incidencias: usar equipo afectado guardado en el registro
+      const { marca = '', modelo = '', serial = '' } = items?.[0] || {};
+      eqItems = [{ marca, modelo, serial: serial || req2.equipment_serial || '', accesorios, observaciones }];
+      // Normalizar request para que generateActa tenga items[]
+      if (!req2.items || req2.items.length === 0) {
+        req2.items = [{ equipment_name: req2.equipment_name || 'Equipo', quantity: 1, serial: req2.equipment_serial || '' }];
+      }
+    } else {
+      if (!items || !Array.isArray(items) || items.length === 0) {
+        return res.status(400).json({ error: 'Se requiere al menos un equipo para generar el acta.' });
+      }
+      if (!items[0].marca || !items[0].modelo) {
+        return res.status(400).json({ error: 'Marca y Modelo son obligatorios para el primer equipo.' });
+      }
+      eqItems = items.map(item => ({
         marca: item.marca || '',
         modelo: item.modelo || '',
         serial: item.serial || '',
         imei: item.imei || '',
         accesorios,
         observaciones,
-      })),
-      agentName || 'Soporte IT',
-    );
+      }));
+    }
+
+    const buffer = await generateActa(req2, eqItems, agentName || 'Soporte IT');
 
     const filename = `Acta_Entrega_${req2.request_number}_${req2.requester_name.replace(/\s+/g, '_')}.docx`;
 
