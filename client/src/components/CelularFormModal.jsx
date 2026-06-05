@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Scanner from './Scanner';
 
 export default function CelularFormModal({ row, onClose, onSaved }) {
   const [form, setForm] = useState({
@@ -6,6 +7,7 @@ export default function CelularFormModal({ row, onClose, onSaved }) {
   });
   const [err, setErr] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [scannerOpen, setScannerOpen] = useState(false);
 
   function onChange(e) { setForm(s => ({ ...s, [e.target.name]: e.target.value })); }
 
@@ -18,6 +20,12 @@ export default function CelularFormModal({ row, onClose, onSaved }) {
       });
       if (onSaved) onSaved();
     } catch (err) { setErr(err.message || String(err)); } finally { setSaving(false); }
+  }
+
+  function handleDetected(val) {
+    if (!val) return;
+    setForm(s => ({ ...s, imei: s.imei || val }));
+    setScannerOpen(false);
   }
 
   return (
@@ -54,6 +62,11 @@ export default function CelularFormModal({ row, onClose, onSaved }) {
               <input name="nombre_completo" value={form.nombre_completo} onChange={onChange} required />
             </div>
           </div>
+          <div style={{marginTop:8}}>
+            {!row.id ? (
+              <button type="button" onClick={() => setScannerOpen(true)}>Escanear (cámara)</button>
+            ) : null}
+          </div>
           {err && <div style={{color:'crimson',marginTop:8}}>{err}</div>}
           <div style={{display:'flex',justifyContent:'flex-end',gap:8,marginTop:12}}>
             <button type="button" onClick={onClose}>Cancelar</button>
@@ -61,6 +74,7 @@ export default function CelularFormModal({ row, onClose, onSaved }) {
           </div>
         </form>
       </div>
+      <Scanner open={scannerOpen} onClose={() => setScannerOpen(false)} onDetected={handleDetected} />
     </div>
   );
 }

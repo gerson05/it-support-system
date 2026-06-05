@@ -141,7 +141,8 @@ async function _fetchSedes() {
   if (_sedesCache) return _sedesCache;
   try {
     const res = await fetch('/api/sedes');
-    _sedesCache = res.ok ? await res.json() : {};
+    const data = res.ok ? await res.json() : {};
+    _sedesCache = data.grouped || data;
   } catch { _sedesCache = {}; }
   return _sedesCache;
 }
