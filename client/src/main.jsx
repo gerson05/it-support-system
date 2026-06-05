@@ -30,6 +30,25 @@ if (window.location.pathname.startsWith('/firmar/')) {
 } else if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
 	root.render(<Home />);
 } else {
+
+		// Support direct routes that map into the SPA by setting the hash
+		const path = window.location.pathname;
+		if (path === '/tickets') window.location.hash = '#tickets';
+		if (path === '/tech-requests') window.location.hash = '#tech-requests';
+		if (path === '/dashboard') window.location.hash = '#dashboard';
+		if (path === '/despacho') window.location.hash = '#despacho';
+		if (path === '/users') window.location.hash = '#users';
+		if (path === '/settings') window.location.hash = '#settings';
+		if (path === '/sedes') window.location.hash = '#sedes';
+		if (path === '/faqs') window.location.hash = '#faqs';
+		if (path === '/audit') window.location.hash = '#audit';
+
+		// Routes with ids
+		const ticketMatch = path.match(/^\/ticket\/(\d+)/);
+		if (ticketMatch) window.location.hash = `#ticket/${ticketMatch[1]}`;
+		const techReqMatch = path.match(/^\/tech-request\/(\d+)/);
+		if (techReqMatch) window.location.hash = `#tech-request/${techReqMatch[1]}`;
+
 		root.render(
 			<AppShell>
 				<App />
