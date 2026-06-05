@@ -22,13 +22,14 @@ export async function renderFaqs(container) {
     <style>
       #faqs-modal-overlay {
         display:none; position:fixed; inset:0; background:rgba(0,0,0,.6);
-        z-index:1000; align-items:center; justify-content:center;
+        z-index:1000; align-items:flex-start; justify-content:center;
+        padding:20px; overflow-y:auto; overflow-x:hidden;
       }
       #faqs-modal-overlay.open { display:flex; }
       #faqs-modal {
         background:#1e1e38; border:1px solid rgba(255,255,255,.1);
         border-radius:12px; padding:28px; width:min(640px,96vw);
-        max-height:90vh; overflow-y:auto; display:flex; flex-direction:column; gap:16px;
+        margin:0 auto; display:flex; flex-direction:column; gap:16px;
       }
       #faqs-modal label { font-size:12px; color:var(--text-muted); display:block; margin-bottom:4px; }
       #faqs-modal input, #faqs-modal select, #faqs-modal textarea {
