@@ -2,7 +2,7 @@
  * Vista de detalle de un Requerimiento / Incidencia.
  */
 
-import { showToast } from './components.js';
+import { showToast, copyToClipboard } from './components.js';
 import { state, formatDate, formatTimeAgo } from './app.js';
 
 async function fetchActaInfoTR(entityId) {
@@ -75,19 +75,18 @@ export async function renderTechRequestDetail(container, id) {
       </div>
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex-shrink:0;">
         ${sb(req.status)} ${pb(req.priority)}
-        ${!isInc ? `
-          <button id="btn-generar-acta"
+        <button id="btn-generar-acta"
             style="display:flex;align-items:center;gap:7px;padding:9px 18px;background:linear-gradient(135deg,#10b981,#059669);border:none;border-radius:9px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(16,185,129,.3);transition:all .2s;"
             onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 20px rgba(16,185,129,.4)'"
             onmouseout="this.style.transform='';this.style.boxShadow='0 4px 14px rgba(16,185,129,.3)'">
             📄 Generar Acta
-          </button>` : ''}
+          </button>
       </div>
     </div>
 
     <!-- Modal Acta de Entrega (TODOS los equipos) -->
-    <div id="acta-modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(5px);z-index:2000;align-items:center;justify-content:center;">
-      <div style="background:linear-gradient(160deg,#141428 0%,#111122 100%);border:1px solid rgba(99,102,241,.2);border-radius:18px;width:min(800px,96vw);max-height:88vh;display:flex;flex-direction:column;box-shadow:0 32px 80px rgba(0,0,0,.85),0 0 0 1px rgba(99,102,241,.08);">
+    <div id="acta-modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(5px);z-index:2000;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;overflow-x:hidden;">
+      <div style="background:linear-gradient(160deg,#141428 0%,#111122 100%);border:1px solid rgba(99,102,241,.2);border-radius:18px;width:min(800px,96vw);margin:0 auto;max-height:calc(100vh - 40px);display:flex;flex-direction:column;box-shadow:0 32px 80px rgba(0,0,0,.85),0 0 0 1px rgba(99,102,241,.08);">
 
         <!-- Header fijo -->
         <div style="background:linear-gradient(135deg,rgba(16,185,129,.15),rgba(5,150,105,.08));padding:22px 28px 18px;border-radius:18px 18px 0 0;border-bottom:1px solid rgba(16,185,129,.15);flex-shrink:0;">
@@ -333,7 +332,7 @@ export async function renderTechRequestDetail(container, id) {
   });
 
   /* ── Modal Acta de Entrega ── */
-  if (!isInc) {
+  if (true) {
     const actaOverlay = document.getElementById('acta-modal-overlay');
 
     // Inyectar estilos para los inputs de la tabla del acta
@@ -363,10 +362,13 @@ export async function renderTechRequestDetail(container, id) {
     }
 
     document.getElementById('btn-generar-acta').addEventListener('click', () => {
-      // Renderizar tabla con TODOS los equipos
+      // Renderizar tabla con equipos (requerimiento: lista de items; incidencia: equipo afectado)
       const tbody = document.getElementById('acta-items-table');
-      if (req.items && req.items.length > 0) {
-        tbody.innerHTML = req.items.map((item, idx) => {
+      const tableItems = (isInc && (!req.items || req.items.length === 0))
+        ? [{ equipment_name: req.equipment_name || 'Equipo', quantity: 1, serial: req.equipment_serial || '' }]
+        : (req.items || []);
+      if (tableItems.length > 0) {
+        tbody.innerHTML = tableItems.map((item, idx) => {
           const nameParts = (item.equipment_name || '').split(' ');
           const possibleBrand = nameParts.length > 1 ? nameParts[0] : item.equipment_name || '';
           const rowBg = idx % 2 === 0 ? 'rgba(255,255,255,.02)' : 'transparent';
@@ -398,6 +400,7 @@ export async function renderTechRequestDetail(container, id) {
         }).join('');
       }
       actaOverlay.style.display = 'flex';
+      document.getElementById('acta-items-table').__tableItems = tableItems;
     });
 
     const closeActa = () => { actaOverlay.style.display = 'none'; };
@@ -557,8 +560,12 @@ function renderFirmaContent(actaInfo, req) {
           <div style="font-weight:600;color:#6ee7b7;font-size:13px;">Acta firmada recibida</div>
           <div style="font-size:12px;color:#94a3b8;">${actaInfo.uploaded_at ? new Date(actaInfo.uploaded_at).toLocaleString('es-CO') : ''}</div>
         </div>
-        <a href="/api/actas/download/${actaInfo.token}" style="padding:6px 12px;background:#059669;color:#fff;border-radius:6px;font-size:12px;font-weight:500;text-decoration:none;">📥 Descargar</a>
-      </div>`;
+        <div style="display:flex;gap:6px;align-items:center;">
+          <a href="/api/actas/download/${actaInfo.token}" style="padding:6px 12px;background:#059669;color:#fff;border-radius:6px;font-size:12px;font-weight:500;text-decoration:none;">📥 Descargar</a>
+          <button id="btn-reupload-acta-tr" class="btn btn-secondary btn-small" style="font-size:12px;padding:6px 12px;display:inline-flex;align-items:center;gap:4px;">🔄 Reemplazar</button>
+        </div>
+      </div>
+      <input type="file" id="acta-upload-file-tr" accept=".pdf,.docx" style="display:none;">`;
   }
   if (actaInfo.token && !actaInfo.uploaded) {
     return `
@@ -568,8 +575,14 @@ function renderFirmaContent(actaInfo, req) {
           style="flex:1;padding:6px 9px;border:1px solid rgba(255,255,255,.1);border-radius:5px;background:#0f172a;color:#e2e8f0;font-size:11px;font-family:monospace;">
         <button id="btn-copy-link-tr" style="padding:6px 10px;border:1px solid rgba(255,255,255,.1);border-radius:5px;background:#1e293b;color:#94a3b8;font-size:11px;cursor:pointer;white-space:nowrap;">📋 Copiar</button>
       </div>
-      <img src="/api/actas/qr/${actaInfo.token}" alt="QR" style="width:100px;height:100px;border-radius:6px;background:#fff;padding:4px;display:block;margin-bottom:8px;">
-      <button id="btn-regen-link-tr" style="font-size:11px;color:#64748b;background:none;border:none;cursor:pointer;text-decoration:underline;">🔄 Regenerar link</button>`;
+      <div style="display:flex;align-items:center;gap:15px;flex-wrap:wrap;margin-bottom:8px;">
+        <img src="/api/actas/qr/${actaInfo.token}" alt="QR" style="width:100px;height:100px;border-radius:6px;background:#fff;padding:4px;display:block;">
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <button id="btn-direct-upload-tr" class="btn btn-secondary btn-small" style="gap:5px;display:inline-flex;align-items:center;font-size:12px;padding:6px 12px;">📤 Subir Acta Firmada</button>
+          <button id="btn-regen-link-tr" style="font-size:11px;color:#64748b;background:none;border:none;cursor:pointer;text-decoration:underline;text-align:left;">🔄 Regenerar link</button>
+        </div>
+      </div>
+      <input type="file" id="acta-upload-file-tr" accept=".pdf,.docx" style="display:none;">`;
   }
   return `
     <div style="font-size:13px;color:#64748b;margin-bottom:10px;">Genera el acta, compártela con el receptor y solicita que la suba firmada.</div>
@@ -608,10 +621,13 @@ async function setupFirmaSection(container, req) {
     const btnCopy = content.querySelector('#btn-copy-link-tr');
     if (btnCopy) {
       const input = content.querySelector('input[readonly]');
-      btnCopy.onclick = () => {
-        navigator.clipboard.writeText(input?.value || '')
-          .then(() => showToast('Link copiado', 'success'))
-          .catch(() => { input?.select(); document.execCommand('copy'); showToast('Link copiado', 'success'); });
+      btnCopy.onclick = async () => {
+        const ok = await copyToClipboard(input?.value || '');
+        if (ok) {
+          showToast('Link copiado', 'success');
+        } else {
+          showToast('No se pudo copiar el link', 'error');
+        }
       };
     }
 
@@ -630,6 +646,71 @@ async function setupFirmaSection(container, req) {
           showToast('Link regenerado', 'success');
         } catch (e) { showToast(e.message, 'error'); btnRegen.textContent = '🔄 Regenerar link'; }
       };
+    }
+
+    // ── Subida directa y reemplazo de acta ───────────────────────────
+    const fileInput = content.querySelector('#acta-upload-file-tr');
+    const handleUpload = async (file) => {
+      if (!file) return;
+      const ext = file.name.split('.').pop().toLowerCase();
+      if (!['pdf', 'docx'].includes(ext)) {
+        showToast('Solo se aceptan archivos PDF o DOCX.', 'error');
+        return;
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        showToast('El archivo supera el límite de 10 MB.', 'error');
+        return;
+      }
+
+      const fd = new FormData();
+      fd.append('acta', file);
+
+      const uploadBtn = content.querySelector('#btn-direct-upload-tr') || content.querySelector('#btn-reupload-acta-tr');
+      const originalText = uploadBtn ? uploadBtn.textContent : '';
+      if (uploadBtn) {
+        uploadBtn.disabled = true;
+        uploadBtn.textContent = 'Subiendo…';
+      }
+
+      try {
+        const res = await fetch(`/api/actas/upload/${actaInfo.token}`, { method: 'POST', body: fd });
+        const resData = await res.json();
+        if (!res.ok) throw new Error(resData.error || 'Error al subir el archivo');
+
+        showToast('✅ Acta subida correctamente', 'success');
+        await refresh();
+      } catch (e) {
+        showToast(e.message, 'error');
+        if (uploadBtn) {
+          uploadBtn.disabled = false;
+          uploadBtn.textContent = originalText;
+        }
+      }
+    };
+
+    if (fileInput) {
+      fileInput.onchange = () => {
+        if (fileInput.files[0]) handleUpload(fileInput.files[0]);
+      };
+    }
+
+    content.querySelector('#btn-direct-upload-tr')?.addEventListener('click', () => fileInput?.click());
+    content.querySelector('#btn-reupload-acta-tr')?.addEventListener('click', () => fileInput?.click());
+
+    // ── Auto-polling: detecta cuando el receptor sube el acta ─────────
+    if (actaInfo.token && !actaInfo.uploaded) {
+      const pollTimer = setInterval(async () => {
+        if (!document.contains(content)) { clearInterval(pollTimer); return; }
+        try {
+          const newInfo = await fetchActaInfoTR(req.id);
+          if (newInfo.uploaded) {
+            clearInterval(pollTimer);
+            content.innerHTML = renderFirmaContent(newInfo, req);
+            wireButtons(newInfo);
+            showToast('✅ ¡Acta firmada recibida automáticamente!', 'success');
+          }
+        } catch { /* ignorar errores de red */ }
+      }, 8000);
     }
   }
 
