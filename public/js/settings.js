@@ -1,4 +1,4 @@
-import { showToast } from './components.js';
+import { showToast, copyToClipboard } from './components.js';
 import { state } from './app.js';
 import { isOfflineMode } from './data-service.js';
 
@@ -103,9 +103,13 @@ async function loadNetworkUrl() {
       const url = `http://${data.ip}:${data.port}`;
       urlEl.textContent = url;
       if (btnCopy) {
-        btnCopy.addEventListener('click', () => {
-          navigator.clipboard.writeText(url).catch(() => {});
-          showToast(`URL copiada: ${url}`, 'success');
+        btnCopy.addEventListener('click', async () => {
+          const ok = await copyToClipboard(url);
+          if (ok) {
+            showToast(`URL copiada: ${url}`, 'success');
+          } else {
+            showToast('No se pudo copiar la URL', 'error');
+          }
         });
       }
       return;
