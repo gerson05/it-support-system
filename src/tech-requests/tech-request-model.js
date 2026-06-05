@@ -152,8 +152,9 @@ export function updateTechRequest(db, id, data, agentName = 'IT') {
   const params  = [];
   const changes = [];
 
-  const allowed = ['status', 'priority', 'assigned_to', 'resolution_notes'];
-  for (const key of allowed) {
+  // Campos de gestión
+  const managementFields = ['status', 'priority', 'assigned_to', 'resolution_notes'];
+  for (const key of managementFields) {
     if (data[key] !== undefined) {
       fields.push(`${key} = ?`);
       params.push(data[key] === '' ? null : data[key]);
@@ -163,6 +164,23 @@ export function updateTechRequest(db, id, data, agentName = 'IT') {
         data[key] ? `Asignado a agente #${data[key]}` : 'Desasignado'
       );
     }
+  }
+
+  // Campos del solicitante / contenido (edición directa)
+  const contentFields = [
+    'requester_name', 'cedula', 'cargo', 'sede',
+    'description', 'equipment_name', 'equipment_serial', 'quantity',
+  ];
+  let hasContentEdit = false;
+  for (const key of contentFields) {
+    if (data[key] !== undefined) {
+      fields.push(`${key} = ?`);
+      params.push(data[key] === '' ? null : data[key]);
+      hasContentEdit = true;
+    }
+  }
+  if (hasContentEdit) {
+    changes.push(`Datos del solicitante/solicitud editados por ${agentName}`);
   }
 
   if (!fields.length) return false;
@@ -185,6 +203,35 @@ export function updateTechRequest(db, id, data, agentName = 'IT') {
   }
 
   return result.changes > 0;
+}
+
+/**
+ * Reemplaza todos los ítems de un requerimiento.
+ * Borra los existentes e inserta los nuevos en una transacción.
+ */
+export function replaceRequestItems(db, requestId, items = []) {
+  db.exec('BEGIN');
+  try {
+    db.prepare('DELETE FROM tech_request_items WHERE request_id = ?').run(requestId);
+    const stmt = db.prepare(
+      'INSERT INTO tech_request_items (request_id, equipment_name, quantity, serial) VALUES (?,?,?,?)'
+    );
+    let totalQty = 0;
+    for (const item of items) {
+      if (item.equipment_name?.trim()) {
+        const qty = parseInt(item.quantity) || 1;
+        stmt.run(requestId, item.equipment_name.trim(), qty, item.serial?.trim() || null);
+        totalQty += qty;
+      }
+    }
+    if (totalQty > 0) {
+      db.prepare('UPDATE tech_requests SET quantity = ? WHERE id = ?').run(totalQty, requestId);
+    }
+    db.exec('COMMIT');
+  } catch (err) {
+    db.exec('ROLLBACK');
+    throw err;
+  }
 }
 
 /** Agrega una nota interna al historial. */
