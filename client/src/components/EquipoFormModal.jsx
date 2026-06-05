@@ -13,11 +13,9 @@ export default function EquipoFormModal({ row, onClose, onSaved }) {
     e.preventDefault();
     setSaving(true); setErr(null);
     try {
-      const res = await fetch(`/api/inventario/equipos/${row.id}`, {
+      await fetchJson(`/api/inventario/equipos/${row.id}`, {
         method: 'PUT', headers: { 'Content-Type':'application/json' }, body: JSON.stringify(form)
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Error al guardar');
       if (onSaved) onSaved();
     } catch (err) { setErr(err.message || String(err)); } finally { setSaving(false); }
   }
