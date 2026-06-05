@@ -1,4 +1,5 @@
 import { showToast, copyToClipboard } from './components.js';
+import { iconPlus, iconUpload, iconMonitor, iconSmartphone, iconClose, iconCheck, iconCamera, iconQrCode, iconZap } from './icons.js';
 
 const toTitleCase = s => (s || '').toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
 
@@ -19,28 +20,28 @@ export function renderInventario(container) {
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
         <button id="btn-inv-enlace"
           style="display:flex;align-items:center;gap:7px;padding:10px 16px;background:var(--surface);border:1px solid var(--border-2);border-radius:10px;color:var(--text-2);font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;">
-          📲 Generar enlace
+          ${iconQrCode(14)} Generar enlace
         </button>
         <button id="btn-inv-import"
           style="display:flex;align-items:center;gap:7px;padding:10px 16px;background:var(--surface);border:1px solid var(--border-2);border-radius:10px;color:var(--text-2);font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;">
-          ⬆ Importar Excel
+          ${iconUpload(14)} Importar Excel
         </button>
         <button id="btn-inv-new"
           style="display:flex;align-items:center;gap:8px;padding:10px 22px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(99,102,241,.35);transition:all .2s;">
-          ＋ Registrar equipo
+          ${iconPlus(14)} Registrar equipo
         </button>
       </div>
     </div>
 
     <div style="display:flex;gap:0;border-bottom:2px solid var(--glass-border);margin-bottom:0;">
       <button id="tab-equipos" class="tab-btn tab-active" data-tab="equipos">
-        🖥 Equipos <span class="tab-count" id="count-equipos">…</span>
+        ${iconMonitor(13)} Equipos <span class="tab-count" id="count-equipos">…</span>
       </button>
       <button id="tab-celulares" class="tab-btn" data-tab="celulares">
-        📱 Celulares <span class="tab-count" id="count-celulares">…</span>
+        ${iconSmartphone(13)} Celulares <span class="tab-count" id="count-celulares">…</span>
       </button>
       <button id="tab-ups" class="tab-btn" data-tab="ups">
-        ⚡ UPS <span class="tab-count" id="count-ups">…</span>
+        ${iconZap(13)} UPS <span class="tab-count" id="count-ups">…</span>
       </button>
     </div>
 
@@ -558,7 +559,7 @@ async function openScanner(targetInputId) {
     <div style="background:var(--surface);border-radius:16px;padding:20px;width:min(380px,94vw);text-align:center;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
         <span style="font-weight:600;font-size:15px;">Escanear código</span>
-        <button id="btn-close-scan" style="background:transparent;border:none;font-size:20px;cursor:pointer;color:var(--text-2);">✕</button>
+        <button id="btn-close-scan" style="background:transparent;border:none;font-size:20px;cursor:pointer;color:var(--text-2);">${iconClose(18)}</button>
       </div>
       <div style="position:relative;border-radius:10px;overflow:hidden;background:#000;">
         <video id="scan-video" autoplay playsinline style="width:100%;display:block;border-radius:10px;"></video>
@@ -640,17 +641,17 @@ function openImportModal() {
     <div class="modal-overlay" style="display:flex;" id="import-overlay">
       <div class="modal-content" style="max-width:680px;max-height:90vh;overflow-y:auto;">
         <div class="modal-header">
-          <h3>⬆ Importar Excel</h3>
+          <h3>${iconUpload(15)} Importar Excel</h3>
           <button class="modal-close" id="btn-import-close">&times;</button>
         </div>
         <div class="modal-body" id="import-body">
           <div id="import-step1">
             <div style="display:flex;gap:8px;margin-bottom:16px;">
-              <button id="import-tipo-equipos" class="btn ${_activeTab==='equipos'?'btn-primary':'btn-secondary'}" style="flex:1;padding:8px;">
-                🖥 Equipos
+              <button id="import-tipo-equipos" class="btn ${_activeTab==='equipos'?'btn-primary':'btn-secondary'}" style="flex:1;padding:8px;display:flex;align-items:center;gap:6px;justify-content:center;">
+                ${iconMonitor(13)} Equipos
               </button>
-              <button id="import-tipo-celulares" class="btn ${_activeTab==='celulares'?'btn-primary':'btn-secondary'}" style="flex:1;padding:8px;">
-                📱 Celulares
+              <button id="import-tipo-celulares" class="btn ${_activeTab==='celulares'?'btn-primary':'btn-secondary'}" style="flex:1;padding:8px;display:flex;align-items:center;gap:6px;justify-content:center;">
+                ${iconSmartphone(13)} Celulares
               </button>
             </div>
             <p style="font-size:13px;color:var(--text-2);margin-bottom:16px;">
@@ -802,7 +803,7 @@ function openImportModal() {
       if (!res.ok) throw new Error(data.error);
       document.getElementById('import-step2').style.display = 'none';
       document.getElementById('import-result').innerHTML = `
-        <div style="font-size:40px;margin-bottom:8px;">✅</div>
+        <div style="font-size:40px;margin-bottom:8px;color:#22c55e;">${iconCheck(40)}</div>
         <div style="font-size:20px;font-weight:700;margin-bottom:4px;">${data.inserted} registros importados</div>
         ${data.skipped ? `<div style="font-size:13px;color:var(--text-2);">${data.skipped} duplicados omitidos</div>` : ''}
         ${data.errors?.length ? `<div style="font-size:12px;color:var(--danger);margin-top:8px;">${data.errors.length} errores:<br>${data.errors.slice(0,5).map(e=>esc(e.message)).join('<br>')}</div>` : ''}`;
@@ -866,8 +867,8 @@ async function openSmartScanner() {
   overlay.innerHTML = `
     <div style="background:var(--surface);border-radius:16px;padding:20px;width:min(420px,96vw);max-height:90vh;overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-        <span style="font-weight:700;font-size:15px;">📷 Escanear equipo</span>
-        <button id="ss-close" style="background:transparent;border:none;font-size:22px;cursor:pointer;color:var(--text-2);">✕</button>
+        <span style="font-weight:700;font-size:15px;display:flex;align-items:center;gap:7px;">${iconCamera(15)} Escanear equipo</span>
+        <button id="ss-close" style="background:transparent;border:none;cursor:pointer;color:var(--text-2);">${iconClose(20)}</button>
       </div>
       <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:12px;">
         <button id="ss-tab-codes" class="tab-btn ${hasBarcodeDetector ? 'tab-active' : ''}" style="flex:1;${!hasBarcodeDetector ? 'opacity:.4;cursor:not-allowed;' : ''}" ${!hasBarcodeDetector ? 'disabled' : ''}>
@@ -1099,10 +1100,10 @@ async function openGenerarEnlaceModal() {
               <label style="font-size:12px;font-weight:500;color:var(--text-muted);display:block;margin-bottom:6px;">Tipo de registro</label>
               <div style="display:flex;gap:10px;">
                 <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:10px 16px;flex:1;">
-                  <input type="radio" name="enlace-tipo" value="equipos" checked> 🖥 Equipos
+                  <input type="radio" name="enlace-tipo" value="equipos" checked> ${iconMonitor(13)} Equipos
                 </label>
                 <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:10px 16px;flex:1;">
-                  <input type="radio" name="enlace-tipo" value="celulares"> 📱 Celulares
+                  <input type="radio" name="enlace-tipo" value="celulares"> ${iconSmartphone(13)} Celulares
                 </label>
               </div>
             </div>
