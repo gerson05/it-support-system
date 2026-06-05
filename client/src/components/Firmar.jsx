@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import fetchJson from '../utils/fetchJson';
 
 export default function Firmar() {
   const token = window.location.pathname.split('/firmar/')[1]?.trim();
@@ -24,8 +25,7 @@ export default function Firmar() {
     if (!token) { show('invalid'); return; }
     show('loading');
     try {
-      const res = await fetch(`/api/actas/status/${token}`);
-      const data = await res.json();
+      const data = await fetchJson(`/api/actas/status/${token}`);
       if (!data.valid) { show('invalid'); return; }
       if (data.uploaded) {
         setEntityRef(data.entity_ref || '');
@@ -65,11 +65,9 @@ export default function Firmar() {
     setUploading(true);
     const fd = new FormData(); fd.append('acta', selectedFile);
     try {
-      const res = await fetch(`/api/actas/upload/${token}`, { method: 'POST', body: fd });
-      const data = await res.json();
-      if (!res.ok) { alert(data.error || 'Error al subir el archivo.'); setUploading(false); return; }
+      await fetchJson(`/api/actas/upload/${token}`, { method: 'POST', body: fd });
       show('success');
-    } catch (e) { alert('Error de conexión. Intenta de nuevo.'); setUploading(false); }
+    } catch (e) { alert(e.message || 'Error de conexión. Intenta de nuevo.'); setUploading(false); }
   }
 
   return (
