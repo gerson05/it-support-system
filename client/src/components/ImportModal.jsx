@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import fetchJson from '../utils/fetchJson';
 
 export default function ImportModal({ open, type='equipos', onClose, onImported }) {
   const [file, setFile] = useState(null);
@@ -14,9 +15,7 @@ export default function ImportModal({ open, type='equipos', onClose, onImported 
     try {
       const fd = new FormData();
       fd.append('file', file);
-      const res = await fetch(`/api/inventario/${type}/import`, { method: 'POST', body: fd });
-      const data = await res.json().catch(()=>null);
-      if (!res.ok) throw new Error(data?.error || res.statusText || 'Import error');
+      const data = await fetchJson(`/api/inventario/${type}/import`, { method: 'POST', body: fd });
       if (onImported) onImported(data);
     } catch (err) {
       setErr(err.message || String(err));

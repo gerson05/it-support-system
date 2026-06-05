@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import fetchJson from '../utils/fetchJson';
 
 export default function Login() {
   const [user, setUser] = useState('');
@@ -9,8 +10,7 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await fetch('/api/auth/login', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ user, pass }) });
-      if (!res.ok) throw new Error('Login failed');
+      await fetchJson('/api/auth/login', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ user, pass }) });
       window.location.href = '/';
     } catch (e) { alert('Credenciales inválidas'); }
     finally { setLoading(false); }
