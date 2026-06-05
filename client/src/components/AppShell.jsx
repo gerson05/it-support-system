@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import fetchJson from '../utils/fetchJson';
 import DataService from '../utils/dataService';
 import { showToast } from '../utils/ui';
+import useModalScrollLock from '../hooks/useModalScrollLock';
+import useWhatsAppMonitor from '../hooks/useWhatsAppMonitor';
 
 export default function AppShell({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
@@ -40,6 +42,13 @@ export default function AppShell({ children }) {
     return () => { mounted = false; };
   }, []);
 
+  // Modal scroll lock (legacy behavior)
+  useModalScrollLock();
+
+  // WhatsApp monitor
+  const wa = useWhatsAppMonitor(3000);
+
+
   function onAgentChange(ev) {
     const id = parseInt(ev.target.value);
     const agent = agents.find(a => a.id === id) || null;
@@ -65,12 +74,21 @@ export default function AppShell({ children }) {
         </div>
 
         <div style={{display:'flex',alignItems:'center',gap:12}}>
+          <div style={{display:'flex',alignItems:'center',gap:8,marginRight:12}}>
+            <div id="wa-status-dot" style={{width:10,height:10,borderRadius:6,background: wa.connected ? '#16a34a' : '#ef4444'}} />
+            <div id="wa-status-text" style={{fontSize:13}}>{wa.status || 'desconectado'}</div>
+            {!wa.connected && (
+              <button id="btn-wa-connect" onClick={async()=>{ const ok = await wa.connect(); showToast(ok? 'Iniciando conexión de WhatsApp':'Error al conectar WhatsApp', ok? 'info':'error'); }} style={{marginLeft:8}}>Conectar WhatsApp</button>
+            )}
+          </div>
+
           {agents.length > 0 && (
             <select id="agent-select" value={currentAgent?.id || ''} onChange={onAgentChange}>
               <option value="">-- Agente --</option>
               {agents.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
             </select>
           )}
+
           <div id="current-user-label" style={{marginRight:8}}>{currentUser?.username || ''}</div>
           <button id="btn-logout" onClick={logout}>Salir</button>
         </div>
