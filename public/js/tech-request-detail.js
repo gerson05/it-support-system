@@ -4,7 +4,7 @@
 
 import { showToast, copyToClipboard } from './components.js';
 import { state, formatDate, formatTimeAgo } from './app.js';
-import { iconDocument, iconClose, iconInfo, iconPackage, iconDownload, iconLink, iconCopy, iconUpload, iconRefresh, iconNote, iconSave, iconClipboard, iconWrench } from './icons.js';
+import { iconDocument, iconClose, iconInfo, iconPackage, iconDownload, iconLink, iconCopy, iconUpload, iconRefresh, iconNote, iconSave, iconClipboard, iconWrench, iconCheck } from './icons.js';
 
 async function fetchActaInfoTR(entityId) {
   try {
@@ -220,7 +220,7 @@ export async function renderTechRequestDetail(container, id) {
 
         ${req.resolution_notes ? `
         <div class="card" style="margin-bottom:20px;border-left:3px solid var(--success);">
-          <h4 style="font-size:14px;font-weight:700;color:var(--success);margin-bottom:8px;">✅ Notas de Resolución</h4>
+          <h4 style="font-size:14px;font-weight:700;color:var(--success);margin-bottom:8px;display:flex;align-items:center;gap:6px;">${iconCheck(14)} Notas de Resolución</h4>
           <p style="line-height:1.7;white-space:pre-wrap;">${escHtml(req.resolution_notes)}</p>
         </div>` : ''}
 

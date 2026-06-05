@@ -3,6 +3,7 @@ import {
   createEmptyState,
   createLoadingSpinner
 } from './components.js';
+import { iconRefresh } from './icons.js';
 import { state } from './app.js';
 import DataService from './data-service.js';
 
@@ -18,7 +19,7 @@ export async function renderTicketList(container) {
         <h2 style="font-size:20px;font-weight:700;letter-spacing:-.4px;margin-bottom:4px;">Tickets</h2>
         <p style="color:var(--text-3);font-size:13px;">Administra y responde los casos técnicos escalados por WhatsApp.</p>
       </div>
-      <button class="btn btn-primary" id="btn-refresh-tickets">🔄 Refrescar</button>
+      <button class="btn btn-primary" id="btn-refresh-tickets" style="display:flex;align-items:center;gap:7px;">${iconRefresh(14)} Refrescar</button>
     </div>
 
     <!-- Tabs Activos / Archivo -->
