@@ -241,6 +241,8 @@ const migrations = [
     created_at      TEXT DEFAULT (datetime('now','localtime')),
     updated_at      TEXT DEFAULT (datetime('now','localtime'))
   )`,
+
+  `INSERT OR IGNORE INTO role_permissions (role_id, permission_id) VALUES (1,16)`,
 ];
 for (const sql of migrations) {
   try { db.exec(sql); } catch { /* columna ya existe */ }
