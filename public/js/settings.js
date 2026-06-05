@@ -1,4 +1,5 @@
 import { showToast, copyToClipboard } from './components.js';
+import { iconAlert } from './icons.js';
 import { state } from './app.js';
 import { isOfflineMode } from './data-service.js';
 
@@ -88,7 +89,7 @@ async function loadAgentsForm() {
     `).join('');
 
   } catch {
-    form.innerHTML = `<p style="color:var(--text-muted);font-size:13px;">⚠️ Solo disponible con el servidor activo (npm start).</p>`;
+    form.innerHTML = `<p style="color:var(--text-muted);font-size:13px;display:flex;align-items:center;gap:6px;">${iconAlert(14)} Solo disponible con el servidor activo (npm start).</p>`;
   }
 }
 
