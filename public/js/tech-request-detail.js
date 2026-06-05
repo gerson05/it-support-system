@@ -4,6 +4,7 @@
 
 import { showToast, copyToClipboard } from './components.js';
 import { state, formatDate, formatTimeAgo } from './app.js';
+import { iconDocument, iconClose, iconInfo, iconPackage, iconDownload, iconLink, iconCopy, iconUpload, iconRefresh, iconNote, iconSave, iconClipboard, iconWrench } from './icons.js';
 
 async function fetchActaInfoTR(entityId) {
   try {
@@ -38,7 +39,7 @@ function pb(p) {
 }
 
 export async function renderTechRequestDetail(container, id) {
-  container.innerHTML = `<div style="text-align:center;padding:60px;color:var(--text-muted);">⏳ Cargando solicitud…</div>`;
+  container.innerHTML = `<div style="text-align:center;padding:60px;color:var(--text-muted);">Cargando solicitud…</div>`;
 
   let req;
   try {
@@ -46,12 +47,12 @@ export async function renderTechRequestDetail(container, id) {
     if (!res.ok) throw new Error('No encontrado');
     req = await res.json();
   } catch {
-    container.innerHTML = `<div style="text-align:center;padding:60px;color:#ef4444;">❌ No se pudo cargar la solicitud.</div>`;
+    container.innerHTML = `<div style="text-align:center;padding:60px;color:#ef4444;">No se pudo cargar la solicitud.</div>`;
     return;
   }
 
   const isInc  = req.type === 'incidencia';
-  const typeLabel = isInc ? '🔧 Incidencia' : '📋 Requerimiento';
+  const typeLabel = isInc ? `${iconWrench(13)} Incidencia` : `${iconClipboard(13)} Requerimiento`;
 
   /* ── Cargar agentes ── */
   let agents = [];
@@ -79,7 +80,7 @@ export async function renderTechRequestDetail(container, id) {
             style="display:flex;align-items:center;gap:7px;padding:9px 18px;background:linear-gradient(135deg,#10b981,#059669);border:none;border-radius:9px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(16,185,129,.3);transition:all .2s;"
             onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 20px rgba(16,185,129,.4)'"
             onmouseout="this.style.transform='';this.style.boxShadow='0 4px 14px rgba(16,185,129,.3)'">
-            📄 Generar Acta
+            ${iconDocument(13)} Generar Acta
           </button>
       </div>
     </div>
@@ -92,18 +93,18 @@ export async function renderTechRequestDetail(container, id) {
         <div style="background:linear-gradient(135deg,rgba(16,185,129,.15),rgba(5,150,105,.08));padding:22px 28px 18px;border-radius:18px 18px 0 0;border-bottom:1px solid rgba(16,185,129,.15);flex-shrink:0;">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;">
             <div style="display:flex;align-items:center;gap:12px;">
-              <div style="width:40px;height:40px;background:linear-gradient(135deg,#10b981,#059669);border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 4px 12px rgba(16,185,129,.35);">📄</div>
+              <div style="width:40px;height:40px;background:linear-gradient(135deg,#10b981,#059669);border-radius:11px;display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 4px 12px rgba(16,185,129,.35);">${iconDocument(20)}</div>
               <div>
                 <h3 style="font-size:17px;font-weight:700;color:#e2e8f0;margin-bottom:2px;">Acta de Entrega</h3>
                 <p style="font-size:12px;color:#6ee7b7;opacity:.8;">${escHtml(req.requester_name)} · ${req.request_number}</p>
               </div>
             </div>
-            <button id="acta-modal-close" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);width:32px;height:32px;border-radius:8px;font-size:15px;cursor:pointer;color:#94a3b8;display:flex;align-items:center;justify-content:center;transition:all .2s;" onmouseover="this.style.background='rgba(255,255,255,.13)'" onmouseout="this.style.background='rgba(255,255,255,.07)'">✕</button>
+            <button id="acta-modal-close" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);width:32px;height:32px;border-radius:8px;cursor:pointer;color:#94a3b8;display:flex;align-items:center;justify-content:center;transition:all .2s;" onmouseover="this.style.background='rgba(255,255,255,.13)'" onmouseout="this.style.background='rgba(255,255,255,.07)'">${iconClose(14)}</button>
           </div>
 
           <!-- Info pill -->
           <div style="display:flex;align-items:center;gap:8px;margin-top:14px;padding:8px 12px;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.15);border-radius:8px;">
-            <span style="font-size:13px;">ℹ️</span>
+            <span style="color:#6ee7b7;">${iconInfo(14)}</span>
             <span style="font-size:12px;color:#6ee7b7;">Verifica marca, modelo y serial de cada equipo antes de generar. El documento incluirá todos los ítems en una sola acta.</span>
           </div>
         </div>
@@ -114,7 +115,7 @@ export async function renderTechRequestDetail(container, id) {
           <!-- Tabla de equipos -->
           <div style="margin-bottom:20px;">
             <div style="font-size:11px;font-weight:700;color:#10b981;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;display:flex;align-items:center;gap:8px;">
-              📦 Equipos a entregar
+              ${iconPackage(13)} Equipos a entregar
               <span style="flex:1;height:1px;background:linear-gradient(90deg,rgba(16,185,129,.3),transparent);display:inline-block;"></span>
             </div>
             <div style="overflow-x:auto;border-radius:10px;border:1px solid rgba(255,255,255,.07);">
@@ -137,7 +138,7 @@ export async function renderTechRequestDetail(container, id) {
 
           <!-- Campos comunes -->
           <div style="font-size:11px;font-weight:700;color:#10b981;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;display:flex;align-items:center;gap:8px;">
-            📎 Información adicional
+            ${iconNote(13)} Información adicional
             <span style="flex:1;height:1px;background:linear-gradient(90deg,rgba(16,185,129,.3),transparent);display:inline-block;"></span>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
@@ -167,7 +168,7 @@ export async function renderTechRequestDetail(container, id) {
             style="display:flex;align-items:center;gap:8px;padding:10px 22px;background:linear-gradient(135deg,#10b981,#059669);border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(16,185,129,.35);transition:all .2s;"
             onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 20px rgba(16,185,129,.45)'"
             onmouseout="this.style.transform='';this.style.boxShadow='0 4px 14px rgba(16,185,129,.35)'">
-            ⬇️ Generar Acta (.docx)
+            ${iconDownload(13)} Generar Acta (.docx)
           </button>
         </div>
 
@@ -177,15 +178,15 @@ export async function renderTechRequestDetail(container, id) {
     <!-- Sección link de firma -->
     ${!isInc ? `
     <div id="firma-section" style="background:var(--surface-2,#141422);border:1px solid var(--border,rgba(255,255,255,.07));border-radius:12px;padding:16px 20px;margin-bottom:20px;">
-      <div style="font-size:11px;font-weight:700;color:#10b981;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;">
-        📋 Acta Firmada
+      <div style="font-size:11px;font-weight:700;color:#10b981;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;display:flex;align-items:center;gap:6px;">
+        ${iconClipboard(12)} Acta Firmada
       </div>
       <div id="firma-content">
         <div style="font-size:13px;color:#64748b;margin-bottom:10px;">
           Genera el acta, compártela con el receptor y solicita que la suba firmada.
         </div>
-        <button id="btn-get-firma-link" style="padding:8px 16px;background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.3);border-radius:8px;color:#818cf8;font-size:13px;font-weight:500;cursor:pointer;">
-          🔗 Obtener link de firma
+        <button id="btn-get-firma-link" style="padding:8px 16px;background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.3);border-radius:8px;color:#818cf8;font-size:13px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
+          ${iconLink(13)} Obtener link de firma
         </button>
       </div>
     </div>` : ''}
@@ -225,7 +226,7 @@ export async function renderTechRequestDetail(container, id) {
 
         <!-- Historial -->
         <div class="card">
-          <h4 style="font-size:14px;font-weight:700;color:var(--text-muted);margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em;">📋 Historial de Actividad</h4>
+          <h4 style="font-size:14px;font-weight:700;color:var(--text-muted);margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em;display:flex;align-items:center;gap:6px;">${iconClipboard(13)} Historial de Actividad</h4>
           <div id="tr-history">
             ${renderHistory(req.history)}
           </div>
@@ -234,7 +235,7 @@ export async function renderTechRequestDetail(container, id) {
           <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--glass-border);">
             <textarea id="tr-note-input" rows="2" placeholder="Agregar nota interna…"
               style="width:100%;resize:vertical;margin-bottom:10px;"></textarea>
-            <button class="btn btn-secondary" id="tr-btn-add-note">📝 Agregar Nota</button>
+            <button class="btn btn-secondary" id="tr-btn-add-note" style="display:inline-flex;align-items:center;gap:6px;">${iconNote(13)} Agregar Nota</button>
           </div>
         </div>
 
@@ -280,7 +281,7 @@ export async function renderTechRequestDetail(container, id) {
               placeholder="Indica cómo se resolvió o el motivo del rechazo…">${req.resolution_notes || ''}</textarea>
           </div>
 
-          <button class="btn btn-primary" id="tr-btn-save" style="width:100%;">💾 Guardar Cambios</button>
+          <button class="btn btn-primary" id="tr-btn-save" style="width:100%;display:inline-flex;align-items:center;justify-content:center;gap:7px;">${iconSave(14)} Guardar Cambios</button>
         </div>
 
         <!-- Resumen -->
@@ -326,7 +327,7 @@ export async function renderTechRequestDetail(container, id) {
       renderTechRequestDetail(container, id); // recargar
     } catch (err) {
       showToast(err.message, 'error');
-      btn.textContent = '💾 Guardar Cambios';
+      btn.innerHTML = `${iconSave(14)} Guardar Cambios`;
       btn.disabled    = false;
     }
   });
@@ -478,7 +479,7 @@ export async function renderTechRequestDetail(container, id) {
       } catch (err) {
         showToast(err.message, 'error');
       } finally {
-        btn.textContent = '⬇️ Descargar Acta (.docx)';
+        btn.innerHTML = `${iconDownload(13)} Descargar Acta (.docx)`;
         btn.disabled = false;
       }
     });
@@ -519,8 +520,8 @@ function renderHistory(history = []) {
   if (!history.length) return `<p style="color:var(--text-muted);font-size:13px;">Sin actividad registrada.</p>`;
   return history.map(h => `
     <div style="display:flex;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05);">
-      <div style="width:32px;height:32px;border-radius:50%;background:var(--glass-border);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;">
-        ${h.action.startsWith('📝') ? '📝' : h.action.includes('creada') ? '🆕' : '⚙️'}
+      <div style="width:32px;height:32px;border-radius:50%;background:var(--glass-border);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--text-muted);">
+        ${h.action.startsWith('📝') || h.action.toLowerCase().includes('nota') ? iconNote(14) : h.action.includes('creada') ? iconNote(14) : iconSettings(14)}
       </div>
       <div>
         <p style="font-size:13px;margin-bottom:2px;">${escHtml(h.action)}</p>
@@ -561,32 +562,32 @@ function renderFirmaContent(actaInfo, req) {
           <div style="font-size:12px;color:#94a3b8;">${actaInfo.uploaded_at ? new Date(actaInfo.uploaded_at).toLocaleString('es-CO') : ''}</div>
         </div>
         <div style="display:flex;gap:6px;align-items:center;">
-          <a href="/api/actas/download/${actaInfo.token}" style="padding:6px 12px;background:#059669;color:#fff;border-radius:6px;font-size:12px;font-weight:500;text-decoration:none;">📥 Descargar</a>
-          <button id="btn-reupload-acta-tr" class="btn btn-secondary btn-small" style="font-size:12px;padding:6px 12px;display:inline-flex;align-items:center;gap:4px;">🔄 Reemplazar</button>
+          <a href="/api/actas/download/${actaInfo.token}" style="padding:6px 12px;background:#059669;color:#fff;border-radius:6px;font-size:12px;font-weight:500;text-decoration:none;display:inline-flex;align-items:center;gap:5px;">${iconDownload(12)} Descargar</a>
+          <button id="btn-reupload-acta-tr" class="btn btn-secondary btn-small" style="font-size:12px;padding:6px 12px;display:inline-flex;align-items:center;gap:4px;">${iconRefresh(12)} Reemplazar</button>
         </div>
       </div>
       <input type="file" id="acta-upload-file-tr" accept=".pdf,.docx" style="display:none;">`;
   }
   if (actaInfo.token && !actaInfo.uploaded) {
     return `
-      <div style="font-size:12px;font-weight:500;color:#94a3b8;margin-bottom:8px;">🔗 Link activo — pendiente de subida por el receptor</div>
+      <div style="font-size:12px;font-weight:500;color:#94a3b8;margin-bottom:8px;display:flex;align-items:center;gap:5px;">${iconLink(12)} Link activo — pendiente de subida por el receptor</div>
       <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px;">
         <input type="text" readonly value="${actaInfo.url || ''}"
           style="flex:1;padding:6px 9px;border:1px solid rgba(255,255,255,.1);border-radius:5px;background:#0f172a;color:#e2e8f0;font-size:11px;font-family:monospace;">
-        <button id="btn-copy-link-tr" style="padding:6px 10px;border:1px solid rgba(255,255,255,.1);border-radius:5px;background:#1e293b;color:#94a3b8;font-size:11px;cursor:pointer;white-space:nowrap;">📋 Copiar</button>
+        <button id="btn-copy-link-tr" style="padding:6px 10px;border:1px solid rgba(255,255,255,.1);border-radius:5px;background:#1e293b;color:#94a3b8;font-size:11px;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:4px;">${iconCopy(11)} Copiar</button>
       </div>
       <div style="display:flex;align-items:center;gap:15px;flex-wrap:wrap;margin-bottom:8px;">
         <img src="/api/actas/qr/${actaInfo.token}" alt="QR" style="width:100px;height:100px;border-radius:6px;background:#fff;padding:4px;display:block;">
         <div style="display:flex;flex-direction:column;gap:8px;">
-          <button id="btn-direct-upload-tr" class="btn btn-secondary btn-small" style="gap:5px;display:inline-flex;align-items:center;font-size:12px;padding:6px 12px;">📤 Subir Acta Firmada</button>
-          <button id="btn-regen-link-tr" style="font-size:11px;color:#64748b;background:none;border:none;cursor:pointer;text-decoration:underline;text-align:left;">🔄 Regenerar link</button>
+          <button id="btn-direct-upload-tr" class="btn btn-secondary btn-small" style="gap:5px;display:inline-flex;align-items:center;font-size:12px;padding:6px 12px;">${iconUpload(12)} Subir Acta Firmada</button>
+          <button id="btn-regen-link-tr" style="font-size:11px;color:#64748b;background:none;border:none;cursor:pointer;text-decoration:underline;text-align:left;display:inline-flex;align-items:center;gap:4px;">${iconRefresh(11)} Regenerar link</button>
         </div>
       </div>
       <input type="file" id="acta-upload-file-tr" accept=".pdf,.docx" style="display:none;">`;
   }
   return `
     <div style="font-size:13px;color:#64748b;margin-bottom:10px;">Genera el acta, compártela con el receptor y solicita que la suba firmada.</div>
-    <button id="btn-get-firma-link" style="padding:8px 16px;background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.3);border-radius:8px;color:#818cf8;font-size:13px;font-weight:500;cursor:pointer;">🔗 Obtener link de firma</button>`;
+    <button id="btn-get-firma-link" style="padding:8px 16px;background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.3);border-radius:8px;color:#818cf8;font-size:13px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">${iconLink(13)} Obtener link de firma</button>`;
 }
 
 async function setupFirmaSection(container, req) {
@@ -614,7 +615,7 @@ async function setupFirmaSection(container, req) {
           if (!res.ok) throw new Error((await res.json()).error);
           await refresh();
           showToast('Link generado. Compártelo con el receptor.', 'success');
-        } catch (e) { showToast(e.message, 'error'); btnGet.disabled = false; btnGet.textContent = '🔗 Obtener link de firma'; }
+        } catch (e) { showToast(e.message, 'error'); btnGet.disabled = false; btnGet.innerHTML = `${iconLink(13)} Obtener link de firma`; }
       };
     }
 
@@ -644,7 +645,7 @@ async function setupFirmaSection(container, req) {
           if (!res.ok) throw new Error((await res.json()).error);
           await refresh();
           showToast('Link regenerado', 'success');
-        } catch (e) { showToast(e.message, 'error'); btnRegen.textContent = '🔄 Regenerar link'; }
+        } catch (e) { showToast(e.message, 'error'); btnRegen.innerHTML = `${iconRefresh(11)} Regenerar link`; }
       };
     }
 

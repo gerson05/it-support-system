@@ -1,5 +1,6 @@
 import { state, AREA_MAPPINGS, formatDate } from './app.js';
 import { showToast, createLoadingSpinner, createEmptyState, attachSedeSearch, copyToClipboard } from './components.js';
+import { iconEdit, iconDocument, iconClose, iconLink, iconUpload, iconRefresh, iconDownload, iconCopy, iconSave, iconNote } from './icons.js';
 
 function _timeAgo(dateStr) {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -247,8 +248,8 @@ function openDetailModal(id) {
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
           Imprimir
         </button>
-        <button id="btn-acta-word" class="btn btn-secondary" style="gap:6px;display:inline-flex;align-items:center;">📄 Acta Word</button>
-        <button id="btn-edit-despacho" class="btn btn-secondary" style="gap:6px;display:inline-flex;align-items:center;">✏️ Editar</button>
+        <button id="btn-acta-word" class="btn btn-secondary" style="gap:6px;display:inline-flex;align-items:center;">${iconDocument(13)} Acta Word</button>
+        <button id="btn-edit-despacho" class="btn btn-secondary" style="gap:6px;display:inline-flex;align-items:center;">${iconEdit(13)} Editar</button>
         <button id="btn-close-modal" class="btn btn-secondary">Cerrar</button>
       </div>`;
 
@@ -260,7 +261,7 @@ function openDetailModal(id) {
     };
     body.querySelector('#btn-acta-word').onclick = async () => {
       const btn = body.querySelector('#btn-acta-word');
-      btn.textContent = '⏳ Generando…'; btn.disabled = true;
+      btn.textContent = 'Generando…'; btn.disabled = true;
       try {
         const res = await fetch(`/api/despachos/${d.id}/acta-word`, { method: 'POST' });
         if (!res.ok) throw new Error((await res.json()).error || 'Error');
@@ -271,7 +272,7 @@ function openDetailModal(id) {
         document.body.appendChild(a); a.click(); document.body.removeChild(a);
         showToast('✅ Acta descargada', 'success');
       } catch(e) { showToast(e.message, 'error'); }
-      finally { btn.textContent = '📄 Acta Word'; btn.disabled = false; }
+      finally { btn.innerHTML = `${iconDocument(13)} Acta Word`; btn.disabled = false; }
     };
 
     // Acta interaction
@@ -297,25 +298,25 @@ function renderActaSection(d, actaInfo = { token: null }) {
           <div style="font-size:12px;color:#047857;">${actaInfo.uploaded_at ? new Date(actaInfo.uploaded_at).toLocaleString('es-CO') : ''}</div>
         </div>
         <div style="display:flex;gap:6px;align-items:center;">
-          <a id="btn-download-acta" href="/api/actas/download/${actaInfo.token}" style="padding:6px 12px;background:#059669;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;text-decoration:none;">📥 Descargar</a>
-          <button id="btn-reupload-acta" class="btn btn-secondary btn-small" style="font-size:12px;padding:6px 12px;display:inline-flex;align-items:center;gap:4px;">🔄 Reemplazar</button>
+          <a id="btn-download-acta" href="/api/actas/download/${actaInfo.token}" style="padding:6px 12px;background:#059669;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:5px;">${iconDownload(12)} Descargar</a>
+          <button id="btn-reupload-acta" class="btn btn-secondary btn-small" style="font-size:12px;padding:6px 12px;display:inline-flex;align-items:center;gap:4px;">${iconRefresh(12)} Reemplazar</button>
         </div>
       </div>
       <input type="file" id="acta-direct-upload-file" accept=".pdf,.docx" style="display:none;">`;
   } else if (actaInfo.token && !actaInfo.uploaded) {
     firmaSection = `
       <div style="padding:10px 14px;background:var(--surface-3);border-radius:8px;border:1px solid var(--border);margin-bottom:10px;">
-        <div style="font-size:12px;font-weight:500;color:var(--text-2);margin-bottom:8px;">🔗 Link de firma activo — pendiente de subida</div>
+        <div style="font-size:12px;font-weight:500;color:var(--text-2);margin-bottom:8px;display:flex;align-items:center;gap:5px;">${iconLink(12)} Link de firma activo — pendiente de subida</div>
         <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px;">
           <input id="link-firma-input" type="text" readonly value="${actaInfo.url || ''}"
             style="flex:1;padding:6px 9px;border:1px solid var(--border);border-radius:5px;background:var(--surface);color:var(--text);font-size:11px;font-family:monospace;">
-          <button id="btn-copy-link" style="padding:6px 10px;border:1px solid var(--border);border-radius:5px;background:var(--surface-2);color:var(--text-2);font-size:11px;cursor:pointer;white-space:nowrap;">📋 Copiar</button>
+          <button id="btn-copy-link" style="padding:6px 10px;border:1px solid var(--border);border-radius:5px;background:var(--surface-2);color:var(--text-2);font-size:11px;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:4px;">${iconCopy(11)} Copiar</button>
         </div>
         <div style="display:flex;align-items:center;gap:15px;flex-wrap:wrap;margin-bottom:8px;">
           <img src="/api/actas/qr/${actaInfo.token}" alt="QR" style="width:100px;height:100px;border-radius:6px;background:#fff;padding:4px;display:block;">
           <div style="display:flex;flex-direction:column;gap:8px;">
-            <button id="btn-direct-upload" class="btn btn-secondary btn-small" style="gap:5px;display:inline-flex;align-items:center;font-size:12px;padding:6px 12px;">📤 Subir Acta Firmada</button>
-            <button id="btn-regen-link" style="font-size:11px;color:var(--text-3);background:none;border:none;cursor:pointer;text-decoration:underline;text-align:left;">🔄 Regenerar link</button>
+            <button id="btn-direct-upload" class="btn btn-secondary btn-small" style="gap:5px;display:inline-flex;align-items:center;font-size:12px;padding:6px 12px;">${iconUpload(12)} Subir Acta Firmada</button>
+            <button id="btn-regen-link" style="font-size:11px;color:var(--text-3);background:none;border:none;cursor:pointer;text-decoration:underline;text-align:left;display:inline-flex;align-items:center;gap:4px;">${iconRefresh(11)} Regenerar link</button>
           </div>
         </div>
       </div>
@@ -323,7 +324,7 @@ function renderActaSection(d, actaInfo = { token: null }) {
   } else {
     firmaSection = `
       <div style="margin-bottom:10px;">
-        <button id="btn-get-link" class="btn btn-secondary" style="font-size:12px;padding:7px 14px;">🔗 Obtener link de firma</button>
+        <button id="btn-get-link" class="btn btn-secondary" style="font-size:12px;padding:7px 14px;display:inline-flex;align-items:center;gap:5px;">${iconLink(12)} Obtener link de firma</button>
       </div>`;
   }
 
@@ -391,7 +392,7 @@ function setupActaInteraction(body, d, actaInfo = { token: null }, overlay) {
       } catch (e) {
         showToast(e.message, 'error');
         btnGetLink.disabled = false;
-        btnGetLink.textContent = '🔗 Obtener link de firma';
+        btnGetLink.innerHTML = `${iconLink(12)} Obtener link de firma`;
       }
     };
   }
