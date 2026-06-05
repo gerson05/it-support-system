@@ -95,7 +95,15 @@ export async function logDespachoSheet(data) {
     const arts = Array.isArray(articulos) ? articulos : JSON.parse(articulos || '[]');
     articulosStr = arts
       .filter(a => a.nombre)
-      .map(a => `${a.nombre} (×${a.cantidad || 1}${a.descripcion ? `, ${a.descripcion}` : ''})`)
+      .map(a => {
+        const extra = [];
+        if (a.marca) extra.push(`Marca: ${a.marca}`);
+        if (a.modelo) extra.push(`Mod: ${a.modelo}`);
+        if (a.serial) extra.push(`S/N: ${a.serial}`);
+        if (a.descripcion) extra.push(a.descripcion);
+        const extraStr = extra.length > 0 ? `, ${extra.join(', ')}` : '';
+        return `${a.nombre} (×${a.cantidad || 1}${extraStr})`;
+      })
       .join(' · ');
   } catch {
     articulosStr = String(articulos || '');
