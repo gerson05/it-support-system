@@ -1,4 +1,5 @@
 import { showToast } from './components.js';
+import { iconLock, iconChevronDown, iconChevronUp } from './icons.js';
 
 let _modules = [];
 let _roles   = [];
@@ -70,7 +71,7 @@ function _cardHtml(role) {
             <span style="font-size:12px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:.4px;">
               ${escHtml(role.name)}
             </span>
-            ${isIT ? `<span style="font-size:10px;background:var(--surface-3);border:1px solid var(--border);color:var(--text-3);border-radius:4px;padding:1px 7px;">🔒 bloqueado</span>` : ''}
+            ${isIT ? `<span style="font-size:10px;background:var(--surface-3);border:1px solid var(--border);color:var(--text-3);border-radius:4px;padding:1px 7px;display:inline-flex;align-items:center;gap:4px;">${iconLock(10)} bloqueado</span>` : ''}
           </div>
           <div style="font-size:12px;color:var(--text-3);margin-top:2px;">${escHtml(role.description || '')}</div>
         </div>
@@ -78,7 +79,7 @@ function _cardHtml(role) {
           <span style="font-size:11px;color:var(--text-3);background:var(--surface-3);border:1px solid var(--border);border-radius:4px;padding:2px 8px;">
             ${escHtml(String(role.user_count))} usuario${role.user_count !== 1 ? 's' : ''}
           </span>
-          ${isIT ? '' : `<span style="font-size:11px;color:var(--text-3);" id="chevron-${role.id}">▼</span>`}
+          ${isIT ? '' : `<span style="color:var(--text-3);" id="chevron-${role.id}">${iconChevronDown(14)}</span>`}
         </div>
       </div>
       <div id="role-body-${role.id}" style="display:none;"></div>
@@ -111,7 +112,7 @@ async function _toggleCard(roleId) {
 
   _expandedId = roleId;
   const chevron = document.getElementById(`chevron-${roleId}`);
-  if (chevron) chevron.textContent = '▲';
+  if (chevron) chevron.innerHTML = iconChevronUp(14);
 
   const body = document.getElementById(`role-body-${roleId}`);
   body.style.display = 'block';
@@ -130,7 +131,7 @@ async function _toggleCard(roleId) {
       if (body) body.innerHTML = `<p style="color:var(--danger);padding:12px;">Error cargando permisos.</p>`;
       _expandedId = null;
       const chevron = document.getElementById(`chevron-${roleId}`);
-      if (chevron) chevron.textContent = '▼';
+      if (chevron) chevron.innerHTML = iconChevronDown(14);
       const card = document.getElementById(`role-card-${roleId}`);
       if (card) card.style.borderColor = 'var(--border)';
       _isLoading = false;

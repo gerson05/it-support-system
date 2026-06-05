@@ -7,6 +7,7 @@ import {
   state
 } from './app.js';
 import { showToast, createLoadingSpinner } from './components.js';
+import { iconChevronLeft, iconAlert, iconSend } from './icons.js';
 import DataService from './data-service.js';
 import { openFaqFromTicket } from './faqs.js';
 
@@ -39,7 +40,7 @@ export async function renderTicketDetail(container, ticketId) {
         <!-- Botón Volver -->
         <div style="margin-bottom: 25px;">
           <a href="#tickets" style="text-decoration: none; color: var(--primary); font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
-            🡨 Volver al Listado
+            ${iconChevronLeft(15)} Volver al Listado
           </a>
         </div>
 
@@ -76,12 +77,12 @@ export async function renderTicketDetail(container, ticketId) {
             
             <!-- Responder texto -->
             <div id="wa-status-banner" style="display:none;font-size:11px;padding:6px 10px;border-radius:6px;margin-bottom:8px;background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.35);color:#fbbf24;">
-              ⚠️ WhatsApp no está conectado — los mensajes se guardarán pero <strong>no llegarán al empleado</strong>.
+              ${iconAlert(13)} WhatsApp no está conectado — los mensajes se guardarán pero <strong>no llegarán al empleado</strong>.
             </div>
             <form id="reply-form" class="reply-form">
               <textarea id="reply-input" placeholder="Escribe tu respuesta para el empleado (se enviará a su WhatsApp)..." required autocomplete="off"></textarea>
               <div style="display:flex;flex-direction:column;gap:6px;">
-                <button type="submit" class="btn btn-primary" style="height:42px;">Enviar ➔</button>
+                <button type="submit" class="btn btn-primary" style="height:42px;display:flex;align-items:center;gap:7px;justify-content:center;">Enviar ${iconSend(14)}</button>
                 <label class="btn btn-secondary" style="height:42px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;" title="Enviar imagen por WhatsApp">
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                   Enviar imagen

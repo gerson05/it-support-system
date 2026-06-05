@@ -1,10 +1,11 @@
 import { createLoadingSpinner } from './components.js';
+import { iconTag, iconEdit, iconMessage, iconImage, iconClipboard, iconDocument } from './icons.js';
 
 const ACTION_ICONS = {
-  'Ticket creado':     '🎟️',
-  'Ticket actualizado':'✏️',
-  'Mensaje enviado':   '💬',
-  'Imagen enviada':    '🖼️',
+  'Ticket creado':      iconTag(13),
+  'Ticket actualizado': iconEdit(13),
+  'Mensaje enviado':    iconMessage(13),
+  'Imagen enviada':     iconImage(13),
 };
 
 export async function renderAudit(container) {
@@ -101,7 +102,7 @@ export async function renderAudit(container) {
           </thead>
           <tbody>
             ${logs.map(log => {
-              const icon = ACTION_ICONS[log.action] || '📋';
+              const icon = ACTION_ICONS[log.action] || iconClipboard(13);
               let detail = '';
               try {
                 const d = JSON.parse(log.details || 'null');
@@ -147,7 +148,7 @@ export async function renderAudit(container) {
       const { actas, total } = await res.json();
 
       if (!actas.length) {
-        wrap.innerHTML = `<div style="padding:40px;text-align:center;color:var(--text-3);">📋 Sin actas para los filtros aplicados.</div>`;
+        wrap.innerHTML = `<div style="padding:40px;text-align:center;color:var(--text-3);display:flex;align-items:center;justify-content:center;gap:8px;">${iconDocument(16)} Sin actas para los filtros aplicados.</div>`;
         return;
       }
 

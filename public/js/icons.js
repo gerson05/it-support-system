@@ -215,3 +215,33 @@ export function iconWrench(size = 16) {
 export function iconSparkle(size = 16) {
   return `${SVG_OPEN(size)}<path d="M12 2L9.5 9.5 2 12l7.5 2.5L12 22l2.5-7.5L22 12l-7.5-2.5L12 2z"/>${SVG_CLOSE}`;
 }
+
+/** Chevron up */
+export function iconChevronUp(size = 16) {
+  return `${SVG_OPEN(size)}<polyline points="18 15 12 9 6 15"/>${SVG_CLOSE}`;
+}
+
+/** Chevron left / back (🡨) */
+export function iconChevronLeft(size = 16) {
+  return `${SVG_OPEN(size)}<polyline points="15 18 9 12 15 6"/>${SVG_CLOSE}`;
+}
+
+/** Map pin / location (📍) */
+export function iconMapPin(size = 16) {
+  return `${SVG_OPEN(size)}<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>${SVG_CLOSE}`;
+}
+
+/** Message / chat (💬) */
+export function iconMessage(size = 16) {
+  return `${SVG_OPEN(size)}<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>${SVG_CLOSE}`;
+}
+
+/** Image / photo (🖼️) */
+export function iconImage(size = 16) {
+  return `${SVG_OPEN(size)}<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>${SVG_CLOSE}`;
+}
+
+/** Ticket / tag (🎟️) */
+export function iconTag(size = 16) {
+  return `${SVG_OPEN(size)}<path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>${SVG_CLOSE}`;
+}

@@ -2,6 +2,7 @@
  * Gestión de Red de Puntos desde el panel de administración.
  */
 import { showToast } from './components.js';
+import { iconMapPin } from './icons.js';
 
 export async function renderSedesAdmin(container) {
   container.innerHTML = `
@@ -111,7 +112,7 @@ export async function renderSedesAdmin(container) {
       html += `
         <div class="card" style="margin-bottom:12px;padding:0;overflow:hidden;">
           <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 18px;background:rgba(99,102,241,.08);border-bottom:1px solid rgba(255,255,255,.06);">
-            <span style="font-weight:700;font-size:14px;">📍 ${ciudad}</span>
+            <span style="font-weight:700;font-size:14px;display:flex;align-items:center;gap:6px;">${iconMapPin(14)} ${ciudad}</span>
             <span style="font-size:12px;color:var(--text-muted);">${puntos.length} punto${puntos.length !== 1 ? 's' : ''}</span>
           </div>
           <div>

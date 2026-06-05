@@ -179,7 +179,7 @@ function openDetailModal(id) {
     <div style="background:var(--surface);border-radius:12px;padding:28px;width:100%;max-width:620px;margin:auto 0;box-shadow:0 20px 60px rgba(0,0,0,.4);position:relative;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
         <h2 style="margin:0;font-size:17px;font-weight:700;color:var(--text);">Detalle de Despacho</h2>
-        <button id="modal-close" style="background:none;border:none;cursor:pointer;color:var(--text-3);font-size:20px;line-height:1;">✕</button>
+        <button id="modal-close" style="background:none;border:none;cursor:pointer;color:var(--text-3);">${iconClose(18)}</button>
       </div>
       <div id="modal-body">${createLoadingSpinner()}</div>
     </div>`;
