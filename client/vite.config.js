@@ -3,4 +3,12 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
+  server: {
+    proxy: {
+      '/api':       'http://localhost:3000',
+      '/firmar':    'http://localhost:3000',
+      '/registrar': 'http://localhost:3000',
+      '/webhook':   'http://localhost:3000',
+    },
+  },
 });
