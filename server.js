@@ -1,6 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import path from 'path';
+import fs from 'fs';
 import os from 'os';
 import { spawn } from 'child_process';
 import { fileURLToPath } from 'url';
@@ -38,6 +39,12 @@ app.use(express.json({ limit: '15mb' }));
 app.use(express.urlencoded({ extended: true, limit: '15mb' }));
 
 // Servir el panel web de IT (Frontend)
+// Priorizar `client/dist` si existe (build de React/Vite), luego `public/` como fallback.
+const clientDist = path.join(__dirname, 'client', 'dist');
+if (fs.existsSync(clientDist)) {
+  app.use(express.static(clientDist));
+  console.log('[Server] Serviendo client/dist (build React)');
+}
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Registrar routers del sistema
@@ -219,7 +226,11 @@ app.get('*', (req, res) => {
   if (req.path.startsWith('/api/')) {
     return res.status(404).json({ error: 'Endpoint no encontrado.' });
   }
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  // SPA fallback: servir index.html desde client/dist si existe, sino desde public
+  const spaIndexFrom = fs.existsSync(clientDist)
+    ? path.join(clientDist, 'index.html')
+    : path.join(__dirname, 'public', 'index.html');
+  res.sendFile(spaIndexFrom);
 });
 
 // Manejo global de errores no capturados
