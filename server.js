@@ -65,12 +65,18 @@ app.use(userRouter);
 
 // Página pública de subida de acta firmada
 app.get('/firmar/:token', (_req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'firmar.html'));
+  const f = fs.existsSync(clientDist)
+    ? path.join(clientDist, 'index.html')
+    : path.join(__dirname, 'public', 'firmar.html');
+  res.sendFile(f);
 });
 
 // Página móvil pública de registro de inventario
 app.get('/registrar/:token', (_req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'registrar-equipo.html'));
+  const f = fs.existsSync(clientDist)
+    ? path.join(clientDist, 'index.html')
+    : path.join(__dirname, 'public', 'registrar-equipo.html');
+  res.sendFile(f);
 });
 
 // Al arrancar, resetear todas las conversaciones al estado inicial para
