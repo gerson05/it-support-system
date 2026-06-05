@@ -1,6 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
+import AppShell from './components/AppShell';
 import './styles.css';
 import RegistrarEquipo from './components/RegistrarEquipo';
 import Firmar from './components/Firmar';
@@ -29,5 +30,9 @@ if (window.location.pathname.startsWith('/firmar/')) {
 } else if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
 	root.render(<Home />);
 } else {
-	root.render(<App />);
+		root.render(
+			<AppShell>
+				<App />
+			</AppShell>
+		);
 }
