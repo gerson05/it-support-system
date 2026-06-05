@@ -13,6 +13,13 @@ export default function RegistrarEquipo() {
   const [saving, setSaving] = useState(false);
   const [scannerOpen, setScannerOpen] = useState(false);
   const scanTargetRef = useRef(null);
+  const [smartOpen, setSmartOpen] = useState(false);
+  const videoRef = useRef(null);
+  const streamRef = useRef(null);
+  const [detected, setDetected] = useState([]);
+  const detectorRef = useRef(null);
+  const [tesseractLoading, setTesseractLoading] = useState(false);
+  const tesseractRef = useRef(null);
 
   useEffect(() => { init(); }, []);
 
@@ -36,6 +43,117 @@ export default function RegistrarEquipo() {
   function openScanFor(field) {
     scanTargetRef.current = field;
     setScannerOpen(true);
+  }
+
+  function openSmartScanner() {
+    setDetected([]);
+    setSmartOpen(true);
+    startStream();
+  }
+
+  async function startStream() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+      streamRef.current = stream;
+      if (videoRef.current) videoRef.current.srcObject = stream;
+
+      // Try to create BarcodeDetector if available
+      try {
+        if ('BarcodeDetector' in window) {
+          const supportedFormats = await window.BarcodeDetector.getSupportedFormats();
+          detectorRef.current = new window.BarcodeDetector({ formats: supportedFormats });
+        }
+      } catch (e) {
+        detectorRef.current = null;
+      }
+
+      requestAnimationFrame(detectLoop);
+    } catch (err) {
+      console.error('Camera start failed', err);
+    }
+  }
+
+  function stopStream() {
+    try {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(t => t.stop());
+        streamRef.current = null;
+      }
+    } catch (e) {}
+  }
+
+  async function detectLoop() {
+    if (!smartOpen) return;
+    const video = videoRef.current;
+    if (!video || video.readyState < 2) {
+      requestAnimationFrame(detectLoop);
+      return;
+    }
+
+    if (detectorRef.current) {
+      try {
+        const detections = await detectorRef.current.detect(video);
+        if (detections && detections.length) {
+          const values = detections.map(d => d.rawValue).filter(Boolean);
+          if (values.length) setDetected(prev => Array.from(new Set([...values, ...prev])));
+        }
+      } catch (e) {
+        // detector failed, ignore
+      }
+    } else {
+      // Fallback: capture frame and run OCR if available
+      if (!tesseractRef.current && !tesseractLoading) {
+        // lazy load tesseract when needed
+      }
+    }
+
+    requestAnimationFrame(detectLoop);
+  }
+
+  async function captureFrameAndOcr() {
+    if (!videoRef.current) return;
+    const canvas = document.createElement('canvas');
+    canvas.width = videoRef.current.videoWidth;
+    canvas.height = videoRef.current.videoHeight;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(videoRef.current, 0, 0);
+    const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+    if (!tesseractRef.current) {
+      setTesseractLoading(true);
+      try {
+        const Tesseract = await import('tesseract.js');
+        tesseractRef.current = Tesseract;
+      } catch (e) {
+        console.error('Tesseract load failed', e);
+      } finally { setTesseractLoading(false); }
+    }
+    if (tesseractRef.current) {
+      try {
+        const { data } = await tesseractRef.current.recognize(blob);
+        const text = data?.text || '';
+        const parsed = parseOcr(text);
+        if (parsed) setDetected(prev => Array.from(new Set([parsed, ...prev])));
+      } catch (e) {
+        console.error('OCR failed', e);
+      }
+    }
+  }
+
+  function applyDetectedValue(val) {
+    const field = scanTargetRef.current || 'placa';
+    setFormData(s => ({ ...s, [field]: val }));
+    setSmartOpen(false);
+    stopStream();
+  }
+
+  function parseOcr(text) {
+    if (!text) return null;
+    // simple plate/serial/imei extraction heuristics
+    const imeiMatch = text.replace(/\s+/g, '').match(/(\d{15})/);
+    if (imeiMatch) return imeiMatch[1];
+    const plateMatch = text.match(/[A-Z0-9\-]{4,20}/i);
+    if (plateMatch) return plateMatch[0].trim();
+    return null;
   }
 
   function onDetected(val) {
@@ -77,8 +195,9 @@ export default function RegistrarEquipo() {
             </div>
           </div>
 
-          <div style={{marginTop:12}}>
-            <button style={{width:'100%',padding:12,background:'linear-gradient(135deg,#6366f1,#8b5cf6)',color:'#fff',borderRadius:10,border:'none'}} onClick={() => openScanFor('placa')}>📷 Escanear etiqueta del equipo</button>
+          <div style={{marginTop:12,display:'flex',gap:8}}>
+            <button style={{flex:1,padding:12,background:'linear-gradient(135deg,#6366f1,#8b5cf6)',color:'#fff',borderRadius:10,border:'none'}} onClick={() => openScanFor('placa')}>📷 Escanear etiqueta</button>
+            <button style={{padding:12,background:'#334155',color:'#fff',borderRadius:10,border:'none'}} onClick={openSmartScanner}>🔎 Smart Scan</button>
           </div>
 
           <form onSubmit={handleSubmit} style={{marginTop:12}}>
@@ -133,6 +252,35 @@ export default function RegistrarEquipo() {
         </div>
       </div>
       <Scanner open={scannerOpen} onClose={() => setScannerOpen(false)} onDetected={onDetected} />
+
+      {smartOpen && (
+        <div style={{position:'fixed',inset:0,background:'rgba(2,6,23,0.85)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:9999}}>
+          <div style={{width:'90%',maxWidth:900,background:'#0b1220',padding:12,borderRadius:8}}>
+            <div style={{display:'flex',gap:8}}>
+              <div style={{flex:1}}>
+                <video ref={videoRef} autoPlay playsInline muted style={{width:'100%',borderRadius:6,background:'#000'}} />
+                <div style={{display:'flex',gap:8,marginTop:8}}>
+                  <button onClick={() => { captureFrameAndOcr(); }} style={{padding:8}}>📸 OCR</button>
+                  <button onClick={() => { setSmartOpen(false); stopStream(); }} style={{padding:8}}>Cerrar</button>
+                </div>
+              </div>
+              <div style={{width:260,overflow:'auto'}}>
+                <div style={{color:'#94a3b8',fontSize:12}}>Detectados</div>
+                <ul style={{listStyle:'none',padding:0,marginTop:8}}>
+                  {detected.map(d => (
+                    <li key={d} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:8,borderBottom:'1px solid rgba(255,255,255,0.04)'}}>
+                      <div style={{wordBreak:'break-all'}}>{d}</div>
+                      <div>
+                        <button onClick={() => applyDetectedValue(d)} style={{marginLeft:8}}>Usar</button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

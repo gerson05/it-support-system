@@ -6,6 +6,7 @@
 import { showToast, attachSedeSearch } from './components.js';
 import { state } from './app.js';
 import { formatDate, formatTimeAgo } from './app.js';
+import { iconSearch, iconPlus, iconClose, iconEdit, iconNote, iconClipboard, iconWrench, iconCopy, iconSave } from './icons.js';
 
 /* ═══════════════════════════════════════════════════
    CONSTANTES DE DOMINIO
@@ -68,7 +69,7 @@ export async function renderTechRequests(container) {
           style="display:flex;align-items:center;gap:8px;padding:10px 22px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(99,102,241,.35);transition:all .2s;"
           onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 22px rgba(99,102,241,.5)'"
           onmouseout="this.style.transform='';this.style.boxShadow='0 4px 16px rgba(99,102,241,.35)'">
-          ＋ Nueva Solicitud
+          ${iconPlus(14)} Nueva Solicitud
         </button>
       </div>
     </div>
@@ -76,11 +77,11 @@ export async function renderTechRequests(container) {
     <!-- Pestañas -->
     <div style="display:flex;gap:0;margin-bottom:0;border-bottom:2px solid var(--glass-border);">
       <button id="tab-req" class="tab-btn tab-active" data-tab="requerimiento">
-        📋 Requerimientos
+        ${iconClipboard(13)} Requerimientos
         <span class="tab-count" id="count-req">…</span>
       </button>
       <button id="tab-inc" class="tab-btn" data-tab="incidencia">
-        🔧 Incidencias
+        ${iconWrench(13)} Incidencias
         <span class="tab-count" id="count-inc">…</span>
       </button>
     </div>
@@ -118,7 +119,7 @@ export async function renderTechRequests(container) {
           <input type="text" id="tr-sede" placeholder="Nombre de sede…">
         </div>
         <div class="form-group" style="align-self:flex-end;">
-          <button class="btn btn-secondary" id="tr-btn-filter">🔍 Filtrar</button>
+          <button class="btn btn-secondary" id="tr-btn-filter">${iconSearch(13)} Filtrar</button>
         </div>
       </div>
     </div>
@@ -251,7 +252,7 @@ export async function renderTechRequests(container) {
   /* ── Función de carga de tabla ── */
   async function loadTable() {
     const container2 = document.getElementById('tr-table-container');
-    container2.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-muted);">⏳ Cargando…</div>`;
+    container2.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-muted);">Cargando…</div>`;
 
     const params = new URLSearchParams({
       type:  activeTab,
@@ -271,7 +272,7 @@ export async function renderTechRequests(container) {
       if (!data.requests?.length) {
         container2.innerHTML = `
           <div style="text-align:center;padding:60px;color:var(--text-muted);">
-            <div style="font-size:48px;margin-bottom:12px;">${activeTab === 'requerimiento' ? '📋' : '🔧'}</div>
+            <div style="font-size:48px;margin-bottom:12px;">${activeTab === 'requerimiento' ? iconClipboard(40) : iconWrench(40)}</div>
             <p>No hay ${activeTab === 'requerimiento' ? 'requerimientos' : 'incidencias'} registradas.</p>
           </div>`;
         return;
@@ -279,47 +280,86 @@ export async function renderTechRequests(container) {
 
       const isInc = activeTab === 'incidencia';
         container2.innerHTML = `
-        <div class="card" style="overflow:auto;">
-          <table style="width:100%;border-collapse:collapse;">
-            <thead>
-              <tr style="border-bottom:1px solid var(--glass-border);">
-                <th style="${TH}">N.º Solicitud</th>
-                <th style="${TH}">Solicitante</th>
-                <th style="${TH}">Cédula</th>
-                <th style="${TH}">Cargo</th>
-                <th style="${TH}">Sede</th>
-                ${isInc ? `<th style="${TH}">Equipo</th>` : `<th style="${TH}">Cantidad</th>`}
-                <th style="${TH}">Prioridad</th>
-                <th style="${TH}">Estado</th>
-                <th style="${TH}">Fecha</th>
-                <th style="${TH}text-align:right;min-width:100px;">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${data.requests.map(r => `
-                <tr class="tr-row" data-id="${r.id}" style="border-bottom:1px solid rgba(255,255,255,.05);cursor:pointer;">
-                  <td style="${TD} font-weight:600;color:var(--primary);">${r.request_number}</td>
-                  <td style="${TD}">${r.requester_name}</td>
-                  <td style="${TD} color:var(--text-muted);font-size:12px;">${r.cedula}</td>
-                  <td style="${TD} font-size:13px;">${r.cargo}</td>
-                  <td style="${TD}">${r.sede}</td>
+        <div class="card">
+          <!-- Desktop: tabla -->
+          <div class="tr-table-wrap" style="overflow-x:auto;">
+            <table style="width:100%;border-collapse:collapse;">
+              <thead>
+                <tr style="border-bottom:1px solid var(--glass-border);">
+                  <th style="${TH}">N.º Solicitud</th>
+                  <th style="${TH}">Solicitante</th>
+                  <th style="${TH}">Cédula</th>
+                  <th style="${TH}">Cargo</th>
+                  <th style="${TH}">Sede</th>
+                  ${isInc ? `<th style="${TH}">Equipo</th>` : `<th style="${TH}">Cantidad</th>`}
+                  <th style="${TH}">Prioridad</th>
+                  <th style="${TH}">Estado</th>
+                  <th style="${TH}">Fecha</th>
+                  <th style="${TH}text-align:right;min-width:100px;">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${data.requests.map(r => `
+                  <tr class="tr-row" data-id="${r.id}" style="border-bottom:1px solid rgba(255,255,255,.05);cursor:pointer;">
+                    <td style="${TD} font-weight:600;color:var(--primary);">${r.request_number}</td>
+                    <td style="${TD}">${r.requester_name}</td>
+                    <td style="${TD} color:var(--text-muted);font-size:12px;">${r.cedula}</td>
+                    <td style="${TD} font-size:13px;">${r.cargo}</td>
+                    <td style="${TD}">${r.sede}</td>
+                    ${isInc
+                      ? `<td style="${TD} font-size:12px;">${r.equipment_name || '—'}</td>`
+                      : `<td style="${TD} text-align:center;">${r.quantity}</td>`}
+                    <td style="${TD}">${priorityBadge(r.priority)}</td>
+                    <td style="${TD}">${statusBadge(r.status)}</td>
+                    <td style="${TD} color:var(--text-muted);font-size:12px;" title="${formatDate(r.created_at)}">${formatTimeAgo(r.created_at)}</td>
+                    <td style="${TD} text-align:right;white-space:nowrap;min-width:100px;">
+                      <button class="btn-tr-edit" data-id="${r.id}"
+                        style="padding:4px 10px;font-size:11px;border:1px solid var(--border);border-radius:6px;background:var(--surface-2);color:var(--text-2);cursor:pointer;display:inline-flex;align-items:center;gap:5px;"
+                        title="Editar solicitud"
+                        onclick="event.stopPropagation();">${iconEdit(11)} Editar</button>
+                    </td>
+                  </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+          <!-- Mobile: cards -->
+          <div class="tr-cards">
+            ${data.requests.map(r => `
+              <div class="tr-card tr-row" data-id="${r.id}">
+                <div class="tr-card-header">
+                  <span class="tr-card-num">${r.request_number}</span>
+                  ${statusBadge(r.status)}
+                </div>
+                <div class="tr-card-name">${r.requester_name}</div>
+                <div class="tr-card-meta">${[r.cargo, r.sede].filter(Boolean).join(' · ')}</div>
+                ${r.cedula ? `<div class="tr-card-cedula">CC ${r.cedula}</div>` : ''}
+                <div class="tr-card-extra">
                   ${isInc
-                    ? `<td style="${TD} font-size:12px;">${r.equipment_name || '—'}</td>`
-                    : `<td style="${TD} text-align:center;">${r.quantity}</td>`}
-                  <td style="${TD}">${priorityBadge(r.priority)}</td>
-                  <td style="${TD}">${statusBadge(r.status)}</td>
-                  <td style="${TD} color:var(--text-muted);font-size:12px;" title="${formatDate(r.created_at)}">${formatTimeAgo(r.created_at)}</td>
-                  <td style="${TD} text-align:right;white-space:nowrap;min-width:100px;">
-                    <button class="btn-tr-edit" data-id="${r.id}"
-                      style="padding:4px 10px;font-size:11px;border:1px solid var(--border);border-radius:6px;background:var(--surface-2);color:var(--text-2);cursor:pointer;"
-                      title="Editar solicitud"
-                      onclick="event.stopPropagation();">✏️ Editar</button>
-                  </td>
-                </tr>`).join('')}
-            </tbody>
-          </table>
+                    ? (r.equipment_name || '—')
+                    : `${r.quantity} equipo${r.quantity !== 1 ? 's' : ''}`}
+                </div>
+                <div class="tr-card-footer">
+                  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                    ${priorityBadge(r.priority)}
+                    <span class="tr-card-time" title="${formatDate(r.created_at)}">${formatTimeAgo(r.created_at)}</span>
+                  </div>
+                  <button class="btn-tr-edit" data-id="${r.id}" onclick="event.stopPropagation();" style="display:inline-flex;align-items:center;gap:5px;">${iconEdit(11)} Editar</button>
+                </div>
+              </div>`).join('')}
+          </div>
           ${renderPagination(data)}
         </div>`;
+
+      // Scroll horizontal con rueda del mouse sobre la tabla
+      const tableWrap = container2.querySelector('.tr-table-wrap');
+      if (tableWrap) {
+        tableWrap.addEventListener('wheel', (e) => {
+          if (tableWrap.scrollWidth > tableWrap.clientWidth) {
+            e.preventDefault();
+            tableWrap.scrollLeft += e.deltaY;
+          }
+        }, { passive: false });
+      }
 
       // Clicks en filas → detalle
       container2.querySelectorAll('.tr-row').forEach(row => {
@@ -426,12 +466,12 @@ function openModal(defaultType, onSuccess) {
       <div style="display:flex;justify-content:space-between;align-items:flex-start;">
         <div>
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
-            <div style="width:36px;height:36px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;">📝</div>
+            <div style="width:36px;height:36px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;">${iconNote(18)}</div>
             <h3 style="font-size:18px;font-weight:700;color:#e2e8f0;">Nueva Solicitud</h3>
           </div>
           <p style="font-size:12px;color:#6b7a99;margin-left:46px;">Completa los datos para registrar el requerimiento o incidencia</p>
         </div>
-        <button id="tr-modal-close" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);width:32px;height:32px;border-radius:8px;font-size:16px;cursor:pointer;color:#94a3b8;display:flex;align-items:center;justify-content:center;transition:all .2s;" onmouseover="this.style.background='rgba(255,255,255,.12)'" onmouseout="this.style.background='rgba(255,255,255,.07)'">✕</button>
+        <button id="tr-modal-close" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);width:32px;height:32px;border-radius:8px;cursor:pointer;color:#94a3b8;display:flex;align-items:center;justify-content:center;transition:all .2s;" onmouseover="this.style.background='rgba(255,255,255,.12)'" onmouseout="this.style.background='rgba(255,255,255,.07)'">${iconClose(14)}</button>
       </div>
     </div>
 
@@ -441,7 +481,7 @@ function openModal(defaultType, onSuccess) {
       <div style="display:flex;gap:12px;">
         <label class="tr-type-card ${defaultType==='requerimiento'?'selected':''}" id="lbl-req" for="tr-type-req">
           <input type="radio" id="tr-type-req" name="tr-type" value="requerimiento" ${defaultType==='requerimiento'?'checked':''} style="display:none;">
-          <span class="tc-icon">📋</span>
+          <span class="tc-icon">${iconClipboard(22)}</span>
           <div>
             <div class="tc-title">Requerimiento</div>
             <div class="tc-desc">Solicitud de equipo nuevo</div>
@@ -449,7 +489,7 @@ function openModal(defaultType, onSuccess) {
         </label>
         <label class="tr-type-card ${defaultType==='incidencia'?'selected':''}" id="lbl-inc" for="tr-type-inc">
           <input type="radio" id="tr-type-inc" name="tr-type" value="incidencia" ${defaultType==='incidencia'?'checked':''} style="display:none;">
-          <span class="tc-icon">🔧</span>
+          <span class="tc-icon">${iconWrench(22)}</span>
           <div>
             <div class="tc-title">Incidencia</div>
             <div class="tc-desc">Falla o problema técnico</div>
@@ -485,7 +525,7 @@ function openModal(defaultType, onSuccess) {
     <div id="tr-f-items-section" class="tr-section" style="${defaultType==='incidencia'?'display:none;':''}">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
         <div class="tr-section-title" style="margin-bottom:0;">Equipos solicitados</div>
-        <button type="button" id="tr-btn-add-item">＋ Agregar equipo</button>
+        <button type="button" id="tr-btn-add-item" style="display:inline-flex;align-items:center;gap:5px;">${iconPlus(12)} Agregar equipo</button>
       </div>
       <div style="display:grid;grid-template-columns:2fr 58px 1fr 30px 30px;gap:6px;padding:0 8px;margin-bottom:4px;">
         <span style="font-size:11px;color:#5a607a;">Nombre del equipo *</span>
@@ -541,8 +581,8 @@ function openModal(defaultType, onSuccess) {
     <!-- Footer -->
     <div class="tr-modal-footer">
       <button class="btn btn-secondary" id="tr-modal-cancel" style="padding:10px 20px;">Cancelar</button>
-      <button class="btn btn-primary" id="tr-modal-save" style="padding:10px 24px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border:none;">
-        💾 Guardar Solicitud
+      <button class="btn btn-primary" id="tr-modal-save" style="padding:10px 24px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border:none;display:inline-flex;align-items:center;gap:7px;">
+        ${iconSave(14)} Guardar Solicitud
       </button>
     </div>
   `;
@@ -568,11 +608,11 @@ function openModal(defaultType, onSuccess) {
           placeholder="Serial (opc.)">
         <button type="button" class="tr-item-dup" data-idx="${idx}"
           title="Duplicar fila (mismo equipo, serial distinto)"
-          style="background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.25);color:#818cf8;border-radius:6px;width:30px;height:36px;cursor:pointer;font-size:13px;line-height:1;transition:all .2s;">📋</button>
+          style="background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.25);color:#818cf8;border-radius:6px;width:30px;height:36px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;">${iconCopy(13)}</button>
         <button type="button" class="tr-item-remove" data-idx="${idx}"
           title="Quitar equipo"
-          style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.25);color:#f87171;border-radius:6px;width:30px;height:36px;cursor:pointer;font-size:14px;line-height:1;transition:all .2s;${modalItems.length <= 1 ? 'opacity:.3;cursor:not-allowed;' : ''}"
-          ${modalItems.length <= 1 ? 'disabled' : ''}>✕</button>
+          style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.25);color:#f87171;border-radius:6px;width:30px;height:36px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;${modalItems.length <= 1 ? 'opacity:.3;cursor:not-allowed;' : ''}"
+          ${modalItems.length <= 1 ? 'disabled' : ''}>${iconClose(13)}</button>
       </div>
     `).join('');
 
@@ -701,7 +741,7 @@ function openModal(defaultType, onSuccess) {
       onSuccess();
     } catch (err) {
       showToast(err.message, 'error');
-      btn.textContent = '💾 Guardar Solicitud';
+      btn.innerHTML = `${iconSave(14)} Guardar Solicitud`;
       btn.disabled    = false;
     }
   });
@@ -769,12 +809,12 @@ async function openEditModal(id, onSuccess) {
       <div style="display:flex;justify-content:space-between;align-items:flex-start;">
         <div>
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
-            <div style="width:36px;height:36px;background:linear-gradient(135deg,#f59e0b,#ea580c);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;">✏️</div>
+            <div style="width:36px;height:36px;background:linear-gradient(135deg,#f59e0b,#ea580c);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;">${iconEdit(18)}</div>
             <h3 style="font-size:18px;font-weight:700;color:#e2e8f0;">Editar Solicitud</h3>
           </div>
           <p style="font-size:12px;color:#6b7a99;margin-left:46px;">${record.request_number} — modifica los datos y guarda los cambios</p>
         </div>
-        <button id="tr-modal-close" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);width:32px;height:32px;border-radius:8px;font-size:16px;cursor:pointer;color:#94a3b8;display:flex;align-items:center;justify-content:center;transition:all .2s;">✕</button>
+        <button id="tr-modal-close" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);width:32px;height:32px;border-radius:8px;cursor:pointer;color:#94a3b8;display:flex;align-items:center;justify-content:center;transition:all .2s;">${iconClose(14)}</button>
       </div>
     </div>
 
@@ -805,7 +845,7 @@ async function openEditModal(id, onSuccess) {
     <div id="tr-f-items-section" class="tr-section" style="${!isReq ? 'display:none;' : ''}">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
         <div class="tr-section-title" style="margin-bottom:0;">Equipos solicitados</div>
-        <button type="button" id="tr-btn-add-item">＋ Agregar equipo</button>
+        <button type="button" id="tr-btn-add-item" style="display:inline-flex;align-items:center;gap:5px;">${iconPlus(12)} Agregar equipo</button>
       </div>
       <div style="display:grid;grid-template-columns:2fr 58px 1fr 30px 30px;gap:6px;padding:0 8px;margin-bottom:4px;">
         <span style="font-size:11px;color:#5a607a;">Nombre del equipo *</span>
@@ -857,8 +897,8 @@ async function openEditModal(id, onSuccess) {
     <div class="tr-modal-footer">
       <button class="btn btn-secondary" id="tr-modal-cancel" style="padding:10px 20px;">Cancelar</button>
       <button class="btn btn-primary" id="tr-modal-save"
-        style="padding:10px 24px;background:linear-gradient(135deg,#f59e0b,#ea580c);border:none;">
-        💾 Guardar Cambios
+        style="padding:10px 24px;background:linear-gradient(135deg,#f59e0b,#ea580c);border:none;display:inline-flex;align-items:center;gap:7px;">
+        ${iconSave(14)} Guardar Cambios
       </button>
     </div>
   `;
@@ -880,10 +920,10 @@ async function openEditModal(id, onSuccess) {
         <input type="text" class="tr-item-serial" data-idx="${idx}"
           value="${_esc(item.serial)}" placeholder="Serial (opc.)">
         <button type="button" class="tr-item-dup" data-idx="${idx}"
-          style="background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.25);color:#818cf8;border-radius:6px;width:30px;height:36px;cursor:pointer;font-size:13px;">📋</button>
+          style="background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.25);color:#818cf8;border-radius:6px;width:30px;height:36px;cursor:pointer;display:flex;align-items:center;justify-content:center;">${iconCopy(13)}</button>
         <button type="button" class="tr-item-remove" data-idx="${idx}"
-          style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.25);color:#f87171;border-radius:6px;width:30px;height:36px;cursor:pointer;font-size:14px;${modalItems.length <= 1 ? 'opacity:.3;cursor:not-allowed;' : ''}"
-          ${modalItems.length <= 1 ? 'disabled' : ''}>✕</button>
+          style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.25);color:#f87171;border-radius:6px;width:30px;height:36px;cursor:pointer;display:flex;align-items:center;justify-content:center;${modalItems.length <= 1 ? 'opacity:.3;cursor:not-allowed;' : ''}"
+          ${modalItems.length <= 1 ? 'disabled' : ''}>${iconClose(13)}</button>
       </div>
     `).join('');
 
@@ -978,7 +1018,7 @@ async function openEditModal(id, onSuccess) {
       onSuccess();
     } catch (err) {
       showToast(err.message, 'error');
-      btn.textContent = '💾 Guardar Cambios'; btn.disabled = false;
+      btn.innerHTML = `${iconSave(14)} Guardar Cambios`; btn.disabled = false;
     }
   });
 }

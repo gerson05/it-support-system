@@ -1,0 +1,222 @@
+<style>
+  body { background: #0f1117; color: #e2e8f0; font-family: 'Inter', sans-serif; }
+  h2 { color: #fff; font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  h3 { color: #a5b4fc; font-size: 14px; font-weight: 600; margin: 16px 0 8px; }
+  .subtitle { color: #8892a4; font-size: 13px; margin-bottom: 20px; }
+  .label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: #6b7280; margin-bottom: 6px; }
+
+  /* App shell */
+  .app-shell { display: grid; grid-template-columns: 110px 1fr; background: #0f1117; border: 1px solid #2a3040; border-radius: 10px; overflow: hidden; font-size: 11px; }
+  .sidebar { background: #161b27; border-right: 1px solid #2a3040; padding: 10px 6px; display: flex; flex-direction: column; gap: 2px; }
+  .brand { font-size: 10px; font-weight: 700; color: #a5b4fc; padding: 4px 6px 10px; border-bottom: 1px solid #2a3040; margin-bottom: 6px; }
+  .nav-item { padding: 6px 8px; border-radius: 5px; font-size: 10px; color: #6b7280; display: flex; align-items: center; gap: 5px; }
+  .nav-item.active { background: #312e81; color: #a5b4fc; font-weight: 600; }
+  .nav-dot { width: 5px; height: 5px; border-radius: 50%; background: #6366f1; flex-shrink: 0; }
+  .main { padding: 14px; overflow: hidden; }
+  .page-title { font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+  .page-sub { font-size: 10px; color: #6b7280; margin-bottom: 12px; }
+
+  /* Tabs */
+  .tabs { display: flex; border-bottom: 1px solid #2a3040; margin-bottom: 12px; }
+  .tab { padding: 6px 14px; font-size: 10px; color: #6b7280; cursor: pointer; border-bottom: 2px solid transparent; }
+  .tab.active { color: #a5b4fc; border-bottom-color: #6366f1; font-weight: 600; }
+
+  /* Role cards */
+  .role-card { background: #161b27; border: 1px solid #2a3040; border-radius: 8px; margin-bottom: 8px; overflow: hidden; transition: all .2s; }
+  .role-card.expanded { border-color: #6366f1; }
+  .rc-head { display: flex; justify-content: space-between; align-items: center; padding: 9px 12px; cursor: pointer; }
+  .rc-head:hover { background: #1e2235; }
+  .rc-left { display: flex; align-items: center; gap: 8px; }
+  .rc-name { font-size: 11px; font-weight: 700; color: #a5b4fc; text-transform: uppercase; letter-spacing: .4px; }
+  .rc-desc { font-size: 9px; color: #6b7280; margin-top: 1px; }
+  .rc-right { display: flex; align-items: center; gap: 8px; }
+  .rc-badge { font-size: 9px; color: #6b7280; background: #1e2235; border: 1px solid #2a3040; border-radius: 4px; padding: 1px 6px; }
+  .rc-chevron { font-size: 9px; color: #6b7280; }
+  .lock-badge { font-size: 8px; background: #1c1917; border: 1px solid #44403c; color: #a8a29e; border-radius: 4px; padding: 1px 6px; }
+
+  /* Expanded body */
+  .rc-body { padding: 10px 12px 12px; border-top: 1px solid #1e2235; }
+  .perm-header { display: grid; grid-template-columns: 1fr 36px 36px 36px 36px; gap: 2px; align-items: center; margin-bottom: 6px; }
+  .perm-col-label { font-size: 8px; font-weight: 700; text-transform: uppercase; color: #6b7280; text-align: center; }
+  .perm-row { display: grid; grid-template-columns: 1fr 36px 36px 36px 36px; gap: 2px; align-items: center; padding: 4px 0; border-bottom: 1px solid #1a1f2e; }
+  .perm-row:last-child { border-bottom: none; }
+  .perm-module { font-size: 10px; color: #e2e8f0; }
+  .perm-cell { display: flex; justify-content: center; }
+  .cb { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+  .cb.on  { background: #6366f1; }
+  .cb.off { background: #1e2235; border: 1px solid #3a4050; }
+  .cb-disabled { opacity: .35; cursor: not-allowed; }
+  .rc-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 8px; border-top: 1px solid #1e2235; }
+  .rc-danger { font-size: 9px; color: #ef4444; cursor: pointer; }
+  .btn-group { display: flex; gap: 6px; }
+  .btn-xs { font-size: 9px; padding: 3px 10px; border-radius: 4px; border: none; cursor: pointer; font-weight: 600; }
+  .btn-discard { background: transparent; color: #6b7280; border: 1px solid #2a3040; }
+  .btn-save    { background: #6366f1; color: #fff; }
+
+  /* New role */
+  .new-role-btn { display: flex; align-items: center; gap: 6px; padding: 8px 12px; border: 1px dashed #3a4050; border-radius: 8px; cursor: pointer; color: #6366f1; font-size: 10px; font-weight: 600; }
+  .new-role-btn:hover { border-color: #6366f1; background: #1a1f2e; }
+</style>
+
+<h2>Diseño — Sección 1: UI de Roles y Permisos</h2>
+<p class="subtitle">Tab "Roles y Permisos" dentro de la sección Usuarios. Vista completa con un rol expandido.</p>
+
+<div class="app-shell">
+  <div class="sidebar">
+    <div class="brand">IT Support</div>
+    <div class="nav-item">Dashboard</div>
+    <div class="nav-item">Tickets</div>
+    <div class="nav-item">Despacho</div>
+    <div class="nav-item active"><span class="nav-dot"></span> Usuarios</div>
+    <div class="nav-item">Config.</div>
+  </div>
+
+  <div class="main">
+    <div class="page-title">Usuarios</div>
+    <div class="page-sub">Gestión de cuentas y accesos del panel IT</div>
+
+    <div class="tabs">
+      <div class="tab">Usuarios</div>
+      <div class="tab active">Roles y Permisos</div>
+    </div>
+
+    <!-- IT: bloqueado -->
+    <div class="role-card">
+      <div class="rc-head">
+        <div class="rc-left">
+          <div>
+            <div class="rc-name">IT <span class="lock-badge">🔒 bloqueado</span></div>
+            <div class="rc-desc">Acceso completo al sistema</div>
+          </div>
+        </div>
+        <div class="rc-right">
+          <span class="rc-badge">2 usuarios</span>
+          <span class="rc-chevron">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUPERVISOR: expandido -->
+    <div class="role-card expanded">
+      <div class="rc-head" style="background:#1e2235;">
+        <div class="rc-left">
+          <div>
+            <div class="rc-name">Supervisor <span style="font-size:8px;background:#14532d;color:#4ade80;border-radius:3px;padding:1px 5px;">▼ editando</span></div>
+            <div class="rc-desc">Gestión de tickets y requerimientos</div>
+          </div>
+        </div>
+        <div class="rc-right">
+          <span class="rc-badge">3 usuarios</span>
+          <span class="rc-chevron">▲</span>
+        </div>
+      </div>
+      <div class="rc-body">
+        <div class="perm-header">
+          <span></span>
+          <span class="perm-col-label">Leer</span>
+          <span class="perm-col-label">Crear</span>
+          <span class="perm-col-label">Editar</span>
+          <span class="perm-col-label">Elim.</span>
+        </div>
+        <div class="perm-row">
+          <span class="perm-module">Métricas</span>
+          <div class="perm-cell"><span class="cb on"></span></div>
+          <div class="perm-cell"><span class="cb cb-disabled off"></span></div>
+          <div class="perm-cell"><span class="cb cb-disabled off"></span></div>
+          <div class="perm-cell"><span class="cb cb-disabled off"></span></div>
+        </div>
+        <div class="perm-row">
+          <span class="perm-module">Tickets</span>
+          <div class="perm-cell"><span class="cb on"></span></div>
+          <div class="perm-cell"><span class="cb on"></span></div>
+          <div class="perm-cell"><span class="cb on"></span></div>
+          <div class="perm-cell"><span class="cb off"></span></div>
+        </div>
+        <div class="perm-row">
+          <span class="perm-module">Requerimientos</span>
+          <div class="perm-cell"><span class="cb on"></span></div>
+          <div class="perm-cell"><span class="cb on"></span></div>
+          <div class="perm-cell"><span class="cb on"></span></div>
+          <div class="perm-cell"><span class="cb off"></span></div>
+        </div>
+        <div class="perm-row">
+          <span class="perm-module">Base de conocimiento</span>
+          <div class="perm-cell"><span class="cb on"></span></div>
+          <div class="perm-cell"><span class="cb on"></span></div>
+          <div class="perm-cell"><span class="cb on"></span></div>
+          <div class="perm-cell"><span class="cb off"></span></div>
+        </div>
+        <div class="perm-row">
+          <span class="perm-module">Red de Puntos</span>
+          <div class="perm-cell"><span class="cb on"></span></div>
+          <div class="perm-cell"><span class="cb off"></span></div>
+          <div class="perm-cell"><span class="cb off"></span></div>
+          <div class="perm-cell"><span class="cb off"></span></div>
+        </div>
+        <div class="perm-row">
+          <span class="perm-module">Despacho</span>
+          <div class="perm-cell"><span class="cb on"></span></div>
+          <div class="perm-cell"><span class="cb off"></span></div>
+          <div class="perm-cell"><span class="cb off"></span></div>
+          <div class="perm-cell"><span class="cb off"></span></div>
+        </div>
+        <div class="perm-row">
+          <span class="perm-module">Auditoría</span>
+          <div class="perm-cell"><span class="cb off"></span></div>
+          <div class="perm-cell"><span class="cb cb-disabled off"></span></div>
+          <div class="perm-cell"><span class="cb cb-disabled off"></span></div>
+          <div class="perm-cell"><span class="cb cb-disabled off"></span></div>
+        </div>
+        <div class="perm-row">
+          <span class="perm-module">Farmacias FOMAG</span>
+          <div class="perm-cell"><span class="cb off"></span></div>
+          <div class="perm-cell"><span class="cb off"></span></div>
+          <div class="perm-cell"><span class="cb off"></span></div>
+          <div class="perm-cell"><span class="cb off"></span></div>
+        </div>
+        <div class="rc-actions">
+          <span class="rc-danger">Eliminar rol</span>
+          <div class="btn-group">
+            <button class="btn-xs btn-discard">Descartar</button>
+            <button class="btn-xs btn-save">Guardar cambios</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALMACÉN: colapsado -->
+    <div class="role-card">
+      <div class="rc-head">
+        <div class="rc-left">
+          <div>
+            <div class="rc-name">Almacén</div>
+            <div class="rc-desc">Gestión de despachos</div>
+          </div>
+        </div>
+        <div class="rc-right">
+          <span class="rc-badge">1 usuario</span>
+          <span class="rc-chevron">▼</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nuevo rol -->
+    <div class="new-role-btn">+ Nuevo rol</div>
+  </div>
+</div>
+
+<div style="margin-top:16px;background:#1a1f2e;border:1px solid #2a3040;border-radius:8px;padding:14px;">
+  <div class="label">Reglas de comportamiento</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
+    <div style="font-size:11px;color:#94a3b8;line-height:1.6;">
+      🔒 <strong style="color:#e2e8f0;">Rol IT bloqueado</strong> — solo lectura, no expandible, sin eliminar<br>
+      ⚠️ <strong style="color:#e2e8f0;">Eliminar con usuarios activos</strong> — bloqueado con mensaje de error<br>
+      📋 <strong style="color:#e2e8f0;">Módulos solo-lectura</strong> (Métricas, Auditoría) — Crear/Editar/Eliminar siempre grises
+    </div>
+    <div style="font-size:11px;color:#94a3b8;line-height:1.6;">
+      ✅ <strong style="color:#e2e8f0;">Guardar</strong> — reemplaza todos los permisos del rol en batch<br>
+      ↩️ <strong style="color:#e2e8f0;">Descartar</strong> — restaura el estado original sin petición al servidor<br>
+      ➕ <strong style="color:#e2e8f0;">Nuevo rol</strong> — abre tarjeta nueva con nombre editable y permisos en cero
+    </div>
+  </div>
+</div>

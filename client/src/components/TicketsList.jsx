@@ -20,6 +20,11 @@ export default function TicketsList() {
       if (searchRef.current?.value) params.set('search', searchRef.current.value);
       if (filters.priority) params.set('priority', filters.priority);
       if (filters.area) params.set('area', filters.area);
+      if (filters.status) params.set('status', filters.status);
+      if (filters.assigned_to) {
+        // backend accepts 'me' or explicit agent id or 'null'
+        params.set('assigned_to', filters.assigned_to);
+      }
       if (mode === 'archivo') params.set('status_group','archivo');
       const data = await fetchJson(`/api/tickets?${params.toString()}`);
       setTickets(data.tickets || []);
@@ -45,8 +50,15 @@ export default function TicketsList() {
         <button onClick={()=>{ setMode('archivo'); setPage(1); }} style={{fontWeight: mode==='archivo'?'700':'400'}}>Archivo</button>
       </div>
 
-      <div style={{display:'flex',gap:8,marginTop:12,alignItems:'center'}}>
+      <div style={{display:'flex',gap:8,marginTop:12,alignItems:'center',flexWrap:'wrap'}}>
         <input ref={searchRef} placeholder="Buscar ID, teléfono, descripción..." onChange={()=>{ setPage(1); }} />
+        <select onChange={e=>onFilterChange('status', e.target.value)} value={filters.status}>
+          <option value="">Estado</option>
+          <option value="siguiente_dia">Siguiente día</option>
+          <option value="abierto">Abiertos</option>
+          <option value="en_progreso">En Progreso</option>
+          <option value="en_espera">En Espera</option>
+        </select>
         <select onChange={e=>onFilterChange('priority', e.target.value)} value={filters.priority}>
           <option value="">Prioridad</option>
           <option value="baja">Baja</option>
@@ -63,6 +75,11 @@ export default function TicketsList() {
           <option value="contabilidad">Contabilidad</option>
           <option value="farmacia">Farmacia</option>
           <option value="general">General</option>
+        </select>
+        <select onChange={e=>onFilterChange('assigned_to', e.target.value)} value={filters.assigned_to}>
+          <option value="">Asignado</option>
+          <option value="null">Sin asignar</option>
+          <option value="me">Asignados a mí</option>
         </select>
       </div>
 
