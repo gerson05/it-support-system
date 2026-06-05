@@ -11,6 +11,7 @@ import Roles from './components/Roles';
 import Audit from './components/Audit';
 import InventarioApp from './components/InventarioApp';
 import Users from './components/Users';
+import Faqs from './components/Faqs';
 
 export default function App() {
   const [hash, setHash] = useState(window.location.hash || '#dashboard');
@@ -31,7 +32,7 @@ export default function App() {
   if (hash === '#tickets') return <TicketsList />;
   if (hash.startsWith('#tech-request/')) return <TechRequestDetail />;
   if (hash === '#tech-requests') return <TechRequests />;
-  if (hash === '#faqs') return <div style={{padding:20}}>FAQs (migrar)</div>;
+  if (hash === '#faqs') return <Faqs />;
   if (hash === '#sedes') return <SedesAdmin />;
   if (hash === '#despacho') return <Despacho />;
   if (hash === '#audit') return <Audit />;
