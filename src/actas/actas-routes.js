@@ -114,7 +114,15 @@ router.get('/api/actas/status/:token', (req, res) => {
 router.post('/api/actas/upload/:token', (req, res, next) => {
   const row = db.prepare('SELECT * FROM acta_uploads WHERE token = ?').get(req.params.token);
   if (!row) return res.status(404).json({ error: 'Token no encontrado.' });
-  if (row.uploaded_at) return res.status(400).json({ error: 'Este documento ya fue subido anteriormente.' });
+  
+  // Si ya tiene un archivo subido, lo eliminamos físicamente antes de la nueva subida
+  if (row.filepath && fs.existsSync(row.filepath)) {
+    try {
+      fs.unlinkSync(row.filepath);
+    } catch (e) {
+      console.error('Error al eliminar acta previa:', e);
+    }
+  }
   next();
 }, upload.single('acta'), (req, res) => {
   try {
@@ -125,6 +133,12 @@ router.post('/api/actas/upload/:token', (req, res, next) => {
       SET filename = ?, filepath = ?, uploaded_at = datetime('now','localtime')
       WHERE token = ?
     `).run(req.file.originalname, req.file.path, req.params.token);
+
+    // Si la entidad asociada es un despacho, marcamos acta_firmada = 1
+    const row = db.prepare('SELECT * FROM acta_uploads WHERE token = ?').get(req.params.token);
+    if (row && row.entity_type === 'despacho') {
+      db.prepare('UPDATE despachos SET acta_firmada = 1 WHERE id = ?').run(row.entity_id);
+    }
 
     res.json({ ok: true });
   } catch (e) {
