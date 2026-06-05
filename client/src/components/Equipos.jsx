@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import EquipoFormModal from './EquipoFormModal';
+import fetchJson from '../utils/fetchJson';
 
 export default function Equipos() {
   const [rows, setRows] = useState([]);
@@ -13,8 +14,7 @@ export default function Equipos() {
   async function load() {
     setLoading(true);
     try {
-      const res = await fetch(`/api/inventario/equipos?page=${page}&limit=${limit}`);
-      const data = await res.json();
+      const data = await fetchJson(`/api/inventario/equipos?page=${page}&limit=${limit}`);
       setRows(data.equipos || []);
     } catch (err) {
       console.error('load equipos', err);

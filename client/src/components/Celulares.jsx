@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import CelularFormModal from './CelularFormModal';
+import fetchJson from '../utils/fetchJson';
 
 export default function Celulares() {
   const [rows, setRows] = useState([]);
@@ -13,8 +14,7 @@ export default function Celulares() {
   async function load() {
     setLoading(true);
     try {
-      const res = await fetch(`/api/inventario/celulares?page=${page}&limit=${limit}`);
-      const data = await res.json();
+      const data = await fetchJson(`/api/inventario/celulares?page=${page}&limit=${limit}`);
       setRows(data.celulares || []);
     } catch (err) {
       console.error('load celulares', err);

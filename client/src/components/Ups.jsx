@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import UpsFormModal from './UpsFormModal';
+import fetchJson from '../utils/fetchJson';
 
 export default function Ups() {
   const [rows, setRows] = useState([]);
@@ -13,8 +14,7 @@ export default function Ups() {
   async function load() {
     setLoading(true);
     try {
-      const res = await fetch(`/api/inventario/ups?page=${page}&limit=${limit}`);
-      const data = await res.json();
+      const data = await fetchJson(`/api/inventario/ups?page=${page}&limit=${limit}`);
       setRows(data.ups || []);
     } catch (err) {
       console.error('load ups', err);
