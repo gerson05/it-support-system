@@ -1,4 +1,5 @@
 import { showToast, createLoadingSpinner, createEmptyState } from './components.js';
+import { iconLock, iconClose, iconEdit, iconTrash } from './icons.js';
 
 const AREA_OPTIONS = [
   { value: 'general',        label: 'General / IT' },
@@ -84,7 +85,7 @@ export async function renderFaqs(container) {
     <div class="card">
       <details>
         <summary style="cursor:pointer;font-size:14px;font-weight:600;color:var(--text-primary);padding:4px 0;">
-          🔒 FAQs del Sistema (${0} entradas, solo lectura)
+          ${iconLock(13)} FAQs del Sistema (${0} entradas, solo lectura)
           <span id="system-count" style="display:none;"></span>
         </summary>
         <div id="system-faqs-container" style="margin-top:16px;">${createLoadingSpinner()}</div>
@@ -96,7 +97,7 @@ export async function renderFaqs(container) {
       <div id="faqs-modal">
         <div style="display:flex;justify-content:space-between;align-items:center;">
           <h3 id="modal-title" style="margin:0;font-size:16px;">Nueva FAQ</h3>
-          <button id="btn-close-modal" style="background:none;border:none;color:var(--text-muted);font-size:20px;cursor:pointer;">✕</button>
+          <button id="btn-close-modal" style="background:none;border:none;color:var(--text-muted);cursor:pointer;">${iconClose(18)}</button>
         </div>
         <div>
           <label>Área</label>
@@ -204,8 +205,8 @@ function renderCustomFaqs(filterArea = '') {
           <div class="faq-hits">${f.hits || 0} veces</div>
           <div class="faq-rate" style="color:${rateColor};">${rate !== null ? rate + '%' : '—'}</div>
           <div class="faq-actions">
-            <button class="btn-icon btn-edit"  data-action="edit"   data-id="${f.id}">✏️ Editar</button>
-            <button class="btn-icon btn-delete" data-action="delete" data-id="${f.id}">🗑️ Borrar</button>
+            <button class="btn-icon btn-edit"  data-action="edit"   data-id="${f.id}">${iconEdit(12)} Editar</button>
+            <button class="btn-icon btn-delete" data-action="delete" data-id="${f.id}">${iconTrash(12)} Borrar</button>
           </div>
         </div>
       `;
@@ -226,7 +227,7 @@ function renderSystemFaqs() {
   if (details) {
     const summary = details.querySelector('summary');
     if (summary) {
-      summary.innerHTML = `🔒 FAQs del Sistema (${items.length} entradas, solo lectura)`;
+      summary.innerHTML = `${iconLock(13)} FAQs del Sistema (${items.length} entradas, solo lectura)`;
     }
   }
 
