@@ -132,3 +132,163 @@ export function showToast(message, type = 'info') {
     setTimeout(() => toast.remove(), 200);
   }, 4000);
 }
+
+/* ── Sede search combobox ─────────────────────────────────────────────── */
+
+let _sedesCache = null;
+
+async function _fetchSedes() {
+  if (_sedesCache) return _sedesCache;
+  try {
+    const res = await fetch('/api/sedes');
+    _sedesCache = res.ok ? await res.json() : {};
+  } catch { _sedesCache = {}; }
+  return _sedesCache;
+}
+
+export function attachSedeSearch(inputEl) {
+  if (!inputEl) return;
+
+  const wrapper = document.createElement('div');
+  wrapper.style.cssText = 'position:relative;display:block;';
+  inputEl.parentNode.insertBefore(wrapper, inputEl);
+  wrapper.appendChild(inputEl);
+
+  // Lupa icon
+  const icon = document.createElement('div');
+  icon.style.cssText = 'position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--text-3);display:flex;align-items:center;pointer-events:none;';
+  icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>`;
+  wrapper.appendChild(icon);
+
+  // Add padding so input text doesn't overlap icon
+  inputEl.style.paddingRight = '28px';
+
+  const dropdown = document.createElement('div');
+  dropdown.style.cssText =
+    'display:none;position:fixed;' +
+    'background:var(--surface);border:1px solid var(--border);border-radius:8px;' +
+    'box-shadow:0 8px 24px rgba(0,0,0,.35);z-index:99999;max-height:220px;overflow-y:auto;';
+  document.body.appendChild(dropdown);
+
+  function positionDropdown() {
+    const r = inputEl.getBoundingClientRect();
+    dropdown.style.top   = `${r.bottom + 2}px`;
+    dropdown.style.left  = `${r.left}px`;
+    dropdown.style.width = `${r.width}px`;
+  }
+
+  function renderDropdown(q) {
+    const query = (q || '').toLowerCase().trim();
+    dropdown.innerHTML = '';
+    let first = true;
+    let hasAny = false;
+
+    Object.entries(_sedesCache || {}).forEach(([ciudad, puntos]) => {
+      const matches = puntos.filter(p =>
+        p.activo !== 0 && (
+          !query ||
+          ciudad.toLowerCase().includes(query) ||
+          p.nombre_punto.toLowerCase().includes(query)
+        )
+      );
+      if (!matches.length) return;
+      hasAny = true;
+
+      const hdr = document.createElement('div');
+      hdr.style.cssText =
+        'padding:5px 12px 3px;font-size:10px;font-weight:700;color:var(--text-3);' +
+        `text-transform:uppercase;letter-spacing:.5px;${first ? '' : 'border-top:1px solid var(--border);margin-top:4px;'}`;
+      hdr.textContent = ciudad;
+      dropdown.appendChild(hdr);
+      first = false;
+
+      matches.forEach(p => {
+        const item = document.createElement('div');
+        item.style.cssText =
+          'padding:8px 12px;font-size:13px;color:var(--text);cursor:pointer;transition:background .1s;';
+        item.textContent = p.nombre_punto;
+        item.addEventListener('mouseenter', () => { item.style.background = 'var(--surface-2)'; });
+        item.addEventListener('mouseleave', () => { item.style.background = ''; });
+        item.addEventListener('mousedown', e => {
+          e.preventDefault();
+          inputEl.value = p.nombre_punto;
+          dropdown.style.display = 'none';
+        });
+        dropdown.appendChild(item);
+      });
+    });
+
+    if (!hasAny) {
+      const empty = document.createElement('div');
+      empty.style.cssText = 'padding:12px;text-align:center;font-size:13px;color:var(--text-3);';
+      empty.textContent = query ? `Sin resultados para "${q}"` : 'No hay sedes registradas';
+      dropdown.appendChild(empty);
+    }
+
+    dropdown.style.display = '';
+  }
+
+  inputEl.addEventListener('focus', async () => {
+    await _fetchSedes();
+    positionDropdown();
+    renderDropdown(inputEl.value);
+  });
+
+  inputEl.addEventListener('input', () => {
+    if (dropdown.style.display !== 'none') { positionDropdown(); renderDropdown(inputEl.value); }
+  });
+
+  inputEl.addEventListener('blur', () => {
+    setTimeout(() => { dropdown.style.display = 'none'; }, 180);
+  });
+}
+
+/**
+ * Copia texto al portapapeles de manera robusta, funcionando incluso en contextos no seguros (HTTP)
+ * o en navegadores móviles donde navigator.clipboard no está disponible o falla.
+ */
+export async function copyToClipboard(text) {
+  if (navigator.clipboard && window.isSecureContext) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (e) {
+      console.warn('navigator.clipboard failed, trying fallback', e);
+    }
+  }
+
+  // Fallback para contextos no seguros o navegadores sin soporte
+  try {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    // Estilos para ocultar el textarea sin display: none (lo cual prevendría select())
+    textarea.style.position = 'fixed';
+    textarea.style.top = '-9999px';
+    textarea.style.left = '-9999px';
+    textarea.style.width = '2em';
+    textarea.style.height = '2em';
+    textarea.style.padding = '0';
+    textarea.style.border = 'none';
+    textarea.style.outline = 'none';
+    textarea.style.boxShadow = 'none';
+    textarea.style.background = 'transparent';
+    document.body.appendChild(textarea);
+
+    textarea.focus();
+    textarea.select();
+    textarea.setSelectionRange(0, 99999); // Soporte para móviles iOS
+
+    const successful = document.execCommand('copy');
+    document.body.removeChild(textarea);
+    
+    if (successful) {
+      return true;
+    } else {
+      throw new Error('execCommand copy returned false');
+    }
+  } catch (err) {
+    console.error('Error al copiar usando fallback:', err);
+    return false;
+  }
+}
+
