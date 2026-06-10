@@ -609,6 +609,7 @@ function _applyUserUI(user) {
   if (can('faqs:read'))          show('nav-faqs');
   if (can('sedes:read'))         show('nav-sedes');
   if (can('despacho:read'))      show('nav-despacho');
+  if (can('despacho:read'))      show('nav-trazabilidad');
   if (can('audit:read'))         show('nav-audit');
   if (can('inventario:read'))    show('nav-inventario');
   if (can('farmacias:read'))     show('nav-farmacias');
