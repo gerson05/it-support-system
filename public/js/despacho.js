@@ -290,7 +290,7 @@ function openDetailModal(id) {
           </h4>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <a href="${tkRes.qr_url}" download="QR-${d.numero}.png"
+          <a href="/api/tracking/${tkRes.token}/qr" download="QR-${d.numero}.png"
              class="btn btn-secondary btn-small" style="text-decoration:none;font-size:12px;padding:5px 12px;">
              ⬇ QR del paquete
           </a>
