@@ -20,6 +20,7 @@ import registrosRouter  from './src/registros/registros-routes.js';
 import inventarioRouter from './src/inventario/inventario-routes.js';
 import authRouter     from './src/auth/auth-routes.js';
 import userRouter     from './src/auth/user-routes.js';
+import trackingRouter from './src/tracking/tracking-routes.js';
 import { initAdminUser } from './src/auth/auth-service.js';
 import Chatbot from './src/whatsapp/chatbot.js';
 import whatsappClient from './src/whatsapp/baileys-client.js';
@@ -62,6 +63,7 @@ app.use(registrosRouter);
 app.use(inventarioRouter);
 app.use(authRouter);
 app.use(userRouter);
+app.use(trackingRouter);
 
 // Página pública de subida de acta firmada
 app.get('/firmar/:token', (_req, res) => {
@@ -76,6 +78,14 @@ app.get('/registrar/:token', (_req, res) => {
   const f = fs.existsSync(clientDist)
     ? path.join(clientDist, 'index.html')
     : path.join(__dirname, 'public', 'registrar-equipo.html');
+  res.sendFile(f);
+});
+
+// Página pública de seguimiento de paquetes
+app.get('/rastrear/:token', (_req, res) => {
+  const f = fs.existsSync(clientDist)
+    ? path.join(clientDist, 'index.html')
+    : path.join(__dirname, 'public', 'rastrear.html');
   res.sendFile(f);
 });
 
