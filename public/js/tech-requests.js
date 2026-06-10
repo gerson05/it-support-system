@@ -292,7 +292,6 @@ export async function renderTechRequests(container) {
                   <th style="${TH}">Cargo</th>
                   <th style="${TH}">Sede</th>
                   ${isInc ? `<th style="${TH}">Equipo</th>` : `<th style="${TH}">Cantidad</th>`}
-                  <th style="${TH}">Prioridad</th>
                   <th style="${TH}">Estado</th>
                   <th style="${TH}">Fecha</th>
                   <th style="${TH}text-align:right;min-width:100px;">Acciones</th>
@@ -309,7 +308,6 @@ export async function renderTechRequests(container) {
                     ${isInc
                       ? `<td style="${TD} font-size:12px;">${r.equipment_name || '—'}</td>`
                       : `<td style="${TD} text-align:center;">${r.quantity}</td>`}
-                    <td style="${TD}">${priorityBadge(r.priority)}</td>
                     <td style="${TD}">${statusBadge(r.status)}</td>
                     <td style="${TD} color:var(--text-muted);font-size:12px;" title="${formatDate(r.created_at)}">${formatTimeAgo(r.created_at)}</td>
                     <td style="${TD} text-align:right;white-space:nowrap;min-width:130px;">
@@ -344,7 +342,6 @@ export async function renderTechRequests(container) {
                 </div>
                 <div class="tr-card-footer">
                   <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-                    ${priorityBadge(r.priority)}
                     <span class="tr-card-time" title="${formatDate(r.created_at)}">${formatTimeAgo(r.created_at)}</span>
                   </div>
                   <button class="btn-tr-edit" data-id="${r.id}" onclick="event.stopPropagation();" style="display:inline-flex;align-items:center;gap:5px;">${iconEdit(11)} Editar</button>
