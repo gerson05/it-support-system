@@ -6,7 +6,7 @@
 import { showToast, attachSedeSearch } from './components.js';
 import { state } from './app.js';
 import { formatDate, formatTimeAgo } from './app.js';
-import { iconSearch, iconPlus, iconClose, iconEdit, iconNote, iconClipboard, iconWrench, iconCopy, iconSave } from './icons.js';
+import { iconSearch, iconPlus, iconClose, iconEdit, iconNote, iconClipboard, iconWrench, iconCopy, iconSave, iconTrash } from './icons.js';
 
 /* ═══════════════════════════════════════════════════
    CONSTANTES DE DOMINIO
@@ -312,11 +312,15 @@ export async function renderTechRequests(container) {
                     <td style="${TD}">${priorityBadge(r.priority)}</td>
                     <td style="${TD}">${statusBadge(r.status)}</td>
                     <td style="${TD} color:var(--text-muted);font-size:12px;" title="${formatDate(r.created_at)}">${formatTimeAgo(r.created_at)}</td>
-                    <td style="${TD} text-align:right;white-space:nowrap;min-width:100px;">
+                    <td style="${TD} text-align:right;white-space:nowrap;min-width:130px;">
                       <button class="btn-tr-edit" data-id="${r.id}"
                         style="padding:4px 10px;font-size:11px;border:1px solid var(--border);border-radius:6px;background:var(--surface-2);color:var(--text-2);cursor:pointer;display:inline-flex;align-items:center;gap:5px;"
                         title="Editar solicitud"
                         onclick="event.stopPropagation();">${iconEdit(11)} Editar</button>
+                      <button class="btn-tr-delete" data-id="${r.id}" data-ref="${r.request_number}"
+                        style="padding:4px 10px;font-size:11px;border:1px solid rgba(239,68,68,.35);border-radius:6px;background:rgba(239,68,68,.1);color:#f87171;cursor:pointer;display:inline-flex;align-items:center;gap:5px;margin-left:4px;"
+                        title="Eliminar solicitud"
+                        onclick="event.stopPropagation();">${iconTrash(11)}</button>
                     </td>
                   </tr>`).join('')}
               </tbody>
@@ -344,6 +348,7 @@ export async function renderTechRequests(container) {
                     <span class="tr-card-time" title="${formatDate(r.created_at)}">${formatTimeAgo(r.created_at)}</span>
                   </div>
                   <button class="btn-tr-edit" data-id="${r.id}" onclick="event.stopPropagation();" style="display:inline-flex;align-items:center;gap:5px;">${iconEdit(11)} Editar</button>
+                  <button class="btn-tr-delete" data-id="${r.id}" data-ref="${r.request_number}" onclick="event.stopPropagation();" style="display:inline-flex;align-items:center;gap:5px;border:1px solid rgba(239,68,68,.35);border-radius:6px;background:rgba(239,68,68,.1);color:#f87171;padding:4px 10px;font-size:11px;cursor:pointer;">${iconTrash(11)}</button>
                 </div>
               </div>`).join('')}
           </div>
@@ -371,6 +376,23 @@ export async function renderTechRequests(container) {
       // Botones Editar
       container2.querySelectorAll('.btn-tr-edit').forEach(btn => {
         btn.addEventListener('click', () => openEditModal(parseInt(btn.dataset.id), loadTable));
+      });
+
+      // Botones Eliminar
+      container2.querySelectorAll('.btn-tr-delete').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          if (!confirm(`¿Eliminar ${btn.dataset.ref}? Esta acción no se puede deshacer.`)) return;
+          btn.disabled = true;
+          try {
+            const res = await fetch(`/api/tech-requests/${btn.dataset.id}`, { method: 'DELETE' });
+            if (!res.ok) throw new Error((await res.json()).error);
+            showToast('Solicitud eliminada', 'success');
+            loadTable();
+          } catch (err) {
+            showToast(err.message, 'error');
+            btn.disabled = false;
+          }
+        });
       });
 
       // Paginación
