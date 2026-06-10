@@ -244,6 +244,21 @@ export function addTechRequestNote(db, id, agentName, note) {
   return true;
 }
 
+/** Elimina una solicitud y todos sus datos relacionados. */
+export function deleteTechRequest(db, id) {
+  db.exec('BEGIN');
+  try {
+    db.prepare('DELETE FROM tech_request_history WHERE request_id = ?').run(id);
+    db.prepare('DELETE FROM tech_request_items WHERE request_id = ?').run(id);
+    const result = db.prepare('DELETE FROM tech_requests WHERE id = ?').run(id);
+    db.exec('COMMIT');
+    return result.changes > 0;
+  } catch (err) {
+    db.exec('ROLLBACK');
+    throw err;
+  }
+}
+
 /** Estadísticas básicas para el dashboard del módulo. */
 export function getTechRequestStats(db) {
   const byStatus = db.prepare(`

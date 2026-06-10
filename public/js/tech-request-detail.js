@@ -4,7 +4,7 @@
 
 import { showToast, copyToClipboard } from './components.js';
 import { state, formatDate, formatTimeAgo } from './app.js';
-import { iconDocument, iconClose, iconInfo, iconPackage, iconDownload, iconLink, iconCopy, iconUpload, iconRefresh, iconNote, iconSave, iconClipboard, iconWrench, iconCheck, iconSettings } from './icons.js';
+import { iconDocument, iconClose, iconInfo, iconPackage, iconDownload, iconLink, iconCopy, iconUpload, iconRefresh, iconNote, iconSave, iconClipboard, iconWrench, iconCheck, iconSettings, iconTrash } from './icons.js';
 
 async function fetchActaInfoTR(entityId) {
   try {
@@ -81,6 +81,12 @@ export async function renderTechRequestDetail(container, id) {
             onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 20px rgba(16,185,129,.4)'"
             onmouseout="this.style.transform='';this.style.boxShadow='0 4px 14px rgba(16,185,129,.3)'">
             ${iconDocument(13)} Generar Acta
+          </button>
+          <button id="btn-eliminar-solicitud"
+            style="display:flex;align-items:center;gap:7px;padding:9px 18px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.35);border-radius:9px;color:#f87171;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;"
+            onmouseover="this.style.background='rgba(239,68,68,.22)';this.style.borderColor='rgba(239,68,68,.6)'"
+            onmouseout="this.style.background='rgba(239,68,68,.12)';this.style.borderColor='rgba(239,68,68,.35)'">
+            ${iconTrash(13)} Eliminar
           </button>
       </div>
     </div>
@@ -329,6 +335,24 @@ export async function renderTechRequestDetail(container, id) {
       showToast(err.message, 'error');
       btn.innerHTML = `${iconSave(14)} Guardar Cambios`;
       btn.disabled    = false;
+    }
+  });
+
+  /* ── Eliminar solicitud ── */
+  document.getElementById('btn-eliminar-solicitud').addEventListener('click', async () => {
+    if (!confirm(`¿Eliminar ${req.request_number}? Esta acción no se puede deshacer.`)) return;
+    const btn = document.getElementById('btn-eliminar-solicitud');
+    btn.textContent = 'Eliminando…';
+    btn.disabled = true;
+    try {
+      const res = await fetch(`/api/tech-requests/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error((await res.json()).error);
+      showToast('Solicitud eliminada', 'success');
+      window.location.hash = '#tech-requests';
+    } catch (err) {
+      showToast(err.message, 'error');
+      btn.innerHTML = `${iconTrash(13)} Eliminar`;
+      btn.disabled = false;
     }
   });
 

@@ -8,6 +8,7 @@ import {
   replaceRequestItems,
   addTechRequestNote,
   getTechRequestStats,
+  deleteTechRequest,
 } from './tech-request-model.js';
 import { generateActa } from './acta-generator.js';
 import { appEvents } from '../events/broadcaster.js';
@@ -20,6 +21,7 @@ const router = express.Router();
 const canRead   = [requireAuth, requirePermission('tech-requests:read')];
 const canCreate = [requireAuth, requirePermission('tech-requests:create')];
 const canEdit   = [requireAuth, requirePermission('tech-requests:edit')];
+const canDelete = [requireAuth, requirePermission('tech-requests:delete')];
 
 /* ── Estadísticas generales del módulo ── */
 router.get('/api/tech-requests/stats', ...canRead, (req, res) => {
@@ -132,6 +134,19 @@ router.put('/api/tech-requests/:id', ...canEdit, (req, res) => {
   } catch (err) {
     console.error('Error en PUT /api/tech-requests/:id:', err);
     res.status(500).json({ error: 'Error al actualizar la solicitud.' });
+  }
+});
+
+/* ── Eliminar solicitud ── */
+router.delete('/api/tech-requests/:id', ...canDelete, (req, res) => {
+  try {
+    const deleted = deleteTechRequest(db, parseInt(req.params.id));
+    if (!deleted) return res.status(404).json({ error: 'Solicitud no encontrada.' });
+    appEvents.emit('tech-request:deleted', { id: parseInt(req.params.id) });
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Error en DELETE /api/tech-requests/:id:', err);
+    res.status(500).json({ error: 'Error al eliminar la solicitud.' });
   }
 });
 
