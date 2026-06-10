@@ -824,6 +824,7 @@ async function openCreateModal(onSuccess) {
         body:    JSON.stringify(serializarFormulario()),
       });
       showToast('Borrador guardado ✓', 'success');
+      document.dispatchEvent(new CustomEvent('despacho-borrador-saved'));
     } catch {
       showToast('No se pudo guardar el borrador', 'error');
     }
@@ -978,6 +979,15 @@ export function renderDespacho(container) {
         </button>
       </div>
 
+      <!-- Borrador activo -->
+      <div id="borrador-main-banner" style="display:none;margin-bottom:16px;padding:12px 16px;border-radius:10px;border:1px solid rgba(99,102,241,.3);background:rgba(99,102,241,.08);display:none;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+        <span id="borrador-main-txt" style="font-size:13px;color:var(--text-2);"></span>
+        <div style="display:flex;gap:8px;flex-shrink:0;">
+          <button id="btn-continuar-borrador" style="padding:5px 14px;border:1px solid rgba(99,102,241,.5);border-radius:6px;background:rgba(99,102,241,.15);color:#818cf8;font-size:12px;font-weight:600;cursor:pointer;">Continuar borrador</button>
+          <button id="btn-descartar-main-borrador" style="padding:5px 12px;border:1px solid var(--border);border-radius:6px;background:var(--surface-2);color:var(--text-3);font-size:12px;cursor:pointer;">Descartar</button>
+        </div>
+      </div>
+
       <!-- Filters -->
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;align-items:center;">
         <input id="filter-search" type="text" placeholder="Buscar por número, destinatario o sede…"
@@ -1096,12 +1106,49 @@ export function renderDespacho(container) {
   const observer = new MutationObserver(() => {
     if (!document.body.contains(container.querySelector('#btn-nuevo-despacho'))) {
       document.removeEventListener('open-despacho', openHandler);
+      document.removeEventListener('despacho-borrador-saved', borradorHandler);
       observer.disconnect();
     }
   });
   observer.observe(container, { childList: true, subtree: false });
 
+  // ── Borrador banner en página principal ──
+  const mainBanner  = container.querySelector('#borrador-main-banner');
+  const mainBannerTxt = container.querySelector('#borrador-main-txt');
+
+  async function checkBorrador() {
+    if (!state.currentAgent?.name) return;
+    try {
+      const agente = encodeURIComponent(state.currentAgent.name);
+      const data = await fetch(`/api/despachos/borrador?agente=${agente}`)
+        .then(r => r.ok ? r.json() : { borrador: null });
+      if (data.borrador) {
+        const { label } = _timeAgo(data.borrador.updated_at);
+        const dest = data.borrador.destinatario ? ` · ${data.borrador.destinatario}` : '';
+        mainBannerTxt.textContent = `📝 Borrador guardado (${label})${dest}`;
+        mainBanner.style.display = 'flex';
+      } else {
+        mainBanner.style.display = 'none';
+      }
+    } catch { mainBanner.style.display = 'none'; }
+  }
+
+  container.querySelector('#btn-continuar-borrador').onclick = () => {
+    openCreateModal(() => { loadTable(); checkBorrador(); });
+  };
+
+  container.querySelector('#btn-descartar-main-borrador').onclick = async () => {
+    if (!state.currentAgent?.name) return;
+    const agente = encodeURIComponent(state.currentAgent.name);
+    await fetch(`/api/despachos/borrador?agente=${agente}`, { method: 'DELETE' }).catch(() => {});
+    mainBanner.style.display = 'none';
+  };
+
+  const borradorHandler = () => checkBorrador();
+  document.addEventListener('despacho-borrador-saved', borradorHandler);
+
   // Initial load
+  checkBorrador();
   loadTable();
 }
 
