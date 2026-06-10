@@ -4,7 +4,7 @@
 
 import { showToast, copyToClipboard } from './components.js';
 import { state, formatDate, formatTimeAgo } from './app.js';
-import { iconDocument, iconClose, iconInfo, iconPackage, iconDownload, iconLink, iconCopy, iconUpload, iconRefresh, iconNote, iconSave, iconClipboard, iconWrench, iconCheck } from './icons.js';
+import { iconDocument, iconClose, iconInfo, iconPackage, iconDownload, iconLink, iconCopy, iconUpload, iconRefresh, iconNote, iconSave, iconClipboard, iconWrench, iconCheck, iconSettings } from './icons.js';
 
 async function fetchActaInfoTR(entityId) {
   try {
