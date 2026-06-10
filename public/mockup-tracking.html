@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup — Sistema de Trazabilidad</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0a14; color: #e2e8f0; min-height: 100vh; }
+
+  /* ── NAV ── */
+  .nav { display: flex; gap: 8px; padding: 16px 20px; background: #111122; border-bottom: 1px solid rgba(255,255,255,.07); flex-wrap: wrap; }
+  .nav-btn { padding: 7px 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.05); color: #94a3b8; font-size: 13px; cursor: pointer; transition: all .15s; }
+  .nav-btn.active { background: rgba(99,102,241,.2); border-color: rgba(99,102,241,.5); color: #818cf8; font-weight: 600; }
+  .nav-btn:hover:not(.active) { background: rgba(255,255,255,.08); color: #e2e8f0; }
+
+  /* ── SCREENS ── */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ── PUBLIC FORM (mobile) ── */
+  .phone-wrap { display: flex; justify-content: center; padding: 32px 16px; }
+  .phone { width: 390px; background: #f8fafc; border-radius: 40px; overflow: hidden; box-shadow: 0 40px 80px rgba(0,0,0,.5), 0 0 0 2px #1e293b; min-height: 700px; }
+  .phone-status { background: #1a1a2e; height: 44px; display: flex; align-items: center; justify-content: center; }
+  .phone-body { background: #f1f5f9; min-height: 656px; }
+
+  /* Form styles (light, mobile) */
+  .pf-header { background: linear-gradient(135deg, #1e1b4b, #312e81); padding: 24px 20px 28px; color: #fff; }
+  .pf-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.15); padding: 4px 10px; border-radius: 99px; font-size: 11px; font-weight: 600; margin-bottom: 12px; }
+  .pf-num { font-size: 22px; font-weight: 800; letter-spacing: -.5px; margin-bottom: 4px; }
+  .pf-sub { font-size: 13px; opacity: .8; }
+  .pf-body { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+  .pf-card { background: #fff; border-radius: 12px; padding: 14px 16px; box-shadow: 0 1px 4px rgba(0,0,0,.07); }
+  .pf-card-title { font-size: 11px; font-weight: 700; color: #6366f1; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+  .pf-label { font-size: 12px; font-weight: 600; color: #374151; margin-bottom: 5px; display: block; }
+  .pf-input { width: 100%; padding: 9px 12px; border: 1.5px solid #d1d5db; border-radius: 8px; font-size: 14px; color: #111827; background: #f9fafb; outline: none; }
+  .pf-input:focus { border-color: #6366f1; background: #fff; box-shadow: 0 0 0 3px rgba(99,102,241,.12); }
+  .pf-input.select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+  .pf-photo-btn { width: 100%; padding: 16px; border: 2px dashed #c7d2fe; border-radius: 10px; background: #eef2ff; color: #4f46e5; font-size: 13px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; }
+  .pf-photo-icon { font-size: 28px; }
+  .pf-photo-sub { font-size: 11px; color: #6366f1; opacity: .7; }
+  .pf-submit { width: 100%; padding: 14px; background: linear-gradient(135deg, #6366f1, #8b5cf6); border: none; border-radius: 10px; color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 14px rgba(99,102,241,.4); margin-top: 4px; }
+  .pf-row { display: flex; flex-direction: column; gap: 10px; }
+  .pf-separator { height: 1px; background: #e5e7eb; margin: 4px 0; }
+  .pf-info-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+  .pf-info-label { color: #6b7280; }
+  .pf-info-val { font-weight: 600; color: #111827; }
+  .pf-status-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 99px; font-size: 11px; font-weight: 600; background: #fef3c7; color: #92400e; }
+  .pf-dot { width: 7px; height: 7px; border-radius: 50%; background: #f59e0b; }
+
+  /* ── TIMELINE (internal app) ── */
+  .tl-wrap { padding: 28px; max-width: 960px; margin: 0 auto; }
+  .tl-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
+  .tl-title { font-size: 20px; font-weight: 700; }
+  .tl-sub { font-size: 13px; color: #64748b; margin-top: 3px; }
+  .tl-grid { display: grid; grid-template-columns: 1fr 320px; gap: 24px; align-items: start; }
+  .card { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.07); border-radius: 14px; padding: 20px; }
+  .card-title { font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 16px; display: flex; align-items: center; gap: 7px; }
+
+  /* Status bar */
+  .status-bar { display: flex; gap: 0; margin-bottom: 24px; overflow: hidden; border-radius: 10px; }
+  .status-step { flex: 1; padding: 10px 6px; text-align: center; font-size: 11px; font-weight: 600; background: rgba(255,255,255,.04); border-right: 1px solid rgba(255,255,255,.06); }
+  .status-step:last-child { border-right: none; }
+  .status-step.done { background: rgba(16,185,129,.15); color: #6ee7b7; }
+  .status-step.current { background: rgba(99,102,241,.2); color: #818cf8; }
+  .status-step.pending { color: #334155; }
+  .status-step .s-icon { font-size: 16px; display: block; margin-bottom: 3px; }
+
+  /* Timeline events */
+  .tl-events { display: flex; flex-direction: column; }
+  .tl-event { display: flex; gap: 0; }
+  .tl-spine { display: flex; flex-direction: column; align-items: center; width: 36px; flex-shrink: 0; }
+  .tl-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid; flex-shrink: 0; margin-top: 3px; }
+  .tl-dot.origin { border-color: #6366f1; background: #6366f1; }
+  .tl-dot.done { border-color: #10b981; background: #10b981; }
+  .tl-dot.current { border-color: #f59e0b; background: #f59e0b; }
+  .tl-dot.pending { border-color: #1e293b; background: #0f172a; }
+  .tl-line { width: 2px; background: rgba(255,255,255,.07); flex: 1; min-height: 20px; }
+  .tl-line.done { background: rgba(16,185,129,.3); }
+  .tl-content { flex: 1; padding: 0 0 24px 8px; }
+  .tl-event-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+  .tl-event-title { font-size: 14px; font-weight: 600; }
+  .tl-event-time { font-size: 11px; color: #475569; white-space: nowrap; }
+  .tl-event-body { font-size: 13px; color: #94a3b8; }
+  .tl-event-meta { margin-top: 8px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .tl-chip { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 99px; font-size: 11px; font-weight: 500; border: 1px solid rgba(255,255,255,.08); color: #94a3b8; background: rgba(255,255,255,.04); }
+  .tl-photo { width: 52px; height: 52px; border-radius: 8px; background: rgba(255,255,255,.06); display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; border: 1px solid rgba(255,255,255,.08); margin-top: 8px; }
+  .tl-pending-card { background: rgba(255,255,255,.02); border: 1px dashed rgba(255,255,255,.08); border-radius: 10px; padding: 12px 14px; display: flex; align-items: center; gap: 10px; color: #334155; font-size: 13px; }
+
+  /* Right panel */
+  .info-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.05); font-size: 13px; }
+  .info-row:last-child { border-bottom: none; }
+  .info-key { color: #64748b; }
+  .info-val { font-weight: 500; text-align: right; max-width: 180px; }
+  .badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 99px; font-size: 11px; font-weight: 600; }
+  .badge-transit { background: rgba(245,158,11,.15); color: #f59e0b; }
+  .badge-done { background: rgba(16,185,129,.15); color: #10b981; }
+  .badge-origin { background: rgba(99,102,241,.15); color: #818cf8; }
+  .qr-box { background: #fff; border-radius: 10px; padding: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+  .qr-placeholder { width: 100px; height: 100px; background: #f1f5f9; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 32px; }
+  .btn { padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 6px; }
+  .btn-primary { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; }
+  .btn-secondary { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); color: #94a3b8; }
+  .btn-sm { padding: 5px 12px; font-size: 12px; }
+
+  /* ── LIST VIEW ── */
+  .lv-wrap { padding: 28px; max-width: 1100px; margin: 0 auto; }
+  .lv-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; flex-wrap: wrap; gap: 12px; }
+  table { width: 100%; border-collapse: collapse; }
+  thead tr { background: rgba(255,255,255,.04); border-bottom: 1px solid rgba(255,255,255,.07); }
+  th { padding: 10px 14px; text-align: left; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: .06em; }
+  tbody tr { border-bottom: 1px solid rgba(255,255,255,.04); transition: background .15s; cursor: pointer; }
+  tbody tr:hover { background: rgba(255,255,255,.03); }
+  td { padding: 12px 14px; font-size: 13px; }
+  .td-num { font-family: monospace; font-weight: 700; color: #818cf8; }
+  .td-muted { color: #64748b; }
+  .progress-bar { height: 4px; background: rgba(255,255,255,.07); border-radius: 99px; overflow: hidden; width: 80px; }
+  .progress-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, #6366f1, #10b981); }
+
+  /* ── SUCCESS SCREEN ── */
+  .success-wrap { display: flex; justify-content: center; padding: 32px 16px; }
+  .success-phone { width: 390px; background: #f8fafc; border-radius: 40px; overflow: hidden; box-shadow: 0 40px 80px rgba(0,0,0,.5), 0 0 0 2px #1e293b; }
+  .success-body { padding: 40px 24px; display: flex; flex-direction: column; align-items: center; text-align: center; background: #f1f5f9; min-height: 500px; }
+  .success-icon { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #10b981, #059669); display: flex; align-items: center; justify-content: center; font-size: 36px; margin-bottom: 20px; box-shadow: 0 8px 24px rgba(16,185,129,.4); }
+  .success-title { font-size: 22px; font-weight: 800; color: #111827; margin-bottom: 8px; }
+  .success-sub { font-size: 14px; color: #6b7280; margin-bottom: 28px; line-height: 1.6; }
+  .success-card { background: #fff; border-radius: 12px; padding: 16px; width: 100%; margin-bottom: 16px; text-align: left; box-shadow: 0 1px 4px rgba(0,0,0,.07); }
+  .success-row { display: flex; justify-content: space-between; font-size: 13px; padding: 5px 0; }
+  .success-key { color: #6b7280; }
+  .success-val { font-weight: 600; color: #111827; font-size: 12px; max-width: 160px; text-align: right; }
+
+  /* Annotations */
+  .annotation { position: relative; display: inline-block; }
+  .ann-line { position: absolute; border: 2px dashed rgba(99,102,241,.5); pointer-events: none; }
+  .ann-label { position: absolute; background: rgba(99,102,241,.9); color: #fff; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 99px; white-space: nowrap; pointer-events: none; }
+
+  .section-label { font-size: 10px; font-weight: 700; color: #6366f1; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 8px; padding: 0 4px; }
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <div style="font-size:13px;font-weight:700;color:#818cf8;padding:7px 0;margin-right:8px;">📦 Mockups Trazabilidad</div>
+  <button class="nav-btn active" onclick="show('form')">📱 Formulario público (móvil)</button>
+  <button class="nav-btn" onclick="show('success')">✅ Confirmación exitosa</button>
+  <button class="nav-btn" onclick="show('timeline')">🗺️ Timeline interno (app)</button>
+  <button class="nav-btn" onclick="show('list')">📋 Lista de paquetes</button>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SCREEN 1: FORMULARIO PÚBLICO (MÓVIL)
+══════════════════════════════════════════════════ -->
+<div id="screen-form" class="screen active">
+  <div style="text-align:center;padding:16px 20px 0;color:#64748b;font-size:13px;">
+    Vista que ve el receptor al escanear el QR · Acceso público sin login
+  </div>
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="phone-status">
+        <div style="display:flex;gap:4px;align-items:center;">
+          <div style="width:8px;height:8px;background:#6366f1;border-radius:50%;"></div>
+          <div style="width:40px;height:8px;background:#1e293b;border-radius:4px;"></div>
+          <div style="width:20px;height:8px;background:#1e293b;border-radius:4px;"></div>
+        </div>
+      </div>
+      <div class="phone-body">
+        <div class="pf-header">
+          <div class="pf-badge">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Seguimiento de Paquete
+          </div>
+          <div class="pf-num">DES-20260610-004</div>
+          <div class="pf-sub">Destino: Farmacia Aliada · Cali</div>
+        </div>
+        <div class="pf-body">
+
+          <!-- Info del paquete -->
+          <div class="pf-card">
+            <div class="pf-card-title">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+              Información del despacho
+            </div>
+            <div class="pf-info-row">
+              <span class="pf-info-label">Remitente</span>
+              <span class="pf-info-val">Gerson IT — Cali</span>
+            </div>
+            <div class="pf-separator"></div>
+            <div class="pf-info-row">
+              <span class="pf-info-label">Artículos</span>
+              <span class="pf-info-val">3 ítems</span>
+            </div>
+            <div class="pf-separator"></div>
+            <div class="pf-info-row">
+              <span class="pf-info-label">Estado actual</span>
+              <span class="pf-status-badge"><span class="pf-dot"></span>En tránsito</span>
+            </div>
+          </div>
+
+          <!-- Confirmar recepción -->
+          <div class="pf-card">
+            <div class="pf-card-title">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              Confirmar recepción
+            </div>
+            <div class="pf-row">
+              <div>
+                <label class="pf-label">¿Quién te entregó el paquete? *</label>
+                <input class="pf-input" placeholder="Nombre del transportista o agente…" value="">
+              </div>
+              <div>
+                <label class="pf-label">Tu nombre *</label>
+                <input class="pf-input" placeholder="Tu nombre completo…" value="Diana Lorena Ramírez">
+              </div>
+              <div>
+                <label class="pf-label">Ubicación de recepción *</label>
+                <select class="pf-input select">
+                  <option>— Selecciona la ubicación —</option>
+                  <option selected>Farmacia Aliada · Cali</option>
+                  <option>Bodega Central · Cali</option>
+                  <option>Mi Farmacia Miranda</option>
+                </select>
+              </div>
+              <div>
+                <label class="pf-label">Observaciones (opcional)</label>
+                <input class="pf-input" placeholder="Estado del embalaje, novedades…" value="">
+              </div>
+            </div>
+          </div>
+
+          <!-- Foto evidencia -->
+          <div class="pf-card">
+            <div class="pf-card-title">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              Fotografía de evidencia *
+            </div>
+            <div class="pf-photo-btn">
+              <span class="pf-photo-icon">📷</span>
+              <span>Tomar foto o subir imagen</span>
+              <span class="pf-photo-sub">JPG/PNG · máx 5 MB</span>
+            </div>
+          </div>
+
+          <button class="pf-submit">✓ Registrar recepción</button>
+
+          <div style="text-align:center;font-size:11px;color:#9ca3af;padding-bottom:16px;">
+            Mi Farmacia · Sistema IT · Registro seguro
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SCREEN 2: CONFIRMACIÓN EXITOSA
+══════════════════════════════════════════════════ -->
+<div id="screen-success" class="screen">
+  <div style="text-align:center;padding:16px 20px 0;color:#64748b;font-size:13px;">
+    Lo que ve el receptor tras enviar el formulario correctamente
+  </div>
+  <div class="success-wrap">
+    <div class="success-phone">
+      <div class="phone-status" style="background:#1a1a2e;">
+        <div style="display:flex;gap:4px;align-items:center;">
+          <div style="width:8px;height:8px;background:#10b981;border-radius:50%;"></div>
+        </div>
+      </div>
+      <div class="success-body">
+        <div class="success-icon">✓</div>
+        <div class="success-title">¡Recepción registrada!</div>
+        <div class="success-sub">El equipo IT ha sido notificado.<br>Tu evidencia quedó guardada correctamente.</div>
+
+        <div class="success-card">
+          <div style="font-size:11px;font-weight:700;color:#10b981;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Resumen del registro</div>
+          <div class="success-row"><span class="success-key">Paquete</span><span class="success-val">DES-20260610-004</span></div>
+          <div class="success-row"><span class="success-key">Recibiste de</span><span class="success-val">Carlos Mensajero</span></div>
+          <div class="success-row"><span class="success-key">Recibido por</span><span class="success-val">Diana Lorena Ramírez</span></div>
+          <div class="success-row"><span class="success-key">Ubicación</span><span class="success-val">Farmacia Aliada · Cali</span></div>
+          <div class="success-row"><span class="success-key">Fecha y hora</span><span class="success-val">10 jun 2026, 2:34 pm</span></div>
+          <div class="success-row"><span class="success-key">Fotografía</span><span class="success-val" style="color:#10b981;">✓ Guardada</span></div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:8px;padding:12px 16px;background:#fff;border-radius:10px;width:100%;font-size:12px;color:#6b7280;box-shadow:0 1px 4px rgba(0,0,0,.07);">
+          <span style="font-size:18px;">🔒</span>
+          <span>Este registro no puede modificarse una vez enviado.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SCREEN 3: TIMELINE INTERNO
+══════════════════════════════════════════════════ -->
+<div id="screen-timeline" class="screen">
+  <div class="tl-wrap">
+    <div class="tl-header">
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+          <button style="padding:5px 12px;border:1px solid rgba(255,255,255,.1);border-radius:6px;background:rgba(255,255,255,.05);color:#64748b;font-size:12px;cursor:pointer;">← Volver</button>
+          <span class="badge badge-transit">● En tránsito</span>
+        </div>
+        <div class="tl-title">DES-20260610-004 — Trazabilidad</div>
+        <div class="tl-sub">Farmacia Aliada, Cali · Diana Lorena Ramírez · 3 artículos</div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-secondary btn-sm">📄 Exportar</button>
+        <button class="btn btn-primary btn-sm">QR del paquete</button>
+      </div>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="status-bar" style="margin-bottom:28px;">
+      <div class="status-step done"><span class="s-icon">📦</span>Creado</div>
+      <div class="status-step done"><span class="s-icon">🚚</span>Despachado</div>
+      <div class="status-step current"><span class="s-icon">📍</span>En tránsito</div>
+      <div class="status-step pending"><span class="s-icon">🏪</span>En sede</div>
+      <div class="status-step pending"><span class="s-icon">✅</span>Entregado</div>
+    </div>
+
+    <div class="tl-grid">
+      <!-- Left: timeline -->
+      <div>
+        <div class="card">
+          <div class="card-title">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Historial de movimientos
+          </div>
+
+          <div class="tl-events">
+
+            <!-- Evento 1: Origen -->
+            <div class="tl-event">
+              <div class="tl-spine">
+                <div class="tl-dot origin"></div>
+                <div class="tl-line done"></div>
+              </div>
+              <div class="tl-content">
+                <div class="tl-event-header">
+                  <div class="tl-event-title">📦 Despacho creado</div>
+                  <div class="tl-event-time">10 jun · 9:14 am</div>
+                </div>
+                <div class="tl-event-body">Gerson (IT) creó el despacho desde Bodega Central, Cali.</div>
+                <div class="tl-event-meta">
+                  <span class="tl-chip">👤 Gerson IT</span>
+                  <span class="tl-chip">📍 Bodega Central · Cali</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Evento 2: Bodega -->
+            <div class="tl-event">
+              <div class="tl-spine">
+                <div class="tl-dot done"></div>
+                <div class="tl-line done"></div>
+              </div>
+              <div class="tl-content">
+                <div class="tl-event-header">
+                  <div class="tl-event-title">🏭 Recibido en bodega</div>
+                  <div class="tl-event-time">10 jun · 10:52 am</div>
+                </div>
+                <div class="tl-event-body">Paquete recibido. Embalaje en buen estado.</div>
+                <div class="tl-event-meta">
+                  <span class="tl-chip">👤 Recibió: Marco Polo</span>
+                  <span class="tl-chip">🤝 Entregó: Mensajero 1</span>
+                  <span class="tl-chip">📍 Bodega Norte · Cali</span>
+                </div>
+                <div class="tl-photo">🖼️</div>
+              </div>
+            </div>
+
+            <!-- Evento 3: En tránsito (actual) -->
+            <div class="tl-event">
+              <div class="tl-spine">
+                <div class="tl-dot current"></div>
+                <div class="tl-line"></div>
+              </div>
+              <div class="tl-content">
+                <div class="tl-event-header">
+                  <div class="tl-event-title" style="color:#f59e0b;">🚚 En camino al destino</div>
+                  <div class="tl-event-time">10 jun · 1:05 pm</div>
+                </div>
+                <div class="tl-event-body">Salió desde Bodega Norte con mensajero externo.</div>
+                <div class="tl-event-meta">
+                  <span class="tl-chip">👤 Entregó: Marco Polo</span>
+                  <span class="tl-chip" style="color:#f59e0b;border-color:rgba(245,158,11,.2);">● Posición actual</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Evento 4: Pendiente -->
+            <div class="tl-event">
+              <div class="tl-spine">
+                <div class="tl-dot pending"></div>
+              </div>
+              <div class="tl-content" style="padding-bottom:0;">
+                <div class="tl-pending-card">
+                  <span style="font-size:18px;">🏪</span>
+                  <div>
+                    <div style="font-size:13px;color:#334155;font-weight:600;">Esperando recepción en Farmacia Aliada</div>
+                    <div style="font-size:12px;color:#475569;margin-top:2px;">El receptor escaneará el QR al recibir</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: info -->
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <div class="card">
+          <div class="card-title">QR del paquete</div>
+          <div class="qr-box">
+            <div class="qr-placeholder">▦</div>
+          </div>
+          <div style="text-align:center;font-size:11px;color:#475569;margin-bottom:12px;">Imprimir y pegar al paquete físico</div>
+          <button class="btn btn-primary" style="width:100%;justify-content:center;font-size:13px;">⬇ Descargar QR</button>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Detalles</div>
+          <div class="info-row"><span class="info-key">Número</span><span class="info-val" style="font-family:monospace;color:#818cf8;">DES-20260610-004</span></div>
+          <div class="info-row"><span class="info-key">Destinatario</span><span class="info-val">Diana L. Ramírez</span></div>
+          <div class="info-row"><span class="info-key">Sede destino</span><span class="info-val">Farmacia Aliada · Cali</span></div>
+          <div class="info-row"><span class="info-key">Artículos</span><span class="info-val">3 ítems</span></div>
+          <div class="info-row"><span class="info-key">Creado</span><span class="info-val">10 jun 2026</span></div>
+          <div class="info-row"><span class="info-key">Estado</span><span class="info-val"><span class="badge badge-transit">En tránsito</span></span></div>
+          <div class="info-row"><span class="info-key">Paradas</span><span class="info-val">2 / 1 pendiente</span></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Tiempo por etapa</div>
+          <div class="info-row"><span class="info-key">Creación → Bodega</span><span class="info-val" style="color:#10b981;">1h 38m</span></div>
+          <div class="info-row"><span class="info-key">Bodega → Tránsito</span><span class="info-val" style="color:#10b981;">2h 13m</span></div>
+          <div class="info-row"><span class="info-key">Tránsito → Destino</span><span class="info-val" style="color:#64748b;">En curso…</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SCREEN 4: LISTA DE PAQUETES
+══════════════════════════════════════════════════ -->
+<div id="screen-list" class="screen">
+  <div class="lv-wrap">
+    <div class="lv-header">
+      <div>
+        <div style="font-size:20px;font-weight:700;">Trazabilidad de Paquetes</div>
+        <div style="font-size:13px;color:#64748b;margin-top:3px;">Seguimiento en tiempo real de todos los despachos activos</div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <input placeholder="Buscar por número, destino…" style="padding:8px 12px;border:1px solid rgba(255,255,255,.1);border-radius:8px;background:rgba(255,255,255,.05);color:#e2e8f0;font-size:13px;width:240px;">
+        <select style="padding:8px 12px;border:1px solid rgba(255,255,255,.1);border-radius:8px;background:rgba(255,255,255,.05);color:#94a3b8;font-size:13px;">
+          <option>Todos los estados</option>
+          <option>En tránsito</option>
+          <option>En sede</option>
+          <option>Entregado</option>
+        </select>
+      </div>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <table>
+        <thead>
+          <tr>
+            <th>Paquete</th>
+            <th>Destino</th>
+            <th>Estado</th>
+            <th>Último evento</th>
+            <th>Progreso</th>
+            <th>Actualizado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="td-num">DES-20260610-004</span></td>
+            <td>Farmacia Aliada · Cali</td>
+            <td><span class="badge badge-transit">🚚 En tránsito</span></td>
+            <td><span class="td-muted">Bodega Norte</span></td>
+            <td><div class="progress-bar"><div class="progress-fill" style="width:60%"></div></div></td>
+            <td class="td-muted">hace 2h</td>
+          </tr>
+          <tr>
+            <td><span class="td-num">DES-20260610-003</span></td>
+            <td>Mi Farmacia Miranda</td>
+            <td><span class="badge" style="background:rgba(99,102,241,.15);color:#818cf8;">📍 En sede</span></td>
+            <td><span class="td-muted">Farmacia Miranda</span></td>
+            <td><div class="progress-bar"><div class="progress-fill" style="width:80%"></div></div></td>
+            <td class="td-muted">hace 45m</td>
+          </tr>
+          <tr>
+            <td><span class="td-num">DES-20260609-007</span></td>
+            <td>Mi Farmacia Zarzal</td>
+            <td><span class="badge badge-done">✅ Entregado</span></td>
+            <td><span class="td-muted">Farmacia Zarzal</span></td>
+            <td><div class="progress-bar"><div class="progress-fill" style="width:100%;background:#10b981"></div></div></td>
+            <td class="td-muted">ayer</td>
+          </tr>
+          <tr>
+            <td><span class="td-num">DES-20260608-002</span></td>
+            <td>Sede Norte · Cali</td>
+            <td><span class="badge badge-origin">📦 Creado</span></td>
+            <td><span class="td-muted">Bodega Central</span></td>
+            <td><div class="progress-bar"><div class="progress-fill" style="width:15%"></div></div></td>
+            <td class="td-muted">hace 1 día</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  function show(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('screen-' + id).classList.add('active');
+    event.target.classList.add('active');
+  }
+</script>
+</body>
+</html>
