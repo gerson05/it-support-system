@@ -36,3 +36,4 @@ appEvents.on('ticket:updated',         (data) => broadcast('ticket-updated', dat
 appEvents.on('ticket:message',         (data) => broadcast('ticket-message', data));
 appEvents.on('tech-request:created',   (data) => broadcast('tech-request-created', data));
 appEvents.on('tech-request:updated',   (data) => broadcast('tech-request-updated', data));
+appEvents.on('tracking:evento',        (data) => broadcast('tracking-evento', data));
