@@ -9,6 +9,7 @@ import { renderFaqs } from './faqs.js';
 import { renderSedesAdmin } from './sedes-admin.js';
 import { renderAudit } from './audit.js';
 import { renderDespacho } from './despacho.js';
+import { renderTrazabilidad } from './trazabilidad.js';
 import { renderUsers } from './users.js';
 import { showToast, copyToClipboard } from './components.js';
 import { DataService, isOfflineMode } from './data-service.js';
@@ -254,6 +255,12 @@ function router() {
         state.currentPage = 'despacho';
         document.getElementById('nav-despacho')?.classList.add('active');
         renderDespacho(appContainer);
+        break;
+      case '#trazabilidad':
+        if (state.currentUser && !can('despacho:read')) { window.location.hash = _firstAccessibleHash(); break; }
+        state.currentPage = 'trazabilidad';
+        document.getElementById('nav-trazabilidad')?.classList.add('active');
+        renderTrazabilidad(appContainer);
         break;
       case '#audit':
         if (state.currentUser && !can('audit:read')) { window.location.hash = _firstAccessibleHash(); break; }
