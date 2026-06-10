@@ -278,6 +278,30 @@ function openDetailModal(id) {
     // Acta interaction
     setupActaInteraction(body, d, actaInfo, overlay);
 
+    // Tracking section
+    const tkRes = await fetch(`/api/tracking/by-despacho/${d.id}`).then(r => r.ok ? r.json() : { token: null });
+    if (tkRes.token) {
+      const trackingSection = document.createElement('div');
+      trackingSection.style.cssText = 'margin-top:20px;padding-top:16px;border-top:1px solid var(--glass-border);';
+      trackingSection.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <h4 style="font-size:13px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">
+            Tracking del paquete
+          </h4>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <a href="${tkRes.qr_url}" download="QR-${d.numero}.png"
+             class="btn btn-secondary btn-small" style="text-decoration:none;font-size:12px;padding:5px 12px;">
+             ⬇ QR del paquete
+          </a>
+          <a href="#trazabilidad" onclick="this.closest('.modal-overlay')?.remove()"
+             class="btn btn-secondary btn-small" style="text-decoration:none;font-size:12px;padding:5px 12px;">
+             🗺️ Ver timeline completo
+          </a>
+        </div>`;
+      overlay.querySelector('#modal-body').appendChild(trackingSection);
+    }
+
   }).catch(e => {
     overlay.querySelector('#modal-body').innerHTML = `<div style="color:#f87171;padding:20px;text-align:center;">${e.message}</div>`;
   });

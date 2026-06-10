@@ -5,6 +5,7 @@ import { generateActa } from '../tech-requests/acta-generator.js';
 import { logDespacho }      from '../excel/excel-logger.js';
 import { logDespachoSheet } from '../excel/sheets-logger.js';
 import { requireAuth, requirePermission } from '../auth/auth-middleware.js';
+import { createTracking } from '../tracking/tracking-model.js';
 
 const router = express.Router();
 
@@ -164,6 +165,13 @@ router.post('/api/despachos', ...canCreate, (req, res) => {
     const desData = { numero, destinatario, sede, area, articulos, observaciones, requiere_acta, acta_numero, agente };
     logDespacho(desData).catch(err => console.error('[excel-logger] despacho:', err.message));
     logDespachoSheet(desData).catch(err => console.error('[sheets-logger] despacho:', err.message));
+
+    // Auto-crear tracking para este despacho
+    try {
+      createTracking(db, id, agente || 'IT', 'Bodega Central');
+    } catch (err) {
+      console.error('[tracking] Error al crear tracking:', err.message);
+    }
 
     res.json({ success: true, id, numero });
   } catch (e) {
