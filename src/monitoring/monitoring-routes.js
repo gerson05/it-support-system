@@ -97,18 +97,20 @@ router.post('/api/monitoring/heartbeat', agentAuth, (req, res) => {
     ram_total: agent?.ram_total, disk_total: agent?.disk_total,
   });
 
-  const pending = db.prepare(`
-    SELECT id, tipo, parametro FROM comandos_agente
-    WHERE agente_id = ? AND estado = 'pendiente'
-    ORDER BY id ASC LIMIT 5
-  `).all(req.agentId);
-
-  if (pending.length) {
-    const ids = pending.map(c => c.id);
-    db.prepare(
-      `UPDATE comandos_agente SET estado = 'ejecutando', updated_at = datetime('now') WHERE id IN (${ids.map(() => '?').join(',')})`
-    ).run(...ids);
-  }
+  const pending = db.transaction(() => {
+    const cmds = db.prepare(`
+      SELECT id, tipo, parametro FROM comandos_agente
+      WHERE agente_id = ? AND estado = 'pendiente'
+      ORDER BY id ASC LIMIT 5
+    `).all(req.agentId);
+    if (cmds.length) {
+      const ids = cmds.map(c => c.id);
+      db.prepare(
+        `UPDATE comandos_agente SET estado = 'ejecutando', updated_at = datetime('now') WHERE id IN (${ids.map(() => '?').join(',')})`
+      ).run(...ids);
+    }
+    return cmds;
+  })();
 
   res.json({ ok: true, commands: pending });
 });
@@ -179,7 +181,7 @@ router.post('/api/monitoring/command/:id/output', agentAuth, (req, res) => {
   const { chunk, done, exit_code } = req.body;
   const cmd = db.prepare('SELECT agente_id FROM comandos_agente WHERE id = ?').get(req.params.id);
   if (!cmd) return res.status(404).json({ error: 'Comando no encontrado.' });
-  if (cmd.agente_id !== req.agentId) return res.status(403).json({ error: 'Forbidden.' });
+  if (cmd.agente_id !== req.agentId) return res.status(403).json({ error: 'Acceso denegado.' });
 
   if (chunk) {
     db.prepare(`UPDATE comandos_agente SET output = output || ?, updated_at = datetime('now') WHERE id = ?`)
