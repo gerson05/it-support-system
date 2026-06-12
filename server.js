@@ -21,6 +21,7 @@ import inventarioRouter from './src/inventario/inventario-routes.js';
 import authRouter     from './src/auth/auth-routes.js';
 import userRouter     from './src/auth/user-routes.js';
 import trackingRouter from './src/tracking/tracking-routes.js';
+import monitoringRouter, { startOfflineChecker } from './src/monitoring/monitoring-routes.js';
 import { initAdminUser } from './src/auth/auth-service.js';
 import Chatbot from './src/whatsapp/chatbot.js';
 import whatsappClient from './src/whatsapp/baileys-client.js';
@@ -64,6 +65,7 @@ app.use(inventarioRouter);
 app.use(authRouter);
 app.use(userRouter);
 app.use(trackingRouter);
+app.use(monitoringRouter);
 
 // Página pública de subida de acta firmada
 app.get('/firmar/:token', (_req, res) => {
@@ -279,6 +281,7 @@ app.listen(PORT, async () => {
 
   // Monitor de inactividad en conversaciones
   startInactivityMonitor();
+  startOfflineChecker();
 
   // Túnel HTTPS público via Cloudflare (habilita cámara en móviles)
   startCloudflaredTunnel(PORT);
