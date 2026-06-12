@@ -10,6 +10,7 @@ import { renderSedesAdmin } from './sedes-admin.js';
 import { renderAudit } from './audit.js';
 import { renderDespacho } from './despacho.js';
 import { renderTrazabilidad } from './trazabilidad.js';
+import { renderMonitoreo } from './monitoreo.js';
 import { renderUsers } from './users.js';
 import { showToast, copyToClipboard } from './components.js';
 import { DataService, isOfflineMode } from './data-service.js';
@@ -273,6 +274,11 @@ function router() {
         state.currentPage = 'inventario';
         document.getElementById('nav-inventario')?.classList.add('active');
         renderInventario(appContainer);
+        break;
+      case '#monitoreo':
+        state.currentPage = 'monitoreo';
+        document.getElementById('nav-monitoreo')?.classList.add('active');
+        renderMonitoreo(appContainer);
         break;
       case '#users':
         if (state.currentUser && !can('full')) { window.location.hash = _firstAccessibleHash(); break; }
@@ -614,6 +620,7 @@ function _applyUserUI(user) {
   if (can('inventario:read'))    show('nav-inventario');
   if (can('farmacias:read'))     show('nav-farmacias');
   if (can('full'))               show('nav-users');
+  if (can('full'))               show('nav-monitoreo');
 }
 
 // Iniciar aplicación
