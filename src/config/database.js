@@ -298,6 +298,10 @@ const migrations = [
   `CREATE INDEX IF NOT EXISTS idx_paquete_tracking_despacho ON paquete_tracking(despacho_id)`,
   `CREATE INDEX IF NOT EXISTS idx_paquete_tracking_token    ON paquete_tracking(token)`,
   `CREATE INDEX IF NOT EXISTS idx_paquete_eventos_tracking  ON paquete_eventos(tracking_id)`,
+
+  // ── Monitoreo de equipos ─────────────────────────────────────────────────
+  `INSERT OR IGNORE INTO permissions (id, name) VALUES (35, 'monitoring:read')`,
+  `INSERT OR IGNORE INTO role_permissions (role_id, permission_id) VALUES (1, 35)`,
 ];
 for (const sql of migrations) {
   try { db.exec(sql); } catch { /* columna ya existe */ }
