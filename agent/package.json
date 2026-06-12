@@ -1,0 +1,17 @@
+{
+  "name": "agente-it",
+  "version": "1.0.0",
+  "description": "IT monitoring agent",
+  "main": "agent.js",
+  "scripts": {
+    "start": "node agent.js",
+    "build": "npx pkg agent.js --targets node18-win-x64 --output dist/agente-it.exe"
+  },
+  "dependencies": {
+    "systeminformation": "^5.22.0"
+  },
+  "pkg": {
+    "targets": ["node18-win-x64"],
+    "outputPath": "dist"
+  }
+}
