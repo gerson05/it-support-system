@@ -2,6 +2,7 @@
 
 const si = require('systeminformation');
 const { readFileSync, writeFileSync, existsSync } = require('fs');
+const { spawn } = require('child_process');
 const { join, dirname } = require('path');
 const os = require('os');
 
@@ -79,6 +80,62 @@ async function sendHeartbeat(serverUrl, agentId, apiKey) {
     body: JSON.stringify(metrics),
   });
   if (!res.ok) throw new Error(`Heartbeat failed: ${res.status}`);
+  return res.json();
+}
+
+async function executeCommand(serverUrl, agentId, apiKey, cmd) {
+  const commandMap = {
+    reboot:       ['shutdown', ['/r', '/t', '30']],
+    shutdown:     ['shutdown', ['/s', '/t', '30']],
+    kill_process: ['taskkill', ['/F', '/IM', cmd.parametro || '']],
+    clear_temp:   ['powershell', ['-NoProfile', '-Command',
+      'Remove-Item "$env:TEMP\\*" -Recurse -Force -ErrorAction SilentlyContinue;' +
+      'Remove-Item "C:\\Windows\\Temp\\*" -Recurse -Force -ErrorAction SilentlyContinue;' +
+      'Write-Output "Temporales eliminados."']],
+    processes:    ['tasklist', ['/FO', 'TABLE']],
+    shell:        ['powershell', ['-NoProfile', '-Command', cmd.parametro || 'Write-Output "sin comando"']],
+  };
+
+  const [prog, args] = commandMap[cmd.tipo] || ['powershell', ['-NoProfile', '-Command', `Write-Output "tipo desconocido: ${cmd.tipo}"`]];
+
+  async function postChunk(chunk, done, exit_code) {
+    try {
+      await fetch(`${serverUrl}/api/monitoring/command/${cmd.id}/output`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-agent-id':   String(agentId),
+          'x-api-key':    apiKey,
+        },
+        body: JSON.stringify({ chunk, done, exit_code }),
+      });
+    } catch (e) {
+      console.error(`[Agent] chunk POST failed for cmd ${cmd.id}: ${e.message}`);
+    }
+  }
+
+  return new Promise((resolve) => {
+    let proc;
+    try {
+      proc = spawn(prog, args, { shell: false, windowsHide: true });
+    } catch (e) {
+      postChunk(`[Error al lanzar proceso: ${e.message}]\n`, true, 1).then(resolve);
+      return;
+    }
+
+    proc.stdout.on('data', (data) => postChunk(data.toString(), false, undefined));
+    proc.stderr.on('data', (data) => postChunk(data.toString(), false, undefined));
+
+    proc.on('error', async (err) => {
+      await postChunk(`[Error: ${err.message}]\n`, true, 1);
+      resolve();
+    });
+
+    proc.on('close', async (code) => {
+      await postChunk('', true, code ?? 0);
+      resolve();
+    });
+  });
 }
 
 async function main() {
@@ -101,8 +158,13 @@ async function main() {
 
   async function tick() {
     try {
-      await sendHeartbeat(serverUrl, agentId, apiKey);
+      const data = await sendHeartbeat(serverUrl, agentId, apiKey);
       retryDelay = interval;
+      for (const cmd of data.commands || []) {
+        executeCommand(serverUrl, agentId, apiKey, cmd).catch(e =>
+          console.error(`[Agent] Comando ${cmd.id} (${cmd.tipo}) falló: ${e.message}`)
+        );
+      }
     } catch (e) {
       console.error(`[Agent] ${e.message} — retry in ${retryDelay / 1000}s`);
       retryDelay = Math.min(retryDelay * 2, 120000);
