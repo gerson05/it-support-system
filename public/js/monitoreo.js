@@ -159,22 +159,107 @@ function buildRow(a) {
 }
 
 function buildAccordion(a) {
-  return `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
-    ${[
-      ['Procesador',        a.cpu_model||'—',          `${a.cpu_cores||'?'} núcleos · ${a.cpu_ghz||'?'} GHz`],
-      ['Memoria RAM',       `${a.ram_total||'?'} GB`,   ''],
-      ['Almacenamiento',    `${a.disk_total||'?'} GB`,  a.disk_model||''],
-      ['Sistema Operativo', a.os_name||'—',             a.os_version||''],
-      ['Red / IP',          a.ip||'—',                  a.mac_address||''],
-      ['Uptime',            a.uptime ? uptimeStr(a.uptime) : '—', ''],
-    ].map(([label, val, sub]) => `
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:10px;">
-        <div style="font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">${label}</div>
-        <div style="font-weight:600;font-size:13px;color:var(--text);">${val}</div>
-        ${sub ? `<div style="font-size:11px;color:var(--text-3);">${sub}</div>` : ''}
-      </div>`).join('')}
-  </div>`;
+  const hwCards = [
+    ['Procesador',        a.cpu_model||'—',          `${a.cpu_cores||'?'} núcleos · ${a.cpu_ghz||'?'} GHz`],
+    ['Memoria RAM',       `${a.ram_total||'?'} GB`,   ''],
+    ['Almacenamiento',    `${a.disk_total||'?'} GB`,  a.disk_model||''],
+    ['Sistema Operativo', a.os_name||'—',             a.os_version||''],
+    ['Red / IP',          a.ip||'—',                  a.mac_address||''],
+    ['Uptime',            a.uptime ? uptimeStr(a.uptime) : '—', ''],
+  ].map(([label, val, sub]) => `
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:10px;">
+      <div style="font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">${label}</div>
+      <div style="font-weight:600;font-size:13px;color:var(--text);">${val}</div>
+      ${sub ? `<div style="font-size:11px;color:var(--text-3);">${sub}</div>` : ''}
+    </div>`).join('');
+
+  const btnStyle = (bg, fg) =>
+    `style="background:${bg};color:${fg};border:1px solid ${fg}40;border-radius:5px;padding:5px 12px;font-size:12px;cursor:pointer;font-weight:500;"`;
+
+  return `
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;">
+      ${hwCards}
+    </div>
+    <div style="border-top:1px solid var(--border);padding-top:12px;">
+      <div style="font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">⚡ Control Remoto</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
+        <button onclick="monSendCmd(${a.id},'reboot')"    ${btnStyle('#ef444418','#ef4444')}>⟳ Reiniciar PC</button>
+        <button onclick="monSendCmd(${a.id},'shutdown')"  ${btnStyle('#64748b18','#94a3b8')}>⊟ Apagar PC</button>
+        <button onclick="monPromptCmd(${a.id},'kill_process','Nombre del proceso (ej: chrome.exe)')" ${btnStyle('#8b5cf618','#8b5cf6')}>✕ Matar proceso…</button>
+        <button onclick="monSendCmd(${a.id},'clear_temp')" ${btnStyle('#06b6d418','#06b6d4')}>🗑 Limpiar temp</button>
+        <button onclick="monSendCmd(${a.id},'processes')" ${btnStyle('#3b82f618','#3b82f6')}>≡ Ver procesos</button>
+      </div>
+      <div style="background:#0d1117;border-radius:6px;overflow:hidden;border:1px solid #30363d;">
+        <div style="background:#161b22;padding:6px 12px;font-size:11px;color:#6e7681;border-bottom:1px solid #30363d;">
+          Consola — ${a.hostname||'equipo'}
+        </div>
+        <pre id="mon-console-${a.id}" style="padding:10px 14px;font-family:monospace;font-size:11px;color:#c9d1d9;min-height:60px;max-height:300px;overflow-y:auto;margin:0;white-space:pre-wrap;word-break:break-all;"></pre>
+        <div style="border-top:1px solid #30363d;display:flex;align-items:center;padding:6px 10px;gap:8px;">
+          <span style="color:#3fb950;font-family:monospace;font-size:12px;flex-shrink:0;">PS&gt;</span>
+          <input id="mon-shell-${a.id}"
+            placeholder="Comando PowerShell libre…"
+            style="flex:1;background:transparent;border:none;outline:none;color:#c9d1d9;font-family:monospace;font-size:12px;"
+            onkeydown="if(event.key==='Enter')monSendShell(${a.id})"/>
+          <button onclick="monSendShell(${a.id})"
+            style="background:#238636;color:#fff;border:none;border-radius:4px;padding:3px 10px;font-size:11px;cursor:pointer;flex-shrink:0;">▶</button>
+        </div>
+      </div>
+    </div>
+  `;
 }
+
+window.monSendCmd = async function(agentId, tipo, parametro) {
+  const pre = document.getElementById(`mon-console-${agentId}`);
+  if (pre) {
+    pre.textContent += `\n$ ${tipo}${parametro ? ' ' + parametro : ''}\n`;
+    pre.scrollTop = pre.scrollHeight;
+  }
+  try {
+    const body = { tipo };
+    if (parametro !== undefined && parametro !== null) body.parametro = parametro;
+    const res = await fetch(`/api/monitoring/agents/${agentId}/command`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: 'Error desconocido' }));
+      if (pre) pre.textContent += `[Error: ${err.error}]\n`;
+    }
+  } catch {
+    showToast('Error enviando comando', 'error');
+  }
+};
+
+window.monPromptCmd = function(agentId, tipo, label) {
+  const pre = document.getElementById(`mon-console-${agentId}`);
+  if (!pre) return;
+  const existing = document.getElementById(`mon-prompt-${agentId}`);
+  if (existing) existing.remove();
+
+  const wrap = document.createElement('div');
+  wrap.id = `mon-prompt-${agentId}`;
+  wrap.style.cssText = 'display:flex;gap:6px;align-items:center;padding:6px 10px;border-top:1px solid #30363d;background:#161b22;';
+  wrap.innerHTML = `
+    <input id="mon-prompt-input-${agentId}" placeholder="${label}"
+      style="flex:1;background:#0d1117;border:1px solid #30363d;border-radius:4px;padding:4px 8px;color:#c9d1d9;font-family:monospace;font-size:11px;outline:none;"
+      onkeydown="if(event.key==='Enter'){const v=this.value.trim();if(v)monSendCmd(${agentId},'${tipo}',v);document.getElementById('mon-prompt-${agentId}')?.remove();}
+                 if(event.key==='Escape')document.getElementById('mon-prompt-${agentId}')?.remove();" />
+    <button onclick="const v=document.getElementById('mon-prompt-input-${agentId}').value.trim();if(v)monSendCmd(${agentId},'${tipo}',v);document.getElementById('mon-prompt-${agentId}')?.remove();"
+      style="background:#238636;color:#fff;border:none;border-radius:4px;padding:3px 8px;font-size:11px;cursor:pointer;">OK</button>
+    <button onclick="document.getElementById('mon-prompt-${agentId}')?.remove();"
+      style="background:transparent;color:#6e7681;border:1px solid #30363d;border-radius:4px;padding:3px 8px;font-size:11px;cursor:pointer;">✕</button>
+  `;
+  pre.parentElement.insertBefore(wrap, pre.nextSibling);
+  wrap.querySelector('input').focus();
+};
+
+window.monSendShell = function(agentId) {
+  const input = document.getElementById(`mon-shell-${agentId}`);
+  if (!input || !input.value.trim()) return;
+  monSendCmd(agentId, 'shell', input.value.trim());
+  input.value = '';
+};
 
 function toggleAccordion(id) {
   const row  = document.querySelector(`.mon-row[data-id="${id}"]`);
@@ -205,6 +290,15 @@ function connectSSE() {
       updateRow(data.agent_id);
     } else if (['offline_sweep','agent_registered','agent_updated'].includes(data.type)) {
       loadAgents();
+    } else if (data.type === 'command_output' && data.chunk) {
+      const pre = document.getElementById(`mon-console-${data.agent_id}`);
+      if (pre) { pre.textContent += data.chunk; pre.scrollTop = pre.scrollHeight; }
+    } else if (data.type === 'command_done') {
+      const pre = document.getElementById(`mon-console-${data.agent_id}`);
+      if (pre) {
+        pre.textContent += `[salió con código ${data.exit_code}]\n`;
+        pre.scrollTop = pre.scrollHeight;
+      }
     }
   };
   _sse.onerror = () => { _sse.close(); _sse = null; setTimeout(connectSSE, 5000); };
