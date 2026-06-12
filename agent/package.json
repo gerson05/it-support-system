@@ -5,13 +5,18 @@
   "main": "agent.js",
   "scripts": {
     "start": "node agent.js",
-    "build": "npx pkg agent.js --targets node18-win-x64 --output dist/agente-it.exe"
+    "build": "npx pkg agent.js --targets node18-win-x64 --output dist/agente-it.exe && node embed-manifest.js"
   },
   "dependencies": {
     "systeminformation": "^5.22.0"
   },
   "pkg": {
-    "targets": ["node18-win-x64"],
+    "targets": [
+      "node18-win-x64"
+    ],
     "outputPath": "dist"
+  },
+  "devDependencies": {
+    "rcedit": "^5.0.2"
   }
 }
