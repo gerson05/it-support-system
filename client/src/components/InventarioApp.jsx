@@ -16,6 +16,7 @@ export default function InventarioApp() {
   const [modalOpen, setModalOpen] = useState(false);
   const [scannerOpen, setScannerOpen] = useState(false);
   const [scanTarget, setScanTarget] = useState(null);
+  const [placaVal, setPlacaVal] = useState('');
 
   useEffect(() => { loadTable(); loadCounts(); }, [activeTab, page, search, area]);
 
@@ -45,8 +46,8 @@ export default function InventarioApp() {
     } catch (e) {}
   }
 
-  function openForm(row=null) { setModalRow(row); setModalOpen(true); }
-  function closeForm() { setModalRow(null); setModalOpen(false); }
+  function openForm(row=null) { setModalRow(row); setModalOpen(true); setPlacaVal(row?.placa||row?.imei||row?.serial||''); }
+  function closeForm() { setModalRow(null); setModalOpen(false); setPlacaVal(''); }
 
   async function handleDelete(id) {
     if (!confirm('¿Eliminar este registro?')) return;
@@ -71,7 +72,11 @@ export default function InventarioApp() {
   }
 
   function openScanner(targetName) { setScanTarget(targetName); setScannerOpen(true); }
-  function onScanned(val) { if (!scanTarget) return; const el = document.querySelector(`#inv-form [name=\"${scanTarget}\"]`); if (el) el.value = val; setScannerOpen(false); }
+  function onScanned(val) {
+    if (!scanTarget) return;
+    if (scanTarget === 'placa') setPlacaVal(val);
+    setScannerOpen(false);
+  }
 
   return (
     <div style={{padding:20}}>
@@ -81,25 +86,26 @@ export default function InventarioApp() {
           <p style={{color:'#94a3b8'}}>Gestión de equipos, celulares y dispositivos.</p>
         </div>
         <div style={{display:'flex',gap:8}}>
-          <button onClick={()=>openForm(null)}>＋ Registrar equipo</button>
+          <button onClick={()=>openForm(null)} className="btn btn-primary">＋ Registrar equipo</button>
         </div>
       </div>
 
-      <div style={{display:'flex',gap:8,marginTop:12}}>
-        <button onClick={()=>{ setActiveTab('equipos'); setPage(1); }}>{`Equipos (${counts.equipos})`}</button>
-        <button onClick={()=>{ setActiveTab('celulares'); setPage(1); }}>{`Celulares (${counts.celulares})`}</button>
-        <button onClick={()=>{ setActiveTab('ups'); setPage(1); }}>{`UPS (${counts.ups})`}</button>
+      <div style={{display:'flex',gap:0,marginTop:12,borderBottom:'2px solid var(--border)'}}>
+        <button onClick={()=>{ setActiveTab('equipos'); setPage(1); }} className={activeTab === 'equipos' ? 'tab-btn tab-active' : 'tab-btn'}>{`Equipos (${counts.equipos})`}</button>
+        <button onClick={()=>{ setActiveTab('celulares'); setPage(1); }} className={activeTab === 'celulares' ? 'tab-btn tab-active' : 'tab-btn'}>{`Celulares (${counts.celulares})`}</button>
+        <button onClick={()=>{ setActiveTab('ups'); setPage(1); }} className={activeTab === 'ups' ? 'tab-btn tab-active' : 'tab-btn'}>{`UPS (${counts.ups})`}</button>
       </div>
 
       <div style={{display:'flex',gap:8,marginTop:12,alignItems:'center'}}>
-        <input placeholder="Buscar" value={search} onChange={e=>{ setSearch(e.target.value); setPage(1); }} />
-        <input placeholder="Área" value={area} onChange={e=>{ setArea(e.target.value); setPage(1); }} />
-        <button onClick={()=>{ setSearch(''); setArea(''); setPage(1); }}>Limpiar</button>
+        <input className="form-control" placeholder="Buscar" value={search} onChange={e=>{ setSearch(e.target.value); setPage(1); }} />
+        <input className="form-control" style={{width:160}} placeholder="Área" value={area} onChange={e=>{ setArea(e.target.value); setPage(1); }} />
+        <button onClick={()=>{ setSearch(''); setArea(''); setPage(1); }} className="btn btn-ghost btn-small">Limpiar</button>
       </div>
 
       <div style={{marginTop:12}}>
         {loading ? <div>Cargando…</div> : (
           rows.length === 0 ? <div style={{padding:40,color:'#94a3b8'}}>Sin registros.</div> : (
+            <div className="card" style={{marginTop:12,padding:0,overflow:'hidden'}}><div className="table-container">
             <table style={{width:'100%',borderCollapse:'collapse'}}>
               <thead>
                 <tr><th>Id</th><th>Clave</th><th>Nombre</th><th>Área</th><th></th></tr>
@@ -112,52 +118,56 @@ export default function InventarioApp() {
                     <td style={{padding:8}}>{r.nombre_equipo||r.nombre_completo||r.marca}</td>
                     <td style={{padding:8}}>{r.area}</td>
                     <td style={{padding:8}}>
-                      <button onClick={()=>openForm(r)}>Editar</button>
-                      <button onClick={()=>handleDelete(r.id)}>Eliminar</button>
+                      <button onClick={()=>openForm(r)} className="btn btn-secondary btn-small">Editar</button>
+                      <button onClick={()=>handleDelete(r.id)} className="btn btn-danger btn-small" style={{marginLeft:4}}>Eliminar</button>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
+            </div></div>
           )
         )}
       </div>
 
       <div style={{display:'flex',justifyContent:'center',gap:8,marginTop:12}}>
-        <button onClick={()=>setPage(p => Math.max(1,p-1))} disabled={page===1}>‹</button>
+        <button onClick={()=>setPage(p => Math.max(1,p-1))} disabled={page===1} className="btn btn-secondary btn-small">‹</button>
         <div>Pag {page} / {totalPages}</div>
-        <button onClick={()=>setPage(p => Math.min(totalPages,p+1))} disabled={page===totalPages}>›</button>
+        <button onClick={()=>setPage(p => Math.min(totalPages,p+1))} disabled={page===totalPages} className="btn btn-secondary btn-small">›</button>
       </div>
 
       {modalOpen && (
-        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.6)',display:'flex',alignItems:'center',justifyContent:'center'}}>
-          <div style={{background:'#0b1220',padding:16,borderRadius:8,width:'90%',maxWidth:680}}>
-            <h3 style={{marginTop:0}}>{modalRow ? 'Editar' : 'Nuevo registro'}</h3>
+        <div className="modal-overlay">
+          <div className="modal-box">
+            <div className="modal-header">
+              <h3>{modalRow ? 'Editar registro' : 'Nuevo registro'}</h3>
+              <button className="modal-close" onClick={closeForm}>✕</button>
+            </div>
             <form id="inv-form" onSubmit={submitForm}>
-              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+              <div className="modal-form-grid">
                 <div>
                   <label>Placa / IMEI / Serial</label>
                   <div style={{display:'flex',gap:8}}>
-                    <input name="placa" defaultValue={modalRow?.placa||modalRow?.imei||modalRow?.serial||''} />
-                    <button type="button" onClick={()=>openScanner('placa')}>📷</button>
+                    <input className="form-control" name="placa" value={placaVal} onChange={e=>setPlacaVal(e.target.value)} />
+                    <button type="button" className="btn btn-secondary btn-small" onClick={()=>openScanner('placa')}>📷</button>
                   </div>
                 </div>
                 <div>
                   <label>Nombre</label>
-                  <input name="nombre_equipo" defaultValue={modalRow?.nombre_equipo||modalRow?.nombre_completo||''} />
+                  <input className="form-control" name="nombre_equipo" defaultValue={modalRow?.nombre_equipo||modalRow?.nombre_completo||''} />
                 </div>
                 <div>
                   <label>Marca</label>
-                  <input name="marca" defaultValue={modalRow?.marca||''} />
+                  <input className="form-control" name="marca" defaultValue={modalRow?.marca||''} />
                 </div>
                 <div>
                   <label>Área</label>
-                  <input name="area" defaultValue={modalRow?.area||''} />
+                  <input className="form-control" name="area" defaultValue={modalRow?.area||''} />
                 </div>
               </div>
-              <div style={{display:'flex',gap:8,justifyContent:'flex-end',marginTop:12}}>
-                <button type="button" onClick={closeForm}>Cancelar</button>
-                <button type="submit">Guardar</button>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" onClick={closeForm}>Cancelar</button>
+                <button type="submit" className="btn btn-primary">Guardar</button>
               </div>
             </form>
           </div>

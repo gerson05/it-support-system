@@ -242,7 +242,7 @@ function renderForm() {
           <div class="pf-card-title">✓ Confirmar recepción</div>
           <div class="pf-row">
             <div>
-              <label class="pf-label">¿Quién te entregó el paquete? *</label>
+              <label class="pf-label">Despachado por *</label>
               <input class="pf-input" id="entregado-por" placeholder="Nombre del mensajero o agente…">
             </div>
             <div>

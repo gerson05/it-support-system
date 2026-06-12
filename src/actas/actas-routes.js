@@ -58,6 +58,29 @@ const upload = multer({
 
 const router = express.Router();
 
+/* ── GET /api/actas ── */
+router.get('/api/actas', (req, res) => {
+  try {
+    const { q, entity_type, status, page = 1, limit = 50 } = req.query;
+    const offset = (Number(page) - 1) * Number(limit);
+
+    let where = '1=1';
+    const params = [];
+
+    if (entity_type) { where += ' AND entity_type = ?'; params.push(entity_type); }
+    if (status === 'uploaded') { where += ' AND uploaded_at IS NOT NULL'; }
+    if (status === 'pending')  { where += ' AND uploaded_at IS NULL'; }
+    if (q) { where += ' AND (entity_ref LIKE ? OR token LIKE ?)'; params.push(`%${q}%`, `%${q}%`); }
+
+    const total = db.prepare(`SELECT COUNT(*) as n FROM acta_uploads WHERE ${where}`).get(...params).n;
+    const actas = db.prepare(`SELECT * FROM acta_uploads WHERE ${where} ORDER BY rowid DESC LIMIT ? OFFSET ?`).all(...params, Number(limit), offset);
+
+    res.json({ actas, total });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 /* ── POST /api/actas/token ── */
 router.post('/api/actas/token', (req, res) => {
   try {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Dashboard from './components/Dashboard';
+import Dashboard from './pages/Dashboard';
 import TicketsList from './components/TicketsList';
 import TicketDetail from './components/TicketDetail';
 import TechRequests from './components/TechRequests';
@@ -12,6 +12,8 @@ import Audit from './components/Audit';
 import InventarioApp from './components/InventarioApp';
 import Users from './components/Users';
 import Faqs from './components/Faqs';
+import Farmacias from './pages/Farmacias';
+import RegistrosIT from './pages/RegistrosIT';
 
 export default function App() {
   const [hash, setHash] = useState(window.location.hash || '#dashboard');
@@ -28,9 +30,9 @@ export default function App() {
     return () => { mounted = false; };
   }, []);
 
-  if (hash.startsWith('#ticket/')) return <TicketDetail />;
+  if (hash.startsWith('#ticket/')) return <TicketDetail key={hash} />;
   if (hash === '#tickets') return <TicketsList />;
-  if (hash.startsWith('#tech-request/')) return <TechRequestDetail />;
+  if (hash.startsWith('#tech-request/')) return <TechRequestDetail key={hash} />;
   if (hash === '#tech-requests') return <TechRequests />;
   if (hash === '#faqs') return <Faqs />;
   if (hash === '#sedes') return <SedesAdmin />;
@@ -40,5 +42,7 @@ export default function App() {
   if (hash === '#roles') return <Roles />;
   if (hash === '#users') return <Users />;
   if (hash === '#settings') return <Settings />;
+  if (hash === '#farmacias') return <Farmacias />;
+  if (hash === '#registros-it') return <RegistrosIT />;
   return <Dashboard />;
 }

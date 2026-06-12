@@ -10,7 +10,7 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
     try {
-      await fetchJson('/api/auth/login', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ user, pass }) });
+      await fetchJson('/api/auth/login', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ username: user, password: pass })});
       window.location.href = '/';
     } catch (e) { alert('Credenciales inválidas'); }
     finally { setLoading(false); }

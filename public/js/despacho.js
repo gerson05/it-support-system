@@ -11,6 +11,167 @@ function _timeAgo(dateStr) {
   return { label, old };
 }
 
+const TIPOS_ARTICULO_ROTULO = ['TONER','EQUIPO','CARGADOR','IMPRESORA','UPS','MONITOR','TURNERO','TECLADO','ESCANER','MOUSE','VGA'];
+
+const LABEL_SIZES_ROTULO = [
+  { v: '10x8',  l: '10 × 8 cm  (apaisado)' },
+  { v: '10x10', l: '10 × 10 cm (cuadrado)' },
+  { v: '10x15', l: '10 × 15 cm (retrato)' },
+  { v: '15x10', l: '15 × 10 cm (apaisado ancho)' },
+  { v: '8x5',   l: '8 × 5 cm   (pequeño)' },
+];
+
+function openRotuloModal(token, numero) {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.style.cssText = 'z-index:10002;';
+  overlay.innerHTML = `
+    <div class="modal-box modal-box-sm" style="max-width:380px;">
+      <div class="modal-header">
+        <h3 style="font-size:15px;font-weight:600;">Configurar Rótulo</h3>
+        <button id="rotulo-close" class="modal-close">✕</button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px;padding:16px 0;">
+        <div>
+          <label style="display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:4px;">Tipo de artículo</label>
+          <select id="rotulo-tipo" class="form-control">
+            ${TIPOS_ARTICULO_ROTULO.map(t => `<option value="${t}">${t}</option>`).join('')}
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:4px;">Remite (departamento)</label>
+          <input id="rotulo-remite" class="form-control" value="DPTO. DE SISTEMAS" style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()" />
+        </div>
+        <div>
+          <label style="display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:4px;">Nombre de quien despacha</label>
+          <input id="rotulo-remitente" class="form-control" placeholder="Ej: CARLOS PÉREZ" style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()" />
+        </div>
+        <div>
+          <label style="display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:4px;">Cajas</label>
+          <input id="rotulo-cajas" class="form-control" type="number" min="1" max="99" value="1" />
+        </div>
+        <div>
+          <label style="display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:6px;">Modo de impresión</label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;margin-bottom:6px;">
+            <input type="radio" name="rotulo-modo" value="single" checked /> Un solo rótulo (destino del despacho)
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;margin-bottom:6px;">
+            <input type="radio" name="rotulo-modo" value="todos" /> Todos los puntos activos
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;">
+            <input type="radio" name="rotulo-modo" value="custom" /> Seleccionar sedes específicas
+          </label>
+          <div id="rotulo-custom-sedes" style="display:none;margin-top:10px;max-height:200px;overflow-y:auto;border:1px solid var(--border);border-radius:6px;padding:8px;">
+            <div id="rotulo-sedes-loading" style="font-size:12px;color:var(--text-3);padding:4px;">Cargando sedes…</div>
+          </div>
+        </div>
+        <div style="border-top:1px solid var(--border);padding-top:12px;">
+          <label style="display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:8px;">Tipo de impresora</label>
+          <div style="display:flex;gap:10px;">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;flex:1;padding:8px 10px;border:1.5px solid var(--border);border-radius:6px;">
+              <input type="radio" name="rotulo-printer" value="normal" checked />
+              <span><span style="display:block;font-weight:600;">Impresora normal</span><span style="font-size:11px;color:var(--text-3);">Hoja A4</span></span>
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;flex:1;padding:8px 10px;border:1.5px solid var(--border);border-radius:6px;">
+              <input type="radio" name="rotulo-printer" value="etiqueta" />
+              <span><span style="display:block;font-weight:600;">Impresora de etiquetas</span><span style="font-size:11px;color:var(--text-3);">Tamaño personalizado</span></span>
+            </label>
+          </div>
+        </div>
+        <div id="rotulo-label-sizes" style="display:none;">
+          <label style="display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:8px;">Tamaño de etiqueta</label>
+          <div style="display:flex;flex-direction:column;gap:5px;">
+            ${LABEL_SIZES_ROTULO.map((s, i) => `
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;padding:6px 10px;border:1.5px solid var(--border);border-radius:6px;font-family:monospace;">
+              <input type="radio" name="rotulo-size" value="${s.v}"${i === 0 ? ' checked' : ''} /> ${s.l}
+            </label>`).join('')}
+          </div>
+          <div style="margin-top:6px;padding:6px 10px;background:var(--surface-2);border-radius:6px;font-size:11px;color:var(--text-3);">
+            Configura tu impresora con el mismo tamaño de papel al imprimir.
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="rotulo-cancel" class="btn btn-secondary">Cancelar</button>
+        <button id="rotulo-print" class="btn btn-primary">Abrir para imprimir</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  const close = () => overlay.remove();
+  overlay.querySelector('#rotulo-close').onclick = close;
+  overlay.querySelector('#rotulo-cancel').onclick = close;
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+
+  let sedesCache = null;
+
+  async function loadSedes() {
+    if (sedesCache) return sedesCache;
+    try {
+      const data = await fetch('/api/sedes').then(r => r.json());
+      sedesCache = (data.sedes || data).filter(s => s.activo);
+      return sedesCache;
+    } catch { return []; }
+  }
+
+  async function renderSedesCheckboxes() {
+    const container = overlay.querySelector('#rotulo-custom-sedes');
+    const loading = overlay.querySelector('#rotulo-sedes-loading');
+    loading.textContent = 'Cargando…';
+    const sedes = await loadSedes();
+    if (!sedes.length) { loading.textContent = 'No hay sedes activas.'; return; }
+    loading.remove();
+    // Select-all toggle
+    const toggleRow = document.createElement('div');
+    toggleRow.style.cssText = 'margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid var(--border);';
+    toggleRow.innerHTML = `<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;font-weight:600;">
+      <input type="checkbox" id="rotulo-sel-all" /> Marcar / desmarcar todas
+    </label>`;
+    container.appendChild(toggleRow);
+    sedes.forEach(s => {
+      const row = document.createElement('label');
+      row.style.cssText = 'display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;padding:3px 0;';
+      row.innerHTML = `<input type="checkbox" class="rotulo-sede-cb" value="${s.nombre_punto}" /> ${s.nombre_punto}`;
+      container.appendChild(row);
+    });
+    overlay.querySelector('#rotulo-sel-all').addEventListener('change', e => {
+      overlay.querySelectorAll('.rotulo-sede-cb').forEach(cb => cb.checked = e.target.checked);
+    });
+  }
+
+  overlay.querySelectorAll('input[name="rotulo-modo"]').forEach(r => {
+    r.addEventListener('change', async () => {
+      const customDiv = overlay.querySelector('#rotulo-custom-sedes');
+      customDiv.style.display = r.value === 'custom' ? 'block' : 'none';
+      if (r.value === 'custom' && !sedesCache) await renderSedesCheckboxes();
+    });
+  });
+
+  overlay.querySelectorAll('input[name="rotulo-printer"]').forEach(r => {
+    r.addEventListener('change', () => {
+      overlay.querySelector('#rotulo-label-sizes').style.display = r.value === 'etiqueta' ? 'block' : 'none';
+    });
+  });
+
+  overlay.querySelector('#rotulo-print').onclick = () => {
+    const tipo = overlay.querySelector('#rotulo-tipo').value;
+    const remite = overlay.querySelector('#rotulo-remite').value.toUpperCase();
+    const remitente = overlay.querySelector('#rotulo-remitente').value.toUpperCase();
+    const cajas = overlay.querySelector('#rotulo-cajas').value;
+    const modo = overlay.querySelector('input[name="rotulo-modo"]:checked').value;
+    const printer = overlay.querySelector('input[name="rotulo-printer"]:checked').value;
+    const label_size = overlay.querySelector('input[name="rotulo-size"]:checked')?.value || '10x8';
+    const params = new URLSearchParams({ tipo_articulo: tipo, remite, remitente, cajas, modo, printer, label_size });
+    if (modo === 'custom') {
+      const checked = [...overlay.querySelectorAll('.rotulo-sede-cb:checked')].map(cb => cb.value);
+      if (!checked.length) { showToast('Selecciona al menos una sede', 'error'); return; }
+      params.set('sedes', checked.join(','));
+    }
+    window.open(`/api/tracking/${token}/rotulo?${params}`, '_blank');
+    close();
+  };
+}
+
 /* ── Helpers ─────────────────────────────────────────────────────────── */
 
 function actaBadge(d) {
@@ -298,8 +459,12 @@ function openDetailModal(id) {
              class="btn btn-secondary btn-small" style="text-decoration:none;font-size:12px;padding:5px 12px;">
              🗺️ Ver timeline completo
           </a>
+          <button id="btn-rotulo" class="btn btn-secondary btn-small" style="font-size:12px;padding:5px 12px;">
+            🖨️ Rótulo
+          </button>
         </div>`;
       overlay.querySelector('#modal-body').appendChild(trackingSection);
+      trackingSection.querySelector('#btn-rotulo').onclick = () => openRotuloModal(tkRes.token, d.numero);
     }
 
   }).catch(e => {
@@ -648,7 +813,7 @@ async function openCreateModal(onSuccess) {
   const _sc  = s => { const v = (s || '').trim(); return v ? v.charAt(0).toUpperCase() + v.slice(1) : v; };
 
   overlay.querySelector('[name="destinatario"]').addEventListener('blur', e => {
-    e.target.value = _tc(e.target.value.trim());
+    e.target.value = e.target.value.trim().toUpperCase();
   });
   overlay.querySelector('[name="observaciones"]').addEventListener('blur', e => {
     e.target.value = _sc(e.target.value);
@@ -1251,7 +1416,7 @@ async function openEditDespachoModal(id, onSuccess) {
 
   const _tc = s => (s || '').toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
   const _sc = s => { const v = (s || '').trim(); return v ? v.charAt(0).toUpperCase() + v.slice(1) : v; };
-  overlay.querySelector('[name="destinatario"]').addEventListener('blur', e => { e.target.value = _tc(e.target.value.trim()); });
+  overlay.querySelector('[name="destinatario"]').addEventListener('blur', e => { e.target.value = e.target.value.trim().toUpperCase(); });
   overlay.querySelector('[name="observaciones"]').addEventListener('blur', e => { e.target.value = _sc(e.target.value); });
 
   let rowCount = 0;
