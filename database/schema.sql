@@ -183,3 +183,41 @@ CREATE TABLE IF NOT EXISTS custom_faqs (
     updated_at  TEXT DEFAULT (datetime('now','localtime'))
 );
 CREATE INDEX IF NOT EXISTS idx_custom_faqs_area ON custom_faqs(area);
+
+-- ═══════════════════════════════════════════════════════════════
+-- MÓDULO: MONITOREO DE EQUIPOS
+-- ═══════════════════════════════════════════════════════════════
+
+CREATE TABLE IF NOT EXISTS agentes (
+  id           INTEGER PRIMARY KEY AUTOINCREMENT,
+  hostname     TEXT NOT NULL,
+  mac_address  TEXT UNIQUE NOT NULL,
+  ip           TEXT,
+  os_name      TEXT,
+  os_version   TEXT,
+  cpu_model    TEXT,
+  cpu_cores    INTEGER,
+  cpu_ghz      REAL,
+  ram_total    INTEGER,
+  disk_model   TEXT,
+  disk_total   INTEGER,
+  gpu          TEXT,
+  sede         TEXT,
+  apodo        TEXT,
+  api_key      TEXT UNIQUE NOT NULL,
+  estado       TEXT DEFAULT 'offline',
+  last_seen    TEXT,
+  created_at   TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS metricas_agentes (
+  id           INTEGER PRIMARY KEY AUTOINCREMENT,
+  agente_id    INTEGER NOT NULL REFERENCES agentes(id) ON DELETE CASCADE,
+  timestamp    TEXT DEFAULT (datetime('now')),
+  cpu_percent  REAL,
+  ram_used     REAL,
+  disk_used    INTEGER,
+  uptime       INTEGER
+);
+
+CREATE INDEX IF NOT EXISTS idx_metricas_agente ON metricas_agentes(agente_id, timestamp DESC);
