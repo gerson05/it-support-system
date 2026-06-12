@@ -276,6 +276,7 @@ function router() {
         renderInventario(appContainer);
         break;
       case '#monitoreo':
+        if (state.currentUser && !can('full')) { window.location.hash = _firstAccessibleHash(); break; }
         state.currentPage = 'monitoreo';
         document.getElementById('nav-monitoreo')?.classList.add('active');
         renderMonitoreo(appContainer);

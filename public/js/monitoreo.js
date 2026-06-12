@@ -207,7 +207,7 @@ function connectSSE() {
       loadAgents();
     }
   };
-  _sse.onerror = () => setTimeout(connectSSE, 5000);
+  _sse.onerror = () => { _sse.close(); _sse = null; setTimeout(connectSSE, 5000); };
 }
 
 function updateRow(id) {
