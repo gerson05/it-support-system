@@ -29,48 +29,48 @@ export default function CelularFormModal({ row, onClose, onSaved }) {
   }
 
   return (
-    <div style={{position:'fixed',inset:0,display:'flex',alignItems:'center',justifyContent:'center',background:'rgba(0,0,0,.6)',zIndex:10000}}>
-      <div style={{background:'#fff',padding:20,borderRadius:8,width:'min(680px,96vw)',maxHeight:'90vh',overflowY:'auto'}}>
-        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
+    <div className="modal-overlay">
+      <div className="modal-box">
+        <div className="modal-header">
           <h3>Editar celular</h3>
-          <button onClick={onClose}>✕</button>
+          <button className="modal-close" onClick={onClose}>✕</button>
         </div>
         <form onSubmit={submit}>
-          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+          <div className="modal-form-grid">
             <div>
-              <label style={{display:'block',fontSize:12}}>IMEI</label>
-              <input name="imei" value={form.imei} onChange={onChange} required />
+              <label>IMEI</label>
+              <input className="form-control" name="imei" value={form.imei} onChange={onChange} required />
             </div>
             <div>
-              <label style={{display:'block',fontSize:12}}>IMEI 2</label>
-              <input name="imei2" value={form.imei2} onChange={onChange} />
+              <label>IMEI 2</label>
+              <input className="form-control" name="imei2" value={form.imei2} onChange={onChange} />
             </div>
             <div>
-              <label style={{display:'block',fontSize:12}}>Marca / Equipo</label>
-              <input name="equipo" value={form.equipo} onChange={onChange} />
+              <label>Marca / Equipo</label>
+              <input className="form-control" name="equipo" value={form.equipo} onChange={onChange} />
             </div>
             <div>
-              <label style={{display:'block',fontSize:12}}>Modelo</label>
-              <input name="modelo" value={form.modelo} onChange={onChange} />
+              <label>Modelo</label>
+              <input className="form-control" name="modelo" value={form.modelo} onChange={onChange} />
             </div>
             <div>
-              <label style={{display:'block',fontSize:12}}>Área</label>
-              <input name="area" value={form.area} onChange={onChange} />
+              <label>Área</label>
+              <input className="form-control" name="area" value={form.area} onChange={onChange} />
             </div>
             <div>
-              <label style={{display:'block',fontSize:12}}>Nombre completo</label>
-              <input name="nombre_completo" value={form.nombre_completo} onChange={onChange} required />
+              <label>Nombre completo</label>
+              <input className="form-control" name="nombre_completo" value={form.nombre_completo} onChange={onChange} required />
             </div>
           </div>
-          <div style={{marginTop:8}}>
-            {!row.id ? (
-              <button type="button" onClick={() => setScannerOpen(true)}>Escanear (cámara)</button>
-            ) : null}
-          </div>
-          {err && <div style={{color:'crimson',marginTop:8}}>{err}</div>}
-          <div style={{display:'flex',justifyContent:'flex-end',gap:8,marginTop:12}}>
-            <button type="button" onClick={onClose}>Cancelar</button>
-            <button type="submit" disabled={saving}>{saving ? 'Guardando…' : 'Guardar'}</button>
+          {!row.id && (
+            <div style={{marginTop:10}}>
+              <button type="button" className="btn btn-secondary btn-small" onClick={() => setScannerOpen(true)}>Escanear (cámara)</button>
+            </div>
+          )}
+          {err && <div className="modal-error">{err}</div>}
+          <div className="modal-footer">
+            <button type="button" className="btn btn-secondary" onClick={onClose}>Cancelar</button>
+            <button type="submit" className="btn btn-primary" disabled={saving}>{saving ? 'Guardando…' : 'Guardar'}</button>
           </div>
         </form>
       </div>

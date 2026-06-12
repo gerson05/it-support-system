@@ -16,11 +16,18 @@ export default function TechRequestDetail() {
   async function load() {
     if (!id) return;
     setLoading(true);
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 12000);
     try {
-      const data = await fetchJson(`/api/tech-requests/${id}`);
+      const data = await fetchJson(`/api/tech-requests/${id}`, { signal: ctrl.signal });
       setRecord(data);
-    } catch (err) { showToast('No se pudo cargar la solicitud', 'error'); }
-    finally { setLoading(false); }
+    } catch (err) {
+      const msg = err.name === 'AbortError' ? 'Tiempo agotado al cargar la solicitud' : (err.message || 'Error al cargar');
+      showToast(msg, 'error');
+    } finally {
+      clearTimeout(timer);
+      setLoading(false);
+    }
   }
 
   useEffect(() => { load(); }, [id]);
@@ -35,7 +42,7 @@ export default function TechRequestDetail() {
           <div style={{color:'#94a3b8'}}>{record?.requester_name} · {record?.sede}</div>
         </div>
         <div style={{display:'flex',gap:8}}>
-          <button onClick={() => window.history.back()} className="btn btn-secondary">Volver</button>
+          <button onClick={() => { window.location.hash = '#tech-requests'; }} className="btn btn-secondary">← Volver</button>
           <button onClick={async () => { if (!record) await load(); setEditing(record); setShowModal(true); }} className="btn btn-primary">Editar</button>
         </div>
       </div>
@@ -75,8 +82,8 @@ export default function TechRequestDetail() {
               <div style={{marginTop:8}}>
                 {record.history && record.history.length ? record.history.map((h, i) => (
                   <div key={i} style={{padding:'8px 0',borderBottom:'1px solid rgba(0,0,0,0.04)'}}>
-                    <div style={{fontSize:12,fontWeight:600}}>{h.actor || 'Sistema'} · <span style={{fontSize:11,fontWeight:400,color:'#94a3b8'}}>{formatDate(h.when)}</span></div>
-                    <div style={{fontSize:13}}>{h.note || h.action}</div>
+                    <div style={{fontSize:12,fontWeight:600}}>{h.agent_name || 'Sistema'} · <span style={{fontSize:11,fontWeight:400,color:'#94a3b8'}}>{formatDate(h.created_at)}</span></div>
+                    <div style={{fontSize:13}}>{h.action}</div>
                   </div>
                 )) : <div style={{color:'#94a3b8'}}>Sin historial disponible.</div> }
               </div>

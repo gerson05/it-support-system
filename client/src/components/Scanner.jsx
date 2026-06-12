@@ -56,29 +56,31 @@ export default function Scanner({ open, onClose, onDetected }) {
   if (!open) return null;
 
   return (
-    <div style={{position:'fixed',inset:0,display:'flex',alignItems:'center',justifyContent:'center',background:'rgba(0,0,0,0.6)',zIndex:10000}}>
-      <div style={{width:'min(520px,96vw)',background:'#fff',borderRadius:8,padding:12}}>
-        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
-          <strong>Escáner</strong>
-          <button onClick={onClose}>✕</button>
+    <div className="modal-overlay">
+      <div className="modal-box modal-box-sm">
+        <div className="modal-header">
+          <h3>Escáner</h3>
+          <button className="modal-close" onClick={onClose}>✕</button>
         </div>
 
         {!supported && (
-          <div style={{padding:12,background:'#f8fafc',borderRadius:6}}>Tu navegador no soporta la API `BarcodeDetector`. Usa las opciones manuales.</div>
+          <div style={{padding:12,background:'var(--surface-2)',borderRadius:'var(--radius-sm)',color:'var(--text-2)',fontSize:13}}>
+            Tu navegador no soporta <code>BarcodeDetector</code>. Usa Chrome o Edge.
+          </div>
         )}
 
         <div style={{marginTop:8}}>
-          <div style={{background:'#000',borderRadius:8,overflow:'hidden'}}>
+          <div style={{background:'#000',borderRadius:'var(--radius)',overflow:'hidden'}}>
             <video ref={videoRef} style={{width:'100%',height:220,objectFit:'cover'}} playsInline muted />
           </div>
-          <div style={{display:'flex',gap:8,marginTop:8,alignItems:'center',justifyContent:'space-between'}}>
-            <div style={{fontFamily:'monospace'}}>{last || '—'}</div>
+          <div style={{display:'flex',gap:8,marginTop:10,alignItems:'center',justifyContent:'space-between'}}>
+            <div style={{fontFamily:'monospace',fontSize:13,color:'var(--text)'}}>{last || '—'}</div>
             <div style={{display:'flex',gap:8}}>
-              <button onClick={() => { if (onDetected && last) onDetected(last); }}>Aplicar</button>
-              <button onClick={() => { setLast(null); }}>Limpiar</button>
+              <button className="btn btn-secondary btn-small" onClick={() => setLast(null)}>Limpiar</button>
+              <button className="btn btn-primary btn-small" onClick={() => { if (onDetected && last) onDetected(last); }}>Aplicar</button>
             </div>
           </div>
-          {error && <div style={{color:'crimson',marginTop:8}}>{error}</div>}
+          {error && <div className="modal-error">{error}</div>}
         </div>
       </div>
     </div>
