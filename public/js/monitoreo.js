@@ -158,13 +158,17 @@ function buildRow(a) {
   </div>`;
 }
 
+function escapeHtml(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
 function buildAccordion(a) {
   const hwCards = [
-    ['Procesador',        a.cpu_model||'—',          `${a.cpu_cores||'?'} núcleos · ${a.cpu_ghz||'?'} GHz`],
-    ['Memoria RAM',       `${a.ram_total||'?'} GB`,   ''],
-    ['Almacenamiento',    `${a.disk_total||'?'} GB`,  a.disk_model||''],
-    ['Sistema Operativo', a.os_name||'—',             a.os_version||''],
-    ['Red / IP',          a.ip||'—',                  a.mac_address||''],
+    ['Procesador',        escapeHtml(a.cpu_model)||'—',          `${escapeHtml(a.cpu_cores)||'?'} núcleos · ${escapeHtml(a.cpu_ghz)||'?'} GHz`],
+    ['Memoria RAM',       `${escapeHtml(a.ram_total)||'?'} GB`,   ''],
+    ['Almacenamiento',    `${escapeHtml(a.disk_total)||'?'} GB`,  escapeHtml(a.disk_model)||''],
+    ['Sistema Operativo', escapeHtml(a.os_name)||'—',             escapeHtml(a.os_version)||''],
+    ['Red / IP',          escapeHtml(a.ip)||'—',                  escapeHtml(a.mac_address)||''],
     ['Uptime',            a.uptime ? uptimeStr(a.uptime) : '—', ''],
   ].map(([label, val, sub]) => `
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:10px;">
@@ -191,7 +195,7 @@ function buildAccordion(a) {
       </div>
       <div style="background:#0d1117;border-radius:6px;overflow:hidden;border:1px solid #30363d;">
         <div style="background:#161b22;padding:6px 12px;font-size:11px;color:#6e7681;border-bottom:1px solid #30363d;">
-          Consola — ${a.hostname||'equipo'}
+          Consola — ${escapeHtml(a.hostname)||'equipo'}
         </div>
         <pre id="mon-console-${a.id}" style="padding:10px 14px;font-family:monospace;font-size:11px;color:#c9d1d9;min-height:60px;max-height:300px;overflow-y:auto;margin:0;white-space:pre-wrap;word-break:break-all;"></pre>
         <div style="border-top:1px solid #30363d;display:flex;align-items:center;padding:6px 10px;gap:8px;">

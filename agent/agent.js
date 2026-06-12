@@ -126,12 +126,18 @@ async function executeCommand(serverUrl, agentId, apiKey, cmd) {
     proc.stdout.on('data', (data) => postChunk(data.toString(), false, undefined));
     proc.stderr.on('data', (data) => postChunk(data.toString(), false, undefined));
 
+    let finished = false;
+
     proc.on('error', async (err) => {
+      if (finished) return;
+      finished = true;
       await postChunk(`[Error: ${err.message}]\n`, true, 1);
       resolve();
     });
 
     proc.on('close', async (code) => {
+      if (finished) return;
+      finished = true;
       await postChunk('', true, code ?? 0);
       resolve();
     });
