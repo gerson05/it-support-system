@@ -27,7 +27,7 @@ export function startOfflineChecker() {
 }
 
 function agentAuth(req, res, next) {
-  const agentId = parseInt(req.headers['x-agent-id']);
+  const agentId = parseInt(req.headers['x-agent-id'], 10);
   const apiKey  = req.headers['x-api-key'];
   if (!agentId || !apiKey) return res.status(401).json({ error: 'Missing credentials.' });
   const agent = db.prepare('SELECT id FROM agentes WHERE id = ? AND api_key = ?').get(agentId, apiKey);
