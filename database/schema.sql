@@ -221,3 +221,22 @@ CREATE TABLE IF NOT EXISTS metricas_agentes (
 );
 
 CREATE INDEX IF NOT EXISTS idx_metricas_agente ON metricas_agentes(agente_id, timestamp DESC);
+
+-- ═══════════════════════════════════════════════════════════════
+-- MÓDULO: COMANDOS REMOTOS DE AGENTES
+-- ═══════════════════════════════════════════════════════════════
+
+CREATE TABLE IF NOT EXISTS comandos_agente (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  agente_id   INTEGER NOT NULL REFERENCES agentes(id) ON DELETE CASCADE,
+  tipo        TEXT NOT NULL,
+  parametro   TEXT,
+  estado      TEXT DEFAULT 'pendiente',
+  output      TEXT DEFAULT '',
+  exit_code   INTEGER,
+  creado_por  TEXT NOT NULL,
+  created_at  TEXT DEFAULT (datetime('now')),
+  updated_at  TEXT DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_comandos_agente ON comandos_agente(agente_id, estado);
