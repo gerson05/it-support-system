@@ -191,7 +191,7 @@ router.post('/api/monitoring/command/:id/output', agentAuth, (req, res) => {
 
   if (done) {
     const estado = (exit_code === 0) ? 'completado' : 'error';
-    db.prepare(`UPDATE comandos_agente SET estado = ?, exit_code = ?, updated_at = datetime('now') WHERE id = ?`)
+    db.prepare(`UPDATE comandos_agente SET estado = ?, exit_code = ?, updated_at = datetime('now') WHERE id = ? AND estado = 'ejecutando'`)
       .run(estado, exit_code ?? 1, req.params.id);
     broadcast({ type: 'command_done', cmd_id: parseInt(req.params.id), agent_id: req.agentId, exit_code: exit_code ?? 1 });
   }
