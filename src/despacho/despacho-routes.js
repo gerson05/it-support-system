@@ -139,17 +139,18 @@ router.get('/api/despachos/:id', ...canRead, (req, res) => {
 // POST /api/despachos — create
 router.post('/api/despachos', ...canCreate, (req, res) => {
   try {
-    const { destinatario, sede, area, articulos, observaciones, requiere_acta = 0, ticket_id, agente } = req.body;
+    const { destinatario, cedula, sede, area, articulos, observaciones, requiere_acta = 0, ticket_id, agente } = req.body;
     if (!destinatario || !articulos || !articulos.length) {
       return res.status(400).json({ error: 'Destinatario y artículos son obligatorios.' });
     }
     const numero = generateNumero();
     const acta_numero = requiere_acta ? generateActaNumero() : null;
-    db.prepare(`INSERT INTO despachos (numero, destinatario, sede, area, articulos, observaciones, requiere_acta, acta_numero, ticket_id, agente)
-      VALUES (?,?,?,?,?,?,?,?,?,?)`)
+    db.prepare(`INSERT INTO despachos (numero, destinatario, cedula, sede, area, articulos, observaciones, requiere_acta, acta_numero, ticket_id, agente)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?)`)
       .run(
         numero,
         destinatario,
+        cedula || null,
         sede || null,
         area || null,
         JSON.stringify(articulos),
@@ -200,6 +201,7 @@ router.put('/api/despachos/:id', ...canEdit, (req, res) => {
 
     // Campos de contenido: sobreescribir cuando vienen
     if (destinatario  !== undefined) { fields.push('destinatario = ?');  params.push(destinatario); }
+    if (cedula        !== undefined) { fields.push('cedula = ?');        params.push(cedula || null); }
     if (sede          !== undefined) { fields.push('sede = ?');          params.push(sede || null); }
     if (area          !== undefined) { fields.push('area = ?');          params.push(area || null); }
     if (articulos     !== undefined) { fields.push('articulos = ?');     params.push(JSON.stringify(articulos)); }
@@ -237,7 +239,7 @@ router.post('/api/despachos/:id/acta-word', ...canRead, async (req, res) => {
     const requestObj = {
       request_number: d.acta_numero || d.numero,
       requester_name: d.destinatario || '',
-      cedula: '',
+      cedula: d.cedula || '',
       cargo: d.area || '',
       sede: d.sede || '',
       items,

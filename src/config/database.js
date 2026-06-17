@@ -317,6 +317,7 @@ const migrations = [
     updated_at  TEXT DEFAULT (datetime('now'))
   )`,
   `CREATE INDEX IF NOT EXISTS idx_comandos_agente ON comandos_agente(agente_id, estado)`,
+  `ALTER TABLE despachos ADD COLUMN cedula TEXT DEFAULT NULL`,
   `INSERT OR IGNORE INTO permissions (id, name) VALUES (36, 'monitoring:command')`,
   `INSERT OR IGNORE INTO role_permissions (role_id, permission_id) VALUES (1, 36)`,
 ];
