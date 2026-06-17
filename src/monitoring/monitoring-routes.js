@@ -20,7 +20,7 @@ export function startOfflineChecker() {
   setInterval(() => {
     const r = db.prepare(`
       UPDATE agentes SET estado = 'offline'
-      WHERE estado = 'online' AND datetime(last_seen) < datetime('now', '-30 seconds')
+      WHERE estado = 'online' AND datetime(last_seen) < datetime('now', '-90 minutes')
     `).run();
     if (r.changes > 0) broadcast({ type: 'offline_sweep' });
     db.prepare(`DELETE FROM metricas_agentes WHERE timestamp < datetime('now', '-24 hours')`).run();
@@ -80,39 +80,50 @@ router.post('/api/monitoring/register', (req, res) => {
 
 /* POST /api/monitoring/heartbeat */
 router.post('/api/monitoring/heartbeat', agentAuth, (req, res) => {
-  const { cpu_percent, ram_used, disk_used, uptime } = req.body;
+  try {
+    const { cpu_percent, ram_used, disk_used, uptime } = req.body;
 
-  db.prepare(`UPDATE agentes SET estado='online', last_seen=datetime('now') WHERE id=?`)
-    .run(req.agentId);
+    db.prepare(`UPDATE agentes SET estado='online', last_seen=datetime('now') WHERE id=?`)
+      .run(req.agentId);
 
-  db.prepare(`
-    INSERT INTO metricas_agentes (agente_id, cpu_percent, ram_used, disk_used, uptime)
-    VALUES (?,?,?,?,?)
-  `).run(req.agentId, cpu_percent, ram_used, disk_used, uptime);
+    db.prepare(`
+      INSERT INTO metricas_agentes (agente_id, cpu_percent, ram_used, disk_used, uptime)
+      VALUES (?,?,?,?,?)
+    `).run(req.agentId, cpu_percent, ram_used, disk_used, uptime);
 
-  const agent = db.prepare('SELECT ram_total, disk_total FROM agentes WHERE id=?').get(req.agentId);
-  broadcast({
-    type: 'metrics', agent_id: req.agentId,
-    cpu_percent, ram_used, disk_used, uptime,
-    ram_total: agent?.ram_total, disk_total: agent?.disk_total,
-  });
+    const agent = db.prepare('SELECT ram_total, disk_total FROM agentes WHERE id=?').get(req.agentId);
+    broadcast({
+      type: 'metrics', agent_id: req.agentId,
+      cpu_percent, ram_used, disk_used, uptime,
+      ram_total: agent?.ram_total, disk_total: agent?.disk_total,
+    });
 
-  const pending = db.transaction(() => {
-    const cmds = db.prepare(`
-      SELECT id, tipo, parametro FROM comandos_agente
-      WHERE agente_id = ? AND estado = 'pendiente'
-      ORDER BY id ASC LIMIT 5
-    `).all(req.agentId);
-    if (cmds.length) {
-      const ids = cmds.map(c => c.id);
-      db.prepare(
-        `UPDATE comandos_agente SET estado = 'ejecutando', updated_at = datetime('now') WHERE id IN (${ids.map(() => '?').join(',')})`
-      ).run(...ids);
+    db.prepare(`BEGIN`).run();
+    let pending;
+    try {
+      const cmds = db.prepare(`
+        SELECT id, tipo, parametro FROM comandos_agente
+        WHERE agente_id = ? AND estado = 'pendiente'
+        ORDER BY id ASC LIMIT 5
+      `).all(req.agentId);
+      if (cmds.length) {
+        const ids = cmds.map(c => c.id);
+        db.prepare(
+          `UPDATE comandos_agente SET estado = 'ejecutando', updated_at = datetime('now') WHERE id IN (${ids.map(() => '?').join(',')})`
+        ).run(...ids);
+      }
+      db.prepare(`COMMIT`).run();
+      pending = cmds;
+    } catch (te) {
+      db.prepare(`ROLLBACK`).run();
+      throw te;
     }
-    return cmds;
-  })();
 
-  res.json({ ok: true, commands: pending });
+    res.json({ ok: true, commands: pending });
+  } catch (e) {
+    console.error('[Heartbeat] Error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
 });
 
 /* GET /api/monitoring/agents */

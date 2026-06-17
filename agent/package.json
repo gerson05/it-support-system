@@ -5,7 +5,7 @@
   "main": "agent.js",
   "scripts": {
     "start": "node agent.js",
-    "build": "npx pkg agent.js --targets node18-win-x64 --output dist/agente-it.exe && node embed-manifest.js"
+    "build": "npx pkg agent.js --targets node18-win-x64 --output dist/agente-it.exe"
   },
   "dependencies": {
     "systeminformation": "^5.22.0"
