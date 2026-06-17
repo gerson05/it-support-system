@@ -13,7 +13,7 @@ const CONFIG_PATH = join(BASE_DIR, 'agent-config.json');
 
 function loadConfig() {
   if (!existsSync(CONFIG_PATH)) throw new Error(`agent-config.json not found at ${CONFIG_PATH}`);
-  return JSON.parse(readFileSync(CONFIG_PATH, 'utf8'));
+  return JSON.parse(readFileSync(CONFIG_PATH, 'utf8').replace(/^﻿/, ''));
 }
 
 function saveConfig(cfg) {
@@ -144,19 +144,54 @@ async function executeCommand(serverUrl, agentId, apiKey, cmd) {
   });
 }
 
+function selfInstallTask() {
+  if (!IS_PKG) return;
+  const localDir = 'C:\\agente-it';
+  const localExe = localDir + '\\agente-it.exe';
+  const localCfg = localDir + '\\agent-config.json';
+  const ps = [
+    `$n='Agente IT'`,
+    `New-Item -ItemType Directory -Force '${localDir}'|Out-Null`,
+    `if(-not(Test-Path '${localExe}')){Copy-Item '${process.execPath.replace(/'/g, "''")}' '${localExe}'}`,
+    `if(-not(Test-Path '${localCfg}')){Copy-Item '${join(BASE_DIR,'agent-config.json').replace(/'/g, "''")}' '${localCfg}'}`,
+    `if(Get-ScheduledTask -TaskName $n -EA SilentlyContinue){exit 0}`,
+    `$a=New-ScheduledTaskAction -Execute '${localExe}' -WorkingDirectory '${localDir}'`,
+    `$t=New-ScheduledTaskTrigger -AtStartup`,
+    `$s=New-ScheduledTaskSettingsSet -RestartCount 5 -RestartInterval(New-TimeSpan -Minutes 1) -ExecutionTimeLimit(New-TimeSpan -Days 365)`,
+    `$p=New-ScheduledTaskPrincipal -UserId SYSTEM -RunLevel Highest`,
+    `Register-ScheduledTask -TaskName $n -Action $a -Trigger $t -Settings $s -Principal $p -Force|Out-Null`,
+  ].join(';');
+  const proc = spawn('powershell', ['-NoProfile', '-NonInteractive', '-Command', ps], { shell: false, windowsHide: true });
+  proc.on('close', code => {
+    if (code === 0) console.log('[Agent] Instalado en C:\\agente-it — inicia con Windows.');
+    else console.log('[Agent] Tarea programada: requiere admin para instalarse.');
+  });
+}
+
 async function main() {
+  selfInstallTask();
   let cfg = loadConfig();
   const serverUrl = cfg.server_url || 'http://localhost:3000';
   const interval  = cfg.interval_ms || 10000;
 
   if (!cfg.agent_id) {
-    console.log('[Agent] Collecting hardware info...');
+    console.log('[Agent] Recopilando informacion de hardware...');
     const hw = await getHardwareInfo();
-    console.log(`[Agent] Registering with ${serverUrl}...`);
-    const result = await register(serverUrl, hw);
-    cfg = { ...cfg, agent_id: result.id, api_key: result.api_key };
-    saveConfig(cfg);
-    console.log(`[Agent] Registered as agent #${cfg.agent_id}`);
+    let delay = 5000;
+    while (true) {
+      try {
+        console.log(`[Agent] Registrando con ${serverUrl}...`);
+        const result = await register(serverUrl, hw);
+        cfg = { ...cfg, agent_id: result.id, api_key: result.api_key };
+        saveConfig(cfg);
+        console.log(`[Agent] Registrado como agente #${cfg.agent_id}`);
+        break;
+      } catch (e) {
+        console.error(`[Agent] Registro fallido: ${e.message} — reintentando en ${delay / 1000}s`);
+        await new Promise(r => setTimeout(r, delay));
+        delay = Math.min(delay * 2, 60000);
+      }
+    }
   }
 
   const { agent_id: agentId, api_key: apiKey } = cfg;

@@ -1,4 +1,4 @@
 {
-  "server_url": "http://YOUR_SERVER_IP:3000",
-  "interval_ms": 10000
+  "server_url": "http://190.147.23.156:3000",
+  "interval_ms": 3600000
 }
