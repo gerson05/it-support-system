@@ -176,12 +176,12 @@ function openRotuloModal(token, numero) {
 
 function actaBadge(d) {
   if (!d.requiere_acta) {
-    return `<span style="display:inline-block;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:500;background:var(--surface-2);color:var(--text-3);border:1px solid var(--border);">No requiere</span>`;
+    return `<span style="display:inline-block;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:500;white-space:nowrap;background:var(--surface-2);color:var(--text-3);border:1px solid var(--border);">No requiere</span>`;
   }
   if (d.acta_firmada) {
-    return `<span style="display:inline-block;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:500;background:#d1fae5;color:#065f46;border:1px solid #6ee7b7;">Firmada ✓</span>`;
+    return `<span style="display:inline-block;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:500;white-space:nowrap;background:#d1fae5;color:#065f46;border:1px solid #6ee7b7;">Firmada ✓</span>`;
   }
-  return `<span style="display:inline-block;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:500;background:#fef3c7;color:#92400e;border:1px solid #fcd34d;">Pendiente firma</span>`;
+  return `<span style="display:inline-block;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:500;white-space:nowrap;background:#fef3c7;color:#92400e;border:1px solid #fcd34d;">Pendiente firma</span>`;
 }
 
 function articulosCount(d) {
@@ -304,7 +304,7 @@ function printDespacho(d) {
       </div>
     </div>
     <dl class="meta">
-      <dt>Destinatario</dt><dd>${d.destinatario}</dd>
+      <dt>Destinatario</dt><dd>${d.destinatario}${d.cedula ? ` — CC ${d.cedula}` : ''}</dd>
       <dt>Sede</dt><dd>${d.sede || '—'}</dd>
       <dt>Área</dt><dd>${d.area ? (AREA_MAPPINGS[d.area]?.label || d.area) : '—'}</dd>
       <dt>Agente</dt><dd>${d.agente || '—'}</dd>
@@ -365,6 +365,7 @@ function openDetailModal(id) {
         <div>
           <div style="font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;margin-bottom:3px;">Destinatario</div>
           <div style="font-size:13px;color:var(--text);font-weight:500;">${d.destinatario}</div>
+          ${d.cedula ? `<div style="font-size:11px;color:var(--text-3);">CC ${d.cedula}</div>` : ''}
         </div>
         <div>
           <div style="font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;margin-bottom:3px;">Sede</div>
@@ -732,11 +733,16 @@ async function openCreateModal(onSuccess) {
           </div>
         </div>
 
-        <!-- Destinatario / Sede / Area -->
+        <!-- Destinatario / Cédula / Sede / Area -->
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
-          <div style="grid-column:1/-1;">
+          <div>
             <label style="display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:4px;">Destinatario *</label>
             <input name="destinatario" required type="text" placeholder="Nombre del receptor"
+              style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:13px;box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:4px;">Cédula</label>
+            <input name="cedula" type="text" placeholder="Número de cédula"
               style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:13px;box-sizing:border-box;">
           </div>
           <div>
@@ -1094,6 +1100,7 @@ async function openCreateModal(onSuccess) {
 
     const payload = {
       destinatario: fd.get('destinatario'),
+      cedula: fd.get('cedula') || null,
       sede: fd.get('sede') || null,
       area: fd.get('area') || null,
       articulos,
@@ -1251,10 +1258,10 @@ export function renderDespacho(container) {
                   onclick="document.dispatchEvent(new CustomEvent('open-despacho', {detail:${d.id}}))">
                 <td style="padding:11px 14px;font-family:monospace;font-size:12px;font-weight:700;color:var(--primary);white-space:nowrap;">${d.numero}</td>
                 <td style="padding:11px 14px;font-size:12px;color:var(--text-2);white-space:nowrap;">${d.fecha || '—'}</td>
-                <td style="padding:11px 14px;font-size:13px;font-weight:500;color:var(--text);">${d.destinatario}</td>
+                <td style="padding:11px 14px;font-size:13px;font-weight:500;color:var(--text);">${d.destinatario}${d.cedula ? `<div style="font-size:11px;font-weight:400;color:var(--text-3);">CC ${d.cedula}</div>` : ''}</td>
                 <td style="padding:11px 14px;font-size:12px;color:var(--text-2);">${d.sede || '—'}</td>
                 <td style="padding:11px 14px;font-size:12px;color:var(--text-2);">${articulosCount(d)}</td>
-                <td style="padding:11px 14px;">${actaBadge(d)}</td>
+                <td style="padding:11px 14px;white-space:nowrap;">${actaBadge(d)}</td>
                 <td style="padding:11px 14px;text-align:right;white-space:nowrap;">
                   <button class="btn btn-secondary" style="font-size:11px;padding:4px 10px;margin-right:4px;"
                     onclick="event.stopPropagation();document.dispatchEvent(new CustomEvent('open-despacho', {detail:${d.id}}))">Ver</button>
@@ -1372,9 +1379,14 @@ async function openEditDespachoModal(id, onSuccess) {
       </div>
       <form id="form-edit-despacho">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
-          <div style="grid-column:1/-1;">
+          <div>
             <label style="display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:4px;">Destinatario *</label>
             <input name="destinatario" required type="text" value="${d.destinatario || ''}"
+              style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:13px;box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:4px;">Cédula</label>
+            <input name="cedula" type="text" value="${d.cedula || ''}" placeholder="Número de cédula"
               style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:13px;box-sizing:border-box;">
           </div>
           <div>
@@ -1486,7 +1498,7 @@ async function openEditDespachoModal(id, onSuccess) {
     const btn = overlay.querySelector('#btn-submit-edit');
     btn.textContent = 'Guardando…'; btn.disabled = true;
     try {
-      await updateDespacho(id, { destinatario: fd.get('destinatario'), sede: fd.get('sede')||null, area: fd.get('area')||null, articulos: arts, observaciones: fd.get('observaciones')||null, requiere_acta: overlay.querySelector('#edit-check-acta').checked ? 1 : 0, agente: state.currentAgent.name });
+      await updateDespacho(id, { destinatario: fd.get('destinatario'), cedula: fd.get('cedula')||null, sede: fd.get('sede')||null, area: fd.get('area')||null, articulos: arts, observaciones: fd.get('observaciones')||null, requiere_acta: overlay.querySelector('#edit-check-acta').checked ? 1 : 0, agente: state.currentAgent.name });
       showToast('✅ Despacho actualizado', 'success');
       close(); onSuccess();
     } catch (err) {
