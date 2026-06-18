@@ -362,7 +362,8 @@ export function createExecutionModal(onlineAgents, commands, linkedAgentId, kbTi
         }
       </select>`;
 
-  const cmdHtml = commands.map(c => `<div>${c}</div>`).join('');
+  const escapeHtml = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const cmdHtml = commands.map(c => `<div>${escapeHtml(c)}</div>`).join('');
   const canExec = linkedOnline || onlineAgents.length > 0;
 
   return `
