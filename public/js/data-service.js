@@ -735,6 +735,46 @@ export const DataService = {
     delete conversations[cleanPhone];
     localStorage.setItem('it_conversations', JSON.stringify(conversations));
     return { success: true };
-  }
+  },
+
+  async analyzeTicket(problema, ticketId) {
+    const res = await fetch('/api/ai/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ problema, ticket_id: ticketId })
+    });
+    if (!res.ok) throw new Error(`analyze error ${res.status}`);
+    return res.json(); // { kb: [...], ai: string|null }
+  },
+
+  async getOnlineAgents() {
+    const res = await fetch('/api/monitoring/agents');
+    if (!res.ok) throw new Error(`agents error ${res.status}`);
+    const all = await res.json();
+    return all.filter(a => a.status === 'online');
+  },
+
+  async executeRemoteCommand(agentId, commands) {
+    // commands: string[] — se unen con \r\n como script shell único
+    const parametro = commands.join('\r\n');
+    const res = await fetch(`/api/monitoring/agents/${agentId}/command`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tipo: 'shell', parametro })
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || `command error ${res.status}`);
+    }
+    return res.json(); // { cmd_id }
+  },
+
+  async getCommandStatus(agentId, cmdId) {
+    const res = await fetch(`/api/monitoring/agents/${agentId}/commands`);
+    if (!res.ok) throw new Error(`commands error ${res.status}`);
+    const list = await res.json();
+    return list.find(c => c.id === cmdId) || null;
+    // { id, estado: 'pendiente'|'ejecutando'|'completado'|'error', output, exit_code }
+  },
 };
 export default DataService;
