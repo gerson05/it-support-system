@@ -70,9 +70,10 @@ async function initAiTab(ticket) {
     wireKbCardEvents(ticket, kb);
 
   } catch (err) {
+    const safeMsg = (err.message || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     container.innerHTML = `
       <div style="color:var(--color-error,#f87171);font-size:13px;text-align:center;padding:20px;">
-        Error al analizar el ticket: ${err.message}
+        Error al analizar el ticket: ${safeMsg}
       </div>`;
   }
 }
