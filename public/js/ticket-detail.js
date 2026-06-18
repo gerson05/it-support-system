@@ -34,7 +34,7 @@ async function initAiTab(ticket) {
       html += `
         <div style="background:rgba(22,101,52,.2);border:1px solid #166534;border-radius:8px;padding:12px;margin-bottom:14px;">
           <div style="color:#4ade80;font-weight:600;font-size:12px;margin-bottom:6px;">🤖 Análisis IA</div>
-          <div style="color:#bbf7d0;font-size:12px;line-height:1.6;">${ai}</div>
+          <div id="ai-analysis-text" style="color:#bbf7d0;font-size:12px;line-height:1.6;white-space:pre-wrap;"></div>
         </div>`;
     }
 
@@ -57,6 +57,11 @@ async function initAiTab(ticket) {
       </div>`;
 
     container.innerHTML = html;
+
+    if (ai) {
+      const aiTextEl = container.querySelector('#ai-analysis-text');
+      if (aiTextEl) aiTextEl.textContent = ai;
+    }
 
     // Re-analizar
     document.getElementById('btn-ai-reanalyze')?.addEventListener('click', async () => {
@@ -139,7 +144,7 @@ function openExecutionModal(kbItem, commands, onlineAgents, linkedAgentId, ticke
 
   document.getElementById('btn-exec-confirm')?.addEventListener('click', async () => {
     const agentIdRaw = document.getElementById('exec-agent-id')?.value;
-    const agentId = parseInt(agentIdRaw);
+    const agentId = parseInt(agentIdRaw, 10);
     if (!agentId) {
       showToast('Selecciona un equipo destino.', 'warning');
       return;
