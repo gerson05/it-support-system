@@ -173,7 +173,7 @@ async function pollCommandOutput(agentId, cmdId, ticket) {
   const actionButtons = document.getElementById('exec-action-buttons');
   const postActions   = document.getElementById('exec-post-actions');
 
-  if (outputSection) outputSection.style.display = '';
+  if (outputSection) outputSection.style.display = 'block';
 
   const POLL_INTERVAL = 2000;
   const MAX_POLLS     = 60;
@@ -207,7 +207,7 @@ async function pollCommandOutput(agentId, cmdId, ticket) {
               Guardar en notas internas
             </button>`;
 
-          if (cmd.exit_code !== 0 && outputDiv) {
+          if (cmd.exit_code != null && cmd.exit_code !== 0 && outputDiv) {
             outputDiv.style.color = '#f87171';
           }
 
