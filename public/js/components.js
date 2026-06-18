@@ -293,3 +293,102 @@ export async function copyToClipboard(text) {
   }
 }
 
+/**
+ * Tarjeta de resultado KB para el tab AI.
+ * @param {object} item  - item de kb_items con campos: id, titulo, categoria, solucion, comandos, _score
+ * @param {boolean} isBestMatch
+ */
+export function createAiKbCard(item, isBestMatch) {
+  let cmds = [];
+  try { cmds = JSON.parse(item.comandos || '[]'); } catch {}
+  const cmdCount = cmds.length;
+  const solucionCorta = item.solucion.length > 120
+    ? item.solucion.slice(0, 120) + '…'
+    : item.solucion;
+
+  return `
+    <div class="ai-kb-card" data-kb-id="${item.id}" style="
+      background: var(--surface-2, #1e293b);
+      border: 1px solid ${isBestMatch ? 'var(--primary, #3b82f6)' : 'var(--border, #334155)'};
+      border-radius: 8px; padding: 12px; margin-bottom: 10px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
+        <div style="color:var(--primary,#60a5fa);font-weight:600;font-size:13px;">📚 ${item.titulo}</div>
+        ${isBestMatch ? '<span style="background:#166534;color:#4ade80;font-size:9px;padding:2px 7px;border-radius:3px;white-space:nowrap;">MEJOR MATCH</span>' : ''}
+      </div>
+      <div style="color:var(--text-muted,#94a3b8);font-size:11px;margin-bottom:6px;text-transform:capitalize;">
+        ${item.categoria}${cmdCount > 0 ? ` · ${cmdCount} comando${cmdCount > 1 ? 's' : ''}` : ''}
+      </div>
+      <div class="ai-kb-solucion" style="color:var(--text,#cbd5e1);font-size:12px;margin-bottom:10px;">${solucionCorta}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        ${cmdCount > 0 ? `<button class="btn btn-primary btn-small ai-btn-exec" data-kb-id="${item.id}" style="font-size:12px;">▶ Ejecutar en equipo</button>` : ''}
+        <button class="btn btn-secondary btn-small ai-btn-ver" data-kb-id="${item.id}" style="font-size:12px;">Ver solución completa</button>
+      </div>
+    </div>
+  `;
+}
+
+/**
+ * Modal de confirmación de ejecución remota.
+ * @param {object[]} onlineAgents  - agentes con status='online'
+ * @param {string[]} commands      - lista de comandos a ejecutar
+ * @param {number|null} linkedAgentId - id del agente vinculado al ticket (null si ninguno)
+ * @param {string} kbTitulo        - nombre del item KB para el título
+ */
+export function createExecutionModal(onlineAgents, commands, linkedAgentId, kbTitulo) {
+  const linkedOnline = linkedAgentId
+    ? onlineAgents.find(a => a.id === linkedAgentId)
+    : null;
+
+  const agentSelectorHtml = linkedOnline
+    ? `
+      <div style="display:flex;align-items:center;gap:10px;background:rgba(22,101,52,.25);border:1px solid #166534;border-radius:6px;padding:10px;margin-bottom:10px;">
+        <span style="font-size:20px;">🖥️</span>
+        <div>
+          <div style="color:#4ade80;font-weight:600;font-size:13px;">${linkedOnline.name} <span style="background:#166534;color:#4ade80;font-size:9px;padding:1px 5px;border-radius:3px;">Online</span></div>
+          <div style="color:#86efac;font-size:11px;">Equipo del solicitante</div>
+        </div>
+      </div>
+      <input type="hidden" id="exec-agent-id" value="${linkedOnline.id}">`
+    : `
+      <div style="color:#fbbf24;font-size:12px;margin-bottom:8px;">
+        ⚠️ ${linkedAgentId ? 'Equipo del solicitante offline.' : 'Sin equipo vinculado.'} Selecciona destino:
+      </div>
+      <select id="exec-agent-id" style="width:100%;margin-bottom:10px;font-size:12px;">
+        ${onlineAgents.length === 0
+          ? '<option value="">Sin equipos online disponibles</option>'
+          : onlineAgents.map(a =>
+              `<option value="${a.id}">${a.name} — Online ✅</option>`
+            ).join('')
+        }
+      </select>`;
+
+  const cmdHtml = commands.map(c => `<div>${c}</div>`).join('');
+  const canExec = linkedOnline || onlineAgents.length > 0;
+
+  return `
+    <div id="exec-modal-overlay" style="
+      position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;
+      display:flex;align-items:center;justify-content:center;padding:20px;">
+      <div style="
+        background:var(--surface,#0f172a);border:2px solid var(--primary,#3b82f6);
+        border-radius:10px;padding:20px;max-width:520px;width:100%;max-height:90vh;overflow-y:auto;">
+        <div style="font-weight:700;font-size:15px;margin-bottom:14px;">▶ Ejecutar: ${kbTitulo}</div>
+        ${agentSelectorHtml}
+        <div style="font-size:11px;color:var(--text-muted,#94a3b8);margin-bottom:4px;">Comandos a ejecutar:</div>
+        <div style="background:#0a0a0a;border-radius:4px;padding:10px;font-family:monospace;font-size:11px;color:#4ade80;margin-bottom:14px;white-space:pre-wrap;max-height:120px;overflow-y:auto;">${cmdHtml}</div>
+        <div id="exec-output-section" style="display:none;margin-bottom:12px;">
+          <div style="font-size:11px;color:var(--text-muted,#94a3b8);margin-bottom:4px;">Output:</div>
+          <div id="exec-output" style="background:#0a0a0a;border-radius:4px;padding:10px;font-family:monospace;font-size:11px;color:#e2e8f0;white-space:pre-wrap;max-height:160px;overflow-y:auto;"></div>
+        </div>
+        <div id="exec-post-actions" style="display:none;gap:8px;flex-wrap:wrap;margin-bottom:12px;"></div>
+        <div style="display:flex;gap:8px;" id="exec-action-buttons">
+          <button id="btn-exec-confirm" class="btn btn-primary" style="flex:1;" ${canExec ? '' : 'disabled'}>
+            ✓ Confirmar y ejecutar
+          </button>
+          <button id="btn-exec-cancel" class="btn btn-secondary">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
