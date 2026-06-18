@@ -738,6 +738,7 @@ export const DataService = {
   },
 
   async analyzeTicket(problema, ticketId) {
+    // No offline fallback — requires live server.
     const res = await fetch('/api/ai/analyze', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -748,6 +749,7 @@ export const DataService = {
   },
 
   async getOnlineAgents() {
+    // No offline fallback — requires live server.
     const res = await fetch('/api/monitoring/agents');
     if (!res.ok) throw new Error(`agents error ${res.status}`);
     const all = await res.json();
@@ -755,9 +757,10 @@ export const DataService = {
   },
 
   async executeRemoteCommand(agentId, commands) {
+    // No offline fallback — requires live server.
     // commands: string[] — se unen con \r\n como script shell único
     const parametro = commands.join('\r\n');
-    const res = await fetch(`/api/monitoring/agents/${agentId}/command`, {
+    const res = await fetch(`/api/monitoring/agents/${encodeURIComponent(agentId)}/command`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ tipo: 'shell', parametro })
@@ -770,7 +773,8 @@ export const DataService = {
   },
 
   async getCommandStatus(agentId, cmdId) {
-    const res = await fetch(`/api/monitoring/agents/${agentId}/commands`);
+    // No offline fallback — requires live server.
+    const res = await fetch(`/api/monitoring/agents/${encodeURIComponent(agentId)}/commands`);
     if (!res.ok) throw new Error(`commands error ${res.status}`);
     const list = await res.json();
     return list.find(c => c.id === cmdId) || null;
