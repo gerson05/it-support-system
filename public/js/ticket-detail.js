@@ -69,40 +69,64 @@ export async function renderTicketDetail(container, ticketId) {
         <div class="ticket-detail-grid">
           <!-- Timeline y Mensajes (Izquierda) -->
           <div class="card timeline-card">
-            <div class="section-title">Conversación de WhatsApp</div>
-            
-            <div class="timeline-messages" id="timeline-messages-container">
-              <!-- Mensajes se inyectan aquí -->
+            <!-- Tabs -->
+            <div style="display:flex;gap:0;border-bottom:1px solid var(--border,#334155);margin-bottom:16px;">
+              <button id="tab-btn-conv" onclick="window.switchTab('conv')" style="
+                padding:8px 16px;font-size:13px;font-weight:600;border:none;background:transparent;cursor:pointer;
+                color:var(--primary,#60a5fa);border-bottom:2px solid var(--primary,#3b82f6);">
+                💬 Conversación
+              </button>
+              <button id="tab-btn-ai" onclick="window.switchTab('ai')" style="
+                padding:8px 16px;font-size:13px;font-weight:600;border:none;background:transparent;cursor:pointer;
+                color:var(--text-muted,#94a3b8);border-bottom:2px solid transparent;">
+                🤖 Asistente AI
+              </button>
             </div>
-            
-            <!-- Responder texto -->
-            <div id="wa-status-banner" style="display:none;font-size:11px;padding:6px 10px;border-radius:6px;margin-bottom:8px;background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.35);color:#fbbf24;">
-              ${iconAlert(13)} WhatsApp no está conectado — los mensajes se guardarán pero <strong>no llegarán al empleado</strong>.
-            </div>
-            <form id="reply-form" class="reply-form">
-              <textarea id="reply-input" placeholder="Escribe tu respuesta para el empleado (se enviará a su WhatsApp)..." required autocomplete="off"></textarea>
-              <div style="display:flex;flex-direction:column;gap:6px;">
-                <button type="submit" class="btn btn-primary" style="height:42px;display:flex;align-items:center;gap:7px;justify-content:center;">Enviar ${iconSend(14)}</button>
-                <label class="btn btn-secondary" style="height:42px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;" title="Enviar imagen por WhatsApp">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                  Enviar imagen
-                  <input type="file" id="image-input" accept="image/*" style="display:none;">
-                </label>
+
+            <!-- Panel Conversación -->
+            <div id="tab-panel-conv">
+              <div class="section-title" style="margin-bottom:14px;">Conversación de WhatsApp</div>
+
+              <div class="timeline-messages" id="timeline-messages-container">
+                <!-- Mensajes se inyectan aquí -->
               </div>
-            </form>
-            <!-- Preview imagen seleccionada -->
-            <div id="image-preview-container" style="display:none;margin-top:8px;padding:10px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);gap:10px;align-items:flex-start;">
-              <img id="image-preview" style="max-width:120px;max-height:120px;border-radius:6px;object-fit:cover;flex-shrink:0;">
-              <div style="flex:1;min-width:0;">
-                <input type="text" id="image-caption" placeholder="Añade un texto a la imagen (opcional)…"
-                  style="width:100%;margin-bottom:8px;font-size:12px;box-sizing:border-box;">
-                <div style="display:flex;gap:6px;">
-                  <button class="btn btn-primary btn-small" id="btn-send-image">Enviar imagen</button>
-                  <button class="btn btn-secondary btn-small" id="btn-cancel-image">Cancelar</button>
+
+              <!-- Responder texto -->
+              <div id="wa-status-banner" style="display:none;font-size:11px;padding:6px 10px;border-radius:6px;margin-bottom:8px;background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.35);color:#fbbf24;">
+                ${iconAlert(13)} WhatsApp no está conectado — los mensajes se guardarán pero <strong>no llegarán al empleado</strong>.
+              </div>
+              <form id="reply-form" class="reply-form">
+                <textarea id="reply-input" placeholder="Escribe tu respuesta para el empleado (se enviará a su WhatsApp)..." required autocomplete="off"></textarea>
+                <div style="display:flex;flex-direction:column;gap:6px;">
+                  <button type="submit" class="btn btn-primary" style="height:42px;display:flex;align-items:center;gap:7px;justify-content:center;">Enviar ${iconSend(14)}</button>
+                  <label class="btn btn-secondary" style="height:42px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;" title="Enviar imagen por WhatsApp">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    Enviar imagen
+                    <input type="file" id="image-input" accept="image/*" style="display:none;">
+                  </label>
+                </div>
+              </form>
+              <!-- Preview imagen seleccionada -->
+              <div id="image-preview-container" style="display:none;margin-top:8px;padding:10px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);gap:10px;align-items:flex-start;">
+                <img id="image-preview" style="max-width:120px;max-height:120px;border-radius:6px;object-fit:cover;flex-shrink:0;">
+                <div style="flex:1;min-width:0;">
+                  <input type="text" id="image-caption" placeholder="Añade un texto a la imagen (opcional)…"
+                    style="width:100%;margin-bottom:8px;font-size:12px;box-sizing:border-box;">
+                  <div style="display:flex;gap:6px;">
+                    <button class="btn btn-primary btn-small" id="btn-send-image">Enviar imagen</button>
+                    <button class="btn btn-secondary btn-small" id="btn-cancel-image">Cancelar</button>
+                  </div>
                 </div>
               </div>
+            </div><!-- /tab-panel-conv -->
+
+            <!-- Panel AI -->
+            <div id="tab-panel-ai" style="display:none;">
+              <div id="ai-tab-content">
+                <!-- se llena por initAiTab() -->
+              </div>
             </div>
-          </div>
+          </div><!-- /card.timeline-card -->
 
           <!-- Información y Acciones (Derecha) -->
           <div style="display: flex; flex-direction: column; gap: 30px;">
@@ -427,6 +451,36 @@ export async function renderTicketDetail(container, ticketId) {
         openFaqFromTicket(ticket.description || '', agentMessages);
         showToast('Abriendo editor de FAQ con los datos del ticket...', 'info');
       });
+
+      // Exponer switchTab en window para los onclick del HTML
+      let _aiTabInitialized = false;
+      window.switchTab = function(tab) {
+        const conv = document.getElementById('tab-panel-conv');
+        const ai   = document.getElementById('tab-panel-ai');
+        const btnConv = document.getElementById('tab-btn-conv');
+        const btnAi   = document.getElementById('tab-btn-ai');
+        if (!conv || !ai) return;
+
+        if (tab === 'conv') {
+          conv.style.display = '';
+          ai.style.display   = 'none';
+          btnConv.style.color = 'var(--primary,#60a5fa)';
+          btnConv.style.borderBottomColor = 'var(--primary,#3b82f6)';
+          btnAi.style.color = 'var(--text-muted,#94a3b8)';
+          btnAi.style.borderBottomColor = 'transparent';
+        } else {
+          conv.style.display = 'none';
+          ai.style.display   = '';
+          btnAi.style.color = 'var(--primary,#60a5fa)';
+          btnAi.style.borderBottomColor = 'var(--primary,#3b82f6)';
+          btnConv.style.color = 'var(--text-muted,#94a3b8)';
+          btnConv.style.borderBottomColor = 'transparent';
+          if (!_aiTabInitialized) {
+            _aiTabInitialized = true;
+            initAiTab(ticket);
+          }
+        }
+      };
 
     } catch (err) {
       console.error(err);
