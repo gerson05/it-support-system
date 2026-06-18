@@ -224,6 +224,36 @@ async function pollCommandOutput(agentId, cmdId, ticket) {
   setTimeout(poll, POLL_INTERVAL);
 }
 
+function wirePostExecutionActions(ticket, cmd, container) {
+  document.getElementById('btn-post-resolve')?.addEventListener('click', async () => {
+    try {
+      await DataService.updateTicket(ticket.id, { status: 'resuelto' });
+      showToast('Ticket marcado como resuelto.', 'success');
+      closeExecutionModal();
+      const sel = document.getElementById('change-status');
+      if (sel) sel.value = 'resuelto';
+    } catch (err) {
+      showToast('Error al resolver ticket: ' + err.message, 'error');
+    }
+  });
+
+  document.getElementById('btn-post-note')?.addEventListener('click', async () => {
+    const nota = `Solución ejecutada remotamente (cmd #${cmd.id}):\n${cmd.output || '(sin output)'}`;
+    try {
+      await DataService.addInternalNote(
+        ticket.id,
+        state.currentAgent.id,
+        state.currentAgent.name,
+        nota
+      );
+      showToast('Ejecución guardada en notas internas.', 'success');
+      closeExecutionModal();
+    } catch (err) {
+      showToast('Error al guardar nota: ' + err.message, 'error');
+    }
+  });
+}
+
 export async function renderTicketDetail(container, ticketId) {
   container.innerHTML = createLoadingSpinner();
 
