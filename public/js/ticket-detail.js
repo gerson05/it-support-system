@@ -6,10 +6,76 @@ import {
   getAreaName,
   state
 } from './app.js';
-import { showToast, createLoadingSpinner } from './components.js';
+import { showToast, createLoadingSpinner, createAiKbCard } from './components.js';
 import { iconChevronLeft, iconAlert, iconSend } from './icons.js';
 import DataService from './data-service.js';
 import { openFaqFromTicket } from './faqs.js';
+
+async function initAiTab(ticket) {
+  const container = document.getElementById('ai-tab-content');
+  if (!container) return;
+
+  const problema = ticket.description || '';
+
+  // Spinner
+  container.innerHTML = `
+    <div style="text-align:center;padding:40px 20px;color:var(--text-muted,#64748b);">
+      <div style="font-size:28px;margin-bottom:10px;">⏳</div>
+      <div style="font-size:13px;">Analizando problema del ticket...</div>
+    </div>`;
+
+  try {
+    const { kb, ai } = await DataService.analyzeTicket(problema, ticket.id);
+
+    let html = '';
+
+    // Bloque análisis LLM (solo si hay respuesta)
+    if (ai) {
+      html += `
+        <div style="background:rgba(22,101,52,.2);border:1px solid #166534;border-radius:8px;padding:12px;margin-bottom:14px;">
+          <div style="color:#4ade80;font-weight:600;font-size:12px;margin-bottom:6px;">🤖 Análisis IA</div>
+          <div style="color:#bbf7d0;font-size:12px;line-height:1.6;">${ai}</div>
+        </div>`;
+    }
+
+    // Tarjetas KB
+    if (kb.length === 0) {
+      html += `<div style="color:var(--text-muted,#94a3b8);font-size:13px;text-align:center;padding:20px 0;">
+        Sin coincidencias en la base de conocimiento.</div>`;
+    } else {
+      kb.forEach((item, i) => {
+        html += createAiKbCard(item, i === 0);
+      });
+    }
+
+    // Botón re-analizar + campo editable
+    html += `
+      <div style="margin-top:14px;display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap;">
+        <textarea id="ai-reanalyze-input" style="flex:1;min-width:160px;font-size:12px;min-height:38px;resize:vertical;"
+          placeholder="Ajusta la descripción del problema...">${problema}</textarea>
+        <button id="btn-ai-reanalyze" class="btn btn-secondary" style="font-size:12px;white-space:nowrap;">🔄 Re-analizar</button>
+      </div>`;
+
+    container.innerHTML = html;
+
+    // Re-analizar
+    document.getElementById('btn-ai-reanalyze')?.addEventListener('click', async () => {
+      const nuevoProblema = document.getElementById('ai-reanalyze-input')?.value?.trim();
+      if (!nuevoProblema) return;
+      const fakeTicket = { ...ticket, description: nuevoProblema };
+      await initAiTab(fakeTicket);
+    });
+
+    // Wiring de tarjetas KB
+    wireKbCardEvents(ticket, kb);
+
+  } catch (err) {
+    container.innerHTML = `
+      <div style="color:var(--color-error,#f87171);font-size:13px;text-align:center;padding:20px;">
+        Error al analizar el ticket: ${err.message}
+      </div>`;
+  }
+}
 
 export async function renderTicketDetail(container, ticketId) {
   container.innerHTML = createLoadingSpinner();
