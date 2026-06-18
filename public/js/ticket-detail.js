@@ -6,7 +6,7 @@ import {
   getAreaName,
   state
 } from './app.js';
-import { showToast, createLoadingSpinner, createAiKbCard } from './components.js';
+import { showToast, createLoadingSpinner, createAiKbCard, createExecutionModal } from './components.js';
 import { iconChevronLeft, iconAlert, iconSend } from './icons.js';
 import DataService from './data-service.js';
 import { openFaqFromTicket } from './faqs.js';
@@ -76,6 +76,152 @@ async function initAiTab(ticket) {
         Error al analizar el ticket: ${safeMsg}
       </div>`;
   }
+}
+
+function wireKbCardEvents(ticket, kbItems) {
+  // "Ver solución completa"
+  document.querySelectorAll('.ai-btn-ver').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = parseInt(btn.dataset.kbId);
+      const item = kbItems.find(k => k.id === id);
+      if (!item) return;
+      const card = btn.closest('.ai-kb-card');
+      const solucionDiv = card?.querySelector('.ai-kb-solucion');
+      if (solucionDiv) solucionDiv.textContent = item.solucion;
+      btn.style.display = 'none';
+    });
+  });
+
+  // "Ejecutar en equipo"
+  document.querySelectorAll('.ai-btn-exec').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = parseInt(btn.dataset.kbId);
+      const item = kbItems.find(k => k.id === id);
+      if (!item) return;
+
+      let commands = [];
+      try { commands = JSON.parse(item.comandos || '[]'); } catch {}
+      if (commands.length === 0) {
+        showToast('Este item KB no tiene comandos definidos.', 'warning');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Cargando…';
+
+      try {
+        const onlineAgents = await DataService.getOnlineAgents();
+        const linkedAgentId = ticket.agent_computer_id || null;
+        openExecutionModal(item, commands, onlineAgents, linkedAgentId, ticket);
+      } catch (err) {
+        showToast('Error al obtener agentes: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '▶ Ejecutar en equipo';
+      }
+    });
+  });
+}
+
+function openExecutionModal(kbItem, commands, onlineAgents, linkedAgentId, ticket) {
+  document.getElementById('exec-modal-overlay')?.remove();
+
+  document.body.insertAdjacentHTML(
+    'beforeend',
+    createExecutionModal(onlineAgents, commands, linkedAgentId, kbItem.titulo)
+  );
+
+  document.getElementById('exec-modal-overlay').addEventListener('click', e => {
+    if (e.target.id === 'exec-modal-overlay') closeExecutionModal();
+  });
+
+  document.getElementById('btn-exec-cancel')?.addEventListener('click', closeExecutionModal);
+
+  document.getElementById('btn-exec-confirm')?.addEventListener('click', async () => {
+    const agentIdRaw = document.getElementById('exec-agent-id')?.value;
+    const agentId = parseInt(agentIdRaw);
+    if (!agentId) {
+      showToast('Selecciona un equipo destino.', 'warning');
+      return;
+    }
+
+    const btnConfirm = document.getElementById('btn-exec-confirm');
+    const btnCancel  = document.getElementById('btn-exec-cancel');
+    btnConfirm.disabled = true;
+    btnConfirm.textContent = 'Ejecutando…';
+    btnCancel.disabled = true;
+
+    try {
+      const { cmd_id } = await DataService.executeRemoteCommand(agentId, commands);
+      await pollCommandOutput(agentId, cmd_id, ticket);
+    } catch (err) {
+      showToast('Error al ejecutar: ' + err.message, 'error');
+      btnConfirm.disabled = false;
+      btnConfirm.textContent = '✓ Confirmar y ejecutar';
+      btnCancel.disabled = false;
+    }
+  });
+}
+
+function closeExecutionModal() {
+  document.getElementById('exec-modal-overlay')?.remove();
+}
+
+async function pollCommandOutput(agentId, cmdId, ticket) {
+  const outputSection = document.getElementById('exec-output-section');
+  const outputDiv     = document.getElementById('exec-output');
+  const actionButtons = document.getElementById('exec-action-buttons');
+  const postActions   = document.getElementById('exec-post-actions');
+
+  if (outputSection) outputSection.style.display = '';
+
+  const POLL_INTERVAL = 2000;
+  const MAX_POLLS     = 60;
+  let polls = 0;
+
+  const poll = async () => {
+    polls++;
+    if (polls > MAX_POLLS) {
+      if (outputDiv) outputDiv.textContent += '\n[Timeout: sin respuesta del agente en 2 min]';
+      return;
+    }
+
+    try {
+      const cmd = await DataService.getCommandStatus(agentId, cmdId);
+      if (!cmd) {
+        setTimeout(poll, POLL_INTERVAL);
+        return;
+      }
+
+      if (outputDiv) outputDiv.textContent = cmd.output || '';
+
+      if (cmd.estado === 'completado' || cmd.estado === 'error') {
+        if (actionButtons) actionButtons.style.display = 'none';
+        if (postActions) {
+          postActions.style.display = 'flex';
+          postActions.innerHTML = `
+            <button id="btn-post-resolve" class="btn btn-primary" style="font-size:12px;">
+              ✓ Marcar ticket como resuelto
+            </button>
+            <button id="btn-post-note" class="btn btn-secondary" style="font-size:12px;">
+              Guardar en notas internas
+            </button>`;
+
+          if (cmd.exit_code !== 0 && outputDiv) {
+            outputDiv.style.color = '#f87171';
+          }
+
+          wirePostExecutionActions(ticket, cmd, postActions);
+        }
+      } else {
+        setTimeout(poll, POLL_INTERVAL);
+      }
+    } catch (err) {
+      if (outputDiv) outputDiv.textContent += `\n[Error polling: ${err.message}]`;
+    }
+  };
+
+  setTimeout(poll, POLL_INTERVAL);
 }
 
 export async function renderTicketDetail(container, ticketId) {
