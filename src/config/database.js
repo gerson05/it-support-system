@@ -530,6 +530,8 @@ const migrations = [
     created_at         TEXT DEFAULT (datetime('now','localtime')),
     updated_at         TEXT DEFAULT (datetime('now','localtime'))
   )`,
+  `ALTER TABLE sedes ADD COLUMN despacho_id INTEGER REFERENCES despachos(id)`,
+  `ALTER TABLE sedes ADD COLUMN tracking_token TEXT`,
 ];
 for (const sql of migrations) {
   try { db.exec(sql); } catch { /* columna ya existe */ }
