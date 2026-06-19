@@ -2,6 +2,8 @@ import { state } from './app.js';
 import { showToast } from './components.js';
 import { buildArticuloRow } from './despacho-form.js';
 
+const esc = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
 function collectArticulos(wrap) {
   return [...wrap.querySelectorAll('.articulo-row')].map(row => ({
     nombre:      row.querySelector('[data-field="nombre"]').value.trim(),
@@ -63,17 +65,17 @@ export function openPuntoSetupModal(onSuccess) {
         <div style="display:flex;flex-direction:column;gap:12px;">
           <div>
             <label style="display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:4px;">CIUDAD *</label>
-            <input id="ps-ciudad" type="text" value="${data.ciudad}" placeholder="Ej: CALI, BOGOTÁ…"
+            <input id="ps-ciudad" type="text" value="${esc(data.ciudad)}" placeholder="Ej: CALI, BOGOTÁ…"
               style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:13px;box-sizing:border-box;text-transform:uppercase;">
           </div>
           <div>
             <label style="display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:4px;">NOMBRE DEL PUNTO *</label>
-            <input id="ps-nombre" type="text" value="${data.nombre_punto}" placeholder="Ej: MI FARMACIA - CALI CENTRO"
+            <input id="ps-nombre" type="text" value="${esc(data.nombre_punto)}" placeholder="Ej: MI FARMACIA - CALI CENTRO"
               style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:13px;box-sizing:border-box;">
           </div>
           <div>
             <label style="display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:4px;">RESPONSABLE EN PUNTO <span style="font-weight:400;color:var(--text-3);">(opcional)</span></label>
-            <input id="ps-responsable" type="text" value="${data.responsable}" placeholder="Nombre del receptor en destino"
+            <input id="ps-responsable" type="text" value="${esc(data.responsable)}" placeholder="Nombre del receptor en destino"
               style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:13px;box-sizing:border-box;">
           </div>
         </div>
@@ -143,16 +145,16 @@ export function openPuntoSetupModal(onSuccess) {
         ? arts.map(a => `
             <div style="display:flex;align-items:center;gap:10px;font-size:13px;margin-bottom:4px;">
               <span style="width:14px;height:14px;border:1px solid var(--primary);border-radius:3px;display:inline-block;flex-shrink:0;"></span>
-              ${a.nombre} × ${a.cantidad}${a.marca ? ' — ' + a.marca : ''}
+              ${esc(a.nombre)} × ${a.cantidad}${a.marca ? ' — ' + esc(a.marca) : ''}
             </div>`).join('')
         : `<div style="font-size:12px;color:var(--text-3);font-style:italic;">Sin artículos — solo se creará el punto.</div>`;
 
       body.innerHTML = `
         <div style="display:flex;gap:8px;margin-bottom:22px;">${stepsHtml(3)}</div>
         <div style="background:var(--surface-2);border-radius:8px;padding:14px;margin-bottom:12px;font-size:13px;display:flex;flex-direction:column;gap:6px;">
-          <div>✅ Punto: <strong>${data.nombre_punto}</strong></div>
-          <div>📍 Ciudad: <strong>${data.ciudad}</strong></div>
-          ${data.responsable ? `<div>👤 Responsable: <strong>${data.responsable}</strong></div>` : ''}
+          <div>✅ Punto: <strong>${esc(data.nombre_punto)}</strong></div>
+          <div>📍 Ciudad: <strong>${esc(data.ciudad)}</strong></div>
+          ${data.responsable ? `<div>👤 Responsable: <strong>${esc(data.responsable)}</strong></div>` : ''}
           ${arts.length ? `
           <div>📦 Despacho automático (${arts.length} artículo${arts.length !== 1 ? 's' : ''})</div>
           <div>🔗 Trazabilidad con link público para confirmación en destino</div>` : ''}
@@ -242,7 +244,7 @@ export async function openChecklistModal(sedeId) {
     <div style="background:var(--surface);border-radius:12px;padding:28px;width:100%;max-width:500px;box-shadow:0 20px 60px rgba(0,0,0,.4);">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:12px;">
         <div>
-          <h2 style="margin:0 0 6px;font-size:16px;font-weight:700;color:var(--text);">${cl.nombre_punto}</h2>
+          <h2 style="margin:0 0 6px;font-size:16px;font-weight:700;color:var(--text);">${esc(cl.nombre_punto)}</h2>
           <span style="font-size:12px;padding:3px 10px;border-radius:12px;background:${est.bg};color:${est.color};border:1px solid ${est.border};">${est.icon} ${est.label}</span>
         </div>
         <button id="cl-x" style="background:none;border:none;cursor:pointer;color:var(--text-3);font-size:20px;line-height:1;flex-shrink:0;">✕</button>
@@ -254,8 +256,8 @@ export async function openChecklistModal(sedeId) {
           <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);">
             <span style="font-size:16px;">${rowIcon}</span>
             <div style="flex:1;">
-              <div style="font-size:13px;">${a.nombre}</div>
-              ${a.marca ? `<div style="font-size:11px;color:var(--text-3);">${a.marca}${a.modelo ? ' · ' + a.modelo : ''}${a.serial ? ' · SN: ' + a.serial : ''}</div>` : ''}
+              <div style="font-size:13px;">${esc(a.nombre)}</div>
+              ${a.marca ? `<div style="font-size:11px;color:var(--text-3);">${esc(a.marca)}${a.modelo ? ' · ' + esc(a.modelo) : ''}${a.serial ? ' · SN: ' + esc(a.serial) : ''}</div>` : ''}
             </div>
             <span style="font-size:12px;color:var(--text-3);">× ${a.cantidad}</span>
           </div>`).join('')}
@@ -296,7 +298,7 @@ export async function openChecklistModal(sedeId) {
       <div style="background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.2);border-radius:8px;padding:12px;">
         <div style="font-size:11px;font-weight:600;color:#818cf8;margin-bottom:6px;">Link para confirmar recepción en el punto:</div>
         <div style="display:flex;gap:8px;align-items:center;">
-          <input readonly value="${cl.tracking_url}" id="cl-link-input"
+          <input readonly value="${esc(cl.tracking_url)}" id="cl-link-input"
             style="flex:1;padding:6px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:11px;min-width:0;">
           <button id="cl-copy" style="padding:6px 12px;border:1px solid var(--primary);border-radius:6px;background:rgba(99,102,241,.15);color:#818cf8;font-size:12px;cursor:pointer;white-space:nowrap;">Copiar</button>
         </div>
