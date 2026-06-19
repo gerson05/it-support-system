@@ -30,6 +30,7 @@ const ADMIN_PASS = 'GST123';
 const TOKEN_TTL  = 8 * 60 * 60 * 1000; // 8 h
 
 function makeToken(ts) {
+  if (!process.env.REQ_ADMIN_SECRET) console.warn('[Req] WARNING: REQ_ADMIN_SECRET not set, using insecure default');
   const secret = process.env.REQ_ADMIN_SECRET || 'dev-secret';
   const hmac   = crypto.createHmac('sha256', secret).update(`${ADMIN_USER}:${ts}`).digest('hex');
   return `${hmac}.${ts}`;
@@ -56,7 +57,9 @@ let puntosTs    = 0;
 function nextTicket() {
   const now = new Date();
   const ym  = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}`;
-  const last = db.prepare('SELECT ticket_num FROM requerimientos ORDER BY id DESC LIMIT 1').get();
+  const last = db.prepare(
+    "SELECT ticket_num FROM requerimientos WHERE ticket_num LIKE ? ORDER BY id DESC LIMIT 1"
+  ).get(`REQ-${ym}-%`);
   let seq = 1;
   if (last) {
     const m = last.ticket_num.match(/(\d+)$/);
@@ -111,14 +114,23 @@ router.post('/api/req', (req, res) => {
   const TIPOS_VALIDOS = ['Locativo','Sistemas','Bodega','Calidad','Mantenimiento','Otro'];
   if (!TIPOS_VALIDOS.includes(tipo)) return res.status(400).json({ error: 'Tipo inválido.' });
 
+  const PRIORIDADES_VALIDAS = ['NORMAL', 'ALTA', 'URGENTE'];
+  if (prioridad && !PRIORIDADES_VALIDAS.includes(prioridad))
+    return res.status(400).json({ error: 'Prioridad inválida.' });
+
   const ticket_num = nextTicket();
 
-  db.prepare(`INSERT INTO requerimientos
-    (ticket_num,area,nombre,correo,punto,tipo,descripcion,fecha_requerida,ticket_relacionado,observaciones,prioridad,fotos)
-    VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`)
-    .run(ticket_num, area.trim(), nombre.trim(), (correo||'').trim(), punto.trim(),
-         tipo, descripcion.trim(), fecha_requerida||'', ticket_relacionado||'',
-         observaciones||'', prioridad||'NORMAL', JSON.stringify(fotos||[]));
+  try {
+    db.prepare(`INSERT INTO requerimientos
+      (ticket_num,area,nombre,correo,punto,tipo,descripcion,fecha_requerida,ticket_relacionado,observaciones,prioridad,fotos)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`)
+      .run(ticket_num, area.trim(), nombre.trim(), (correo||'').trim(), punto.trim(),
+           tipo, descripcion.trim(), fecha_requerida||'', ticket_relacionado||'',
+           observaciones||'', prioridad||'NORMAL', JSON.stringify(fotos||[]));
+  } catch (e) {
+    console.error('[Req] Insert error:', e.message);
+    return res.status(500).json({ error: 'Error al crear el requerimiento.' });
+  }
 
   sendReqEmail({ ticket_num, area, nombre, correo, punto, tipo,
                  descripcion, fecha_requerida, observaciones, prioridad })
@@ -131,7 +143,9 @@ router.post('/api/req', (req, res) => {
 router.get('/api/req', (req, res) => {
   const { q, tipo, estado, prioridad, page = '1' } = req.query;
   const limit  = 20;
-  const offset = (Math.max(1, parseInt(page)) - 1) * limit;
+  const parsedPage = parseInt(page, 10);
+  const safePage = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
+  const offset = (safePage - 1) * limit;
   const where  = [];
   const params = [];
 
@@ -144,7 +158,7 @@ router.get('/api/req', (req, res) => {
   const rows  = db.prepare(`SELECT * FROM requerimientos ${W} ORDER BY id DESC LIMIT ? OFFSET ?`).all(...params, limit, offset);
   const total = db.prepare(`SELECT COUNT(*) as c FROM requerimientos ${W}`).get(...params).c;
 
-  res.json({ rows, total, page: parseInt(page), pages: Math.ceil(total / limit) });
+  res.json({ rows, total, page: safePage, pages: Math.ceil(total / limit) });
 });
 
 // ── GET /api/req/:id ────────────────────────────────────────────────────
