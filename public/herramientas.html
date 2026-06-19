@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Herramientas Internas — Medivalle SF S.A.S</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Inter',system-ui,sans-serif;background:#0a0a14;min-height:100vh;display:flex;flex-direction:column}
+
+    /* ── TOPBAR ─────────────────────────────────────── */
+    .topbar{background:#11273C;padding:12px 28px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.08)}
+    .topbar-left{display:flex;align-items:center;gap:12px;text-decoration:none}
+    .topbar-logo{background:#05A0D8;width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:14px;flex-shrink:0}
+    .topbar-name{color:#fff;font-size:14px;font-weight:700;line-height:1.2}
+    .topbar-sub{color:rgba(255,255,255,.4);font-size:10px;text-transform:uppercase;letter-spacing:.5px}
+    .topbar-nav{display:flex;gap:6px}
+    .nav-link{color:rgba(255,255,255,.6);font-size:12px;font-weight:500;text-decoration:none;padding:5px 12px;border-radius:5px;border:1px solid rgba(255,255,255,.12);transition:all .15s}
+    .nav-link:hover{color:#fff;background:rgba(255,255,255,.08)}
+    .nav-link.active{background:#05A0D8;color:#fff;border-color:#05A0D8}
+
+    /* ── HERO ───────────────────────────────────────── */
+    .hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 24px;text-align:center}
+    .hero-badge{background:rgba(5,160,216,.12);border:1px solid rgba(5,160,216,.25);color:#05A0D8;font-size:11px;font-weight:700;padding:4px 14px;border-radius:99px;letter-spacing:.4px;text-transform:uppercase;margin-bottom:20px}
+    .hero h1{font-size:32px;font-weight:800;color:#fff;letter-spacing:-.5px;margin-bottom:10px}
+    .hero p{font-size:15px;color:rgba(255,255,255,.45);max-width:480px;line-height:1.6}
+
+    /* ── CARDS ──────────────────────────────────────── */
+    .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;max-width:720px;width:100%;margin-top:40px}
+    .tool-card{background:#15152a;border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:28px;text-align:left;text-decoration:none;transition:all .2s;display:flex;flex-direction:column;gap:16px}
+    .tool-card:hover{border-color:rgba(5,160,216,.5);background:#1a1a34;transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.4)}
+    .card-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+    .card-icon.req{background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.25)}
+    .card-icon.calc{background:rgba(5,160,216,.15);border:1px solid rgba(5,160,216,.25)}
+    .card-name{font-size:17px;font-weight:700;color:#fff;margin-bottom:4px}
+    .card-desc{font-size:13px;color:rgba(255,255,255,.45);line-height:1.5}
+    .card-cta{margin-top:auto;display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#05A0D8}
+
+    .footer{padding:20px;text-align:center;font-size:11px;color:rgba(255,255,255,.2);border-top:1px solid rgba(255,255,255,.06)}
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="/herramientas.html" class="topbar-left">
+    <div class="topbar-logo">M</div>
+    <div>
+      <div class="topbar-name">Medivalle SF S.A.S</div>
+      <div class="topbar-sub">Herramientas Internas</div>
+    </div>
+  </a>
+  <div class="topbar-nav">
+    <a href="/requerimientos.html" class="nav-link">📋 Requerimientos</a>
+    <a href="/medicalc.html" class="nav-link">🧮 MediCalc</a>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="hero-badge">Portal Interno</div>
+  <h1>Herramientas Medivalle</h1>
+  <p>Acceso centralizado a las herramientas internas de Medivalle SF S.A.S. Selecciona la herramienta que necesitas.</p>
+
+  <div class="cards">
+    <a href="/requerimientos.html" class="tool-card">
+      <div class="card-icon req">📋</div>
+      <div>
+        <div class="card-name">Sistema de Requerimientos</div>
+        <div class="card-desc">Levanta solicitudes de mantenimiento, sistemas, calidad, bodega y más. Seguimiento en tiempo real del estado de tu solicitud.</div>
+      </div>
+      <div class="card-cta">Abrir sistema <span>→</span></div>
+    </a>
+
+    <a href="/medicalc.html" class="tool-card">
+      <div class="card-icon calc">🧮</div>
+      <div>
+        <div class="card-name">MediCalc</div>
+        <div class="card-desc">Calculadora de dispensación segura. Líquidos, insulinas, goteros, viales, dosis por peso, equivalencias y más.</div>
+      </div>
+      <div class="card-cta">Abrir calculadora <span>→</span></div>
+    </a>
+  </div>
+</div>
+
+<div class="footer">Medivalle SF S.A.S · Sistema de Herramientas Internas</div>
+</body>
+</html>
