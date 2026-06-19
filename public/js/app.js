@@ -621,7 +621,7 @@ function _applyUserUI(user) {
   if (can('inventario:read'))    show('nav-inventario');
   if (can('farmacias:read'))     show('nav-farmacias');
   if (can('full'))               show('nav-users');
-  if (can('full'))               show('nav-monitoreo');
+  if (can('monitoreo:read'))     show('nav-monitoreo');
 }
 
 // Iniciar aplicación

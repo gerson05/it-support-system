@@ -22,6 +22,7 @@ import authRouter     from './src/auth/auth-routes.js';
 import userRouter     from './src/auth/user-routes.js';
 import trackingRouter from './src/tracking/tracking-routes.js';
 import monitoringRouter, { startOfflineChecker } from './src/monitoring/monitoring-routes.js';
+import aiRouter from './src/ai/ai-routes.js';
 import { initAdminUser } from './src/auth/auth-service.js';
 import Chatbot from './src/whatsapp/chatbot.js';
 import whatsappClient from './src/whatsapp/baileys-client.js';
@@ -40,13 +41,7 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json({ limit: '15mb' }));
 app.use(express.urlencoded({ extended: true, limit: '15mb' }));
 
-// Servir el panel web de IT (Frontend)
-// Priorizar `client/dist` si existe (build de React/Vite), luego `public/` como fallback.
-const clientDist = path.join(__dirname, 'client', 'dist');
-if (fs.existsSync(clientDist)) {
-  app.use(express.static(clientDist));
-  console.log('[Server] Serviendo client/dist (build React)');
-}
+// Servir el panel web de IT (Frontend vanilla JS)
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Registrar routers del sistema
@@ -66,29 +61,21 @@ app.use(authRouter);
 app.use(userRouter);
 app.use(trackingRouter);
 app.use(monitoringRouter);
+app.use(aiRouter);
 
 // Página pública de subida de acta firmada
 app.get('/firmar/:token', (_req, res) => {
-  const f = fs.existsSync(clientDist)
-    ? path.join(clientDist, 'index.html')
-    : path.join(__dirname, 'public', 'firmar.html');
-  res.sendFile(f);
+  res.sendFile(path.join(__dirname, 'public', 'firmar.html'));
 });
 
 // Página móvil pública de registro de inventario
 app.get('/registrar/:token', (_req, res) => {
-  const f = fs.existsSync(clientDist)
-    ? path.join(clientDist, 'index.html')
-    : path.join(__dirname, 'public', 'registrar-equipo.html');
-  res.sendFile(f);
+  res.sendFile(path.join(__dirname, 'public', 'registrar-equipo.html'));
 });
 
 // Página pública de seguimiento de paquetes
 app.get('/rastrear/:token', (_req, res) => {
-  const f = fs.existsSync(clientDist)
-    ? path.join(clientDist, 'index.html')
-    : path.join(__dirname, 'public', 'rastrear.html');
-  res.sendFile(f);
+  res.sendFile(path.join(__dirname, 'public', 'rastrear.html'));
 });
 
 // Al arrancar, resetear todas las conversaciones al estado inicial para
@@ -233,6 +220,22 @@ app.post('/api/whatsapp/reset', (req, res) => {
   }
 });
 
+// ── Health check para Docker / load-balancers ─────────────────────────────
+app.get('/api/health', (req, res) => {
+  try {
+    // Verificar que la BD responde
+    db.prepare('SELECT 1').get();
+    res.json({
+      status: 'ok',
+      uptime: process.uptime(),
+      memory: process.memoryUsage(),
+      timestamp: new Date().toISOString(),
+    });
+  } catch (err) {
+    res.status(503).json({ status: 'error', message: err.message });
+  }
+});
+
 // Manejador global de errores Express (debe ir antes del fallback SPA)
 app.use((err, req, res, _next) => {
   console.error(err);
@@ -244,11 +247,7 @@ app.get('*', (req, res) => {
   if (req.path.startsWith('/api/')) {
     return res.status(404).json({ error: 'Endpoint no encontrado.' });
   }
-  // SPA fallback: servir index.html desde client/dist si existe, sino desde public
-  const spaIndexFrom = fs.existsSync(clientDist)
-    ? path.join(clientDist, 'index.html')
-    : path.join(__dirname, 'public', 'index.html');
-  res.sendFile(spaIndexFrom);
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // Manejo global de errores no capturados
@@ -272,19 +271,36 @@ app.listen(PORT, async () => {
   console.log(`======================================================\n`);
 
   // Iniciar conexión de WhatsApp automáticamente
-  setTimeout(() => {
-    console.log('[WhatsApp] Iniciando conexión automática...');
-    whatsappClient.connect().catch(err => {
-      console.error('[WhatsApp] Error en conexión automática:', err);
-    });
-  }, 1000);
+  if (process.env.DISABLE_WHATSAPP !== 'true') {
+    setTimeout(() => {
+      console.log('[WhatsApp] Iniciando conexión automática...');
+      whatsappClient.connect().catch(err => {
+        console.error('[WhatsApp] Error en conexión automática:', err);
+      });
+    }, 1000);
+  } else {
+    console.log('[WhatsApp] Conexión automática desactivada por env var.');
+  }
 
   // Monitor de inactividad en conversaciones
-  startInactivityMonitor();
-  startOfflineChecker();
+  if (process.env.DISABLE_INACTIVITY_MONITOR !== 'true') {
+    startInactivityMonitor();
+  } else {
+    console.log('[WhatsApp] Monitor de inactividad desactivado por env var.');
+  }
+
+  if (process.env.DISABLE_OFFLINE_CHECKER !== 'true') {
+    startOfflineChecker();
+  } else {
+    console.log('[Monitoring] Offline checker desactivado por env var.');
+  }
 
   // Túnel HTTPS público via Cloudflare (habilita cámara en móviles)
-  startCloudflaredTunnel(PORT);
+  if (process.env.DISABLE_TUNNEL !== 'true') {
+    startCloudflaredTunnel(PORT);
+  } else {
+    console.log('[Tunnel] Túnel Cloudflare desactivado por env var.');
+  }
 });
 
 function startCloudflaredTunnel(port) {
