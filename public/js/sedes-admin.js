@@ -3,6 +3,7 @@
  */
 import { showToast } from './components.js';
 import { iconMapPin } from './icons.js';
+import { openPuntoSetupModal, openChecklistModal } from './punto-setup-modal.js';
 
 export async function renderSedesAdmin(container) {
   container.innerHTML = `
@@ -38,20 +39,12 @@ export async function renderSedesAdmin(container) {
       </div>
     </div>
 
-    <!-- Formulario agregar -->
-    <div class="card" style="margin-bottom:16px;">
-      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-3);margin-bottom:14px;">Agregar nuevo punto</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end;">
-        <div class="form-group" style="margin:0;">
-          <label>Ciudad</label>
-          <input type="text" id="new-sede-ciudad" placeholder="Ej: CALI, MANIZALES…" autocomplete="off" style="text-transform:uppercase;">
-        </div>
-        <div class="form-group" style="margin:0;">
-          <label>Nombre del punto</label>
-          <input type="text" id="new-sede-punto" placeholder="Ej: MI FARMACIA - CALI CENTRO" autocomplete="off">
-        </div>
-        <button class="btn btn-primary" id="btn-add-sede" style="height:38px;padding:0 18px;">Agregar</button>
-      </div>
+    <!-- Botón nuevo punto -->
+    <div style="margin-bottom:16px;display:flex;justify-content:flex-end;">
+      <button id="btn-nuevo-punto" class="btn btn-primary" style="display:inline-flex;align-items:center;gap:7px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nuevo punto
+      </button>
     </div>
 
     <!-- Lista de sedes -->
@@ -116,22 +109,36 @@ export async function renderSedesAdmin(container) {
             <span style="font-size:12px;color:var(--text-muted);">${puntos.length} punto${puntos.length !== 1 ? 's' : ''}</span>
           </div>
           <div>
-            ${puntos.map(p => `
-              <div style="display:flex;align-items:center;gap:12px;padding:10px 18px;border-bottom:1px solid rgba(255,255,255,.04);${!p.activo ? 'opacity:.5;' : ''}">
+            ${puntos.map(p => {
+              const trackingEstado = p.tracking_estado;
+              const badgeHtml = trackingEstado === 'creado'
+                ? `<span style="font-size:11px;padding:3px 8px;border-radius:12px;background:rgba(234,179,8,.12);color:#facc15;border:1px solid rgba(234,179,8,.2);">📦 Pendiente envío</span>`
+                : trackingEstado === 'en_transito'
+                ? `<span style="font-size:11px;padding:3px 8px;border-radius:12px;background:rgba(99,102,241,.1);color:#818cf8;border:1px solid rgba(99,102,241,.2);">🚚 En tránsito</span>`
+                : (trackingEstado === 'en_sede' || trackingEstado === 'entregado')
+                ? `<span style="font-size:11px;padding:3px 8px;border-radius:12px;background:rgba(16,185,129,.1);color:#34d399;border:1px solid rgba(16,185,129,.2);">✅ Entregado</span>`
+                : '';
+              const checklistBtn = p.despacho_id
+                ? `<button class="btn-ver-checklist" data-id="${p.id}" style="padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface-3);color:var(--text-2);font-size:11px;cursor:pointer;">Ver checklist</button>`
+                : '';
+              return `
+              <div style="display:flex;align-items:center;gap:12px;padding:10px 18px;border-bottom:1px solid rgba(255,255,255,.04);flex-wrap:wrap;${!p.activo ? 'opacity:.5;' : ''}">
                 <span style="width:8px;height:8px;border-radius:50%;flex-shrink:0;background:${p.activo ? '#10b981' : '#6b7280'};"></span>
-                <span style="flex:1;font-size:13px;">${p.nombre_punto}</span>
+                <span style="flex:1;font-size:13px;min-width:120px;">${p.nombre_punto}</span>
+                ${badgeHtml}
                 <div style="display:flex;gap:6px;flex-shrink:0;">
+                  ${checklistBtn}
                   <button class="btn-sede-toggle" data-id="${p.id}" data-activo="${p.activo}"
-                    style="font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:var(--text-muted);cursor:pointer;">
+                    style="padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface-3);color:var(--text-2);font-size:11px;cursor:pointer;">
                     ${p.activo ? 'Desactivar' : 'Activar'}
                   </button>
                   <button class="btn-sede-delete" data-id="${p.id}"
-                    style="font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid rgba(239,68,68,.3);background:rgba(239,68,68,.08);color:#f87171;cursor:pointer;">
+                    style="padding:4px 10px;border:1px solid rgba(239,68,68,.3);border-radius:6px;background:rgba(239,68,68,.1);color:#f87171;font-size:11px;cursor:pointer;">
                     Eliminar
                   </button>
                 </div>
-              </div>
-            `).join('')}
+              </div>`;
+            }).join('')}
           </div>
         </div>`;
     }
@@ -162,35 +169,15 @@ export async function renderSedesAdmin(container) {
         await loadSedes();
       });
     });
+
+    listEl.querySelectorAll('.btn-ver-checklist').forEach(btn => {
+      btn.addEventListener('click', () => openChecklistModal(parseInt(btn.dataset.id)));
+    });
   }
 
-  // Agregar nuevo punto
-  document.getElementById('btn-add-sede').addEventListener('click', async () => {
-    const ciudad = document.getElementById('new-sede-ciudad').value.trim().toUpperCase();
-    const punto  = document.getElementById('new-sede-punto').value.trim();
-    if (!ciudad || !punto) { showToast('Completa ciudad y nombre del punto', 'error'); return; }
-
-    const res = await fetch('/api/sedes', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ciudad, nombre_punto: punto }),
-    });
-    if (res.ok) {
-      document.getElementById('new-sede-ciudad').value = '';
-      document.getElementById('new-sede-punto').value  = '';
-      showToast(`✅ Punto agregado en ${ciudad}`, 'success');
-      await loadSedes();
-    } else {
-      const err = await res.json();
-      showToast(err.error, 'error');
-    }
-  });
-
-  // Enter en los campos de texto
-  ['new-sede-ciudad', 'new-sede-punto'].forEach(id => {
-    document.getElementById(id)?.addEventListener('keydown', e => {
-      if (e.key === 'Enter') document.getElementById('btn-add-sede').click();
-    });
+  // Nuevo punto — abre modal multi-paso
+  container.querySelector('#btn-nuevo-punto').addEventListener('click', () => {
+    openPuntoSetupModal(() => loadSedes());
   });
 
   // Filtros en tiempo real
