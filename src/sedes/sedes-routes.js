@@ -1,7 +1,7 @@
 import express from 'express';
 import db from '../config/database.js';
 import { requireAuth, requirePermission } from '../auth/auth-middleware.js';
-import { createTracking } from '../tracking/tracking-model.js';
+import { createTracking, addEvento } from '../tracking/tracking-model.js';
 
 const router = express.Router();
 
@@ -42,7 +42,7 @@ router.post('/api/sedes/setup', requireAuth, requirePermission('sedes:create'), 
 
       db.exec('COMMIT');
     } catch (e) {
-      db.exec('ROLLBACK');
+      try { db.exec('ROLLBACK'); } catch {}
       throw e;
     }
 
@@ -66,8 +66,11 @@ router.post('/api/sedes/setup', requireAuth, requirePermission('sedes:create'), 
 router.get('/api/sedes', requireAuth, requirePermission('sedes:read'), (req, res) => {
   try {
     const rows = db.prepare(`
-      SELECT id, ciudad, nombre_punto, activo, created_at
-      FROM sedes ORDER BY ciudad, id
+      SELECT s.id, s.ciudad, s.nombre_punto, s.activo, s.created_at,
+             s.despacho_id, s.tracking_token, t.estado AS tracking_estado
+      FROM sedes s
+      LEFT JOIN paquete_tracking t ON t.token = s.tracking_token
+      ORDER BY s.ciudad, s.id
     `).all();
 
     // Agrupar por ciudad
@@ -121,6 +124,65 @@ router.put('/api/sedes/:id', requireAuth, requirePermission('sedes:edit'), (req,
   } catch (err) {
     console.error('Error PUT /api/sedes:', err);
     res.status(500).json({ error: 'Error al actualizar.' });
+  }
+});
+
+/* ── Checklist del despacho vinculado a la sede ── */
+router.get('/api/sedes/:id/checklist', requireAuth, requirePermission('sedes:read'), (req, res) => {
+  try {
+    const sedeId = parseInt(req.params.id);
+    const sede = db.prepare('SELECT * FROM sedes WHERE id = ?').get(sedeId);
+    if (!sede) return res.status(404).json({ error: 'Punto no encontrado.' });
+    if (!sede.despacho_id) return res.json({ checklist: null });
+
+    const despacho = db.prepare('SELECT articulos FROM despachos WHERE id = ?').get(sede.despacho_id);
+    const tracking = db.prepare('SELECT estado FROM paquete_tracking WHERE token = ?').get(sede.tracking_token);
+
+    const baseUrl = process.env.PUBLIC_TUNNEL_URL || `${req.protocol}://${req.headers.host}`;
+    res.json({
+      checklist: {
+        sede_id: sedeId,
+        nombre_punto: sede.nombre_punto,
+        despacho_id: sede.despacho_id,
+        tracking_token: sede.tracking_token,
+        tracking_url: `${baseUrl}/rastrear?token=${sede.tracking_token}`,
+        estado: tracking?.estado || 'creado',
+        articulos: JSON.parse(despacho?.articulos || '[]'),
+      },
+    });
+  } catch (e) {
+    console.error('Error GET /api/sedes/:id/checklist:', e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+/* ── Marcar despacho como enviado ── */
+router.post('/api/sedes/:id/marcar-enviado', requireAuth, requirePermission('sedes:edit'), (req, res) => {
+  try {
+    const sedeId = parseInt(req.params.id);
+    const { agente = 'IT' } = req.body;
+
+    const sede = db.prepare('SELECT tracking_token FROM sedes WHERE id = ?').get(sedeId);
+    if (!sede?.tracking_token) {
+      return res.status(400).json({ error: 'Este punto no tiene despacho vinculado.' });
+    }
+
+    const tracking = db.prepare('SELECT id, estado FROM paquete_tracking WHERE token = ?').get(sede.tracking_token);
+    if (!tracking) return res.status(404).json({ error: 'Tracking no encontrado.' });
+    if (tracking.estado !== 'creado') {
+      return res.status(409).json({ error: `Estado actual es '${tracking.estado}', ya fue procesado.` });
+    }
+
+    addEvento(db, tracking.id, {
+      tipo: 'en_transito',
+      entregado_por: agente,
+      observaciones: 'Enviado desde IT',
+    });
+
+    res.json({ success: true });
+  } catch (e) {
+    console.error('Error POST /api/sedes/:id/marcar-enviado:', e);
+    res.status(500).json({ error: e.message });
   }
 });
 
