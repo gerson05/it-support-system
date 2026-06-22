@@ -39,7 +39,7 @@ export async function crearEventoConMeet({ titulo, inicio, fin, participantes = 
         start: { dateTime: inicio, timeZone: 'America/Bogota' },
         end:   { dateTime: fin,   timeZone: 'America/Bogota' },
         attendees: participantes
-          .filter(p => typeof p === 'string' && p.includes('@'))
+          .filter(p => typeof p === 'string' && /^[^\s@]+@[^\s@]+$/.test(p.trim()))
           .map(p => ({ email: p.trim() })),
         conferenceData: {
           createRequest: {
@@ -62,11 +62,13 @@ export async function crearEventoConMeet({ titulo, inicio, fin, participantes = 
 export async function cancelarEvento(eventId) {
   const calendarId = process.env.GOOGLE_CALENDAR_ID;
   const auth = getAuth();
-  if (!calendarId || !auth || !eventId) return;
+  if (!calendarId || !auth || !eventId) return false;
   try {
     const calendar = google.calendar({ version: 'v3', auth });
     await calendar.events.delete({ calendarId, eventId });
+    return true;
   } catch (e) {
     console.error('[Calendar] Error deleting event:', e.message);
+    return false;
   }
 }
