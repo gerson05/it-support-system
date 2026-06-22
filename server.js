@@ -358,7 +358,7 @@ if (process.env.ENABLE_HTTPS === 'true') {
   const require = createRequire(import.meta.url);
   const selfsigned = require('selfsigned');
   const HTTPS_PORT = parseInt(process.env.HTTPS_PORT || '3443', 10);
-  const pems = selfsigned.generate(
+  const pems = await selfsigned.generate(
     [{ name: 'commonName', value: 'localhost' }],
     { days: 365, algorithm: 'sha256' }
   );
