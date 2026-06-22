@@ -150,7 +150,10 @@ router.put('/api/reuniones/:id', requireAuth, requirePermission('reuniones:edit'
     const nInicio = fecha_inicio !== undefined ? fecha_inicio            : existing.fecha_inicio;
     const nFin    = fecha_fin    !== undefined ? fecha_fin               : existing.fecha_fin;
 
-    if (fecha_inicio || fecha_fin || sala_id) {
+    if (tipo !== undefined && !TIPOS.includes(tipo))
+      return res.status(400).json({ error: 'Tipo inválido.' });
+
+    if (fecha_inicio !== undefined || fecha_fin !== undefined || sala_id !== undefined) {
       const durMin = (new Date(nFin) - new Date(nInicio)) / 60000;
       if (durMin < 15)     return res.status(400).json({ error: 'Duración mínima: 15 minutos.' });
       if (durMin > 8 * 60) return res.status(400).json({ error: 'Duración máxima: 8 horas.' });
@@ -160,11 +163,17 @@ router.put('/api/reuniones/:id', requireAuth, requirePermission('reuniones:edit'
 
     const fields = [], vals = [];
     if (sala_id            !== undefined) { fields.push('sala_id=?');            vals.push(nSala); }
-    if (titulo             !== undefined) { fields.push('titulo=?');             vals.push(titulo.trim()); }
+    if (titulo !== undefined) {
+      if (!titulo.trim()) return res.status(400).json({ error: 'Título no puede quedar vacío.' });
+      fields.push('titulo=?'); vals.push(titulo.trim());
+    }
     if (tipo               !== undefined) { fields.push('tipo=?');               vals.push(tipo); }
     if (fecha_inicio       !== undefined) { fields.push('fecha_inicio=?');       vals.push(fecha_inicio); }
     if (fecha_fin          !== undefined) { fields.push('fecha_fin=?');          vals.push(fecha_fin); }
-    if (organizador_nombre !== undefined) { fields.push('organizador_nombre=?'); vals.push(organizador_nombre.trim()); }
+    if (organizador_nombre !== undefined) {
+      if (!organizador_nombre.trim()) return res.status(400).json({ error: 'Organizador no puede quedar vacío.' });
+      fields.push('organizador_nombre=?'); vals.push(organizador_nombre.trim());
+    }
     if (organizador_correo !== undefined) { fields.push('organizador_correo=?'); vals.push(organizador_correo.trim()); }
     if (participantes      !== undefined) { fields.push('participantes=?');      vals.push(JSON.stringify(participantes)); }
     if (descripcion        !== undefined) { fields.push('descripcion=?');        vals.push(descripcion.trim()); }
