@@ -160,23 +160,21 @@ export async function renderReuniones(container) {
     const grid = document.getElementById('cal-grid');
     grid.innerHTML = html;
 
-    grid.querySelectorAll('.cal-slot').forEach(el => {
-      el.addEventListener('click', () => {
-        openCrearModal(salas, {
-          sala_id: parseInt(el.dataset.sala),
-          fecha_inicio: el.dataset.inicio,
-          fecha_fin: new Date(new Date(el.dataset.inicio).getTime() + 60*60000).toISOString().slice(0,19),
-        }, refresh);
-      });
-    });
-
-    grid.querySelectorAll('.cal-event').forEach(el => {
-      el.addEventListener('click', e => {
+    grid.onclick = e => {
+      const slot = e.target.closest('.cal-slot');
+      const event = e.target.closest('.cal-event');
+      if (event) {
         e.stopPropagation();
-        const r = reuniones.find(x => x.id === parseInt(el.dataset.id));
+        const r = reuniones.find(x => x.id === parseInt(event.dataset.id));
         if (r) openDetalleModal(r, salas, refresh);
-      });
-    });
+      } else if (slot) {
+        openCrearModal(salas, {
+          sala_id: parseInt(slot.dataset.sala),
+          fecha_inicio: slot.dataset.inicio,
+          fecha_fin: new Date(new Date(slot.dataset.inicio).getTime() + 60*60000).toISOString().slice(0,19),
+        }, refresh);
+      }
+    };
   }
 
   container.querySelector('#cal-prev').addEventListener('click', () => {
@@ -333,7 +331,8 @@ function openDetalleModal(reunion, salas, onUpdate) {
     return d.toLocaleString('es-CO', { weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
   };
 
-  const participantes = JSON.parse(reunion.participantes || '[]');
+  let participantes = [];
+  try { participantes = JSON.parse(reunion.participantes || '[]'); } catch { participantes = []; }
 
   overlay.innerHTML = `
     <div style="background:var(--surface);border-radius:12px;padding:28px;width:100%;max-width:480px;box-shadow:0 20px 60px rgba(0,0,0,.4);">
