@@ -87,7 +87,13 @@ services:
       - caddy_data:/data
       - caddy_config:/config
     depends_on:
-      - it-support
+      it-support:
+        condition: service_healthy
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 # ── Volúmenes persistentes ─────────────────────────────
 volumes:
