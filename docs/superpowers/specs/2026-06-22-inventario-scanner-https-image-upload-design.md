@@ -16,24 +16,38 @@
 
 ## Solution Overview
 
-### Part 1 — HTTPS via Caddy reverse proxy
+### Part 1 — HTTPS (dual-mode: Docker + Windows direct)
 
-Add Caddy as a lightweight reverse proxy container in `docker-compose.yml`. Caddy auto-generates a self-signed TLS certificate for the local network, enabling HTTPS with zero code changes to the Node.js app.
+The app runs in two modes. Both must serve HTTPS so the camera API works on mobile.
 
-**Architecture:**
+#### Mode A — Docker (Caddy reverse proxy)
+
+Add Caddy as a lightweight reverse proxy container in `docker-compose.yml`. Caddy auto-generates a self-signed TLS certificate for the local network.
+
 ```
 Mobile/PC browser → https://192.168.x.x (port 443)
                   → Caddy container (TLS termination)
                   → app container (port 3000, internal)
 ```
 
-**Files:**
 - `Caddyfile` (new) — `tls internal`, reverse proxy to `app:3000`
 - `docker-compose.yml` (modify) — add `caddy` service, expose 80/443
+- No changes to Node.js code in Docker mode
 
-**First-time UX:** Browser shows "Your connection is not private" (self-signed). User clicks "Advanced → Proceed". After that, camera works on all devices that accepted the cert.
+#### Mode B — Windows direct (Node.js built-in HTTPS)
 
-**No changes to Node.js code.**
+Add `selfsigned` npm package. On startup, `server.js` generates a self-signed cert in memory and starts an HTTPS server on port 3443 (in addition to or replacing HTTP port 3000). Controlled by env var `ENABLE_HTTPS=true`.
+
+```
+Mobile/PC browser → https://192.168.x.x:3443
+                  → Node.js https server (selfsigned cert)
+```
+
+- `package.json` — add `selfsigned` dependency
+- `server.js` — add HTTPS server block gated on `ENABLE_HTTPS=true`
+- `.env.example` — document `ENABLE_HTTPS` variable
+
+**First-time UX (both modes):** Browser shows "Your connection is not private" (self-signed). User clicks "Advanced → Proceed". After that, camera works on all devices that accepted the cert.
 
 ---
 
@@ -99,8 +113,11 @@ image source (paste / drop / file)
 
 | File | Change |
 |------|--------|
-| `Caddyfile` | New file — Caddy config for local HTTPS |
+| `Caddyfile` | New — Caddy config for Docker HTTPS |
 | `docker-compose.yml` | Add `caddy` service + volumes |
+| `server.js` | Add HTTPS server block gated on `ENABLE_HTTPS=true` |
+| `package.json` | Add `selfsigned` dependency |
+| `.env.example` | Document `ENABLE_HTTPS` variable |
 | `public/js/inventario-scanner.js` | Add 3rd tab + paste/drop/file logic |
 
 ---
@@ -116,7 +133,8 @@ image source (paste / drop / file)
 
 ## Success Criteria
 
-1. Accessing `https://192.168.x.x` on mobile Chrome/Safari after accepting self-signed cert → camera scanner opens without errors
+1. Docker mode: accessing `https://192.168.x.x` on mobile after accepting cert → camera scanner works
+2. Windows direct mode: `ENABLE_HTTPS=true` → server starts on port 3443, `https://192.168.x.x:3443` → camera scanner works
 2. Pasting a screenshot with Ctrl+V in the scanner modal → image appears in preview, OCR runs, detected fields populate
 3. Dragging an image file to the drop zone → same result as paste
 4. Clicking "Seleccionar archivo" → file picker opens, same result
