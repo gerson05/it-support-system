@@ -4,6 +4,8 @@ import path from 'path';
 import fs from 'fs';
 import os from 'os';
 import { spawn } from 'child_process';
+import https from 'node:https';
+import { createRequire } from 'node:module';
 import { fileURLToPath } from 'url';
 import db from './src/config/database.js';
 import webhookRouter from './src/whatsapp/webhook.js';
@@ -348,4 +350,30 @@ function startCloudflaredTunnel(port) {
   process.on('exit',    () => cf.kill());
   process.on('SIGINT',  () => { cf.kill(); process.exit(0); });
   process.on('SIGTERM', () => { cf.kill(); process.exit(0); });
+}
+
+// HTTPS server for Windows-direct mode (mobile camera requires secure context)
+// Enable with ENABLE_HTTPS=true in .env — listens on HTTPS_PORT (default 3443)
+if (process.env.ENABLE_HTTPS === 'true') {
+  const require = createRequire(import.meta.url);
+  const selfsigned = require('selfsigned');
+  const HTTPS_PORT = parseInt(process.env.HTTPS_PORT || '3443', 10);
+  const pems = selfsigned.generate(
+    [{ name: 'commonName', value: 'localhost' }],
+    { days: 365, algorithm: 'sha256' }
+  );
+  const httpsServer = https.createServer({ key: pems.private, cert: pems.cert }, app);
+  httpsServer.listen(HTTPS_PORT, () => {
+    const nets = os.networkInterfaces();
+    let localIp = '127.0.0.1';
+    for (const iface of Object.values(nets)) {
+      for (const net of iface) {
+        if (net.family === 'IPv4' && !net.internal) { localIp = net.address; break; }
+      }
+      if (localIp !== '127.0.0.1') break;
+    }
+    console.log(`[HTTPS] Servidor seguro en https://localhost:${HTTPS_PORT}`);
+    console.log(`[HTTPS] Red local:       https://${localIp}:${HTTPS_PORT}`);
+    console.log(`[HTTPS] Acepta el cert en el celular para habilitar la camara`);
+  });
 }
