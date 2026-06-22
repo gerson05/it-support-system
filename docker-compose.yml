@@ -1,0 +1,107 @@
+version: '3.9'
+
+services:
+  # ── Aplicación principal ──────────────────────────────
+  it-support:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    image: it-support-system:latest
+    container_name: it-support-system
+    restart: unless-stopped
+
+    ports:
+      - "${PORT:-3000}:3000"
+
+    environment:
+      # Servidor
+      PORT: 3000
+      NODE_ENV: production
+
+      # Base de datos SQLite (montada en volumen)
+      DATABASE_PATH: /app/database/tickets.db
+
+      # ── IA / LLM ────────────────────────────────────────
+      LLM_PROVIDER: ${LLM_PROVIDER:-none}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_MODEL: ${LLM_MODEL:-}
+      LLM_BASE_URL: ${LLM_BASE_URL:-http://localhost:11434}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+
+      # ── Google Sheets ────────────────────────────────────
+      GOOGLE_SHEETS_CSV_URL: ${GOOGLE_SHEETS_CSV_URL:-}
+      GOOGLE_APPS_SCRIPT_URL: ${GOOGLE_APPS_SCRIPT_URL:-}
+      REGISTROS_SCRIPT_URL: ${REGISTROS_SCRIPT_URL:-}
+      REGISTROS_SHEET_URL: ${REGISTROS_SHEET_URL:-}
+
+      # ── Toggles de workers ───────────────────────────────
+      DISABLE_WHATSAPP: ${DISABLE_WHATSAPP:-false}
+      DISABLE_INACTIVITY_MONITOR: ${DISABLE_INACTIVITY_MONITOR:-false}
+      DISABLE_OFFLINE_CHECKER: ${DISABLE_OFFLINE_CHECKER:-false}
+      # Desactivar túnel en Docker (usar nginx/proxy externo)
+      DISABLE_TUNNEL: ${DISABLE_TUNNEL:-true}
+
+    volumes:
+      # Persistencia de datos (SQLite, uploads, exports)
+      - it_db:/app/database
+      - it_uploads:/app/uploads
+      - it_exports:/app/exports
+      # Sesión de WhatsApp (evita re-escanear QR en reinicios)
+      - it_wwebjs_auth:/app/.wwebjs_auth
+      - it_wwebjs_cache:/app/.wwebjs_cache
+
+    # Chromium necesita acceso a /dev/shm ampliado
+    shm_size: '256mb'
+
+    # Capacidades mínimas requeridas por Chromium headless
+    cap_add:
+      - SYS_ADMIN
+
+    security_opt:
+      - seccomp=unconfined
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ── Caddy reverse proxy (HTTPS) ───────────────────────
+  caddy:
+    image: caddy:2-alpine
+    container_name: it-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - it-support
+
+# ── Volúmenes persistentes ─────────────────────────────
+volumes:
+  it_db:
+    driver: local
+  it_uploads:
+    driver: local
+  it_exports:
+    driver: local
+  it_wwebjs_auth:
+    driver: local
+  it_wwebjs_cache:
+    driver: local
+  caddy_data:
+    driver: local
+  caddy_config:
+    driver: local
