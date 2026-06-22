@@ -7,6 +7,7 @@ import { renderTechRequests } from './tech-requests.js';
 import { renderTechRequestDetail } from './tech-request-detail.js';
 import { renderFaqs } from './faqs.js';
 import { renderSedesAdmin } from './sedes-admin.js';
+import { renderReuniones } from './reuniones-admin.js';
 import { renderAudit } from './audit.js';
 import { renderDespacho } from './despacho.js';
 import { renderTrazabilidad } from './trazabilidad.js';
@@ -27,6 +28,7 @@ function _firstAccessibleHash() {
   if (can('tech-requests:read')) return '#tech-requests';
   if (can('faqs:read'))          return '#faqs';
   if (can('sedes:read'))         return '#sedes';
+  if (can('reuniones:read'))     return '#reuniones';
   if (can('despacho:read'))      return '#despacho';
   if (can('audit:read'))         return '#audit';
   if (can('inventario:read'))     return '#inventario';
@@ -250,6 +252,12 @@ function router() {
         state.currentPage = 'sedes';
         document.getElementById('nav-sedes')?.classList.add('active');
         renderSedesAdmin(appContainer);
+        break;
+      case '#reuniones':
+        if (state.currentUser && !can('reuniones:read')) { window.location.hash = _firstAccessibleHash(); break; }
+        state.currentPage = 'reuniones';
+        document.getElementById('nav-reuniones')?.classList.add('active');
+        renderReuniones(appContainer);
         break;
       case '#despacho':
         if (state.currentUser && !can('despacho:read')) { window.location.hash = _firstAccessibleHash(); break; }
@@ -615,6 +623,7 @@ function _applyUserUI(user) {
   if (can('tech-requests:read')) show('nav-tech-requests');
   if (can('faqs:read'))          show('nav-faqs');
   if (can('sedes:read'))         show('nav-sedes');
+  if (can('reuniones:read'))     show('nav-reuniones');
   if (can('despacho:read'))      show('nav-despacho');
   if (can('despacho:read'))      show('nav-trazabilidad');
   if (can('audit:read'))         show('nav-audit');
