@@ -269,6 +269,8 @@ export async function openSmartScanner(activeTab) {
       fr.onerror = rej;
       fr.readAsDataURL(file);
     });
+    // Guard: if modal was closed during async FileReader, bail out
+    if (!document.getElementById('ss-pane-capture')) return;
     previewImg.src = dataUrl;
     dropZoneEl.style.display = 'none';
     previewWrap.style.display = '';
@@ -277,6 +279,8 @@ export async function openSmartScanner(activeTab) {
 
     const img = new Image();
     await new Promise(res => { img.onload = res; img.src = dataUrl; });
+    // Guard: bail if modal closed during image load
+    if (!document.getElementById('ss-pane-capture')) return;
     const canvas = document.createElement('canvas');
     canvas.width = img.naturalWidth;
     canvas.height = img.naturalHeight;
@@ -313,6 +317,7 @@ export async function openSmartScanner(activeTab) {
       for (const [field, val] of parsed) {
         if (!detectedFields.has(field)) detectedFields.set(field, val);
       }
+      if (!document.getElementById('ss-pane-capture')) return;
       if (!detectedFields.size) {
         progress.textContent = 'No se detectaron datos. Intenta con mejor calidad.';
       } else {
@@ -388,14 +393,14 @@ export async function openSmartScanner(activeTab) {
     if (item) {
       const file = item.getAsFile();
       if (file) {
-        document.getElementById('ss-tab-capture').click();
+        document.getElementById('ss-tab-capture')?.click();
         processImageFile(file);
       }
     }
   };
   document.addEventListener('paste', pasteHandler);
 
-  document.getElementById('ss-change-img').addEventListener('click', () => {
+  document.getElementById('ss-change-img')?.addEventListener('click', () => {
     document.getElementById('ss-drop-zone').style.display = '';
     document.getElementById('ss-img-preview').style.display = 'none';
     document.getElementById('ss-capture-progress').style.display = 'none';
