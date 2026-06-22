@@ -1,0 +1,12 @@
+{
+  local_certs
+}
+
+:443 {
+  tls internal
+  reverse_proxy it-support:3000
+}
+
+:80 {
+  redir https://{host}{uri} permanent
+}
