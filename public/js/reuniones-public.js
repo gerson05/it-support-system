@@ -18,9 +18,15 @@ const data = {
 };
 
 async function init() {
-  const res = await fetch('/api/reuniones/public/salas');
-  const json = await res.json();
-  salas = json.salas || [];
+  try {
+    const res = await fetch('/api/reuniones/public/salas');
+    const json = await res.json();
+    salas = json.salas || [];
+  } catch {
+    document.getElementById('app').innerHTML =
+      '<div style="color:#f87171;text-align:center;padding:20px;">Error al cargar las salas. Recarga la página.</div>';
+    return;
+  }
   renderStep();
 }
 
