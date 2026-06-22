@@ -24,6 +24,7 @@ import trackingRouter from './src/tracking/tracking-routes.js';
 import monitoringRouter, { startOfflineChecker } from './src/monitoring/monitoring-routes.js';
 import aiRouter from './src/ai/ai-routes.js';
 import reqRouter from './src/requerimientos/req-routes.js';
+import reunionesRouter from './src/reuniones/reuniones-routes.js';
 import { initAdminUser } from './src/auth/auth-service.js';
 import Chatbot from './src/whatsapp/chatbot.js';
 import whatsappClient from './src/whatsapp/baileys-client.js';
@@ -64,6 +65,7 @@ app.use(trackingRouter);
 app.use(monitoringRouter);
 app.use(aiRouter);
 app.use(reqRouter);
+app.use(reunionesRouter);
 
 // Página pública de subida de acta firmada
 app.get('/firmar/:token', (_req, res) => {
