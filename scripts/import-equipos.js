@@ -60,27 +60,45 @@ async function parseXlsxFile(filePath, sede) {
   const ws = wb.worksheets[0];
 
   const data = { sede };
-  const valores = new Map();
 
-  // Primera pasada: mapear labels a valores
+  // Procesar todas las celdas buscando labels y sus valores (columna contigua o misma fila)
   ws.eachRow((row, i) => {
-    const label = String(row.getCell(4)?.value || '').toLowerCase().trim();
-    const val = String(row.getCell(6)?.value || '').trim() || String(row.getCell(5)?.value || '').trim();
+    row.eachCell((cell, col) => {
+      const cellVal = String(cell.value || '').toLowerCase().trim();
 
-    if (label && val && !valores.has(label.substring(0, 15))) {
-      valores.set(label.substring(0, 15), val);
-    }
+      // Buscar labels conocidos y extraer valores de columna contigua
+      if (cellVal.includes('marca:') && !data.marca) {
+        const nextVal = row.getCell(col + 1)?.value || row.getCell(col + 2)?.value;
+        if (nextVal) data.marca = String(nextVal).trim();
+      }
+      if (cellVal.includes('modelo:') && !data.modelo) {
+        const nextVal = row.getCell(col + 1)?.value || row.getCell(col + 2)?.value;
+        if (nextVal) data.modelo = String(nextVal).trim();
+      }
+      if (cellVal.includes('procesador') && !data.procesador) {
+        const nextVal = row.getCell(col + 1)?.value || row.getCell(col + 2)?.value;
+        if (nextVal) data.procesador = String(nextVal).trim();
+      }
+      if (cellVal.includes('ram') && !data.ram) {
+        const nextVal = row.getCell(col + 1)?.value || row.getCell(col + 2)?.value;
+        if (nextVal) data.ram = String(nextVal).trim();
+      }
+      if (cellVal.includes('disco') && !data.disco) {
+        const nextVal = row.getCell(col + 1)?.value || row.getCell(col + 2)?.value;
+        if (nextVal) data.disco = String(nextVal).trim();
+      }
+      if (cellVal.includes('serie:') && !data.serie) {
+        const nextVal = row.getCell(col + 1)?.value || row.getCell(col + 2)?.value;
+        if (nextVal && String(nextVal).toUpperCase() !== 'GENERICA') {
+          data.serie = String(nextVal).trim();
+        }
+      }
+      if (cellVal.includes('equipo:') && !data.equipo && col <= 5) {
+        const nextVal = row.getCell(col + 1)?.value || row.getCell(col + 2)?.value;
+        if (nextVal) data.equipo = String(nextVal).trim();
+      }
+    });
   });
-
-  // Buscar en los valores mapeados
-  for (const [lbl, val] of valores) {
-    if (lbl.includes('marca')) data.marca = val;
-    if (lbl.includes('modelo')) data.modelo = val;
-    if (lbl.includes('procesador')) data.procesador = val;
-    if (lbl.includes('ram')) data.ram = val;
-    if (lbl.includes('disco')) data.disco = val;
-    if (lbl.includes('serie')) data.serie = val;
-  }
 
   return data;
 }
@@ -149,12 +167,17 @@ async function importEquipos() {
     for (const xlsxFile of xlsxFiles) {
       try {
         const data = await parseXlsxFile(path.join(sedePath, xlsxFile), sede);
-        if (!data.modelo) {
-          console.log(`  ⚠️  ${xlsxFile}: datos insuficientes`);
+        // Validar que tengamos al menos modelo O equipo + serie
+        if (!data.modelo && !data.equipo) {
+          console.log(`  ⚠️  ${xlsxFile}: sin modelo/equipo`);
           continue;
         }
 
         const placa = `AF-${sede.substring(0, 3).toUpperCase()}-${totalImported + 1}`.replace(/\s+/g, '');
+        const nombreEquipo = data.modelo || data.equipo || 'Desktop';
+        const serial = data.serie && String(data.serie).toUpperCase() !== 'GENERICA'
+          ? data.serie
+          : `SN-${placa}`;
 
         db.prepare(`
           INSERT OR IGNORE INTO inventario_equipos
@@ -163,8 +186,8 @@ async function importEquipos() {
         `).run(
           placa,
           data.marca || 'N/A',
-          data.modelo,
-          data.serie || `SN-${placa}`,
+          nombreEquipo,
+          serial,
           data.procesador || '',
           data.ram || '',
           data.disco || '',
