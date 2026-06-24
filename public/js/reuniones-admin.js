@@ -47,6 +47,9 @@ function fmtDate(date) {
 
 export async function renderReuniones(container) {
   container.innerHTML = `
+    <style>
+      .cal-slot:hover { background: var(--surface-hover) !important; }
+    </style>
     <div style="margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
       <div>
         <h2 style="font-size:20px;font-weight:700;letter-spacing:-.4px;margin:0 0 4px;">Calendario</h2>
@@ -108,7 +111,7 @@ export async function renderReuniones(container) {
     // Hour column
     html += `<div style="width:60px;flex-shrink:0;padding-top:40px;">`;
     hours.forEach(h => {
-      html += `<div style="height:${slotH}px;font-size:11px;color:var(--text-3);padding:2px 4px;border-top:1px solid rgba(255,255,255,.05);">${String(h).padStart(2,'0')}:00</div>`;
+      html += `<div style="height:${slotH}px;font-size:11px;color:var(--text-3);padding:2px 4px;border-top:1px solid var(--border);">${String(h).padStart(2,'0')}:00</div>`;
     });
     html += `</div>`;
 
@@ -121,9 +124,9 @@ export async function renderReuniones(container) {
           return r.sala_id === sala.id && r.fecha_inicio.startsWith(dateStr) && r.estado === 'activa';
         });
 
-        html += `<div style="flex:1;min-width:${colW}px;border-left:1px solid rgba(255,255,255,.06);">`;
+        html += `<div style="flex:1;min-width:${colW}px;border-left:1px solid var(--border);">`;
         // Header
-        html += `<div style="height:40px;padding:4px 6px;background:${isToday ? 'rgba(99,102,241,.1)' : 'transparent'};border-bottom:1px solid rgba(255,255,255,.06);">
+        html += `<div style="height:40px;padding:4px 6px;background:${isToday ? 'rgba(99,102,241,.1)' : 'transparent'};border-bottom:1px solid var(--border);">
           <div style="font-size:11px;font-weight:700;color:${isToday ? 'var(--primary)' : 'var(--text-2)'};">${fmtDate(day)}</div>
           <div style="font-size:10px;color:var(--text-3);">${esc(sala.nombre)}</div>
         </div>`;
@@ -134,9 +137,7 @@ export async function renderReuniones(container) {
           const slotIso = `${dateStr}T${String(h).padStart(2,'0')}:00:00`;
           html += `<div class="cal-slot" data-sala="${sala.id}" data-inicio="${slotIso}"
             style="position:absolute;top:${(h-7)*slotH}px;left:0;right:0;height:${slotH}px;
-            border-top:1px solid rgba(255,255,255,.04);cursor:pointer;"
-            onmouseenter="this.style.background='rgba(99,102,241,.06)'"
-            onmouseleave="this.style.background=''"></div>`;
+            border-top:1px solid var(--border);cursor:pointer;"></div>`;
         });
         // Events
         dayReuniones.forEach(r => {
@@ -350,7 +351,7 @@ function openDetalleModal(reunion, salas, onUpdate) {
         <div><span style="color:var(--text-3);">👤 Organizador:</span> <strong>${esc(reunion.organizador_nombre)}</strong>${reunion.organizador_correo ? ` (${esc(reunion.organizador_correo)})` : ''}</div>
         ${participantes.length ? `<div><span style="color:var(--text-3);">👥 Participantes:</span> ${participantes.map(esc).join(', ')}</div>` : ''}
         ${reunion.descripcion ? `<div><span style="color:var(--text-3);">📋 Agenda:</span> ${esc(reunion.descripcion)}</div>` : ''}
-        ${reunion.estado === 'cancelada' ? `<div style="color:#f87171;font-weight:600;">❌ Cancelada</div>` : ''}
+        ${reunion.estado === 'cancelada' ? `<div style="color:var(--danger);font-weight:600;">❌ Cancelada</div>` : ''}
       </div>
       ${reunion.meet_link && reunion.estado === 'activa' ? `
         <a href="${esc(reunion.meet_link)}" target="_blank" rel="noopener"
@@ -363,7 +364,7 @@ function openDetalleModal(reunion, salas, onUpdate) {
           font-size:12px;color:var(--text-3);text-align:center;">Sin link de Meet (Google Calendar no configurado)</div>` : ''}
       ${reunion.estado === 'activa' ? `
         <div style="display:flex;gap:8px;margin-top:20px;">
-          <button id="det-cancel" style="flex:1;padding:8px;border:1px solid rgba(239,68,68,.3);border-radius:6px;background:rgba(239,68,68,.1);color:#f87171;font-size:13px;cursor:pointer;">Cancelar reunión</button>
+          <button id="det-cancel" style="flex:1;padding:8px;border:1px solid rgba(239,68,68,.3);border-radius:6px;background:rgba(239,68,68,.1);color:var(--danger);font-size:13px;cursor:pointer;">Cancelar reunión</button>
         </div>` : ''}
     </div>`;
 
@@ -399,7 +400,7 @@ function openGestionSalasModal(onUpdate) {
             <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface-2);border-radius:8px;">
               <span style="flex:1;font-size:13px;">${esc(s.nombre)}</span>
               ${s.descripcion ? `<span style="font-size:11px;color:var(--text-3);">${esc(s.descripcion)}</span>` : ''}
-              <button class="gs-del" data-id="${s.id}" style="padding:3px 8px;border:1px solid rgba(239,68,68,.3);border-radius:5px;background:rgba(239,68,68,.1);color:#f87171;font-size:11px;cursor:pointer;">✕</button>
+              <button class="gs-del" data-id="${s.id}" style="padding:3px 8px;border:1px solid rgba(239,68,68,.3);border-radius:5px;background:rgba(239,68,68,.1);color:var(--danger);font-size:11px;cursor:pointer;">✕</button>
             </div>`).join('') || '<div style="color:var(--text-3);font-size:13px;text-align:center;">Sin salas aún</div>'}
         </div>
         <div style="display:flex;gap:8px;">
