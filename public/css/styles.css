@@ -545,18 +545,18 @@ body {
   color: var(--text-2);
   border-color: transparent;
 }
-.btn-ghost:hover { background:rgba(255,255,255,.06); color:var(--text); }
+.btn-ghost:hover { background:var(--surface-hover); color:var(--text); }
 
 .btn-danger {
   background: rgba(239,68,68,.1);
-  color: #f87171;
+  color: var(--danger);
   border-color: rgba(239,68,68,.25);
 }
 .btn-danger:hover { background:rgba(239,68,68,.2); }
 
 .btn-success {
   background: rgba(16,185,129,.12);
-  color: #34d399;
+  color: var(--success);
   border-color: rgba(16,185,129,.25);
 }
 .btn-success:hover { background:rgba(16,185,129,.2); }
@@ -594,12 +594,12 @@ body {
 .badge-en_revision{ background:rgba(139,92,246,.12);  color:#a78bfa; }
 .badge-en_proceso { background:rgba(249,115,22,.12);  color:#fb923c; }
 .badge-completado { background:rgba(16,185,129,.12);  color:#34d399; }
-.badge-rechazado  { background:rgba(239,68,68,.12);   color:#f87171; }
+.badge-rechazado  { background:rgba(239,68,68,.12);   color:var(--danger); }
 
 .badge-baja         { background:rgba(16,185,129,.12);  color:#34d399; }
 .badge-media        { background:rgba(245,158,11,.12);  color:#fbbf24; }
-.badge-alta         { background:rgba(239,68,68,.12);   color:#f87171; }
-.badge-critica      { background:rgba(185,28,28,.15);   color:#fca5a5; }
+.badge-alta         { background:rgba(239,68,68,.12);   color:var(--danger); }
+.badge-critica      { background:rgba(185,28,28,.15);   color:var(--danger); }
 .badge-siguiente_dia{ background:rgba(99,102,241,.12);  color:#a5b4fc; }
 
 /* ==========================================================================
@@ -681,7 +681,8 @@ input::placeholder, textarea::placeholder {
 }
 
 select { cursor: pointer; }
-select option { background: var(--surface-3); }
+select option  { background: var(--surface-3); color: var(--text); }
+select optgroup { background: var(--surface-2); color: var(--text-3); font-style: normal; font-weight: 700; }
 
 textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
 
@@ -971,7 +972,7 @@ body.modal-open { overflow: hidden; }
 /* ==========================================================================
    TECH REQUESTS — filas de tabla
    ========================================================================== */
-.tr-row:hover { background:rgba(255,255,255,.03) !important; cursor:pointer; }
+.tr-row:hover { background:var(--surface-hover) !important; cursor:pointer; }
 
 /* ==========================================================================
    QR WHATSAPP
@@ -1260,6 +1261,31 @@ body.sidebar-open .hamburger span:nth-child(3) { transform: translateY(-6px) rot
 [data-theme="light"] ::-webkit-scrollbar-thumb        { background: rgba(0,0,0,.13); }
 [data-theme="light"] ::-webkit-scrollbar-thumb:hover  { background: rgba(0,0,0,.22); }
 
+/* ── Badges — overrides modo claro (colores oscuros para contraste sobre fondos pálidos) ── */
+[data-theme="light"] .badge-abierto      { background:rgba(29,78,216,.10);  color:#1d4ed8; }
+[data-theme="light"] .badge-en_progreso  { background:rgba(194,65,12,.10);  color:#c2410c; }
+[data-theme="light"] .badge-en_espera    { background:rgba(109,40,217,.10); color:#6d28d9; }
+[data-theme="light"] .badge-resuelto     { background:rgba(5,150,105,.10);  color:#059669; }
+[data-theme="light"] .badge-cerrado      { background:rgba(71,85,105,.10);  color:#475569; }
+[data-theme="light"] .badge-pendiente    { background:rgba(180,83,9,.10);   color:#b45309; }
+[data-theme="light"] .badge-en_revision  { background:rgba(109,40,217,.10); color:#6d28d9; }
+[data-theme="light"] .badge-en_proceso   { background:rgba(194,65,12,.10);  color:#c2410c; }
+[data-theme="light"] .badge-completado   { background:rgba(5,150,105,.10);  color:#059669; }
+[data-theme="light"] .badge-rechazado    { background:rgba(220,38,38,.10);  color:#dc2626; }
+[data-theme="light"] .badge-baja         { background:rgba(5,150,105,.10);  color:#059669; }
+[data-theme="light"] .badge-media        { background:rgba(180,83,9,.10);   color:#b45309; }
+[data-theme="light"] .badge-alta         { background:rgba(220,38,38,.10);  color:#dc2626; }
+[data-theme="light"] .badge-critica      { background:rgba(153,27,27,.12);  color:#991b1b; }
+[data-theme="light"] .badge-siguiente_dia{ background:rgba(79,70,229,.10);  color:#4f46e5; }
+[data-theme="light"] .badge-nuevo        { background:rgba(79,70,229,.10);  color:#4f46e5; }
+[data-theme="light"] .badge-seminuevo    { background:rgba(180,83,9,.10);   color:#b45309; }
+[data-theme="light"] .badge-usado        { background:rgba(71,85,105,.10);  color:#475569; }
+[data-theme="light"] .badge-role         { background:rgba(79,70,229,.10);  color:#4f46e5; }
+
+/* ── select optgroup modo claro ─────────────────────────────────────────── */
+[data-theme="light"] select option  { background: var(--surface-3); color: var(--text); }
+[data-theme="light"] select optgroup { background: var(--surface-2); color: var(--text-3); }
+
 /* ── Botón de tema ──────────────────────────────────────────────────────── */
 .btn-theme-toggle {
   display: flex;
@@ -1279,6 +1305,24 @@ body.sidebar-open .hamburger span:nth-child(3) { transform: translateY(-6px) rot
   background: var(--surface-hover);
   color: var(--text);
   border-color: var(--border-focus);
+}
+
+/* Header buttons visibility fix */
+#btn-logout {
+  background: var(--surface-2) !important;
+  border: 1px solid var(--border-2) !important;
+  color: var(--text) !important;
+  cursor: pointer;
+  transition: var(--transition);
+}
+#btn-logout:hover {
+  background: var(--surface-3) !important;
+  border-color: var(--border-focus) !important;
+}
+
+#current-user-label {
+  color: var(--text) !important;
+  font-weight: 500;
 }
 .btn-theme-toggle svg { width: 15px; height: 15px; stroke-width: 1.75; flex-shrink: 0; }
 
