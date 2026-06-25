@@ -240,3 +240,52 @@ CREATE TABLE IF NOT EXISTS comandos_agente (
 );
 
 CREATE INDEX IF NOT EXISTS idx_comandos_agente ON comandos_agente(agente_id, estado);
+
+-- ═══════════════════════════════════════════════════════════════
+-- MÓDULO: GESTIÓN DE EMPLEADOS
+-- ═══════════════════════════════════════════════════════════════
+
+CREATE TABLE IF NOT EXISTS employee_cargos (
+    id        INTEGER PRIMARY KEY AUTOINCREMENT,
+    nombre    TEXT NOT NULL UNIQUE
+);
+
+CREATE TABLE IF NOT EXISTS employee_areas (
+    id        INTEGER PRIMARY KEY AUTOINCREMENT,
+    nombre    TEXT NOT NULL UNIQUE
+);
+
+CREATE TABLE IF NOT EXISTS employees (
+    id                      INTEGER PRIMARY KEY AUTOINCREMENT,
+    cedula                  TEXT NOT NULL UNIQUE,
+    nombre_completo         TEXT NOT NULL,
+    cargo                   TEXT NOT NULL,
+    area                    TEXT NOT NULL,
+    usuario                 TEXT NOT NULL UNIQUE,
+    contraseña              TEXT NOT NULL,
+    fecha_respuesta_soporte TEXT,
+    created_by              INTEGER,
+    created_at              TEXT DEFAULT (datetime('now','localtime')),
+    updated_by              INTEGER,
+    updated_at              TEXT DEFAULT (datetime('now','localtime')),
+    FOREIGN KEY (created_by) REFERENCES users(id),
+    FOREIGN KEY (updated_by) REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS employee_logs (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    employee_id     INTEGER NOT NULL,
+    usuario_id      INTEGER NOT NULL,
+    accion          TEXT NOT NULL,
+    campo_cambio    TEXT,
+    valor_anterior  TEXT,
+    valor_nuevo     TEXT,
+    timestamp       TEXT DEFAULT (datetime('now','localtime')),
+    FOREIGN KEY (employee_id) REFERENCES employees(id),
+    FOREIGN KEY (usuario_id) REFERENCES users(id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_employees_cedula ON employees(cedula);
+CREATE INDEX IF NOT EXISTS idx_employees_usuario ON employees(usuario);
+CREATE INDEX IF NOT EXISTS idx_employee_logs_employee ON employee_logs(employee_id);
+CREATE INDEX IF NOT EXISTS idx_employee_logs_usuario ON employee_logs(usuario_id);
