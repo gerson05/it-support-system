@@ -1,0 +1,117 @@
+=============================== 
+ INVENTARIO DE EQUIPO DESKTOP-2391Q4I 
+ Fecha: vie. 24/04/2026 - Hora: 16:34:16,99 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : MJ07C88G
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            DESKTOP-2391Q4I
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              USUARIO
+Organizaci¢n registrada:                   
+Id. del producto:                          00330-51332-37182-AAOEM
+Fecha de instalaci¢n original:             7/10/2025, 10:40:05 a.ÿm.
+Tiempo de arranque del sistema:            22/04/2026, 3:30:22 p.ÿm.
+Fabricante del sistema:                    LENOVO
+Modelo el sistema:                         10MQSE7500
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 94 Stepping 3 GenuineIntel ~2712 Mhz
+Versi¢n del BIOS:                          LENOVO M1AKT5AA, 10/03/2025
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es-mx;Espa¤ol (M‚xico)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.080 MB
+Memoria f¡sica disponible:                 4.002 MB
+Memoria virtual: tama¤o m ximo:            9.360 MB
+Memoria virtual: disponible:               3.681 MB
+Memoria virtual: en uso:                   5.679 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\DESKTOP-2391Q4I
+Revisi¢n(es):                              10 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5064399
+                                           [03]: KB5011048
+                                           [04]: KB5015684
+                                           [05]: KB5072653
+                                           [06]: KB5071959
+                                           [07]: KB5014032
+                                           [08]: KB5032907
+                                           [09]: KB5063979
+                                           [10]: KB5071982
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) Ethernet Connection (2) I219-V
+                                                 Nombre de conexi¢n: Ethernet
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.60.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.60.37
+                                                 [02]: fe80::c82f:4ddf:7472:bc4b
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: No
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-6600T CPU @ 2.70GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 2712
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : Samsung
+PartNumber   : M471A1K43CB1-CRC    
+Capacity     : 8589934592
+Speed        : 2400
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : KINGSTON SA400S37960G
+SerialNumber  : 50026B7785D3C42C
+Size          : 960194511360
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 959486414848
+FreeSpace  : 897921224704
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

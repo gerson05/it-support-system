@@ -1,0 +1,42 @@
+<h2>¿Cómo integramos la creación de punto con despacho + checklist?</h2>
+<p class="subtitle">3 enfoques — cada uno con trade-offs distintos</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Modal multi-paso en Red de Puntos</h3>
+      <p>Al presionar "Agregar nuevo punto" se abre un modal de 3 pasos: (1) datos del punto, (2) artículos opcionales, (3) confirmar. Todo en una sola operación atómica. El checklist se genera automáticamente de los artículos.</p>
+      <div class="pros-cons" style="margin-top:10px;">
+        <div class="pros"><h4>A favor</h4><ul><li>Flujo natural — estás creando un punto, ahí mismo despachas</li><li>Una sola pantalla, sin navegación extra</li><li>Operación atómica (sede + despacho + tracking)</li></ul></div>
+        <div class="cons"><h4>En contra</h4><ul><li>Modal puede quedar largo si hay muchos artículos</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Primero crea el punto, luego "Configurar envío"</h3>
+      <p>La creación del punto sigue siendo simple (2 campos). Después aparece un botón "Configurar envío inicial" en el punto recién creado. Abre un modal separado para artículos y checklist.</p>
+      <div class="pros-cons" style="margin-top:10px;">
+        <div class="pros"><h4>A favor</h4><ul><li>Creación de punto queda simple</li><li>El envío se puede hacer en otro momento</li></ul></div>
+        <div class="cons"><h4>En contra</h4><ul><li>Dos pasos/acciones separadas — más fricción</li><li>Punto puede quedar sin checklist si el técnico lo olvida</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Desde Despacho, vincular a nuevo punto</h3>
+      <p>Al crear un despacho nuevo, se añade opción "Crear punto nuevo" en el campo de sede. Esto registra el punto en Red de Puntos y genera el checklist automáticamente.</p>
+      <div class="pros-cons" style="margin-top:10px;">
+        <div class="pros"><h4>A favor</h4><ul><li>Reutiliza 100% el form de despacho existente</li></ul></div>
+        <div class="cons"><h4>En contra</h4><ul><li>Flujo inverso al mental del usuario (despacho primero, punto después)</li><li>Acoplamiento entre módulos en dirección equivocada</li></ul></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p style="margin-top:16px;font-size:13px;color:var(--text-muted);">Recomendación: <strong>A</strong> — flujo más natural, operación atómica, mínimo código nuevo.</p>

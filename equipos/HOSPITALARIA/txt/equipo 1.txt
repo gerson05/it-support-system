@@ -1,0 +1,114 @@
+=============================== 
+ INVENTARIO DE EQUIPO DESKTOP-D6TR2AH 
+ Fecha: mar. 21/04/2026 - Hora: 15:36:42,57 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : System Serial Number
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            DESKTOP-D6TR2AH
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              Soporte
+Organizaci¢n registrada:                   
+Id. del producto:                          00331-10000-00001-AA615
+Fecha de instalaci¢n original:             7/12/2019, 8:10:35 a.ÿm.
+Tiempo de arranque del sistema:            16/04/2026, 1:41:29 p.ÿm.
+Fabricante del sistema:                    System manufacturer
+Modelo el sistema:                         System Product Name
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 158 Stepping 10 GenuineIntel ~3600 Mhz
+Versi¢n del BIOS:                          American Megatrends Inc. 1405, 12/09/2018
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          4.015 MB
+Memoria f¡sica disponible:                 943 MB
+Memoria virtual: tama¤o m ximo:            10.671 MB
+Memoria virtual: disponible:               3.979 MB
+Memoria virtual: en uso:                   6.692 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\DESKTOP-D6TR2AH
+Revisi¢n(es):                              8 revisi¢n(es) instaladas.
+                                           [01]: KB5031988
+                                           [02]: KB5011048
+                                           [03]: KB5015684
+                                           [04]: KB5036892
+                                           [05]: KB5014032
+                                           [06]: KB5032907
+                                           [07]: KB5037018
+                                           [08]: KB5034441
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Realtek PCIe GbE Family Controller
+                                                 Nombre de conexi¢n: Ethernet 2
+                                                 DHCP habilitado:    No
+                                                 Direcciones IP
+                                                 [01]: 10.1.1.10
+                                                 [02]: fe80::afd5:9577:85aa:6490
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: No
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i3-9100F CPU @ 3.60GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 3600
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : A-DATA
+PartNumber   :                     
+Capacity     : 4294967296
+Speed        : 2400
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : ST1000DM010-2EP102
+SerialNumber  :             ZN1795F8
+Size          : 1000202273280
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 999561670656
+FreeSpace  : 930233208832
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

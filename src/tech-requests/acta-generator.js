@@ -98,11 +98,12 @@ export async function generateActa(request, equipment, agentName = 'Jefe de Sopo
   // Normalizar equipment a array
   const eqItems = Array.isArray(equipment) ? equipment : [equipment];
 
-  const fechaHoy  = new Date();
-  const fechaLarga = fechaHoy.toLocaleDateString('es-CO', {
+  // Usar fecha del despacho si fue proporcionada; si no, fecha actual
+  const fechaBase = request.fecha ? new Date(request.fecha + 'T12:00:00') : new Date();
+  const fechaLarga = fechaBase.toLocaleDateString('es-CO', {
     day: 'numeric', month: 'long', year: 'numeric',
   });
-  const fechaCorta = fechaHoy.toLocaleDateString('es-CO', {
+  const fechaCorta = fechaBase.toLocaleDateString('es-CO', {
     day: '2-digit', month: '2-digit', year: 'numeric',
   });
 

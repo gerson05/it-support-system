@@ -1,0 +1,134 @@
+=============================== 
+ INVENTARIO DE EQUIPO CALINORTE 
+ Fecha: lun. 27/04/2026 - Hora: 16:12:06,58 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : HXD0ZQ2
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            CALINORTE
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              Dell
+Organizaci¢n registrada:                   
+Id. del producto:                          00330-51301-21244-AAOEM
+Fecha de instalaci¢n original:             29/07/2024, 11:59:47 a.ÿm.
+Tiempo de arranque del sistema:            23/04/2026, 8:24:44 a.ÿm.
+Fabricante del sistema:                    Dell Inc.
+Modelo el sistema:                         OptiPlex 7050
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 158 Stepping 9 GenuineIntel ~2712 Mhz
+Versi¢n del BIOS:                          Dell Inc. 1.27.0, 18/09/2023
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es-mx;Espa¤ol (M‚xico)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.055 MB
+Memoria f¡sica disponible:                 3.541 MB
+Memoria virtual: tama¤o m ximo:            9.335 MB
+Memoria virtual: disponible:               3.867 MB
+Memoria virtual: en uso:                   5.468 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\CALINORTE
+Revisi¢n(es):                              27 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5039884
+                                           [03]: KB5011048
+                                           [04]: KB5015684
+                                           [05]: KB5033052
+                                           [06]: KB5072653
+                                           [07]: KB5071959
+                                           [08]: KB5014032
+                                           [09]: KB5025315
+                                           [10]: KB5040565
+                                           [11]: KB5041579
+                                           [12]: KB5043935
+                                           [13]: KB5043130
+                                           [14]: KB5046823
+                                           [15]: KB5050388
+                                           [16]: KB5050111
+                                           [17]: KB5052916
+                                           [18]: KB5054682
+                                           [19]: KB5055663
+                                           [20]: KB5058526
+                                           [21]: KB5059504
+                                           [22]: KB5061902
+                                           [23]: KB5063706
+                                           [24]: KB5063261
+                                           [25]: KB5063979
+                                           [26]: KB5066790
+                                           [27]: KB5071982
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) Ethernet Connection (5) I219-LM
+                                                 Nombre de conexi¢n: Ethernet
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.20.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.20.2
+                                                 [02]: fe80::ba16:fd0e:47d2:c351
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: S¡
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-7500T CPU @ 2.70GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 2712
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : 80AD000080AD
+PartNumber   : HMA81GS6AFR8N-UH    
+Capacity     : 8589934592
+Speed        : 2400
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : KBG50ZNV256G KIOXIA
+SerialNumber  : 0000_0000_0000_0000_8CE3_8E10_0195_3F42.
+Size          : 256052966400
+InterfaceType : SCSI
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 255375003648
+FreeSpace  : 130706333696
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

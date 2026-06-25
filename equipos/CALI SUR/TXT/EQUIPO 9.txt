@@ -1,0 +1,134 @@
+=============================== 
+ INVENTARIO DE EQUIPO CALISUR1 
+ Fecha: mi‚. 22/04/2026 - Hora: 11:49:55,19 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : HFGSMN2
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            CALISUR1
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              DELL
+Organizaci¢n registrada:                   
+Id. del producto:                          00330-51022-11833-AAOEM
+Fecha de instalaci¢n original:             9/05/2024, 3:17:45 p.ÿm.
+Tiempo de arranque del sistema:            20/04/2026, 1:42:07 p.ÿm.
+Fabricante del sistema:                    Dell Inc.
+Modelo el sistema:                         OptiPlex 7050
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 158 Stepping 9 GenuineIntel ~2712 Mhz
+Versi¢n del BIOS:                          Dell Inc. 1.27.0, 18/09/2023
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.055 MB
+Memoria f¡sica disponible:                 3.858 MB
+Memoria virtual: tama¤o m ximo:            9.335 MB
+Memoria virtual: disponible:               5.094 MB
+Memoria virtual: en uso:                   4.241 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\CALISUR1
+Revisi¢n(es):                              27 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5017022
+                                           [03]: KB5011048
+                                           [04]: KB5011056
+                                           [05]: KB5015684
+                                           [06]: KB5033052
+                                           [07]: KB5071959
+                                           [08]: KB5014032
+                                           [09]: KB5016705
+                                           [10]: KB5039336
+                                           [11]: KB5041579
+                                           [12]: KB5043935
+                                           [13]: KB5043130
+                                           [14]: KB5046823
+                                           [15]: KB5050388
+                                           [16]: KB5050111
+                                           [17]: KB5052916
+                                           [18]: KB5054682
+                                           [19]: KB5058526
+                                           [20]: KB5059504
+                                           [21]: KB5061902
+                                           [22]: KB5063706
+                                           [23]: KB5063261
+                                           [24]: KB5063979
+                                           [25]: KB5066411
+                                           [26]: KB5066790
+                                           [27]: KB5071982
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) Ethernet Connection (5) I219-LM
+                                                 Nombre de conexi¢n: Ethernet
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      190.147.23.254
+                                                 Direcciones IP
+                                                 [01]: 190.147.23.101
+                                                 [02]: fe80::1fe9:2f30:7aae:22b0
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: S¡
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-7500T CPU @ 2.70GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 2712
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : 80AD000080AD
+PartNumber   : HMA81GS6AFR8N-UH    
+Capacity     : 8589934592
+Speed        : 2400
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : INTEL SSDSC2KF256G8 SATA 256GB
+SerialNumber  : BTLA75000BUM256CGN
+Size          : 256052966400
+InterfaceType : SCSI
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 255366533120
+FreeSpace  : 192271151104
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

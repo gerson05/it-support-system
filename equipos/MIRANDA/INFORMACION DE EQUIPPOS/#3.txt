@@ -1,0 +1,122 @@
+=============================== 
+ INVENTARIO DE EQUIPO FARMIRANDA2 
+ Fecha: mar. 21/04/2026 - Hora: 16:22:12,36 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : 418FS22
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            FARMIRANDA2
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19043 N/D Compilaci¢n 19043
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              Farmacia Miranda 2
+Organizaci¢n registrada:                   
+Id. del producto:                          00331-10000-00001-AA287
+Fecha de instalaci¢n original:             21/09/2024, 3:22:29 p.ÿm.
+Tiempo de arranque del sistema:            20/04/2026, 11:57:03 a.ÿm.
+Fabricante del sistema:                    Dell Inc.
+Modelo el sistema:                         OptiPlex 3020
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 60 Stepping 3 GenuineIntel ~3301 Mhz
+Versi¢n del BIOS:                          Dell Inc. A05, 20/08/2014
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es-mx;Espa¤ol (M‚xico)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.111 MB
+Memoria f¡sica disponible:                 4.306 MB
+Memoria virtual: tama¤o m ximo:            9.391 MB
+Memoria virtual: disponible:               5.324 MB
+Memoria virtual: en uso:                   4.067 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\FARMIRANDA2
+Revisi¢n(es):                              4 revisi¢n(es) instaladas.
+                                           [01]: KB4601554
+                                           [02]: KB5000736
+                                           [03]: KB5001330
+                                           [04]: KB5001405
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Realtek PCIe GbE Family Controller
+                                                 Nombre de conexi¢n: Ethernet
+                                                 DHCP habilitado:    No
+                                                 Direcciones IP
+                                                 [01]: 192.168.110.50
+                                                 [02]: fe80::dd16:e507:24e0:7a14
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: S¡
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-4590 CPU @ 3.30GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 3301
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : Samsung
+PartNumber   : M378B1G73EB0-YK0  
+Capacity     : 8589934592
+Speed        : 1600
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : WDC WD10EZEX-60WN4A0
+SerialNumber  :      WD-WCC6Y2HKKZ5K
+Size          : 1000202273280
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+Model         : AT550  256G
+SerialNumber  : AA000000001055AA
+Size          : 256052966400
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 255457632256
+FreeSpace  : 201921310720
+VolumeName : Sistema
+
+DeviceID   : D:
+FileSystem : NTFS
+Size       : 1000203087872
+FreeSpace  : 987528421376
+VolumeName : Datos
+
+
+
+ 
+==== FIN DEL INFORME ==== 

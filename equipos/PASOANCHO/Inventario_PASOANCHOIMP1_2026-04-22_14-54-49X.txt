@@ -1,0 +1,148 @@
+=============================== 
+ INVENTARIO DE EQUIPO PASOANCHOIMP1 
+ Fecha: mi‚. 22/04/2026 - Hora: 14:54:49,18 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : HY2WYQ2
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            PASOANCHOIMP1
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              USUARIO
+Organizaci¢n registrada:                   
+Id. del producto:                          00331-10000-00001-AA432
+Fecha de instalaci¢n original:             9/07/2024, 5:09:03 p.ÿm.
+Tiempo de arranque del sistema:            13/04/2026, 8:18:26 a.ÿm.
+Fabricante del sistema:                    Dell Inc.
+Modelo el sistema:                         OptiPlex 7050
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 158 Stepping 9 GenuineIntel ~2712 Mhz
+Versi¢n del BIOS:                          Dell Inc. 1.27.0, 18/09/2023
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume6
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.055 MB
+Memoria f¡sica disponible:                 2.059 MB
+Memoria virtual: tama¤o m ximo:            9.345 MB
+Memoria virtual: disponible:               2.052 MB
+Memoria virtual: en uso:                   7.293 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\PASOANCHOIMP1
+Revisi¢n(es):                              26 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5022502
+                                           [03]: KB5011048
+                                           [04]: KB5011056
+                                           [05]: KB5015684
+                                           [06]: KB5033052
+                                           [07]: KB5072653
+                                           [08]: KB5071959
+                                           [09]: KB5014032
+                                           [10]: KB5025315
+                                           [11]: KB5039336
+                                           [12]: KB5041579
+                                           [13]: KB5043935
+                                           [14]: KB5043130
+                                           [15]: KB5046823
+                                           [16]: KB5050388
+                                           [17]: KB5050111
+                                           [18]: KB5052916
+                                           [19]: KB5054682
+                                           [20]: KB5058526
+                                           [21]: KB5059504
+                                           [22]: KB5063706
+                                           [23]: KB5063261
+                                           [24]: KB5063979
+                                           [25]: KB5066790
+                                           [26]: KB5071982
+Tarjeta(s) de red:                         2 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) Ethernet Connection (5) I219-LM
+                                                 Nombre de conexi¢n: Ethernet 2
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.1.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.1.89
+                                                 [02]: fe80::e85:62be:6f8e:1b15
+                                           [02]: Intel(R) Dual Band Wireless-AC 8265
+                                                 Nombre de conexi¢n: Wi-Fi 2
+                                                 Estado:             Medios desconectados
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: S¡
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-7500T CPU @ 2.70GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 2712
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : 01980000802C
+PartNumber   : KMKYF9-MIB          
+Capacity     : 8589934592
+Speed        : 2400
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : AT422
+SerialNumber  : 421000019588
+Size          : 256052966400
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+Model         : SAMSUNG MZVLQ256HBJD-00BH1
+SerialNumber  : 0025_38D3_31AB_D628.
+Size          : 256052966400
+InterfaceType : SCSI
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 239371423744
+FreeSpace  : 158512656384
+VolumeName : 
+
+DeviceID   : D:
+FileSystem : NTFS
+Size       : 255140556800
+FreeSpace  : 255034224640
+VolumeName : SCANER
+
+
+
+ 
+==== FIN DEL INFORME ==== 

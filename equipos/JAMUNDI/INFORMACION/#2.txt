@@ -1,0 +1,137 @@
+=============================== 
+ INVENTARIO DE EQUIPO JAM_IMP 
+ Fecha: mi‚. 22/04/2026 - Hora: 13:45:43,48 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : CHHQMN2
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            JAM_IMP
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              USUARIO
+Organizaci¢n registrada:                   
+Id. del producto:                          00330-51031-64997-AAOEM
+Fecha de instalaci¢n original:             23/07/2024, 4:27:07 p.ÿm.
+Tiempo de arranque del sistema:            17/04/2026, 5:41:41 p.ÿm.
+Fabricante del sistema:                    Dell Inc.
+Modelo el sistema:                         OptiPlex 7050
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 158 Stepping 9 GenuineIntel ~2712 Mhz
+Versi¢n del BIOS:                          Dell Inc. 1.24.0, 22/12/2022
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.055 MB
+Memoria f¡sica disponible:                 2.399 MB
+Memoria virtual: tama¤o m ximo:            9.335 MB
+Memoria virtual: disponible:               2.475 MB
+Memoria virtual: en uso:                   6.860 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\JAM_IMP
+Revisi¢n(es):                              26 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5039884
+                                           [03]: KB5011048
+                                           [04]: KB5011056
+                                           [05]: KB5015684
+                                           [06]: KB5072653
+                                           [07]: KB5071959
+                                           [08]: KB5014032
+                                           [09]: KB5032907
+                                           [10]: KB5039336
+                                           [11]: KB5040565
+                                           [12]: KB5041579
+                                           [13]: KB5043935
+                                           [14]: KB5043130
+                                           [15]: KB5046823
+                                           [16]: KB5050388
+                                           [17]: KB5050111
+                                           [18]: KB5052916
+                                           [19]: KB5054682
+                                           [20]: KB5058526
+                                           [21]: KB5059504
+                                           [22]: KB5063706
+                                           [23]: KB5063261
+                                           [24]: KB5063979
+                                           [25]: KB5066790
+                                           [26]: KB5071982
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) Ethernet Connection (5) I219-LM
+                                                 Nombre de conexi¢n: Ethernet
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.0.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.0.9
+                                                 [02]: fe80::23f0:9164:4cd:f40a
+                                                 [03]: 2800:484:c79:b340:858e:56c1:7901:4d88
+                                                 [04]: ::858e:56c1:7901:4d88
+                                                 [05]: 2800:484:c79:b340:e65e:5a5d:63c6:5e06
+                                                 [06]: ::9065:1fde:b687:fd2d
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: S¡
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-7500T CPU @ 2.70GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 2712
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : 802C0000802C
+PartNumber   : 8ATF1G64HZ-2G3E1    
+Capacity     : 8589934592
+Speed        : 2400
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : ADATA SU650
+SerialNumber  : 2O022LS7BH27
+Size          : 256052966400
+InterfaceType : SCSI
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 255417692160
+FreeSpace  : 161959788544
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

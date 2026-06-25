@@ -1,0 +1,126 @@
+=============================== 
+ INVENTARIO DE EQUIPO DESKTOP-QDG47UF 
+ Fecha: mi‚. 20/05/2026 - Hora: 11:12:28,01 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : MJ02UTLA
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            DESKTOP-QDG47UF
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              Usuario de Windows
+Organizaci¢n registrada:                   
+Id. del producto:                          00331-10000-00001-AA474
+Fecha de instalaci¢n original:             21/10/2020, 3:23:15 p.ÿm.
+Tiempo de arranque del sistema:            20/05/2026, 10:57:39 a.ÿm.
+Fabricante del sistema:                    LENOVO
+Modelo el sistema:                         10B7A1H500
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 94 Stepping 3 GenuineIntel ~3201 Mhz
+Versi¢n del BIOS:                          LENOVO FCKT71AUS, 2/07/2015
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume2
+Configuraci¢n regional del sistema:        es-co;Espa¤ol (Colombia)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          4.009 MB
+Memoria f¡sica disponible:                 997 MB
+Memoria virtual: tama¤o m ximo:            10.665 MB
+Memoria virtual: disponible:               7.109 MB
+Memoria virtual: en uso:                   3.556 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\DESKTOP-QDG47UF
+Revisi¢n(es):                              19 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5054977
+                                           [03]: KB4537759
+                                           [04]: KB4557968
+                                           [05]: KB5011048
+                                           [06]: KB5011056
+                                           [07]: KB5015684
+                                           [08]: KB5033052
+                                           [09]: KB5072653
+                                           [10]: KB5071959
+                                           [11]: KB5052916
+                                           [12]: KB5054682
+                                           [13]: KB5058526
+                                           [14]: KB5059504
+                                           [15]: KB5063706
+                                           [16]: KB5063261
+                                           [17]: KB5063979
+                                           [18]: KB5066790
+                                           [19]: KB5071982
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Realtek PCIe GbE Family Controller
+                                                 Nombre de conexi¢n: Ethernet 3
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      190.147.23.254
+                                                 Direcciones IP
+                                                 [01]: 190.147.23.242
+                                                 [02]: fe80::3637:4ce0:81ea:7d81
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: No
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-8500T CPU
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 3201
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : Samsung
+PartNumber   : M378B5273CH0-CK0  
+Capacity     : 4294967296
+Speed        : 1600
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : SK hynix SC313 HFS256G32TNF-N3A0A
+SerialNumber  : EJ83N462010703A0K
+Size          : 256052966400
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 255415283712
+FreeSpace  : 181178122240
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

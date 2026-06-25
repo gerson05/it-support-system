@@ -1,0 +1,160 @@
+=============================== 
+ INVENTARIO DE EQUIPO USUARIO 
+ Fecha: mar. 21/04/2026 - Hora: 14:47:26.38 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : MJ45DK0
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            USUARIO
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              Ventas10
+Organizaci¢n registrada:                   
+Id. del producto:                          00331-20090-00000-AA845
+Fecha de instalaci¢n original:             10/08/2021, 1:13:50 a. m.
+Tiempo de arranque del sistema:            16/03/2026, 8:01:49 a. m.
+Fabricante del sistema:                    LENOVO
+Modelo el sistema:                         3598H4S
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 58 Stepping 9 GenuineIntel ~1600 Mhz
+Versi¢n del BIOS:                          LENOVO F1KT54AUS, 15/07/2013
+Directorio de Windows:                     C:\WINDOWS
+Directorio de sistema:                     C:\WINDOWS\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es-co;Espa¤ol (Colombia)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          5,966 MB
+Memoria f¡sica disponible:                 1,980 MB
+Memoria virtual: tama¤o m ximo:            7,075 MB
+Memoria virtual: disponible:               2,465 MB
+Memoria virtual: en uso:                   4,610 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   MEDIVALLE
+Servidor de inicio de sesi¢n:              \\USUARIO
+Revisi¢n(es):                              36 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5082419
+                                           [03]: KB5013887
+                                           [04]: KB4562830
+                                           [05]: KB5003791
+                                           [06]: KB5011048
+                                           [07]: KB5011056
+                                           [08]: KB5015684
+                                           [09]: KB5072653
+                                           [10]: KB5082200
+                                           [11]: KB5011651
+                                           [12]: KB5014032
+                                           [13]: KB5014035
+                                           [14]: KB5014671
+                                           [15]: KB5015895
+                                           [16]: KB5020372
+                                           [17]: KB5025315
+                                           [18]: KB5026879
+                                           [19]: KB5029709
+                                           [20]: KB5034224
+                                           [21]: KB5036447
+                                           [22]: KB5037240
+                                           [23]: KB5041579
+                                           [24]: KB5043935
+                                           [25]: KB5046823
+                                           [26]: KB5059504
+                                           [27]: KB5063706
+                                           [28]: KB5063261
+                                           [29]: KB5063979
+                                           [30]: KB5066790
+                                           [31]: KB5068780
+                                           [32]: KB5077456
+                                           [33]: KB5081263
+                                           [34]: KB5084130
+                                           [35]: KB5003742
+                                           [36]: KB5087371
+Tarjeta(s) de red:                         3 Tarjetas de interfaz de red instaladas.
+                                           [01]: Realtek PCIe GbE Family Controller
+                                                 Nombre de conexi¢n: Ethernet
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.100.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.100.79
+                                                 [02]: fe80::d48b:375b:87d0:34ce
+                                           [02]: Wintun Userspace Tunnel
+                                                 Nombre de conexi¢n: OpenVPN Wintun
+                                                 Estado:             Medios desconectados
+                                           [03]: TAP-Windows Adapter V9
+                                                 Nombre de conexi¢n: OpenVPN TAP-Windows6
+                                                 Estado:             Medios desconectados
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: No
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i3-3220 CPU @ 3.30GHz
+NumberOfCores             : 2
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 3300
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : Hynix/Hyundai
+PartNumber   : HMT351U6EFR8C-PB  
+Capacity     : 4294967296
+Speed        : 1333
+
+Manufacturer : 8502
+PartNumber   : PSD32G13332
+Capacity     : 2147483648
+Speed        : 1333
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : WDC WD5000AAKX-08U6AA0
+SerialNumber  :      WD-WCC2ENC62748
+Size          : 500105249280
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 498675953664
+FreeSpace  : 397231067136
+VolumeName : 
+
+DeviceID   : D:
+FileSystem : 
+Size       : 
+FreeSpace  : 
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

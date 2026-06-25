@@ -200,7 +200,7 @@ export async function renderAudit(container) {
       `;
     } catch (err) {
       console.error('[Actas]', err);
-      wrap.innerHTML = `<div style="padding:40px;text-align:center;color:#f87171;">Error al cargar las actas.</div>`;
+      wrap.innerHTML = `<div style="padding:40px;text-align:center;color:var(--danger);">Error al cargar las actas.</div>`;
     }
   }
 

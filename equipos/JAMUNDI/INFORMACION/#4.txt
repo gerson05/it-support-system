@@ -1,0 +1,121 @@
+=============================== 
+ INVENTARIO DE EQUIPO DISP05 
+ Fecha: mi‚. 22/04/2026 - Hora: 16:08:29,66 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : MJ06X4UU
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            DISP05
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.18363 N/D Compilaci¢n 18363
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              User
+Organizaci¢n registrada:                   
+Id. del producto:                          00330-80000-00000-AA095
+Fecha de instalaci¢n original:             12/06/2022, 2:01:17 p. m.
+Tiempo de arranque del sistema:            17/04/2026, 5:38:50 p. m.
+Fabricante del sistema:                    LENOVO
+Modelo el sistema:                         10MR002XUS
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 158 Stepping 9 GenuineIntel ~3408 Mhz
+Versi¢n del BIOS:                          LENOVO M1AKT35A, 21/03/2018
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume2
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.080 MB
+Memoria f¡sica disponible:                 3.841 MB
+Memoria virtual: tama¤o m ximo:            9.360 MB
+Memoria virtual: disponible:               4.178 MB
+Memoria virtual: en uso:                   5.182 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\DISP05
+Revisi¢n(es):                              6 revisi¢n(es) instaladas.
+                                           [01]: KB4515871
+                                           [02]: KB4513661
+                                           [03]: KB4516115
+                                           [04]: KB4517245
+                                           [05]: KB4521863
+                                           [06]: KB4517389
+Tarjeta(s) de red:                         3 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) Dual Band Wireless-AC 3165
+                                                 Nombre de conexi¢n: Wi-Fi 2
+                                                 Estado:             Medios desconectados
+                                           [02]: Intel(R) Ethernet Connection (2) I219-V
+                                                 Nombre de conexi¢n: Ethernet 3
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.0.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.0.3
+                                                 [02]: fe80::c01c:57be:1a1c:d00d
+                                                 [03]: 2800:484:c76:e180:617a:793d:e630:d959
+                                                 [04]: 2800:484:c76:e180:c01c:57be:1a1c:d00d
+                                           [03]: Bluetooth Device (Personal Area Network)
+                                                 Nombre de conexi¢n: Conexi¢n de red Bluetooth 2
+                                                 Estado:             Medios desconectados
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: No
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-7500 CPU @ 3.40GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 3408
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : SK Hynix
+PartNumber   : HMA81GS6DJR8N-XN    
+Capacity     : 8589934592
+Speed        : 3200
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : UMIS LENSE40256GMSP34MESTB3A
+SerialNumber  : 044A_5010_4031_92D1_504A_04D1_0000_0000.
+Size          : 256052966400
+InterfaceType : SCSI
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 255820034048
+FreeSpace  : 209266577408
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

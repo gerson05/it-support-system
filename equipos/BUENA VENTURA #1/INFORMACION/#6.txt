@@ -1,0 +1,155 @@
+=============================== 
+ INVENTARIO DE EQUIPO DESKTOP-7CG265P 
+ Fecha: lun. 27/04/2026 - Hora: 16:08:49,49 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : C80ZC42
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            DESKTOP-7CG265P
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              Usuario
+Organizaci¢n registrada:                   N/D
+Id. del producto:                          00330-80000-00000-AA106
+Fecha de instalaci¢n original:             18/06/2024, 8:30:47 a.ÿm.
+Tiempo de arranque del sistema:            23/04/2026, 9:43:28 a.ÿm.
+Fabricante del sistema:                    Dell Inc.
+Modelo el sistema:                         OptiPlex 9020
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 60 Stepping 3 GenuineIntel ~3001 Mhz
+Versi¢n del BIOS:                          Dell Inc. A10, 8/01/2015
+Directorio de Windows:                     C:\WINDOWS
+Directorio de sistema:                     C:\WINDOWS\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.100 MB
+Memoria f¡sica disponible:                 3.668 MB
+Memoria virtual: tama¤o m ximo:            9.380 MB
+Memoria virtual: disponible:               3.593 MB
+Memoria virtual: en uso:                   5.787 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\DESKTOP-7CG265P
+Revisi¢n(es):                              37 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5028013
+                                           [03]: KB5011048
+                                           [04]: KB5011056
+                                           [05]: KB5012170
+                                           [06]: KB5015684
+                                           [07]: KB5072653
+                                           [08]: KB5071959
+                                           [09]: KB5014032
+                                           [10]: KB5016705
+                                           [11]: KB5020372
+                                           [12]: KB5022924
+                                           [13]: KB5023794
+                                           [14]: KB5025315
+                                           [15]: KB5026879
+                                           [16]: KB5028318
+                                           [17]: KB5028380
+                                           [18]: KB5029709
+                                           [19]: KB5031539
+                                           [20]: KB5032392
+                                           [21]: KB5037995
+                                           [22]: KB5039336
+                                           [23]: KB5041579
+                                           [24]: KB5043935
+                                           [25]: KB5043130
+                                           [26]: KB5046823
+                                           [27]: KB5050388
+                                           [28]: KB5050111
+                                           [29]: KB5052916
+                                           [30]: KB5054682
+                                           [31]: KB5058526
+                                           [32]: KB5059504
+                                           [33]: KB5063706
+                                           [34]: KB5063261
+                                           [35]: KB5063979
+                                           [36]: KB5066790
+                                           [37]: KB5071982
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) Ethernet Connection I217-LM
+                                                 Nombre de conexi¢n: Ethernet
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.110.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.110.22
+                                                 [02]: fe80::de3:f8f3:f412:d8ea
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: S¡
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-4590S CPU @ 3.00GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 3001
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : 0467
+PartNumber   : RMR5030EF68F9W1600
+Capacity     : 4294967296
+Speed        : 1600
+
+Manufacturer : Micron
+PartNumber   : 8KTF51264AZ-1G6E1 
+Capacity     : 4294967296
+Speed        : 1600
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : SATA SSD
+SerialNumber  : 2209162560259
+Size          : 256052966400
+InterfaceType : SCSI
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 255434690560
+FreeSpace  : 191424339968
+VolumeName : 
+
+DeviceID   : D:
+FileSystem : 
+Size       : 
+FreeSpace  : 
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

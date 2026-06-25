@@ -1,0 +1,128 @@
+=============================== 
+ INVENTARIO DE EQUIPO DESKTOP-LJJ471S 
+ Fecha: vie. 24/04/2026 - Hora:  9:25:00,58 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : MJ05FM4A
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            DESKTOP-LJJ471S
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              DELL
+Organizaci¢n registrada:                   
+Id. del producto:                          00330-50532-48520-AAOEM
+Fecha de instalaci¢n original:             13/02/2023, 7:27:27 p.ÿm.
+Tiempo de arranque del sistema:            18/04/2026, 12:40:15 p.ÿm.
+Fabricante del sistema:                    LENOVO
+Modelo el sistema:                         10MQS2DC00
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 94 Stepping 3 GenuineIntel ~2208 Mhz
+Versi¢n del BIOS:                          LENOVO M1AKT18A, 3/05/2017
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es-mx;Espa¤ol (M‚xico)
+Idioma de entrada:                         es;Espa¤ol (tradicional)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.081 MB
+Memoria f¡sica disponible:                 3.283 MB
+Memoria virtual: tama¤o m ximo:            9.361 MB
+Memoria virtual: disponible:               3.568 MB
+Memoria virtual: en uso:                   5.793 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\DESKTOP-LJJ471S
+Revisi¢n(es):                              21 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5049613
+                                           [03]: KB5011048
+                                           [04]: KB5012170
+                                           [05]: KB5015684
+                                           [06]: KB5020683
+                                           [07]: KB5033052
+                                           [08]: KB5072653
+                                           [09]: KB5071959
+                                           [10]: KB5014032
+                                           [11]: KB5016705
+                                           [12]: KB5020372
+                                           [13]: KB5052916
+                                           [14]: KB5054682
+                                           [15]: KB5058526
+                                           [16]: KB5059504
+                                           [17]: KB5063706
+                                           [18]: KB5063261
+                                           [19]: KB5063979
+                                           [20]: KB5066790
+                                           [21]: KB5071982
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) Ethernet Connection (2) I219-V
+                                                 Nombre de conexi¢n: Ethernet 2
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.1.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.1.77
+                                                 [02]: fe80::e854:a5bd:bbeb:fb5
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: No
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-8500T CPU
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 2208
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : Samsung
+PartNumber   : M471A1K43CB1-CRC    
+Capacity     : 8589934592
+Speed        : 2400
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : KXG50ZNV256G TOSHIBA
+SerialNumber  : 0000_0000_0000_0010_0008_0D03_002D_B7EF.
+Size          : 256052966400
+InterfaceType : SCSI
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 255366864896
+FreeSpace  : 185370849280
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

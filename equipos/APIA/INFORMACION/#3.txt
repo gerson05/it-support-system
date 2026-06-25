@@ -1,0 +1,160 @@
+=============================== 
+ INVENTARIO DE EQUIPO MIFAR_APIA 
+ Fecha: mar. 28/04/2026 - Hora:  9:53:23,40 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : 9XV6482
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            MIFAR_APIA
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              DELL
+Organizaci¢n registrada:                   
+Id. del producto:                          00331-10000-00001-AA978
+Fecha de instalaci¢n original:             6/02/2023, 3:25:59 p.ÿm.
+Tiempo de arranque del sistema:            9/04/2026, 11:54:51 a.ÿm.
+Fabricante del sistema:                    Dell Inc.
+Modelo el sistema:                         OptiPlex 3020
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 60 Stepping 3 GenuineIntel ~3301 Mhz
+Versi¢n del BIOS:                          Dell Inc. A10, 5/11/2015
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.111 MB
+Memoria f¡sica disponible:                 3.874 MB
+Memoria virtual: tama¤o m ximo:            9.391 MB
+Memoria virtual: disponible:               4.373 MB
+Memoria virtual: en uso:                   5.018 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\MIFAR_APIA
+Revisi¢n(es):                              42 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5028853
+                                           [03]: KB5011048
+                                           [04]: KB5011056
+                                           [05]: KB5012170
+                                           [06]: KB5015684
+                                           [07]: KB5071959
+                                           [08]: KB5014032
+                                           [09]: KB5016705
+                                           [10]: KB5020372
+                                           [11]: KB5022924
+                                           [12]: KB5023794
+                                           [13]: KB5025315
+                                           [14]: KB5026879
+                                           [15]: KB5028318
+                                           [16]: KB5028380
+                                           [17]: KB5029709
+                                           [18]: KB5031539
+                                           [19]: KB5032392
+                                           [20]: KB5034224
+                                           [21]: KB5036447
+                                           [22]: KB5037018
+                                           [23]: KB5037240
+                                           [24]: KB5037995
+                                           [25]: KB5039336
+                                           [26]: KB5041579
+                                           [27]: KB5043935
+                                           [28]: KB5043130
+                                           [29]: KB5046823
+                                           [30]: KB5050388
+                                           [31]: KB5050111
+                                           [32]: KB5052916
+                                           [33]: KB5054682
+                                           [34]: KB5055663
+                                           [35]: KB5058526
+                                           [36]: KB5059504
+                                           [37]: KB5063706
+                                           [38]: KB5063261
+                                           [39]: KB5063979
+                                           [40]: KB5066411
+                                           [41]: KB5066790
+                                           [42]: KB5071982
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Realtek PCIe GBE Family Controller
+                                                 Nombre de conexi¢n: Ethernet
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.1.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.1.134
+                                                 [02]: fe80::81dc:6a22:77ad:62df
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: S¡
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-4590 CPU @ 3.30GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 3301
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : Micron
+PartNumber   : 8KTF51264AZ-1G6E1 
+Capacity     : 4294967296
+Speed        : 1600
+
+Manufacturer : Micron
+PartNumber   : 8JTF51264AZ-1G6E1 
+Capacity     : 4294967296
+Speed        : 1600
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : MTFDDAK256MBF-1AN1ZABHA
+SerialNumber  :         164714CEE7EA
+Size          : 256052966400
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 255434690560
+FreeSpace  : 173401538560
+VolumeName : 
+
+DeviceID   : F:
+FileSystem : 
+Size       : 
+FreeSpace  : 
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

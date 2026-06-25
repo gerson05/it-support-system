@@ -15,6 +15,7 @@ const MENU = [
   { hash: '#farmacias',     label: 'Farmacias',    perm: 'farmacias:read',     icon: { d: 'M12 2a3 3 0 0 0-3 3v1H6a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-3V5a3 3 0 0 0-3-3z', d2: 'M9 13h6M12 10v6' } },
   { hash: '#registros-it',  label: 'Registros IT', perm: '',                   icon: { d: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z', d2: 'M14 2v6h6M8 13h8M8 17h5' } },
   { hash: '#despacho',      label: 'Despacho',     perm: 'despacho:read',      icon: { d: 'M1 3h15v13H1z', d2: 'M16 8h4l3 3v5h-7V8zM5.5 19a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM18.5 19a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z' } },
+  { hash: '#trazabilidad', label: 'Trazabilidad', perm: 'despacho:read',      icon: { d: 'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z', d2: 'M12 11.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z' } },
   { hash: '#sedes',         label: 'Sedes',        perm: 'sedes:read',         icon: { d: 'M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0z', d2: 'M12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6z' } },
   { hash: '#audit',         label: 'Auditoría',    perm: 'audit:read',         icon: { d: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z' } },
   { hash: '#faqs',          label: 'FAQs',         perm: 'faqs:read',          icon: { d: 'M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z', d2: 'M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01' } },

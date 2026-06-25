@@ -1,0 +1,129 @@
+=============================== 
+ INVENTARIO DE EQUIPO ARANZAZU01 
+ Fecha: mar. 21/04/2026 - Hora: 14:58:54,60 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : 8PJX6Y1
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            ARANZAZU01
+Nombre del sistema operativo:              Microsoft Windows 10 Enterprise LTSC
+Versi¢n del sistema operativo:             10.0.19044 N/D Compilaci¢n 19044
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              ARAZANZU
+Organizaci¢n registrada:                   
+Id. del producto:                          00476-91464-71537-AA966
+Fecha de instalaci¢n original:             1/04/2024, 2:43:13 a.ÿm.
+Tiempo de arranque del sistema:            21/04/2026, 7:01:45 a.ÿm.
+Fabricante del sistema:                    Dell Inc.
+Modelo el sistema:                         OptiPlex 7010
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 58 Stepping 9 GenuineIntel ~3201 Mhz
+Versi¢n del BIOS:                          Dell Inc. A13, 25/03/2013
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          16.302 MB
+Memoria f¡sica disponible:                 13.194 MB
+Memoria virtual: tama¤o m ximo:            32.686 MB
+Memoria virtual: disponible:               29.424 MB
+Memoria virtual: en uso:                   3.262 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\ARANZAZU01
+Revisi¢n(es):                              7 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5004331
+                                           [03]: KB5003791
+                                           [04]: KB5011048
+                                           [05]: KB5066791
+                                           [06]: KB5066790
+                                           [07]: KB5005699
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) 82579LM Gigabit Network Connection
+                                                 Nombre de conexi¢n: Ethernet
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.100.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.100.143
+                                                 [02]: fe80::2224:78c3:66b:a0af
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: S¡
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-3470 CPU @ 3.20GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 3201
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : Hynix/Hyundai
+PartNumber   : HMT451U6BFR8C-PB  
+Capacity     : 4294967296
+Speed        : 1600
+
+Manufacturer : Hynix/Hyundai
+PartNumber   : HMT451U6AFR8C-PB  
+Capacity     : 4294967296
+Speed        : 1600
+
+Manufacturer : Hynix/Hyundai
+PartNumber   : HMT451U6BFR8C-PB  
+Capacity     : 4294967296
+Speed        : 1600
+
+Manufacturer : Kingston
+PartNumber   : HP698650-154-KEB  
+Capacity     : 4294967296
+Speed        : 1600
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : AT421
+SerialNumber  : 421000007247
+Size          : 240054796800
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 239934107648
+FreeSpace  : 175761498112
+VolumeName : SYSTEM
+
+
+
+ 
+==== FIN DEL INFORME ==== 

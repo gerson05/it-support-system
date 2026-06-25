@@ -1,0 +1,139 @@
+=============================== 
+ INVENTARIO DE EQUIPO JAMUNDI_IMP 
+ Fecha: mi‚. 22/04/2026 - Hora: 13:42:34,17 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : 74R8YJ2
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            JAMUNDI_IMP
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              USUARIO
+Organizaci¢n registrada:                   
+Id. del producto:                          00330-50497-76754-AAOEM
+Fecha de instalaci¢n original:             23/07/2024, 5:05:14 p.ÿm.
+Tiempo de arranque del sistema:            20/04/2026, 4:12:37 p.ÿm.
+Fabricante del sistema:                    Dell Inc.
+Modelo el sistema:                         OptiPlex 3050
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 158 Stepping 9 GenuineIntel ~2712 Mhz
+Versi¢n del BIOS:                          Dell Inc. 1.31.0, 9/07/2024
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.076 MB
+Memoria f¡sica disponible:                 2.851 MB
+Memoria virtual: tama¤o m ximo:            9.356 MB
+Memoria virtual: disponible:               2.949 MB
+Memoria virtual: en uso:                   6.407 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\JAMUNDI_IMP
+Revisi¢n(es):                              25 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5039884
+                                           [03]: KB5011048
+                                           [04]: KB5011056
+                                           [05]: KB5015684
+                                           [06]: KB5072653
+                                           [07]: KB5071959
+                                           [08]: KB5014032
+                                           [09]: KB5032907
+                                           [10]: KB5039336
+                                           [11]: KB5041579
+                                           [12]: KB5043935
+                                           [13]: KB5043130
+                                           [14]: KB5046823
+                                           [15]: KB5050388
+                                           [16]: KB5050111
+                                           [17]: KB5052916
+                                           [18]: KB5054682
+                                           [19]: KB5058526
+                                           [20]: KB5059504
+                                           [21]: KB5063706
+                                           [22]: KB5063261
+                                           [23]: KB5063979
+                                           [24]: KB5066790
+                                           [25]: KB5071982
+Tarjeta(s) de red:                         2 Tarjetas de interfaz de red instaladas.
+                                           [01]: Realtek PCIe GBE Family Controller
+                                                 Nombre de conexi¢n: Ethernet 2
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.0.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.0.12
+                                                 [02]: fe80::d9b8:c822:70dd:b85e
+                                                 [03]: 2800:484:c79:b340:d04b:d97:8c64:79dd
+                                                 [04]: ::d04b:d97:8c64:79dd
+                                                 [05]: 2800:484:c79:b340:fbd2:e2c3:a83e:1c32
+                                                 [06]: ::85b5:6a40:d5ed:7e16
+                                           [02]: Intel(R) Dual Band Wireless-AC 3165
+                                                 Nombre de conexi¢n: Wi-Fi
+                                                 Estado:             Medios desconectados
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: S¡
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-7500T CPU @ 2.70GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 2712
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : 802C0000802C
+PartNumber   : 8ATF1G64HZ-2G3B1    
+Capacity     : 8589934592
+Speed        : 2400
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : ADATA SU650
+SerialNumber  : 2O0229SH1KGE
+Size          : 256052966400
+InterfaceType : SCSI
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 254300958720
+FreeSpace  : 197704331264
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

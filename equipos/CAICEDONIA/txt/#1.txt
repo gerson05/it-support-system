@@ -1,0 +1,134 @@
+=============================== 
+ INVENTARIO DE EQUIPO DESKTOP-VS31RBP 
+ Fecha: mar. 21/04/2026 - Hora: 14:17:17,22 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : 8CG8104594
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            DESKTOP-VS31RBP
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              HP PRODESK
+Organizaci¢n registrada:                   
+Id. del producto:                          00330-50968-58951-AAOEM
+Fecha de instalaci¢n original:             13/11/2024, 1:32:01 a.ÿm.
+Tiempo de arranque del sistema:            21/04/2026, 5:30:08 a.ÿm.
+Fabricante del sistema:                    HP
+Modelo el sistema:                         HP ProDesk 400 G3 DM
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 94 Stepping 3 GenuineIntel ~2712 Mhz
+Versi¢n del BIOS:                          HP P23 Ver. 02.49, 8/12/2023
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume2
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es;Espa¤ol (tradicional)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.083 MB
+Memoria f¡sica disponible:                 3.540 MB
+Memoria virtual: tama¤o m ximo:            9.363 MB
+Memoria virtual: disponible:               3.906 MB
+Memoria virtual: en uso:                   5.457 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\DESKTOP-VS31RBP
+Revisi¢n(es):                              27 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5017022
+                                           [03]: KB5011048
+                                           [04]: KB5011056
+                                           [05]: KB5015684
+                                           [06]: KB5020683
+                                           [07]: KB5026037
+                                           [08]: KB5033052
+                                           [09]: KB5072653
+                                           [10]: KB5071959
+                                           [11]: KB5014032
+                                           [12]: KB5016705
+                                           [13]: KB5046823
+                                           [14]: KB5050388
+                                           [15]: KB5050111
+                                           [16]: KB5052916
+                                           [17]: KB5054682
+                                           [18]: KB5055663
+                                           [19]: KB5058526
+                                           [20]: KB5059504
+                                           [21]: KB5061902
+                                           [22]: KB5063706
+                                           [23]: KB5063261
+                                           [24]: KB5063979
+                                           [25]: KB5066411
+                                           [26]: KB5066790
+                                           [27]: KB5071982
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Realtek PCIe GbE Family Controller
+                                                 Nombre de conexi¢n: Ethernet
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.101.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.101.5
+                                                 [02]: fe80::53ad:e6b6:97b2:7ca8
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: S¡
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-8500T CPU @ 3.50GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 2712
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : Hynix/Hyundai
+PartNumber   : HMA81GS6MFR8N-UH    
+Capacity     : 8589934592
+Speed        : 2400
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : PC SN740 NVMe WD 256GB
+SerialNumber  : E823_8FA6_BF53_0001_001B_444A_48A3_BB28.
+Size          : 256052966400
+InterfaceType : SCSI
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 255251705856
+FreeSpace  : 169272086528
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

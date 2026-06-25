@@ -1,0 +1,122 @@
+=============================== 
+ INVENTARIO DE EQUIPO DESKTOP-I06HJ8K 
+ Fecha: lun. 27/04/2026 - Hora: 16:04:11,15 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : MJ07C8AM
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            DESKTOP-I06HJ8K
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              USUARIO
+Organizaci¢n registrada:                   
+Id. del producto:                          00330-80000-00000-AA137
+Fecha de instalaci¢n original:             8/10/2025, 12:01:26 p.ÿm.
+Tiempo de arranque del sistema:            23/04/2026, 9:43:31 a.ÿm.
+Fabricante del sistema:                    LENOVO
+Modelo el sistema:                         10MQSE7500
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 94 Stepping 3 GenuineIntel ~2712 Mhz
+Versi¢n del BIOS:                          LENOVO M1AKT59A, 27/10/2023
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es-mx;Espa¤ol (M‚xico)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          16.272 MB
+Memoria f¡sica disponible:                 12.278 MB
+Memoria virtual: tama¤o m ximo:            18.704 MB
+Memoria virtual: disponible:               14.826 MB
+Memoria virtual: en uso:                   3.878 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\DESKTOP-I06HJ8K
+Revisi¢n(es):                              11 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5031988
+                                           [03]: KB5011048
+                                           [04]: KB5015684
+                                           [05]: KB5072653
+                                           [06]: KB5071959
+                                           [07]: KB5014032
+                                           [08]: KB5032907
+                                           [09]: KB5066411
+                                           [10]: KB5066790
+                                           [11]: KB5071982
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) Ethernet Connection (2) I219-V
+                                                 Nombre de conexi¢n: Ethernet
+                                                 DHCP habilitado:    No
+                                                 Direcciones IP
+                                                 [01]: 192.168.110.54
+                                                 [02]: fe80::8101:a8ed:e3c3:d742
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: No
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-6600T CPU @ 2.70GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 2712
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : Samsung
+PartNumber   : M471A1K43CB1-CRC    
+Capacity     : 8589934592
+Speed        : 2400
+
+Manufacturer : Micron
+PartNumber   : 8ATF1G64HZ-2G6D1    
+Capacity     : 8589934592
+Speed        : 2667
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : ADATA SU650
+SerialNumber  : 4N3621C8B923
+Size          : 960194511360
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 959486414848
+FreeSpace  : 895816888320
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

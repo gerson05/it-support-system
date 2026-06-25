@@ -1,0 +1,139 @@
+=============================== 
+ INVENTARIO DE EQUIPO DESKTOP-B8O3DNA 
+ Fecha: mar. 28/04/2026 - Hora: 10:54:23,33 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : 919RHN2
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            DESKTOP-B8O3DNA
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              dell
+Organizaci¢n registrada:                   
+Id. del producto:                          00330-80000-00000-AA747
+Fecha de instalaci¢n original:             7/12/2019, 8:02:17 a.ÿm.
+Tiempo de arranque del sistema:            20/03/2026, 3:52:22 p.ÿm.
+Fabricante del sistema:                    Dell Inc.
+Modelo el sistema:                         OptiPlex 7050
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 158 Stepping 9 GenuineIntel ~2712 Mhz
+Versi¢n del BIOS:                          Dell Inc. 1.20.0, 23/03/2022
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume2
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es;Espa¤ol (tradicional)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.055 MB
+Memoria f¡sica disponible:                 3.818 MB
+Memoria virtual: tama¤o m ximo:            11.385 MB
+Memoria virtual: disponible:               3.335 MB
+Memoria virtual: en uso:                   8.050 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\DESKTOP-B8O3DNA
+Revisi¢n(es):                              29 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5041167
+                                           [03]: KB5011048
+                                           [04]: KB5011056
+                                           [05]: KB5015684
+                                           [06]: KB5020683
+                                           [07]: KB5033052
+                                           [08]: KB5072653
+                                           [09]: KB5071959
+                                           [10]: KB5014032
+                                           [11]: KB5025315
+                                           [12]: KB5039336
+                                           [13]: KB5041579
+                                           [14]: KB5043935
+                                           [15]: KB5043130
+                                           [16]: KB5046823
+                                           [17]: KB5050388
+                                           [18]: KB5050111
+                                           [19]: KB5052916
+                                           [20]: KB5054682
+                                           [21]: KB5058526
+                                           [22]: KB5059504
+                                           [23]: KB5061902
+                                           [24]: KB5063706
+                                           [25]: KB5063261
+                                           [26]: KB5063979
+                                           [27]: KB5066411
+                                           [28]: KB5066790
+                                           [29]: KB5071982
+Tarjeta(s) de red:                         2 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) Ethernet Connection (5) I219-LM
+                                                 Nombre de conexi¢n: Ethernet 2
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.101.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.101.11
+                                                 [02]: fe80::34db:395e:7f1c:41ef
+                                           [02]: Intel(R) Dual Band Wireless-AC 8265
+                                                 Nombre de conexi¢n: Wi-Fi
+                                                 Estado:             Medios desconectados
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: S¡
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-7500T CPU @ 2.70GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 2712
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : 802C0000802C
+PartNumber   : 8ATF1G64HZ-2G6E1    
+Capacity     : 8589934592
+Speed        : 2667
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : WDC PC SN730 SDBQNTY-256G-1001
+SerialNumber  : 001B_448B_4806_E55F.
+Size          : 256052966400
+InterfaceType : SCSI
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 179360370688
+FreeSpace  : 114578079744
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

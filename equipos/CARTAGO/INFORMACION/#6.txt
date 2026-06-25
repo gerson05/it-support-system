@@ -1,0 +1,135 @@
+=============================== 
+ INVENTARIO DE EQUIPO DESKTOP-5GO0JLV 
+ Fecha: mar. 28/04/2026 - Hora: 10:58:30,60 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : 2XM7SD2
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            DESKTOP-5GO0JLV
+Nombre del sistema operativo:              Microsoft Windows 10 Home
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              DELL
+Organizaci¢n registrada:                   
+Id. del producto:                          00326-10000-00000-AA237
+Fecha de instalaci¢n original:             25/05/2024, 11:15:46 a.ÿm.
+Tiempo de arranque del sistema:            22/04/2026, 8:04:48 a.ÿm.
+Fabricante del sistema:                    Dell Inc.
+Modelo el sistema:                         OptiPlex 3040
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 94 Stepping 3 GenuineIntel ~2496 Mhz
+Versi¢n del BIOS:                          Dell Inc. 1.20.1, 14/07/2022
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.092 MB
+Memoria f¡sica disponible:                 4.155 MB
+Memoria virtual: tama¤o m ximo:            11.816 MB
+Memoria virtual: disponible:               6.816 MB
+Memoria virtual: en uso:                   5.000 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\DESKTOP-5GO0JLV
+Revisi¢n(es):                              25 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5037592
+                                           [03]: KB5011048
+                                           [04]: KB5011056
+                                           [05]: KB5015684
+                                           [06]: KB5033052
+                                           [07]: KB5072653
+                                           [08]: KB5071959
+                                           [09]: KB5014032
+                                           [10]: KB5016705
+                                           [11]: KB5039336
+                                           [12]: KB5041579
+                                           [13]: KB5043935
+                                           [14]: KB5043130
+                                           [15]: KB5046823
+                                           [16]: KB5050111
+                                           [17]: KB5052916
+                                           [18]: KB5054682
+                                           [19]: KB5058526
+                                           [20]: KB5059504
+                                           [21]: KB5063706
+                                           [22]: KB5063261
+                                           [23]: KB5063979
+                                           [24]: KB5066790
+                                           [25]: KB5071982
+Tarjeta(s) de red:                         2 Tarjetas de interfaz de red instaladas.
+                                           [01]: Realtek PCIe GBE Family Controller
+                                                 Nombre de conexi¢n: Ethernet
+                                                 Estado:             Medios desconectados
+                                           [02]: Intel(R) Dual Band Wireless-AC 8260
+                                                 Nombre de conexi¢n: Wi-Fi
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.101.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.101.10
+                                                 [02]: fe80::b1e1:bf41:4030:9288
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: S¡
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-6500T CPU @ 2.50GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 2496
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : SK Hynix
+PartNumber   : HMT41GS6BFR8A-PB  
+Capacity     : 8589934592
+Speed        : 1600
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : Micron 1100 SATA 256GB
+SerialNumber  :         18021B8028AE
+Size          : 256052966400
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 255366533120
+FreeSpace  : 185907290112
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

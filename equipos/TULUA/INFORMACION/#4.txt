@@ -1,0 +1,134 @@
+=============================== 
+ INVENTARIO DE EQUIPO DESKTOP-QDG47UF 
+ Fecha: mi‚. 22/04/2026 - Hora: 14:02:08,89 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : MJ07C92Z
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            DESKTOP-QDG47UF
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              Usuario de Windows
+Organizaci¢n registrada:                   
+Id. del producto:                          00330-51332-38038-AAOEM
+Fecha de instalaci¢n original:             21/10/2020, 3:23:15 p.ÿm.
+Tiempo de arranque del sistema:            4/04/2026, 8:55:57 p.ÿm.
+Fabricante del sistema:                    LENOVO
+Modelo el sistema:                         10MQSE7500
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 58 Stepping 9 GenuineIntel ~2712 Mhz
+Versi¢n del BIOS:                          LENOVO M1AKT59A, 27/10/2023
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume2
+Configuraci¢n regional del sistema:        es-co;Espa¤ol (Colombia)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.080 MB
+Memoria f¡sica disponible:                 1.674 MB
+Memoria virtual: tama¤o m ximo:            17.463 MB
+Memoria virtual: disponible:               3.120 MB
+Memoria virtual: en uso:                   14.343 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\DESKTOP-QDG47UF
+Revisi¢n(es):                              22 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5049613
+                                           [03]: KB4537759
+                                           [04]: KB4557968
+                                           [05]: KB4577586
+                                           [06]: KB5011048
+                                           [07]: KB5011056
+                                           [08]: KB5015684
+                                           [09]: KB5033052
+                                           [10]: KB5072653
+                                           [11]: KB5071959
+                                           [12]: KB5050388
+                                           [13]: KB5050111
+                                           [14]: KB5052916
+                                           [15]: KB5055663
+                                           [16]: KB5058526
+                                           [17]: KB5059504
+                                           [18]: KB5063706
+                                           [19]: KB5063261
+                                           [20]: KB5063979
+                                           [21]: KB5066790
+                                           [22]: KB5071982
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) Ethernet Connection (2) I219-V
+                                                 Nombre de conexi¢n: Ethernet 2
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.0.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.0.105
+                                                 [02]: fe80::549:74aa:c078:b60c
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: No
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel© CoreT i5 8400 CPU @ 
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 2712
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : SK Hynix
+PartNumber   : HMA851S6DJR6N-XN    
+Capacity     : 4294967296
+Speed        : 3200
+
+Manufacturer : SK Hynix
+PartNumber   : HMA851S6DJR6N-XN    
+Capacity     : 4294967296
+Speed        : 3200
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : WDC  WDS250G2B0A-00SM50
+SerialNumber  : 214502A009F3
+Size          : 250056737280
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 249413234688
+FreeSpace  : 139740741632
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

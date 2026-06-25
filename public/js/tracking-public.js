@@ -84,7 +84,7 @@ style.textContent = `
   .estado-en_transito { background:rgba(245,158,11,.15);color:#f59e0b; }
   .estado-en_sede   { background:rgba(99,102,241,.15);color:#818cf8; }
   .estado-entregado { background:rgba(16,185,129,.15);color:#10b981; }
-  .estado-devuelto  { background:rgba(239,68,68,.15);color:#f87171; }
+  .estado-devuelto  { background:rgba(239,68,68,.15);color:var(--danger); }
   .success-wrap {
     max-width:480px;margin:0 auto;padding:40px 20px;
     display:flex;flex-direction:column;align-items:center;text-align:center;

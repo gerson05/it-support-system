@@ -1,0 +1,139 @@
+=============================== 
+ INVENTARIO DE EQUIPO DESKTOP-JRTR4U6 
+ Fecha: 22/05/2026 - Hora: 14:07:35,36 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : 30MJJ02
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            DESKTOP-JRTR4U6
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              USUARIO
+Organizaci¢n registrada:                   
+Id. del producto:                          00330-80000-00000-AA905
+Fecha de instalaci¢n original:             07/12/2019, 8:03:59
+Tiempo de arranque del sistema:            22/05/2026, 13:43:43
+Fabricante del sistema:                    Dell Inc.
+Modelo el sistema:                         OptiPlex 7010
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 58 Stepping 9 GenuineIntel ~3201 Mhz
+Versi¢n del BIOS:                          Dell Inc. A16, 09/09/2013
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume2
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es;Espa¤ol (tradicional)
+Zona horaria:                              (UTC+01:00) Bruselas, Copenhague, Madrid, Par¡s
+Cantidad total de memoria f¡sica:          8.079 MB
+Memoria f¡sica disponible:                 5.260 MB
+Memoria virtual: tama¤o m ximo:            16.271 MB
+Memoria virtual: disponible:               13.835 MB
+Memoria virtual: en uso:                   2.436 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\DESKTOP-JRTR4U6
+Revisi¢n(es):                              9 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5031988
+                                           [03]: KB5011048
+                                           [04]: KB5015684
+                                           [05]: KB5072653
+                                           [06]: KB5068781
+                                           [07]: KB5014032
+                                           [08]: KB5032907
+                                           [09]: KB5068780
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) 82579LM Gigabit Network Connection
+                                                 Nombre de conexi¢n: Ethernet
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      190.147.23.254
+                                                 Direcciones IP
+                                                 [01]: 190.147.23.164
+                                                 [02]: fe80::3bdf:557c:a9f3:d48b
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: S¡
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-3470 CPU @ 3.20GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 3201
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : Hynix/Hyundai
+PartNumber   : HMT451U6AFR8C-PB  
+Capacity     : 4294967296
+Speed        : 1600
+
+Manufacturer : Samsung
+PartNumber   : M378B5173DB0-CK0  
+Capacity     : 4294967296
+Speed        : 1600
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : AT422
+SerialNumber  : 421000019590
+Size          : 256052966400
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+Model         : ADATA USB Flash Drive USB Device
+SerialNumber  : 0000000005
+Size          : 63326430720
+InterfaceType : USB
+MediaType     : Removable Media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 255329202176
+FreeSpace  : 222156423168
+VolumeName : 
+
+DeviceID   : D:
+FileSystem : exFAT
+Size       : 63297421312
+FreeSpace  : 29960699904
+VolumeName : Ventoy
+
+DeviceID   : E:
+FileSystem : FAT
+Size       : 33277440
+FreeSpace  : 3209728
+VolumeName : VTOYEFI
+
+
+
+ 
+==== FIN DEL INFORME ==== 

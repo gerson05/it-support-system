@@ -46,6 +46,7 @@ body.modal-open { overflow: hidden; position: fixed; width: 100%; }
 }
 .modal-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .modal-form-grid label { display: block; font-size: 12px; font-weight: 500; color: var(--text-2); margin-bottom: 4px; }
+.field-label { display: block; font-size: 12px; font-weight: 500; color: var(--text-2); margin-bottom: 4px; }
 .modal-error {
   color: var(--danger); font-size: 13px; margin-top: 8px;
   padding: 8px 12px; background: rgba(239,68,68,.08);

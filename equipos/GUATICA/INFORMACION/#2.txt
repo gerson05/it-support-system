@@ -1,0 +1,125 @@
+=============================== 
+ INVENTARIO DE EQUIPO DESKTOP-NK5T25S 
+ Fecha: 22/04/2026 - Hora: 12:02:17.74 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : 00000000
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            DESKTOP-NK5T25S
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              DELL
+Organizaci¢n registrada:                   
+Id. del producto:                          00330-51031-75052-AAOEM
+Fecha de instalaci¢n original:             09/05/2024, 03:33:02 p.ÿm.
+Tiempo de arranque del sistema:            28/03/2026, 02:17:36 p.ÿm.
+Fabricante del sistema:                    ECS
+Modelo el sistema:                         H310H5-M2
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 158 Stepping 11 GenuineIntel ~3600 Mhz
+Versi¢n del BIOS:                          American Megatrends Inc. 5.13, 09/03/2018
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es;Espa¤ol (tradicional)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8,045 MB
+Memoria f¡sica disponible:                 3,227 MB
+Memoria virtual: tama¤o m ximo:            9,325 MB
+Memoria virtual: disponible:               3,576 MB
+Memoria virtual: en uso:                   5,749 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\DESKTOP-NK5T25S
+Revisi¢n(es):                              12 revisi¢n(es) instaladas.
+                                           [01]: KB5039893
+                                           [02]: KB5037592
+                                           [03]: KB5011048
+                                           [04]: KB5011056
+                                           [05]: KB5012170
+                                           [06]: KB5015684
+                                           [07]: KB5033052
+                                           [08]: KB5040427
+                                           [09]: KB5014032
+                                           [10]: KB5016705
+                                           [11]: KB5037995
+                                           [12]: KB5039336
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Realtek PCIe GbE Family Controller
+                                                 Nombre de conexi¢n: Ethernet 2
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.0.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.0.164
+                                                 [02]: fe80::1b69:b4ab:89df:246f
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: S¡
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i3-8100 CPU @ 3.60GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 3600
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : 859B
+PartNumber   : CT8G4DFRA266.C8FN   
+Capacity     : 8589934592
+Speed        : 2400
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : Micron 1100 SATA 256GB
+SerialNumber  :         18021B77E9FF
+Size          : 256052966400
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 255366533120
+FreeSpace  : 185883344896
+VolumeName : 
+
+DeviceID   : D:
+FileSystem : 
+Size       : 
+FreeSpace  : 
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

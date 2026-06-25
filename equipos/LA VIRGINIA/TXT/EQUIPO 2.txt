@@ -1,0 +1,157 @@
+=============================== 
+ INVENTARIO DE EQUIPO DESKTOP-CG6SS4Q 
+ Fecha: jue. 23/04/2026 - Hora: 15:55:55,14 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : MJ00LEFG
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            DESKTOP-CG6SS4Q
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              LENOVO
+Organizaci¢n registrada:                   
+Id. del producto:                          00331-20090-05111-AA062
+Fecha de instalaci¢n original:             27/08/2021, 5:58:32 p.ÿm.
+Tiempo de arranque del sistema:            22/03/2026, 4:44:39 a.ÿm.
+Fabricante del sistema:                    LENOVO
+Modelo el sistema:                         10B7A0HV00
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 60 Stepping 3 GenuineIntel ~3001 Mhz
+Versi¢n del BIOS:                          LENOVO FCKT46AUS, 16/12/2013
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          3.913 MB
+Memoria f¡sica disponible:                 492 MB
+Memoria virtual: tama¤o m ximo:            9.156 MB
+Memoria virtual: disponible:               4.093 MB
+Memoria virtual: en uso:                   5.063 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\DESKTOP-CG6SS4Q
+Revisi¢n(es):                              48 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5030841
+                                           [03]: KB5000736
+                                           [04]: KB5011048
+                                           [05]: KB5011056
+                                           [06]: KB5012170
+                                           [07]: KB5015684
+                                           [08]: KB5072653
+                                           [09]: KB5071959
+                                           [10]: KB5006753
+                                           [11]: KB5007273
+                                           [12]: KB5011352
+                                           [13]: KB5011651
+                                           [14]: KB5014671
+                                           [15]: KB5015895
+                                           [16]: KB5016705
+                                           [17]: KB5018506
+                                           [18]: KB5020372
+                                           [19]: KB5025315
+                                           [20]: KB5026879
+                                           [21]: KB5028318
+                                           [22]: KB5028380
+                                           [23]: KB5029709
+                                           [24]: KB5031539
+                                           [25]: KB5032392
+                                           [26]: KB5032907
+                                           [27]: KB5034224
+                                           [28]: KB5036447
+                                           [29]: KB5037018
+                                           [30]: KB5037240
+                                           [31]: KB5037995
+                                           [32]: KB5039336
+                                           [33]: KB5041579
+                                           [34]: KB5043935
+                                           [35]: KB5043130
+                                           [36]: KB5046823
+                                           [37]: KB5050388
+                                           [38]: KB5050111
+                                           [39]: KB5052916
+                                           [40]: KB5054682
+                                           [41]: KB5058526
+                                           [42]: KB5059504
+                                           [43]: KB5063706
+                                           [44]: KB5063261
+                                           [45]: KB5063979
+                                           [46]: KB5066790
+                                           [47]: KB5071982
+                                           [48]: KB5005699
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Realtek PCIe GbE Family Controller
+                                                 Nombre de conexi¢n: Ethernet
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.1.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.1.9
+                                                 [02]: fe80::f38:755:d887:45dc
+                                                 [03]: 2803:da20:163:7fc0:1153:d08b:bff1:d479
+                                                 [04]: 2803:da20:163:7fc0:cd5:a125:779a:d5e5
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: No
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-4430 CPU @ 3.00GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 3001
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : Hynix/Hyundai
+PartNumber   : HMT351U6CFR8C-PB  
+Capacity     : 4294967296
+Speed        : 1600
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : KINGSTON SA400S37240G
+SerialNumber  : 50026B77840A3A18
+Size          : 240054796800
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 239385731072
+FreeSpace  : 166906318848
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

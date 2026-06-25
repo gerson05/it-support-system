@@ -1,0 +1,144 @@
+=============================== 
+ INVENTARIO DE EQUIPO DESKTOP-V677506 
+ Fecha: lun. 27/04/2026 - Hora: 16:02:38,47 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : 3C73F42
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            DESKTOP-V677506
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              USUARIO
+Organizaci¢n registrada:                   N/D
+Id. del producto:                          00330-50000-00000-AAOEM
+Fecha de instalaci¢n original:             18/06/2024, 8:41:59 a.ÿm.
+Tiempo de arranque del sistema:            23/04/2026, 2:07:07 p.ÿm.
+Fabricante del sistema:                    Dell Inc.
+Modelo el sistema:                         OptiPlex 9020
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 60 Stepping 3 GenuineIntel ~3001 Mhz
+Versi¢n del BIOS:                          Dell Inc. A24, 24/10/2018
+Directorio de Windows:                     C:\WINDOWS
+Directorio de sistema:                     C:\WINDOWS\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.100 MB
+Memoria f¡sica disponible:                 4.301 MB
+Memoria virtual: tama¤o m ximo:            9.380 MB
+Memoria virtual: disponible:               4.768 MB
+Memoria virtual: en uso:                   4.612 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\DESKTOP-V677506
+Revisi¢n(es):                              33 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5029923
+                                           [03]: KB5011048
+                                           [04]: KB5011056
+                                           [05]: KB5012170
+                                           [06]: KB5015684
+                                           [07]: KB5072653
+                                           [08]: KB5071959
+                                           [09]: KB5014032
+                                           [10]: KB5016705
+                                           [11]: KB5020372
+                                           [12]: KB5025315
+                                           [13]: KB5028380
+                                           [14]: KB5029709
+                                           [15]: KB5031539
+                                           [16]: KB5032392
+                                           [17]: KB5032907
+                                           [18]: KB5037995
+                                           [19]: KB5039336
+                                           [20]: KB5041579
+                                           [21]: KB5043935
+                                           [22]: KB5043130
+                                           [23]: KB5046823
+                                           [24]: KB5050388
+                                           [25]: KB5050111
+                                           [26]: KB5052916
+                                           [27]: KB5054682
+                                           [28]: KB5058526
+                                           [29]: KB5059504
+                                           [30]: KB5063261
+                                           [31]: KB5063979
+                                           [32]: KB5066790
+                                           [33]: KB5071982
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) Ethernet Connection I217-LM
+                                                 Nombre de conexi¢n: Ethernet
+                                                 DHCP habilitado:    No
+                                                 Direcciones IP
+                                                 [01]: 192.168.110.52
+                                                 [02]: fe80::e57a:c1a7:ff60:7cde
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: S¡
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-4590S CPU @ 3.00GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 3001
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : 0443
+PartNumber   : RMR5030EF68F9W1600
+Capacity     : 4294967296
+Speed        : 1600
+
+Manufacturer : Hynix/Hyundai
+PartNumber   : HMT451U6AFR8C-PB  
+Capacity     : 4294967296
+Speed        : 1600
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : AT422
+SerialNumber  : 421000019585
+Size          : 256052966400
+InterfaceType : SCSI
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 255366533120
+FreeSpace  : 192898990080
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

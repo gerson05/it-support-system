@@ -1,13 +1,26 @@
-import { showToast, copyToClipboard } from './components.js';
-import { iconPlus, iconUpload, iconMonitor, iconSmartphone, iconClose, iconCheck, iconCamera, iconQrCode, iconZap } from './icons.js';
+/**
+ * Módulo de Inventario TI
+ * Vista principal: tablas paginadas para equipos, celulares y UPS.
+ * Delegados de modales:
+ *  - Formulario / edición / enlaces -> inventario-forms.js
+ *  - Lógica de escaneo/cámara/OCR -> inventario-scanner.js
+ *  - Asistente de importación -> inventario-import.js
+ */
 
-const toTitleCase = s => (s || '').toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+import { showToast } from './components.js';
+import { iconPlus, iconUpload, iconMonitor, iconSmartphone, iconCheck, iconZap, iconQrCode } from './icons.js';
+import { openForm, openGenerarEnlaceModal } from './inventario-forms.js';
+import { openImportModal } from './inventario-import.js';
 
 let _activeTab  = 'equipos';
 let _page       = 1;
 const _limit    = 20;
 let _search     = '';
 let _filterArea = '';
+
+function esc(str) {
+  return String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 
 export function renderInventario(container) {
   _page = 1; _search = ''; _filterArea = '';
@@ -94,8 +107,8 @@ export function renderInventario(container) {
     loadTable();
   });
 
-  document.getElementById('btn-inv-new').addEventListener('click', () => openForm(null));
-  document.getElementById('btn-inv-import').addEventListener('click', () => openImportModal());
+  document.getElementById('btn-inv-new').addEventListener('click', () => openForm(null, _activeTab, () => { loadTable(); loadCounts(); }));
+  document.getElementById('btn-inv-import').addEventListener('click', () => openImportModal(_activeTab, () => { loadTable(); loadCounts(); }));
   document.getElementById('btn-inv-enlace').addEventListener('click', () => openGenerarEnlaceModal());
 
   loadTable();
@@ -128,10 +141,17 @@ async function loadTable() {
                    : renderUpsTable(rows);
 
     wrap.querySelectorAll('.btn-inv-edit').forEach(btn => {
-      btn.addEventListener('click', () => openForm(JSON.parse(decodeURIComponent(btn.dataset.row))));
+      btn.addEventListener('click', e => { e.stopPropagation(); openForm(JSON.parse(decodeURIComponent(btn.dataset.row)), _activeTab, () => { loadTable(); loadCounts(); }); });
     });
     wrap.querySelectorAll('.btn-inv-del').forEach(btn => {
-      btn.addEventListener('click', () => confirmDelete(btn.dataset.id, btn.dataset.label));
+      btn.addEventListener('click', e => { e.stopPropagation(); confirmDelete(btn.dataset.id, btn.dataset.label); });
+    });
+    wrap.querySelectorAll('.btn-inv-qr').forEach(btn => {
+      btn.addEventListener('click', e => { e.stopPropagation(); openEtiquetaModal(btn.dataset.token); });
+    });
+    wrap.querySelectorAll('tr[data-token]').forEach(tr => {
+      tr.style.cursor = 'pointer';
+      tr.addEventListener('click', () => openDetalleModal(tr.dataset.token));
     });
 
     renderPagination(data.total, data.total_pages);
@@ -160,7 +180,7 @@ function renderEquiposTable(rows) {
           <th></th>
         </tr></thead>
         <tbody>
-          ${rows.map(r => `<tr>
+          ${rows.map(r => `<tr ${r.qr_token ? `data-token="${r.qr_token}"` : ''} style="transition:background .12s;">
             <td class="td-mono">${esc(r.placa)}</td>
             <td>
               <div class="td-primary">${esc(r.marca)}</div>
@@ -181,6 +201,9 @@ function renderEquiposTable(rows) {
             <td style="font-size:12px;">${esc(r.area||'—')}</td>
             <td style="font-size:12px;">${esc(r.responsable||'—')}</td>
             <td class="td-actions">
+              ${r.qr_token ? `<button class="tbl-btn btn-inv-qr" data-token="${r.qr_token}" title="Imprimir etiqueta QR">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="3" height="3"/></svg>
+              </button>` : ''}
               <button class="tbl-btn btn-inv-edit" data-row="${encodeURIComponent(JSON.stringify(r))}" title="Editar">${_ICON_EDIT}</button>
               <button class="tbl-btn tbl-btn--del btn-inv-del" data-id="${r.id}" data-label="${esc(r.placa)} — ${esc(r.marca)}" title="Eliminar">${_ICON_DEL}</button>
             </td>
@@ -208,7 +231,7 @@ function renderCelularesTable(rows) {
           <th></th>
         </tr></thead>
         <tbody>
-          ${rows.map(r => `<tr>
+          ${rows.map(r => `<tr ${r.qr_token ? `data-token="${r.qr_token}"` : ''} style="transition:background .12s;">
             <td class="td-mono">${esc(r.imei)}</td>
             <td>
               <div class="td-primary">${esc(r.modelo||r.equipo||'—')}</div>
@@ -224,6 +247,9 @@ function renderCelularesTable(rows) {
             <td style="font-size:12px;">${esc(r.operador||'—')}</td>
             <td style="font-size:12px;">${esc(r.fecha_entrega||'—')}</td>
             <td class="td-actions">
+              ${r.qr_token ? `<button class="tbl-btn btn-inv-qr" data-token="${r.qr_token}" title="Imprimir etiqueta QR">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="3" height="3"/></svg>
+              </button>` : ''}
               <button class="tbl-btn btn-inv-edit" data-row="${encodeURIComponent(JSON.stringify(r))}" title="Editar">${_ICON_EDIT}</button>
               <button class="tbl-btn tbl-btn--del btn-inv-del" data-id="${r.id}" data-label="${esc(r.imei)} — ${esc(r.modelo||r.equipo||'')}" title="Eliminar">${_ICON_DEL}</button>
             </td>
@@ -250,7 +276,7 @@ function renderUpsTable(rows) {
           <th></th>
         </tr></thead>
         <tbody>
-          ${rows.map(r => `<tr>
+          ${rows.map(r => `<tr ${r.qr_token ? `data-token="${r.qr_token}"` : ''} style="transition:background .12s;">
             <td class="td-mono">${esc(r.placa)}</td>
             <td>
               <div class="td-primary">${esc(r.marca||'—')}</div>
@@ -262,6 +288,9 @@ function renderUpsTable(rows) {
             <td style="font-size:12px;">${esc(r.fecha_compra||'—')}</td>
             <td style="font-size:12px;">${esc(r.fecha_despacho||'—')}</td>
             <td class="td-actions">
+              ${r.qr_token ? `<button class="tbl-btn btn-inv-qr" data-token="${r.qr_token}" title="Imprimir etiqueta QR">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="3" height="3"/></svg>
+              </button>` : ''}
               <button class="tbl-btn btn-inv-edit" data-row="${encodeURIComponent(JSON.stringify(r))}" title="Editar">${_ICON_EDIT}</button>
               <button class="tbl-btn tbl-btn--del btn-inv-del" data-id="${r.id}" data-label="${esc(r.placa)} — ${esc(r.marca||'')}" title="Eliminar">${_ICON_DEL}</button>
             </td>
@@ -300,6 +329,124 @@ async function loadCounts() {
   }
 }
 
+async function openDetalleModal(token) {
+  const existing = document.getElementById('inv-detalle-modal');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'inv-detalle-modal';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9000;display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto;';
+
+  overlay.innerHTML = `
+    <div style="background:var(--surface);border-radius:16px;width:100%;max-width:480px;margin:auto;box-shadow:0 20px 60px rgba(0,0,0,.4);overflow:hidden;">
+      <div style="padding:30px;text-align:center;color:var(--text-3);">Cargando…</div>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+
+  try {
+    const res  = await fetch(`/api/inventario/activo/${token}`);
+    if (!res.ok) throw new Error('No encontrado');
+    const d = await res.json();
+    const { _meta } = d;
+
+    // Build field sections per type
+    const row = (label, val) => val ? `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);"><span style="font-size:12px;color:var(--text-3);font-weight:500;">${label}</span><span style="font-size:13px;font-weight:600;color:var(--text);text-align:right;max-width:60%;word-break:break-word;">${esc(val)}</span></div>` : '';
+    const sec = (title, rows) => { const c = rows.filter(Boolean).join(''); return c ? `<div style="font-size:10px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.8px;padding:12px 0 4px;margin-top:4px;">${title}</div>${c}` : ''; };
+
+    let fields = '';
+    if (_meta.tabla === 'inventario_equipos') {
+      fields =
+        sec('Identificación', [row('Placa', d.placa), row('Serial', d.serial), row('Serial cargador', d.serial_cargador)]) +
+        sec('Equipo', [row('Nombre', d.nombre_equipo), row('Marca', d.marca), row('Procesador', d.procesador),
+          row('RAM', d.ram ? `${d.ram}${d.tipo_ram ? ' ' + d.tipo_ram : ''}` : null),
+          row('Disco', d.cap_disco ? `${d.cap_disco}${d.tipo_disco ? ' ' + d.tipo_disco : ''}` : null),
+          row('Fecha compra', d.fecha_compra)]) +
+        sec('Asignación', [row('Área', d.area), row('Responsable', d.responsable)]);
+    } else if (_meta.tabla === 'inventario_celulares') {
+      fields =
+        sec('Identificación', [row('IMEI', d.imei), row('IMEI 2', d.imei2), row('Línea', d.linea), row('Operador', d.operador)]) +
+        sec('Equipo', [row('Modelo', d.modelo), row('Equipo', d.equipo), row('Almacenamiento', d.almacenamiento),
+          row('RAM', d.ram), row('Accesorio', d.accesorio), row('Estado', d.estado)]) +
+        sec('Asignación', [row('Usuario', d.nombre_completo), row('Cédula', d.cedula),
+          row('Área', d.area), row('Ciudad', d.ciudad), row('Entregado por', d.entregado_por), row('Fecha entrega', d.fecha_entrega)]);
+    } else {
+      fields =
+        sec('Identificación', [row('Placa', d.placa), row('Serial', d.serial)]) +
+        sec('Equipo', [row('Nombre', d.nombre_equipo), row('Marca', d.marca), row('Voltaje', d.voltaje),
+          row('Fecha compra', d.fecha_compra), row('Fecha despacho', d.fecha_despacho)]) +
+        sec('Asignación', [row('Área', d.area)]);
+    }
+
+    overlay.querySelector('div').innerHTML = `
+      <div style="background:var(--primary);padding:18px 20px;display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:1px;">${esc(_meta.tipo)}</div>
+          <div style="font-size:17px;font-weight:800;color:#fff;font-family:monospace;letter-spacing:1px;">${esc(d[_meta.idField] || '—')}</div>
+        </div>
+        <button id="det-close" style="background:rgba(255,255,255,.2);border:none;border-radius:8px;width:30px;height:30px;cursor:pointer;color:#fff;font-size:16px;display:flex;align-items:center;justify-content:center;">✕</button>
+      </div>
+
+      <div style="display:flex;gap:0;max-height:65vh;overflow:hidden;">
+        <!-- Campos -->
+        <div style="flex:1;padding:0 20px 20px;overflow-y:auto;">${fields}</div>
+
+        <!-- QR -->
+        <div style="flex-shrink:0;width:140px;border-left:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;gap:8px;">
+          <img src="/activo/${token}/qr" style="width:100px;height:100px;" alt="QR">
+          <div style="font-size:10px;color:var(--text-3);text-align:center;line-height:1.4;">Escanea para ver ficha</div>
+          <button id="det-print-qr" style="padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface-2);color:var(--text-2);font-size:11px;cursor:pointer;width:100%;">🖨️ Etiqueta</button>
+        </div>
+      </div>`;
+
+    overlay.querySelector('#det-close').onclick = () => overlay.remove();
+    overlay.querySelector('#det-print-qr').onclick = () => { overlay.remove(); openEtiquetaModal(token); };
+  } catch (e) {
+    overlay.querySelector('div').innerHTML = `<div style="padding:30px;text-align:center;color:var(--danger);">${e.message}</div>`;
+  }
+}
+
+function openEtiquetaModal(token) {
+  const existing = document.getElementById('inv-etiqueta-modal');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'inv-etiqueta-modal';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9000;display:flex;align-items:center;justify-content:center;padding:20px;';
+  overlay.innerHTML = `
+    <div style="background:var(--surface);border-radius:14px;padding:24px;width:100%;max-width:340px;box-shadow:0 20px 60px rgba(0,0,0,.4);position:relative;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <h3 style="margin:0;font-size:15px;font-weight:700;color:var(--text);">Etiqueta de activo fijo</h3>
+        <button id="etq-close" style="background:none;border:none;cursor:pointer;color:var(--text-3);font-size:20px;line-height:1;">✕</button>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:16px;min-height:130px;">
+        <iframe id="etq-frame" src="/activo/${token}/etiqueta?preview=1"
+          style="width:200px;height:100px;border:none;transform-origin:top left;"
+          scrolling="no"></iframe>
+      </div>
+      <p style="font-size:11px;color:var(--text-3);text-align:center;margin-bottom:14px;">Etiqueta 50×25mm · se imprimirá en tamaño real</p>
+      <div style="display:flex;gap:10px;justify-content:flex-end;">
+        <button id="etq-cancel" style="padding:8px 16px;border:1px solid var(--border);border-radius:7px;background:var(--surface-2);color:var(--text-2);font-size:13px;cursor:pointer;">Cancelar</button>
+        <button id="etq-print" style="padding:8px 18px;border:none;border-radius:7px;background:var(--primary);color:#fff;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          Imprimir
+        </button>
+      </div>
+    </div>`;
+
+  document.body.appendChild(overlay);
+
+  const close = () => overlay.remove();
+  overlay.querySelector('#etq-close').onclick  = close;
+  overlay.querySelector('#etq-cancel').onclick = close;
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+
+  overlay.querySelector('#etq-print').onclick = () => {
+    const frame = overlay.querySelector('#etq-frame');
+    frame.contentWindow.print();
+  };
+}
+
 async function confirmDelete(id, label) {
   if (!confirm(`¿Eliminar "${label}"?`)) return;
   try {
@@ -312,908 +459,4 @@ async function confirmDelete(id, label) {
   } catch (err) {
     showToast(err.message || 'Error al eliminar.', 'error');
   }
-}
-
-function esc(str) {
-  return String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-/* ── Form modal ── */
-function openForm(row) {
-  const isEdit    = !!row;
-  const isEquipo  = _activeTab === 'equipos';
-  const isUps     = _activeTab === 'ups';
-  const modalWrap = document.getElementById('inv-modal-wrap');
-
-  modalWrap.innerHTML = isUps ? upsFormHTML(row) : isEquipo ? equipoFormHTML(row) : celularFormHTML(row);
-
-  const overlay = modalWrap.querySelector('.modal-overlay');
-  const form    = modalWrap.querySelector('#inv-form');
-  const errEl   = modalWrap.querySelector('#inv-form-err');
-
-  const close = () => { overlay.style.display = 'none'; };
-  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
-  modalWrap.querySelectorAll('#btn-inv-form-cancel').forEach(b => b.addEventListener('click', close));
-
-  form.querySelectorAll('input[type=text]').forEach(inp => {
-    inp.addEventListener('blur', e => {
-      // Excluir identificadores técnicos y valores numéricos/especiales
-      const skip = ['placa','serial','imei','imei2','serial_cargador','cedula','linea','voltaje'];
-      if (!skip.includes(e.target.name)) e.target.value = toTitleCase(e.target.value.trim());
-    });
-  });
-
-  form.querySelectorAll('.btn-scan').forEach(btn => {
-    btn.addEventListener('click', () => openScanner(btn.dataset.target));
-  });
-  document.getElementById('btn-smart-scan')?.addEventListener('click', () => openSmartScanner());
-
-  form.addEventListener('submit', async e => {
-    e.preventDefault();
-    errEl.style.display = 'none';
-    const data = Object.fromEntries(new FormData(form));
-    const url  = isEdit
-      ? `/api/inventario/${_activeTab}/${row.id}`
-      : `/api/inventario/${_activeTab}`;
-    try {
-      const res  = await fetch(url, {
-        method:  isEdit ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify(data),
-      });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error);
-      showToast(isEdit ? 'Registro actualizado.' : 'Registro creado.', 'success');
-      close();
-      loadTable();
-      loadCounts();
-    } catch (err) {
-      errEl.textContent  = err.message || 'Error al guardar.';
-      errEl.style.display = 'block';
-    }
-  });
-}
-
-function equipoFormHTML(r) {
-  const v = k => esc(r?.[k] ?? '');
-  return `
-  <div class="modal-overlay" style="display:flex;">
-    <div class="modal-content" style="max-width:580px;max-height:90vh;overflow-y:auto;">
-      <div class="modal-header" style="flex-direction:column;align-items:flex-start;gap:8px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;width:100%;">
-          <h3>${r ? 'Editar equipo' : 'Nuevo equipo'}</h3>
-          <button class="modal-close" id="btn-inv-form-cancel">&times;</button>
-        </div>
-        ${r ? '' : `<button type="button" id="btn-smart-scan"
-          style="display:flex;align-items:center;gap:8px;padding:8px 16px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;width:100%;justify-content:center;">
-          📷 Escanear equipo — llenar campos automáticamente
-        </button>`}
-      </div>
-      <div class="modal-body">
-        <div id="inv-form-err" style="display:none;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:#fca5a5;border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:14px;"></div>
-        <form id="inv-form">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-            ${scanField('Placa *','placa',v('placa'),true,!r)}
-            ${selectField('Marca *','marca',v('marca'),['Lenovo','Dell','HP','Samsung','Toshiba','Acer','Asus','Apple','Otro'])}
-            ${inputField('Nombre del equipo *','nombre_equipo',v('nombre_equipo'))}
-            ${scanField('Serial *','serial',v('serial'),true,!r)}
-            ${selectField('Procesador','procesador',v('procesador'),['Intel Core i3','Intel Core i5','Intel Core i7','Intel Core i9','AMD Ryzen 3','AMD Ryzen 5','AMD Ryzen 7','Otro'])}
-            ${selectField('RAM','ram',v('ram'),['4GB','8GB','16GB','32GB','64GB'])}
-            ${selectField('Tipo de RAM','tipo_ram',v('tipo_ram'),['DDR3','DDR4','DDR5','LPDDR4','LPDDR5'])}
-            ${selectField('Capacidad Disco','cap_disco',v('cap_disco'),['128GB','256GB','512GB','1TB','2TB'])}
-            ${selectField('Tipo de Disco','tipo_disco',v('tipo_disco'),['SSD','HDD','M2','SATA','NVMe'])}
-            ${inputField('Serial Cargador','serial_cargador',v('serial_cargador'))}
-            ${inputField('Área','area',v('area'))}
-            ${inputField('Responsable','responsable',v('responsable'))}
-          </div>
-          <div style="margin-top:12px;">
-            ${inputField('Fecha de compra','fecha_compra',v('fecha_compra'),'date')}
-          </div>
-          <div class="modal-footer" style="margin-top:16px;padding:0;">
-            <button type="button" class="btn btn-secondary" id="btn-inv-form-cancel">Cancelar</button>
-            <button type="submit" class="btn btn-primary">Guardar</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>`;
-}
-
-function celularFormHTML(r) {
-  const v = k => esc(r?.[k] ?? '');
-  return `
-  <div class="modal-overlay" style="display:flex;">
-    <div class="modal-content" style="max-width:580px;max-height:90vh;overflow-y:auto;">
-      <div class="modal-header" style="flex-direction:column;align-items:flex-start;gap:8px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;width:100%;">
-          <h3>${r ? 'Editar celular' : 'Nuevo celular'}</h3>
-          <button class="modal-close" id="btn-inv-form-cancel">&times;</button>
-        </div>
-        ${r ? '' : `<button type="button" id="btn-smart-scan"
-          style="display:flex;align-items:center;gap:8px;padding:8px 16px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;width:100%;justify-content:center;">
-          📷 Escanear equipo — llenar campos automáticamente
-        </button>`}
-      </div>
-      <div class="modal-body">
-        <div id="inv-form-err" style="display:none;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:#fca5a5;border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:14px;"></div>
-        <form id="inv-form">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-            ${scanField('IMEI *','imei',v('imei'),true,!r)}
-            ${inputField('IMEI 2','imei2',v('imei2'))}
-            ${selectField('Marca / Equipo','equipo',v('equipo'),['Samsung','Xiaomi Redmi','Honor','ZTE','Infinix','Motorola','iPhone','Otro'])}
-            ${inputField('Modelo','modelo',v('modelo'))}
-            ${selectField('Almacenamiento','almacenamiento',v('almacenamiento'),['32GB','64GB','128GB','256GB','512GB'])}
-            ${selectField('RAM','ram',v('ram'),['2GB','3GB','4GB','6GB','8GB','12GB','16GB'])}
-            ${selectField('Operador','operador',v('operador'),['CLARO','TIGO','MOVISTAR','WOM','ETB','AVANTEL'])}
-            ${inputField('Línea','linea',v('linea'))}
-            ${inputField('Área','area',v('area'))}
-            ${inputField('Ciudad','ciudad',v('ciudad'))}
-            ${inputField('Nombre completo *','nombre_completo',v('nombre_completo'))}
-            ${inputField('Cédula','cedula',v('cedula'))}
-            ${selectField('Estado','estado',v('estado')||'nuevo',['nuevo','seminuevo','usado'])}
-            ${inputField('Accesorio','accesorio',v('accesorio'))}
-            ${inputField('Entregado por','entregado_por',v('entregado_por'))}
-          </div>
-          <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-            ${inputField('Fecha de registro','fecha_registro',v('fecha_registro'),'date')}
-            ${inputField('Fecha de entrega','fecha_entrega',v('fecha_entrega'),'date')}
-          </div>
-          <div class="modal-footer" style="margin-top:16px;padding:0;">
-            <button type="button" class="btn btn-secondary" id="btn-inv-form-cancel">Cancelar</button>
-            <button type="submit" class="btn btn-primary">Guardar</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>`;
-}
-
-function upsFormHTML(r) {
-  const v = k => esc(r?.[k] ?? '');
-  return `
-  <div class="modal-overlay" style="display:flex;">
-    <div class="modal-content" style="max-width:480px;max-height:90vh;overflow-y:auto;">
-      <div class="modal-header" style="flex-direction:column;align-items:flex-start;gap:8px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;width:100%;">
-          <h3>${r ? 'Editar UPS' : 'Nueva UPS'}</h3>
-          <button class="modal-close" id="btn-inv-form-cancel">&times;</button>
-        </div>
-        ${r ? '' : `<button type="button" id="btn-smart-scan"
-          style="display:flex;align-items:center;gap:8px;padding:8px 16px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;width:100%;justify-content:center;">
-          📷 Escanear etiqueta — llenar campos automáticamente
-        </button>`}
-      </div>
-      <div class="modal-body">
-        <div id="inv-form-err" style="display:none;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:#fca5a5;border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:14px;"></div>
-        <form id="inv-form">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-            ${scanField('Placa *','placa',v('placa'),true,!r)}
-            ${inputField('Marca','marca',v('marca'))}
-            ${inputField('Nombre del equipo','nombre_equipo',v('nombre_equipo'))}
-            ${scanField('Serial','serial',v('serial'),false,!r)}
-            ${inputField('Área','area',v('area'))}
-            ${inputField('Voltaje','voltaje',v('voltaje'))}
-          </div>
-          <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-            ${inputField('Fecha de compra','fecha_compra',v('fecha_compra'),'date')}
-            ${inputField('Fecha de despacho','fecha_despacho',v('fecha_despacho'),'date')}
-          </div>
-          <div class="modal-footer" style="margin-top:16px;padding:0;">
-            <button type="button" class="btn btn-secondary" id="btn-inv-form-cancel">Cancelar</button>
-            <button type="submit" class="btn btn-primary">Guardar</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>`;
-}
-
-function inputField(label, name, value = '', type = 'text') {
-  return `
-  <div class="form-group">
-    <label style="font-size:12px;font-weight:500;color:var(--text-muted);margin-bottom:4px;display:block;">${esc(label)}</label>
-    <input type="${type}" name="${name}" class="form-control" value="${esc(value)}" ${label.includes('*')?'required':''}>
-  </div>`;
-}
-
-function selectField(label, name, value, options) {
-  const opts = options.map(o => `<option value="${esc(o)}" ${value===o?'selected':''}>${esc(o)}</option>`).join('');
-  return `
-  <div class="form-group">
-    <label style="font-size:12px;font-weight:500;color:var(--text-muted);margin-bottom:4px;display:block;">${esc(label)}</label>
-    <select name="${name}" class="form-control">
-      <option value="">— Seleccionar —</option>
-      ${opts}
-    </select>
-  </div>`;
-}
-
-function scanField(label, name, value = '', required = false, showScan = true) {
-  return `
-  <div class="form-group">
-    <label style="font-size:12px;font-weight:500;color:var(--text-muted);margin-bottom:4px;display:block;">${esc(label)}</label>
-    <div style="display:flex;gap:6px;">
-      <input type="text" name="${name}" id="scan-input-${name}" class="form-control" value="${esc(value)}" ${required?'required':''} style="flex:1;">
-      ${showScan ? `<button type="button" class="btn-scan" data-target="scan-input-${name}"
-        style="padding:0 10px;background:var(--primary);color:#fff;border:none;border-radius:var(--radius-sm);cursor:pointer;font-size:16px;flex-shrink:0;"
-        title="Escanear código de barras">📷</button>` : ''}
-    </div>
-  </div>`;
-}
-
-async function openScanner(targetInputId) {
-  if (!('BarcodeDetector' in window)) {
-    showToast('Tu navegador no soporta BarcodeDetector. Ingresa el dato manualmente.', 'warning');
-    return;
-  }
-
-  let stream, rafId;
-
-  const overlay = document.createElement('div');
-  overlay.id    = 'scanner-overlay';
-  overlay.style.cssText = `
-    position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.85);
-    display:flex;align-items:center;justify-content:center;
-  `;
-  overlay.innerHTML = `
-    <div style="background:var(--surface);border-radius:16px;padding:20px;width:min(380px,94vw);text-align:center;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-        <span style="font-weight:600;font-size:15px;">Escanear código</span>
-        <button id="btn-close-scan" style="background:transparent;border:none;font-size:20px;cursor:pointer;color:var(--text-2);">${iconClose(18)}</button>
-      </div>
-      <div style="position:relative;border-radius:10px;overflow:hidden;background:#000;">
-        <video id="scan-video" autoplay playsinline style="width:100%;display:block;border-radius:10px;"></video>
-        <div style="position:absolute;top:50%;left:10%;right:10%;height:2px;background:var(--primary);transform:translateY(-50%);box-shadow:0 0 8px var(--primary);pointer-events:none;"></div>
-      </div>
-      <p style="margin-top:12px;font-size:13px;color:var(--text-muted);">Apunta la cámara al código de barras del equipo</p>
-    </div>
-  `;
-  document.body.appendChild(overlay);
-
-  const close = () => {
-    if (rafId)  cancelAnimationFrame(rafId);
-    if (stream) stream.getTracks().forEach(t => t.stop());
-    overlay.remove();
-  };
-
-  document.getElementById('btn-close-scan').addEventListener('click', close);
-  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
-
-  try {
-    const detector = new BarcodeDetector({
-      formats: ['code_128','code_39','qr_code','ean_13','ean_8','data_matrix','itf'],
-    });
-
-    stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } },
-    });
-
-    const video = document.getElementById('scan-video');
-    video.srcObject = stream;
-
-    const scan = async () => {
-      if (video.readyState >= HTMLMediaElement.HAVE_ENOUGH_DATA) {
-        try {
-          const codes = await detector.detect(video);
-          if (codes.length > 0) {
-            const val = codes[0].rawValue;
-            const inp = document.getElementById(targetInputId);
-            if (inp) { inp.value = val; inp.dispatchEvent(new Event('input')); }
-            close();
-            showToast(`Escaneado: ${val}`, 'success');
-            return;
-          }
-        } catch {}
-      }
-      rafId = requestAnimationFrame(scan);
-    };
-
-    video.addEventListener('loadeddata', () => { rafId = requestAnimationFrame(scan); });
-  } catch (err) {
-    close();
-    if (err.name === 'NotAllowedError') {
-      showToast('Permiso de cámara denegado. Actívalo en ajustes del navegador.', 'error');
-    } else {
-      showToast('No se pudo acceder a la cámara.', 'error');
-    }
-  }
-}
-
-/* ── Import Excel modal ── */
-function openImportModal() {
-  const modalWrap = document.getElementById('inv-modal-wrap');
-  let _importRows = [];
-  let _importTipo = _activeTab;   /* can be overridden in the modal */
-
-  const FIELD_LABELS = {
-    placa:'Placa', marca:'Marca', nombre_equipo:'Nombre equipo', serial:'Serial',
-    procesador:'Procesador', ram:'RAM', tipo_ram:'Tipo RAM', cap_disco:'Cap. Disco',
-    tipo_disco:'Tipo Disco', serial_cargador:'Serial Cargador', area:'Área',
-    responsable:'Responsable', fecha_compra:'F. Compra',
-    fecha_registro:'F. Registro', ciudad:'Ciudad', nombre_completo:'Nombre completo',
-    cedula:'Cédula', linea:'Línea', operador:'Operador', equipo:'Equipo',
-    almacenamiento:'Almacenamiento', modelo:'Modelo', imei:'IMEI', imei2:'IMEI 2',
-    estado:'Estado', accesorio:'Accesorio', fecha_entrega:'F. Entrega',
-    entregado_por:'Entregado por',
-  };
-
-  modalWrap.innerHTML = `
-    <div class="modal-overlay" style="display:flex;" id="import-overlay">
-      <div class="modal-content" style="max-width:680px;max-height:90vh;overflow-y:auto;">
-        <div class="modal-header">
-          <h3>${iconUpload(15)} Importar Excel</h3>
-          <button class="modal-close" id="btn-import-close">&times;</button>
-        </div>
-        <div class="modal-body" id="import-body">
-          <div id="import-step1">
-            <div style="display:flex;gap:8px;margin-bottom:16px;">
-              <button id="import-tipo-equipos" class="btn ${_activeTab==='equipos'?'btn-primary':'btn-secondary'}" style="flex:1;padding:8px;display:flex;align-items:center;gap:6px;justify-content:center;">
-                ${iconMonitor(13)} Equipos
-              </button>
-              <button id="import-tipo-celulares" class="btn ${_activeTab==='celulares'?'btn-primary':'btn-secondary'}" style="flex:1;padding:8px;display:flex;align-items:center;gap:6px;justify-content:center;">
-                ${iconSmartphone(13)} Celulares
-              </button>
-            </div>
-            <p style="font-size:13px;color:var(--text-2);margin-bottom:16px;">
-              Sube el archivo Excel con tus registros existentes. La primera fila debe contener los encabezados.
-            </p>
-            <label id="import-drop-zone" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
-              border:2px dashed var(--border-2);border-radius:12px;padding:40px 20px;cursor:pointer;
-              transition:border-color .2s;text-align:center;">
-              <span style="font-size:32px;">📂</span>
-              <span style="font-weight:500;">Arrastra tu .xlsx aquí o haz clic</span>
-              <span style="font-size:12px;color:var(--text-3);">Máximo 10 MB</span>
-              <input type="file" id="import-file-input" accept=".xlsx,.xls" style="display:none;">
-            </label>
-            <div id="import-step1-err" style="display:none;margin-top:12px;color:var(--danger);font-size:13px;"></div>
-          </div>
-
-          <div id="import-step2" style="display:none;">
-            <p style="font-size:13px;color:var(--text-2);margin-bottom:12px;" id="import-total-msg"></p>
-            <details open style="margin-bottom:16px;">
-              <summary style="font-size:13px;font-weight:600;cursor:pointer;margin-bottom:8px;">Mapeo de columnas</summary>
-              <div id="import-mapping-table" style="font-size:12px;"></div>
-            </details>
-            <details open style="margin-bottom:16px;">
-              <summary style="font-size:13px;font-weight:600;cursor:pointer;margin-bottom:8px;">Vista previa (primeras 5 filas)</summary>
-              <div id="import-preview-table" style="overflow-x:auto;"></div>
-            </details>
-            <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;font-size:13px;">
-              <span style="font-weight:500;">Duplicados:</span>
-              <label style="display:flex;align-items:center;gap:5px;cursor:pointer;">
-                <input type="radio" name="import-mode" value="skip" checked> Omitir (recomendado)
-              </label>
-              <label style="display:flex;align-items:center;gap:5px;cursor:pointer;">
-                <input type="radio" name="import-mode" value="overwrite"> Reemplazar
-              </label>
-            </div>
-            <div style="display:flex;gap:8px;">
-              <button class="btn btn-secondary" id="btn-import-back">← Volver</button>
-              <button class="btn btn-primary" id="btn-import-confirm">Importar <span id="import-count"></span> registros</button>
-            </div>
-          </div>
-
-          <div id="import-step3" style="display:none;text-align:center;padding:20px 0;">
-            <div id="import-result"></div>
-            <button class="btn btn-primary" id="btn-import-done" style="margin-top:16px;">Cerrar</button>
-          </div>
-        </div>
-      </div>
-    </div>`;
-
-  const overlay = modalWrap.querySelector('#import-overlay');
-  const close   = () => overlay.remove();
-  document.getElementById('btn-import-close').addEventListener('click', close);
-  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
-
-  /* tipo selector */
-  const setImportTipo = (t) => {
-    _importTipo = t;
-    document.getElementById('import-tipo-equipos').className   = `btn ${t==='equipos'  ?'btn-primary':'btn-secondary'}`;
-    document.getElementById('import-tipo-celulares').className = `btn ${t==='celulares'?'btn-primary':'btn-secondary'}`;
-  };
-  document.getElementById('import-tipo-equipos').addEventListener('click',   () => setImportTipo('equipos'));
-  document.getElementById('import-tipo-celulares').addEventListener('click', () => setImportTipo('celulares'));
-
-  const dropZone  = document.getElementById('import-drop-zone');
-  const fileInput = document.getElementById('import-file-input');
-  dropZone.addEventListener('dragover',  e => { e.preventDefault(); dropZone.style.borderColor = 'var(--primary)'; });
-  dropZone.addEventListener('dragleave', () => { dropZone.style.borderColor = ''; });
-  dropZone.addEventListener('drop',      e => { e.preventDefault(); dropZone.style.borderColor = ''; handleFile(e.dataTransfer.files[0]); });
-  fileInput.addEventListener('change',   () => handleFile(fileInput.files[0]));
-  dropZone.addEventListener('click',     () => fileInput.click());
-
-  document.getElementById('import-body').addEventListener('click', e => {
-    if (e.target.id === 'btn-import-back') {
-      document.getElementById('import-step2').style.display = 'none';
-      document.getElementById('import-step1').style.display = '';
-    }
-  });
-
-  async function handleFile(file) {
-    if (!file) return;
-    const errEl = document.getElementById('import-step1-err');
-    errEl.style.display = 'none';
-    dropZone.style.opacity = '.5';
-    const fd = new FormData();
-    fd.append('file', file);
-    try {
-      const res  = await fetch(`/api/inventario/${_importTipo}/import`, { method: 'POST', body: fd });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      _importRows = data.rows;
-      document.getElementById('import-total-msg').textContent = `${data.total} filas encontradas en "${file.name}".`;
-      document.getElementById('import-count').textContent = data.total;
-
-      const allFields = Object.keys(_importTipo === 'equipos'
-        ? { placa:1,marca:1,nombre_equipo:1,serial:1,procesador:1,ram:1,tipo_ram:1,cap_disco:1,tipo_disco:1,serial_cargador:1,area:1,responsable:1,fecha_compra:1 }
-        : { fecha_registro:1,area:1,ciudad:1,nombre_completo:1,cedula:1,linea:1,operador:1,equipo:1,almacenamiento:1,ram:1,modelo:1,imei:1,imei2:1,estado:1,accesorio:1,fecha_entrega:1,entregado_por:1 });
-
-      document.getElementById('import-mapping-table').innerHTML = `
-        <table style="width:100%;border-collapse:collapse;">
-          <thead><tr>
-            <th style="text-align:left;padding:4px 8px;border-bottom:1px solid var(--border);font-size:11px;color:var(--text-3);">COLUMNA EN EXCEL</th>
-            <th style="text-align:left;padding:4px 8px;border-bottom:1px solid var(--border);font-size:11px;color:var(--text-3);">CAMPO EN BD</th>
-          </tr></thead>
-          <tbody>${Object.entries(data.mapping).map(([col, field]) => `
-            <tr>
-              <td style="padding:4px 8px;border-bottom:1px solid var(--border);color:var(--text-2);">${esc(col)}</td>
-              <td style="padding:4px 8px;border-bottom:1px solid var(--border);">
-                <select data-col="${esc(col)}" style="background:var(--surface-2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:12px;padding:2px 6px;">
-                  <option value="">— Ignorar —</option>
-                  ${allFields.map(f => `<option value="${f}" ${field===f?'selected':''}>${esc(FIELD_LABELS[f]||f)}</option>`).join('')}
-                </select>
-              </td>
-            </tr>`).join('')}
-          </tbody>
-        </table>`;
-
-      if (data.preview.length) {
-        const cols = Object.keys(data.preview[0]);
-        document.getElementById('import-preview-table').innerHTML = `
-          <table style="border-collapse:collapse;font-size:11px;min-width:100%;">
-            <thead><tr>${cols.map(c => `<th style="padding:4px 8px;border-bottom:1px solid var(--border);white-space:nowrap;color:var(--text-3);text-transform:uppercase;font-size:10px;">${esc(FIELD_LABELS[c]||c)}</th>`).join('')}</tr></thead>
-            <tbody>${data.preview.map(r => `<tr>${cols.map(c => `<td style="padding:4px 8px;border-bottom:1px solid var(--border);white-space:nowrap;color:var(--text-2);">${esc(r[c]||'')}</td>`).join('')}</tr>`).join('')}</tbody>
-          </table>`;
-      }
-
-      document.getElementById('import-step1').style.display = 'none';
-      document.getElementById('import-step2').style.display = '';
-    } catch (err) {
-      errEl.textContent  = err.message || 'Error al leer el archivo.';
-      errEl.style.display = '';
-    } finally {
-      dropZone.style.opacity = '';
-    }
-  }
-
-  document.getElementById('import-body').addEventListener('click', async e => {
-    if (e.target.id !== 'btn-import-confirm') return;
-    const mode = document.querySelector('input[name="import-mode"]:checked')?.value || 'skip';
-    const btn  = e.target;
-    btn.disabled    = true;
-    btn.textContent = 'Importando…';
-    try {
-      const res  = await fetch(`/api/inventario/${_importTipo}/import/confirm`, {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ rows: _importRows, mode }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      document.getElementById('import-step2').style.display = 'none';
-      document.getElementById('import-result').innerHTML = `
-        <div style="font-size:40px;margin-bottom:8px;color:#22c55e;">${iconCheck(40)}</div>
-        <div style="font-size:20px;font-weight:700;margin-bottom:4px;">${data.inserted} registros importados</div>
-        ${data.skipped ? `<div style="font-size:13px;color:var(--text-2);">${data.skipped} duplicados omitidos</div>` : ''}
-        ${data.errors?.length ? `<div style="font-size:12px;color:var(--danger);margin-top:8px;">${data.errors.length} errores:<br>${data.errors.slice(0,5).map(e=>esc(e.message)).join('<br>')}</div>` : ''}`;
-      document.getElementById('import-step3').style.display = '';
-    } catch (err) {
-      btn.disabled    = false;
-      btn.textContent = `Importar ${_importRows.length} registros`;
-      showToast(err.message || 'Error al importar.', 'error');
-    }
-  });
-
-  document.getElementById('import-body').addEventListener('click', e => {
-    if (e.target.id === 'btn-import-done') { close(); loadTable(); loadCounts(); }
-  });
-}
-
-/* ── Smart multi-barcode scanner ── */
-function routeBarcode(value, tipo, detectedKeys) {
-  const isImei = /^\d{15}$/.test(value);
-  if (tipo === 'celulares') {
-    if (isImei) {
-      if (!detectedKeys.has('imei'))  return 'imei';
-      if (!detectedKeys.has('imei2')) return 'imei2';
-      return null;
-    }
-    if (/^[A-Z0-9\-]{5,20}$/i.test(value)) return 'serial';
-    return null;
-  }
-  if (/^[A-Z0-9\-]{5,20}$/i.test(value)) {
-    if (!detectedKeys.has('placa'))  return 'placa';
-    if (!detectedKeys.has('serial')) return 'serial';
-    return null;
-  }
-  return null;
-}
-
-function applyDetectedToForm(detectedMap) {
-  for (const [field, value] of detectedMap) {
-    const inp = document.querySelector(`#inv-form [name="${field}"]`);
-    if (inp && !inp.value.trim()) {
-      inp.value = value;
-      inp.dispatchEvent(new Event('input'));
-    }
-  }
-}
-
-async function openSmartScanner() {
-  if (!navigator.mediaDevices?.getUserMedia) {
-    showToast('Cámara no disponible en este navegador.', 'warning');
-    return;
-  }
-
-  let stream, rafId;
-  const detectedFields = new Map();
-  const detectedValues = new Set();
-  const hasBarcodeDetector = 'BarcodeDetector' in window;
-
-  const overlay = document.createElement('div');
-  overlay.id = 'smart-scanner-overlay';
-  overlay.style.cssText = 'position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.9);display:flex;align-items:center;justify-content:center;';
-  overlay.innerHTML = `
-    <div style="background:var(--surface);border-radius:16px;padding:20px;width:min(420px,96vw);max-height:90vh;overflow-y:auto;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-        <span style="font-weight:700;font-size:15px;display:flex;align-items:center;gap:7px;">${iconCamera(15)} Escanear equipo</span>
-        <button id="ss-close" style="background:transparent;border:none;cursor:pointer;color:var(--text-2);">${iconClose(20)}</button>
-      </div>
-      <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:12px;">
-        <button id="ss-tab-codes" class="tab-btn ${hasBarcodeDetector ? 'tab-active' : ''}" style="flex:1;${!hasBarcodeDetector ? 'opacity:.4;cursor:not-allowed;' : ''}" ${!hasBarcodeDetector ? 'disabled' : ''}>
-          📷 Códigos
-        </button>
-        <button id="ss-tab-ocr" class="tab-btn ${!hasBarcodeDetector ? 'tab-active' : ''}" style="flex:1;">
-          🔤 Leer etiqueta
-        </button>
-      </div>
-      <div id="ss-pane-codes" style="display:${hasBarcodeDetector ? 'block' : 'none'};">
-        <div style="position:relative;border-radius:10px;overflow:hidden;background:#000;margin-bottom:10px;">
-          <video id="ss-video" autoplay playsinline style="width:100%;display:block;border-radius:10px;max-height:220px;object-fit:cover;"></video>
-          <div style="position:absolute;top:50%;left:10%;right:10%;height:2px;background:var(--primary);transform:translateY(-50%);box-shadow:0 0 8px var(--primary);pointer-events:none;"></div>
-        </div>
-        <p style="font-size:12px;color:var(--text-3);text-align:center;margin-bottom:10px;">Apunta a la etiqueta — detecta todos los códigos</p>
-      </div>
-      <div id="ss-pane-ocr" style="display:${!hasBarcodeDetector ? 'block' : 'none'};">
-        <div style="position:relative;border-radius:10px;overflow:hidden;background:#000;margin-bottom:10px;">
-          <video id="ss-video-ocr" autoplay playsinline style="width:100%;display:block;border-radius:10px;max-height:220px;object-fit:cover;"></video>
-          <div style="position:absolute;inset:8px;border:2px dashed rgba(99,102,241,.6);border-radius:8px;pointer-events:none;"></div>
-        </div>
-        <canvas id="ss-canvas" style="display:none;"></canvas>
-        <div id="ss-ocr-progress" style="display:none;font-size:12px;color:var(--text-2);text-align:center;margin-bottom:8px;"></div>
-        <button id="ss-capture" style="width:100%;padding:10px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:10px;">
-          📸 Capturar y leer etiqueta
-        </button>
-      </div>
-      <div id="ss-detected" style="background:var(--surface-2);border-radius:8px;padding:10px;min-height:48px;margin-bottom:12px;font-size:13px;">
-        <div style="font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Detectado</div>
-        <div id="ss-detected-list" style="color:var(--text-3);font-size:12px;">Esperando…</div>
-      </div>
-      <div style="display:flex;gap:8px;">
-        <button id="ss-cancel" style="flex:1;padding:10px;background:var(--surface);border:1px solid var(--border-2);border-radius:8px;font-size:13px;cursor:pointer;color:var(--text-2);">Cancelar</button>
-        <button id="ss-apply" style="flex:2;padding:10px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;" disabled>Aplicar campos</button>
-      </div>
-    </div>`;
-  document.body.appendChild(overlay);
-
-  const close = () => {
-    if (rafId)  cancelAnimationFrame(rafId);
-    if (stream) stream.getTracks().forEach(t => t.stop());
-    overlay.remove();
-  };
-  document.getElementById('ss-close').addEventListener('click', close);
-  document.getElementById('ss-cancel').addEventListener('click', close);
-  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
-
-  document.getElementById('ss-apply').addEventListener('click', () => {
-    applyDetectedToForm(detectedFields);
-    showToast(`${detectedFields.size} campo(s) aplicado(s).`, 'success');
-    close();
-  });
-
-  function updateDetectedPanel() {
-    const list    = document.getElementById('ss-detected-list');
-    const applyBtn = document.getElementById('ss-apply');
-    if (!detectedFields.size) { list.textContent = 'Esperando…'; applyBtn.disabled = true; return; }
-    list.innerHTML = [...detectedFields.entries()].map(([field, val]) =>
-      `<div style="display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px solid rgba(255,255,255,.05);">
-        <span style="color:var(--text-2);">${field}</span>
-        <span style="font-family:monospace;color:var(--text);">${esc(val)}</span>
-      </div>`
-    ).join('');
-    applyBtn.disabled = false;
-  }
-
-  try {
-    stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } },
-    });
-    const v1 = document.getElementById('ss-video');
-    const v2 = document.getElementById('ss-video-ocr');
-    if (v1) v1.srcObject = stream;
-    if (v2) v2.srcObject = stream;
-  } catch (err) {
-    close();
-    showToast(err.name === 'NotAllowedError' ? 'Permiso de cámara denegado.' : 'No se pudo acceder a la cámara.', 'error');
-    return;
-  }
-
-  document.getElementById('ss-tab-codes')?.addEventListener('click', () => {
-    document.getElementById('ss-tab-codes').classList.add('tab-active');
-    document.getElementById('ss-tab-ocr').classList.remove('tab-active');
-    document.getElementById('ss-pane-codes').style.display = '';
-    document.getElementById('ss-pane-ocr').style.display   = 'none';
-    startBarcodeScan();
-  });
-  document.getElementById('ss-tab-ocr').addEventListener('click', () => {
-    document.getElementById('ss-tab-ocr').classList.add('tab-active');
-    document.getElementById('ss-tab-codes')?.classList.remove('tab-active');
-    document.getElementById('ss-pane-ocr').style.display   = '';
-    document.getElementById('ss-pane-codes').style.display = 'none';
-    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
-  });
-
-  function startBarcodeScan() {
-    if (!hasBarcodeDetector) return;
-    const detector = new BarcodeDetector({
-      formats: ['code_128','code_39','qr_code','ean_13','ean_8','data_matrix','itf'],
-    });
-    const video = document.getElementById('ss-video');
-    const loop  = async () => {
-      if (video?.readyState >= HTMLMediaElement.HAVE_ENOUGH_DATA) {
-        try {
-          const codes = await detector.detect(video);
-          for (const code of codes) {
-            const val = code.rawValue;
-            if (detectedValues.has(val)) continue;
-            const field = routeBarcode(val, _activeTab, new Set(detectedFields.keys()));
-            if (field) { detectedValues.add(val); detectedFields.set(field, val); updateDetectedPanel(); }
-          }
-        } catch {}
-      }
-      rafId = requestAnimationFrame(loop);
-    };
-    if (video?.readyState >= HTMLMediaElement.HAVE_ENOUGH_DATA) { rafId = requestAnimationFrame(loop); }
-    else video?.addEventListener('loadeddata', () => { rafId = requestAnimationFrame(loop); }, { once: true });
-  }
-
-  if (hasBarcodeDetector) startBarcodeScan();
-
-  document.getElementById('ss-capture')?.addEventListener('click', async () => {
-    const video    = document.getElementById('ss-video-ocr');
-    const canvas   = document.getElementById('ss-canvas');
-    const progress = document.getElementById('ss-ocr-progress');
-    const btn      = document.getElementById('ss-capture');
-    canvas.width  = video.videoWidth  || 640;
-    canvas.height = video.videoHeight || 480;
-    canvas.getContext('2d').drawImage(video, 0, 0);
-    btn.disabled    = true;
-    btn.textContent = 'Procesando…';
-    progress.style.display = '';
-    progress.textContent   = 'Cargando motor OCR…';
-    try {
-      const Tesseract = await loadTesseract();
-      progress.textContent = 'Reconociendo texto…';
-      const worker = await Tesseract.createWorker('spa+eng', 1, {
-        logger: m => { if (m.status === 'recognizing text') progress.textContent = `Reconociendo… ${Math.round((m.progress||0)*100)}%`; },
-      });
-      const { data: { text } } = await worker.recognize(canvas);
-      await worker.terminate();
-      const parsed = parseOcrText(text);
-      if (!parsed.size) {
-        progress.textContent = 'No se detectaron datos. Intenta con mejor iluminación.';
-      } else {
-        progress.style.display = 'none';
-        for (const [field, val] of parsed) { if (!detectedFields.has(field)) detectedFields.set(field, val); }
-        updateDetectedPanel();
-      }
-    } catch (err) {
-      progress.textContent = `Error OCR: ${err.message}`;
-    } finally {
-      btn.disabled    = false;
-      btn.textContent = '📸 Capturar y leer etiqueta';
-    }
-  });
-}
-
-/* ── Tesseract lazy loader ── */
-async function loadTesseract() {
-  if (window.Tesseract) return window.Tesseract;
-  await new Promise((resolve, reject) => {
-    const s  = document.createElement('script');
-    s.src    = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
-    s.onload = resolve;
-    s.onerror = () => reject(new Error('No se pudo cargar Tesseract.js. Verifica tu conexión.'));
-    document.head.appendChild(s);
-  });
-  return window.Tesseract;
-}
-
-/* ── OCR text parser ── */
-function parseOcrText(text) {
-  const result = new Map();
-  if (!text) return result;
-
-  const imeiMatch = text.match(/IMEI[\s:]+(\d{15})/i);
-  if (imeiMatch) result.set('imei', imeiMatch[1]);
-
-  const snMatch = text.match(/S\/?N[\s:]+([A-Z0-9\-]{5,20})/i);
-  if (snMatch) result.set('serial', snMatch[1].toUpperCase());
-
-  if (!result.has('imei')) {
-    const bareImei = text.match(/\b(\d{15})\b/);
-    if (bareImei) result.set('imei', bareImei[1]);
-  }
-
-  const ramCtx = text.match(/RAM[^\n]{0,30}?(\d+)\s*GB/i) || text.match(/(\d+)\s*GB[^\n]{0,30}?RAM/i);
-  if (ramCtx) result.set('ram', ramCtx[1] + 'GB');
-
-  const storCtx = text.match(/(?:ROM|Storage|Almacenamiento|Internal)[^\n]{0,30}?(\d+)\s*GB/i)
-               || text.match(/(\d+)\s*GB[^\n]{0,30}?(?:ROM|Storage|Almacenamiento|Internal)/i);
-  if (storCtx) result.set('almacenamiento', storCtx[1] + 'GB');
-
-  const BRANDS = ['Samsung','Xiaomi','Redmi','Honor','ZTE','Infinix','Motorola','Apple','iPhone',
-                  'Dell','HP','Lenovo','Asus','Acer','Toshiba'];
-  for (const brand of BRANDS) {
-    const m = text.match(new RegExp(`\\b${brand}\\b`, 'i'));
-    if (m) {
-      const field = ['Dell','HP','Lenovo','Asus','Acer','Toshiba'].includes(brand) ? 'marca' : 'equipo';
-      result.set(field, brand);
-      const lineMatch = text.match(new RegExp(`${brand}[\\s]+([A-Z0-9][A-Z0-9 \\-]{2,30})`, 'i'));
-      if (lineMatch) result.set('modelo', lineMatch[1].trim());
-      break;
-    }
-  }
-
-  return result;
-}
-
-/* ── Generar enlace de registro móvil ── */
-async function openGenerarEnlaceModal() {
-  const modalWrap = document.getElementById('inv-modal-wrap');
-  modalWrap.innerHTML = `
-    <div class="modal-overlay" style="display:flex;" id="enlace-overlay">
-      <div class="modal-content" style="max-width:520px;">
-        <div class="modal-header">
-          <h3>📲 Generar enlace de registro móvil</h3>
-          <button class="modal-close" id="btn-enlace-close">&times;</button>
-        </div>
-        <div class="modal-body" id="enlace-body">
-
-          <!-- Paso 1: configurar -->
-          <div id="enlace-step1">
-            <p style="font-size:13px;color:var(--text-2);margin-bottom:18px;">
-              Genera un enlace o QR para que tus compañeros registren equipos desde el celular — sin necesidad de iniciar sesión.
-            </p>
-            <div class="form-group" style="margin-bottom:14px;">
-              <label style="font-size:12px;font-weight:500;color:var(--text-muted);display:block;margin-bottom:6px;">Tipo de registro</label>
-              <div style="display:flex;gap:10px;">
-                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:10px 16px;flex:1;">
-                  <input type="radio" name="enlace-tipo" value="equipos" checked> ${iconMonitor(13)} Equipos
-                </label>
-                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:10px 16px;flex:1;">
-                  <input type="radio" name="enlace-tipo" value="celulares"> ${iconSmartphone(13)} Celulares
-                </label>
-              </div>
-            </div>
-            <div class="form-group" style="margin-bottom:14px;">
-              <label style="font-size:12px;font-weight:500;color:var(--text-muted);display:block;margin-bottom:6px;">Nombre / etiqueta (opcional)</label>
-              <input type="text" id="enlace-label" class="form-control" placeholder="Ej: Bodega Bogotá, Inventario junio…">
-            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;">
-              <div class="form-group">
-                <label style="font-size:12px;font-weight:500;color:var(--text-muted);display:block;margin-bottom:6px;">Vence en</label>
-                <select id="enlace-expires" class="form-control">
-                  <option value="">Sin límite de tiempo</option>
-                  <option value="24">24 horas</option>
-                  <option value="72">3 días</option>
-                  <option value="168" selected>7 días</option>
-                  <option value="720">30 días</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label style="font-size:12px;font-weight:500;color:var(--text-muted);display:block;margin-bottom:6px;">Máx. registros</label>
-                <select id="enlace-uses" class="form-control">
-                  <option value="">Sin límite</option>
-                  <option value="10">10 usos</option>
-                  <option value="25">25 usos</option>
-                  <option value="50" selected>50 usos</option>
-                  <option value="100">100 usos</option>
-                </select>
-              </div>
-            </div>
-            <div id="enlace-step1-err" style="display:none;color:var(--danger);font-size:13px;margin-bottom:12px;"></div>
-            <button class="btn btn-primary" id="btn-enlace-generar" style="width:100%;">Generar enlace y QR</button>
-          </div>
-
-          <!-- Paso 2: resultado -->
-          <div id="enlace-step2" style="display:none;">
-            <div style="text-align:center;margin-bottom:18px;">
-              <div style="font-size:13px;color:var(--text-2);margin-bottom:12px;">Escanea este QR o comparte el enlace</div>
-              <img id="enlace-qr-img" src="" alt="QR" style="border-radius:12px;background:#fff;padding:8px;width:200px;height:200px;display:block;margin:0 auto;">
-            </div>
-            <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:8px;margin-bottom:14px;">
-              <input type="text" id="enlace-url" class="form-control" readonly style="flex:1;font-size:12px;font-family:monospace;background:transparent;border:none;padding:0;">
-              <button class="btn btn-secondary btn-small" id="btn-enlace-copy">Copiar</button>
-            </div>
-            <p style="font-size:12px;color:var(--text-3);text-align:center;margin-bottom:16px;" id="enlace-info"></p>
-            <div style="display:flex;gap:8px;">
-              <button class="btn btn-secondary" id="btn-enlace-nuevo" style="flex:1;">Crear otro</button>
-              <button class="btn btn-primary"   id="btn-enlace-done"  style="flex:1;">Listo</button>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </div>`;
-
-  const overlay = modalWrap.querySelector('#enlace-overlay');
-  const close   = () => overlay.remove();
-  document.getElementById('btn-enlace-close').addEventListener('click', close);
-  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
-  document.getElementById('btn-enlace-done').addEventListener('click', close);
-
-  document.getElementById('btn-enlace-nuevo').addEventListener('click', () => {
-    document.getElementById('enlace-step2').style.display = 'none';
-    document.getElementById('enlace-step1').style.display = '';
-  });
-
-  document.getElementById('btn-enlace-copy').addEventListener('click', async () => {
-    const url = document.getElementById('enlace-url').value;
-    const ok = await copyToClipboard(url);
-    if (ok) {
-      document.getElementById('btn-enlace-copy').textContent = '✓ Copiado';
-      setTimeout(() => { document.getElementById('btn-enlace-copy').textContent = 'Copiar'; }, 2000);
-    } else {
-      showToast('No se pudo copiar el enlace', 'error');
-    }
-  });
-
-  document.getElementById('btn-enlace-generar').addEventListener('click', async () => {
-    const tipo         = document.querySelector('input[name="enlace-tipo"]:checked')?.value || 'equipos';
-    const label        = document.getElementById('enlace-label').value.trim();
-    const expires_hours= document.getElementById('enlace-expires').value || null;
-    const max_uses     = document.getElementById('enlace-uses').value || null;
-    const errEl        = document.getElementById('enlace-step1-err');
-    const btn          = document.getElementById('btn-enlace-generar');
-    errEl.style.display = 'none';
-    btn.disabled = true; btn.textContent = 'Generando…';
-
-    try {
-      const res  = await fetch('/api/inventario/registro-token', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ tipo, label: label || null, expires_hours, max_uses }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-
-      document.getElementById('enlace-url').value = data.url;
-      document.getElementById('enlace-qr-img').src = `/api/inventario/registro-qr/${data.token}`;
-
-      const parts = [];
-      if (expires_hours) parts.push(`Vence en ${expires_hours >= 168 ? (expires_hours/168)+'d' : expires_hours+'h'}`);
-      if (max_uses)      parts.push(`Máx. ${max_uses} registros`);
-      document.getElementById('enlace-info').textContent = parts.join(' · ') || 'Sin límites';
-
-      document.getElementById('enlace-step1').style.display = 'none';
-      document.getElementById('enlace-step2').style.display = '';
-    } catch (err) {
-      errEl.textContent  = err.message || 'Error al generar el enlace.';
-      errEl.style.display = '';
-    } finally {
-      btn.disabled = false; btn.textContent = 'Generar enlace y QR';
-    }
-  });
 }

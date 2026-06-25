@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<title>MediCalc — Medivalle SF S.A.S</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,Helvetica,sans-serif;background:#E8ECF0;min-height:100vh;display:flex;justify-content:center;padding:10px 6px 30px}
+.app{width:100%;max-width:440px}
+
+/* HEADER */
+.hdr{background:#11273C;border-radius:12px 12px 0 0;padding:10px 14px;display:flex;align-items:center;gap:10px}
+.hdr img{height:46px;width:auto}
+.hdr-txt h1{font-size:13px;font-weight:800;color:#fff;margin-bottom:2px}
+.hdr-txt p{font-size:10px;color:rgba(255,255,255,.5)}
+
+/* TABS */
+.tabs-bar{background:#12528F;padding:6px 5px;display:flex;gap:2px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tabs-bar::-webkit-scrollbar{height:0}
+.tab-btn{display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 4px;border-radius:7px;border:none;cursor:pointer;min-width:44px;background:transparent;flex-shrink:0;transition:background .15s}
+.tab-btn.active{background:rgba(255,255,255,.22)}
+.tab-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center}
+.tab-btn:not(.active) .tab-icon{opacity:.38}
+.tab-lbl{font-size:7.5px;font-weight:700;text-transform:uppercase;color:#fff;white-space:nowrap;margin-top:1px}
+
+/* MODULOS */
+.mod-content{padding:10px 10px 20px;background:#F0F2F5;display:none;border-radius:0 0 12px 12px}
+.mod-content.active{display:block}
+
+/* CABECERA MODULO */
+.mod-header{display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:9px 11px;background:#fff;border-radius:9px;border-left:3px solid #05A0D8;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.mod-hico{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mod-title{font-size:13px;font-weight:800;color:#11273C}
+.mod-sub{font-size:10px;color:#777;margin-top:1px}
+
+/* SECCIONES COLOREADAS */
+.bloque{background:#fff;border-radius:9px;border:1.5px solid #e4e8ec;padding:9px 10px;margin-bottom:8px}
+.bloque-titulo{font-size:9.5px;font-weight:800;text-transform:uppercase;color:#12528F;letter-spacing:.4px;margin-bottom:7px;display:flex;align-items:center;gap:5px}
+.bloque-titulo .dot{width:7px;height:7px;border-radius:50%;background:#05A0D8;flex-shrink:0}
+.bloque.verde .bloque-titulo .dot{background:#009D70}
+.bloque.naranja .bloque-titulo .dot{background:#CB542A}
+.bloque.gris .bloque-titulo .dot{background:#9E9E9E}
+.bloque:focus-within{border-color:#05A0D8}
+
+/* CAMPOS INTERNOS */
+.campos-row{display:flex;gap:6px;align-items:flex-start;flex-wrap:nowrap}
+.campo{flex:1;min-width:0}
+.campo-lbl{font-size:8.5px;font-weight:700;text-transform:uppercase;color:#999;letter-spacing:.3px;margin-bottom:3px}
+.campo-unit{font-size:8px;color:#12528F;font-weight:700;margin-left:3px}
+.campo input{width:100%;border:1.5px solid #e8e8e8;border-radius:7px;outline:none;font-size:15px;font-weight:700;color:#11273C;background:#F8FAFB;padding:6px 8px;transition:border-color .15s}
+.campo input:focus{border-color:#05A0D8;background:#fff}
+.campo select{width:100%;border:1.5px solid #e8e8e8;border-radius:7px;outline:none;font-size:11px;font-weight:600;color:#11273C;background:#F8FAFB;padding:6px 8px}
+.campo.pedido input{border-color:#CB542A;background:#fff8f5}
+.campo.pedido input:focus{border-color:#CB542A}
+.div-sym{display:flex;align-items:flex-end;padding-bottom:9px;font-size:18px;font-weight:700;color:#12528F;flex-shrink:0}
+
+/* SEMAFORO */
+.semaforo-box{margin-top:2px;display:none}
+.semaforo-box.show{display:block}
+.sem-alerta{padding:9px 12px;border-radius:8px;font-size:11.5px;font-weight:700;line-height:1.4;display:flex;align-items:flex-start;gap:8px}
+.sem-alerta.ok{background:#E8F5E9;color:#1B5E20;border:1.5px solid #A5D6A7}
+.sem-alerta.warn{background:#FFF3E0;color:#BF360C;border:1.5px solid #FFCC02}
+.sem-alerta.err{background:#FFEBEE;color:#B71C1C;border:1.5px solid #EF9A9A}
+.sem-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+
+/* RESULTADO */
+.resultado-box{display:none;margin-top:8px}
+.resultado-box.show{display:block}
+.res-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px}
+.res-card{background:#fff;border-radius:9px;border:1.5px solid #E8EAED;padding:9px 10px;text-align:center}
+.res-card.star{border-color:#009D70;background:#F0FAF5}
+.res-lbl{font-size:8px;font-weight:700;text-transform:uppercase;color:#aaa;margin-bottom:3px;letter-spacing:.3px}
+.res-val{font-size:17px;font-weight:800;color:#11273C}
+.res-card.star .res-val{color:#009D70}
+.res-nota{font-size:10.5px;color:#555;background:#F5F7FA;padding:7px 10px;border-radius:7px;line-height:1.5}
+
+/* EQUIVALENCIAS */
+.equiv-resultado{display:none;margin-top:8px;background:#fff;border-radius:9px;border:2px solid #e0e0e0;overflow:hidden}
+.equiv-resultado.show{display:block}
+.equiv-banner{padding:9px 12px;font-size:12px;font-weight:800;text-align:center;letter-spacing:.3px}
+.equiv-banner.igual{background:#E8F5E9;color:#1B5E20;border-bottom:1.5px solid #A5D6A7}
+.equiv-banner.distinto{background:#FFEBEE;color:#B71C1C;border-bottom:1.5px solid #EF9A9A}
+.equiv-detalle{padding:8px 10px}
+
+/* TABLAS REFERENCIA */
+.ref-section{background:#fff;border-radius:9px;margin-bottom:8px;overflow:hidden;border:1.5px solid #e0e0e0}
+.ref-cat{background:#11273C;color:#fff;font-size:10px;font-weight:800;padding:8px 11px;display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none}
+.ref-cat .arrow{margin-left:auto;transition:transform .2s;flex-shrink:0}
+.ref-cat.open .arrow{transform:rotate(180deg)}
+.ref-body{display:none}
+.ref-body.show{display:block}
+.ref-table{width:100%;border-collapse:collapse;font-size:11px}
+.ref-table th{background:#12528F;color:#fff;padding:6px 10px;text-align:left;font-size:9.5px;font-weight:700;text-transform:uppercase}
+.ref-table td{padding:6px 10px;border-bottom:1px solid #f0f0f0;color:#333}
+.ref-table tr:last-child td{border-bottom:none}
+.ref-table tr:nth-child(even) td{background:#f8f9fa}
+.ref-note{font-size:10px;color:#777;padding:6px 10px;background:#FFFDE7;border-top:1px solid #FFF9C4;font-style:italic}
+</style>
+</head>
+<body>
+<div class="app">
+
+<div class="hdr">
+  <img src="data:image/png;base64,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" alt="Medivalle SF S.A.S">
+  <div class="hdr-txt">
+    <h1>MediCalc</h1>
+    <p>Medivalle SF S.A.S &mdash; Dispensacion segura</p>
+  </div>
+</div>
+
+<div class="tabs-bar">
+  <button class="tab-btn active" onclick="tab(0)">
+    <div class="tab-icon" style="background:#0EA5E9"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l6 9.5c1.4 2.3 1.4 5.2 0 7.5A7 7 0 015 12.5L12 2z"/></svg></div>
+    <span class="tab-lbl">Liquidos</span>
+  </button>
+  <button class="tab-btn" onclick="tab(1)">
+    <div class="tab-icon" style="background:#9B59B6"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2l4 4-3 3-4-4 3-3z"/><path d="M14.5 5.5L4 16l1 3 3 1 10.5-10.5-4-4z"/></svg></div>
+    <span class="tab-lbl">Insulinas</span>
+  </button>
+  <button class="tab-btn" onclick="tab(2)">
+    <div class="tab-icon" style="background:#2ECC71"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 5V3M12 21v-2M5 12H3M21 12h-2M7.05 7.05L5.64 5.64M18.36 18.36l-1.41-1.41M7.05 16.95l-1.41 1.41M18.36 5.64l-1.41 1.41"/></svg></div>
+    <span class="tab-lbl">Goteros</span>
+  </button>
+  <button class="tab-btn" onclick="tab(3)">
+    <div class="tab-icon" style="background:#CB542A"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6v3l3 4v11H6V10l3-4V3z"/><path d="M8 14h8M8 17h5"/></svg></div>
+    <span class="tab-lbl">Viales</span>
+  </button>
+  <button class="tab-btn" onclick="tab(4)">
+    <div class="tab-icon" style="background:#12528F"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>
+    <span class="tab-lbl">D/Peso</span>
+  </button>
+  <button class="tab-btn" onclick="tab(5)">
+    <div class="tab-icon" style="background:#009D70"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><path d="M17 13v8M13 17h8"/></svg></div>
+    <span class="tab-lbl">Verific.</span>
+  </button>
+  <button class="tab-btn" onclick="tab(6)">
+    <div class="tab-icon" style="background:#05A0D8"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3M3 16v3a2 2 0 002 2h3m8 0h3a2 2 0 002-2v-3"/><path d="M9 12h6M12 9v6"/></svg></div>
+    <span class="tab-lbl">Equiv.</span>
+  </button>
+  <button class="tab-btn" onclick="tab(7)">
+    <div class="tab-icon" style="background:#CB542A"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg></div>
+    <span class="tab-lbl">Tablas</span>
+  </button>
+  <button class="tab-btn" onclick="tab(8)">
+    <div class="tab-icon" style="background:#009D70"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+    <span class="tab-lbl">Regla 3</span>
+  </button>
+</div>
+
+<!-- ADVERTENCIA GLOBAL -->
+<div style="background:#FEF3C7;border-top:2px solid #FCD34D;border-bottom:2px solid #FCD34D;padding:7px 12px;display:flex;align-items:center;gap:8px">
+  <span style="font-size:15px;flex-shrink:0">⚠️</span>
+  <span style="font-size:10px;color:#92400E;font-weight:700;line-height:1.4">Toda prescripcion corresponde a <b>30 dias (1 mes)</b> salvo que se indique lo contrario en el campo Duracion.</span>
+</div>
+
+<!-- ===== MOD 0: LIQUIDOS ===== -->
+<div class="mod-content active" id="mod-0">
+  <div class="mod-header">
+    <div class="mod-hico" style="background:#e0f2fe"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0EA5E9" stroke-width="2.2" stroke-linecap="round"><path d="M12 2l6 9.5c1.4 2.3 1.4 5.2 0 7.5A7 7 0 015 12.5L12 2z"/></svg></div>
+    <div><div class="mod-title">Liquidos / Jarabes</div><div class="mod-sub">Ingresa los datos de la formula medica y el producto</div></div>
+  </div>
+
+  <!-- selector modo -->
+  <div class="bloque" style="background:#EFF6FF;border-color:#BFDBFE;padding:8px 10px">
+    <div class="bloque-titulo" style="color:#1D4ED8;margin-bottom:5px"><span class="dot" style="background:#1D4ED8"></span>TIPO DE PRESCRIPCION</div>
+    <select id="l-modo" onchange="liqModo()" style="width:100%;border:1.5px solid #BFDBFE;border-radius:7px;font-size:11px;font-weight:700;color:#1D4ED8;background:#EFF6FF;padding:6px 8px">
+      <option value="ml">En mL — "Tomar X mL cada X horas" (mas comun)</option>
+      <option value="mg">En mg — calcular mL segun concentracion</option>
+    </select>
+  </div>
+
+  <!-- MODO mL -->
+  <div id="lb-ml">
+    <div class="bloque">
+      <div class="bloque-titulo"><span class="dot"></span>FORMULA MEDICA</div>
+      <div class="campos-row">
+        <div class="campo"><div class="campo-lbl">Volumen/toma<span class="campo-unit">mL</span></div><input id="l-ml" type="number" min="0" placeholder="ej: 5" oninput="calcLiq()"></div>
+        <div class="campo"><div class="campo-lbl">Cada<span class="campo-unit">horas</span></div><input id="l-fml" type="number" min="0" placeholder="ej: 8" oninput="calcLiq()"></div>
+        <div class="campo"><div class="campo-lbl">Duracion<span class="campo-unit">dias</span></div><input id="l-dml" type="number" min="0" value="30" placeholder="30" oninput="calcLiq()"></div>
+      </div>
+    </div>
+    <div class="bloque">
+      <div class="bloque-titulo"><span class="dot"></span>PRODUCTO DISPONIBLE</div>
+      <div class="campo"><div class="campo-lbl">Tamano frasco<span class="campo-unit">mL</span></div><input id="l-fr" type="number" min="0" placeholder="ej: 120" oninput="calcLiq()"></div>
+    </div>
+  </div>
+
+  <!-- MODO mg -->
+  <div id="lb-mg" style="display:none">
+    <div class="bloque">
+      <div class="bloque-titulo"><span class="dot"></span>FORMULA MEDICA</div>
+      <div class="campos-row">
+        <div class="campo"><div class="campo-lbl">Dosis<span class="campo-unit">mg</span></div><input id="l-d" type="number" min="0" placeholder="ej: 250" oninput="calcLiq()"></div>
+        <div class="campo"><div class="campo-lbl">Cada<span class="campo-unit">horas</span></div><input id="l-f" type="number" min="0" placeholder="ej: 8" oninput="calcLiq()"></div>
+        <div class="campo"><div class="campo-lbl">Duracion<span class="campo-unit">dias</span></div><input id="l-dias" type="number" min="0" value="30" placeholder="30" oninput="calcLiq()"></div>
+      </div>
+    </div>
+    <div class="bloque">
+      <div class="bloque-titulo"><span class="dot"></span>PRODUCTO DISPONIBLE</div>
+      <div class="campos-row">
+        <div class="campo"><div class="campo-lbl">Concentracion<span class="campo-unit">mg</span></div><input id="l-cm" type="number" min="0" placeholder="ej: 250" oninput="calcLiq()"></div>
+        <div class="div-sym">/</div>
+        <div class="campo"><div class="campo-lbl">En<span class="campo-unit">mL</span></div><input id="l-cv" type="number" min="0" placeholder="ej: 5" oninput="calcLiq()"></div>
+        <div class="campo"><div class="campo-lbl">Tamano frasco<span class="campo-unit">mL</span></div><input id="l-fr2" type="number" min="0" placeholder="ej: 120" oninput="calcLiq()"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="resultado-box" id="l-res">
+    <div class="res-grid" id="l-cards"></div>
+    <div class="res-nota" id="l-nota" style="margin-bottom:8px"></div>
+    <div class="bloque naranja" style="margin-bottom:0">
+      <div class="bloque-titulo"><span class="dot"></span>VERIFICAR PEDIDO DE LA FORMULA</div>
+      <div class="campo pedido"><div class="campo-lbl">Frascos pedidos en la formula</div><input id="l-ped" type="number" min="0" placeholder="Ingresa cuantos frascos pide la formula" oninput="semaforo('l-ped','l-sem',liq_frascos)"></div>
+      <div class="semaforo-box" id="l-sem" style="margin-top:8px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MOD 1: INSULINAS ===== -->
+<div class="mod-content" id="mod-1">
+  <div class="mod-header">
+    <div class="mod-hico" style="background:#f3e8ff"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9B59B6" stroke-width="2.2" stroke-linecap="round"><path d="M18 2l4 4-3 3-4-4 3-3z"/><path d="M14.5 5.5L4 16l1 3 3 1 10.5-10.5-4-4z"/></svg></div>
+    <div><div class="mod-title">Insulinas / Plumas</div><div class="mod-sub">Calcula UI totales y pens a dispensar</div></div>
+  </div>
+
+  <!-- selector modo insulina -->
+  <div class="bloque" style="background:#F3E8FF;border-color:#DDD6FE;padding:8px 10px">
+    <div class="bloque-titulo" style="color:#7C3AED;margin-bottom:5px"><span class="dot" style="background:#7C3AED"></span>ESQUEMA DE DOSIFICACION</div>
+    <select id="i-modo" onchange="insModo()" style="width:100%;border:1.5px solid #DDD6FE;border-radius:7px;font-size:11px;font-weight:700;color:#7C3AED;background:#F3E8FF;padding:6px 8px">
+      <option value="fijo">Dosis fija — misma dosis todos los dias</option>
+      <option value="prog">Progresivo — dosis cambia por semana o mes</option>
+      <option value="bb">Basal-Bolo — basal + bolos por comida</option>
+    </select>
+  </div>
+
+  <!-- FIJO -->
+  <div id="ib-fijo">
+    <div class="bloque">
+      <div class="bloque-titulo"><span class="dot"></span>FORMULA MEDICA</div>
+      <div class="campos-row">
+        <div class="campo"><div class="campo-lbl">Dosis<span class="campo-unit">UI/aplic.</span></div><input id="i-d" type="number" min="0" placeholder="ej: 20" oninput="calcIns()"></div>
+        <div class="campo"><div class="campo-lbl">Aplicaciones<span class="campo-unit">/dia</span></div><input id="i-aplic" type="number" min="0" placeholder="ej: 2" oninput="calcIns()"></div>
+        <div class="campo"><div class="campo-lbl">Duracion<span class="campo-unit">dias</span></div><input id="i-dias" type="number" min="0" value="30" placeholder="30" oninput="calcIns()"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROGRESIVO -->
+  <div id="ib-prog" style="display:none">
+    <div class="bloque" style="background:#F3E8FF;border-color:#DDD6FE;padding:8px 10px">
+      <div class="bloque-titulo" style="color:#7C3AED;margin-bottom:5px"><span class="dot" style="background:#7C3AED"></span>CONFIGURACION</div>
+      <div class="campos-row">
+        <div class="campo">
+          <div class="campo-lbl">Periodo</div>
+          <select id="i-ptipo" onchange="insGenPer()" style="width:100%;border:1.5px solid #DDD6FE;border-radius:7px;font-size:11px;font-weight:700;color:#7C3AED;background:#F3E8FF;padding:6px 8px">
+            <option value="7">Por Semana (7 dias)</option>
+            <option value="30">Por Mes (30 dias)</option>
+          </select>
+        </div>
+        <div class="campo">
+          <div class="campo-lbl">Cantidad</div>
+          <select id="i-nper" onchange="insGenPer()" style="width:100%;border:1.5px solid #DDD6FE;border-radius:7px;font-size:11px;font-weight:700;color:#7C3AED;background:#F3E8FF;padding:6px 8px">
+            <option value="2">2 periodos</option>
+            <option value="3">3 periodos</option>
+            <option value="4" selected>4 periodos</option>
+            <option value="5">5 periodos</option>
+            <option value="6">6 periodos</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="bloque" id="i-per-wrap"><!-- campos generados --></div>
+    <div id="i-prog-res" style="display:none;font-size:10px;color:#5B21B6;background:#EDE9FE;border-radius:7px;padding:7px 10px;margin-bottom:8px;line-height:1.6"></div>
+  </div>
+
+  <!-- BASAL-BOLO -->
+  <div id="ib-bb" style="display:none">
+    <div class="bloque">
+      <div class="bloque-titulo"><span class="dot"></span>INSULINA BASAL</div>
+      <div class="campos-row">
+        <div class="campo"><div class="campo-lbl">UI basales<span class="campo-unit">/dia</span></div><input id="i-basal" type="number" min="0" placeholder="ej: 20" oninput="calcIns()"></div>
+        <div class="campo"><div class="campo-lbl">Veces<span class="campo-unit">/dia</span></div><input id="i-bap" type="number" min="0" value="1" placeholder="1" oninput="calcIns()"></div>
+      </div>
+    </div>
+    <div class="bloque">
+      <div class="bloque-titulo"><span class="dot"></span>BOLOS DE COMIDA</div>
+      <div class="campos-row">
+        <div class="campo"><div class="campo-lbl">Desayuno<span class="campo-unit">UI</span></div><input id="i-b1" type="number" min="0" placeholder="ej: 6" oninput="calcIns()"></div>
+        <div class="campo"><div class="campo-lbl">Almuerzo<span class="campo-unit">UI</span></div><input id="i-b2" type="number" min="0" placeholder="ej: 8" oninput="calcIns()"></div>
+        <div class="campo"><div class="campo-lbl">Cena<span class="campo-unit">UI</span></div><input id="i-b3" type="number" min="0" placeholder="ej: 6" oninput="calcIns()"></div>
+      </div>
+      <div class="campos-row" style="margin-top:6px">
+        <div class="campo"><div class="campo-lbl">Duracion<span class="campo-unit">dias</span></div><input id="i-dbb" type="number" min="0" value="30" placeholder="30" oninput="calcIns()"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bloque">
+    <div class="bloque-titulo"><span class="dot"></span>TIPO DE PEN / CARTUCHO</div>
+    <div class="campo"><div class="campo-lbl">Presentacion disponible</div>
+      <select id="i-pen" onchange="calcIns()">
+        <option value="300">KwikPen — 300 UI por cartucho</option>
+        <option value="100">Jeringa estandar — 100 UI</option>
+        <option value="200">FlexPen — 200 UI por cartucho</option>
+        <option value="450">Toujeo SoloStar — 450 UI por cartucho</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="resultado-box" id="i-res">
+    <div class="res-grid" id="i-cards"></div>
+    <div class="res-nota" id="i-nota" style="margin-bottom:8px"></div>
+    <div class="bloque naranja" style="margin-bottom:0">
+      <div class="bloque-titulo"><span class="dot"></span>VERIFICAR PEDIDO DE LA FORMULA</div>
+      <div class="campo pedido"><div class="campo-lbl">Pens / cartuchos pedidos en la formula</div><input id="i-ped" type="number" min="0" placeholder="Ingresa cuantos pens pide la formula" oninput="semaforo('i-ped','i-sem',ins_pens)"></div>
+      <div class="semaforo-box" id="i-sem" style="margin-top:8px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MOD 2: GOTEROS ===== -->
+<div class="mod-content" id="mod-2">
+  <div class="mod-header">
+    <div class="mod-hico" style="background:#dcfce7"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2ECC71" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 5V3M12 21v-2M5 12H3M21 12h-2M7.05 7.05L5.64 5.64M18.36 18.36l-1.41-1.41M7.05 16.95l-1.41 1.41M18.36 5.64l-1.41 1.41"/></svg></div>
+    <div><div class="mod-title">Goteros / Colirios</div><div class="mod-sub">Calcula gotas totales y frascos a dispensar</div></div>
+  </div>
+
+  <div class="bloque">
+    <div class="bloque-titulo"><span class="dot"></span>FORMULA MEDICA</div>
+    <div class="campos-row">
+      <div class="campo"><div class="campo-lbl">Gotas<span class="campo-unit">/aplic.</span></div><input id="g-gotas" type="number" min="0" placeholder="ej: 2" oninput="calcGot()"></div>
+      <div class="campo"><div class="campo-lbl">Cada<span class="campo-unit">horas</span></div><input id="g-f" type="number" min="0" placeholder="ej: 6" oninput="calcGot()"></div>
+      <div class="campo"><div class="campo-lbl">Duracion<span class="campo-unit">dias</span></div><input id="g-dias" type="number" min="0" value="30" placeholder="30" oninput="calcGot()"></div>
+    </div>
+    <div class="campos-row" style="margin-top:7px">
+      <div class="campo"><div class="campo-lbl">Aplicar en</div>
+        <select id="g-ojos" onchange="calcGot()">
+          <option value="1">Un ojo / un oido</option>
+          <option value="2">Ambos ojos / ambos oidos</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="bloque">
+    <div class="bloque-titulo"><span class="dot"></span>PRODUCTO DISPONIBLE</div>
+    <div class="campos-row">
+      <div class="campo"><div class="campo-lbl">Gotas por mL<span class="campo-unit">gts/mL</span></div><input id="g-gml" type="number" min="1" value="20" placeholder="20" oninput="calcGot()"></div>
+      <div class="campo"><div class="campo-lbl">Volumen frasco<span class="campo-unit">mL</span></div><input id="g-fml" type="number" min="0" placeholder="ej: 5" oninput="calcGot()"></div>
+    </div>
+    <div style="font-size:9px;color:#999;margin-top:3px">* OMS estandar: 20 gts/mL · Oleosas: 15-16 · Alcoholicas: 12-15</div>
+  </div>
+
+  <div class="resultado-box" id="g-res">
+    <div class="res-grid" id="g-cards"></div>
+    <div class="res-nota" id="g-nota" style="margin-bottom:8px"></div>
+    <div class="bloque naranja" style="margin-bottom:0">
+      <div class="bloque-titulo"><span class="dot"></span>VERIFICAR PEDIDO DE LA FORMULA</div>
+      <div class="campo pedido"><div class="campo-lbl">Frascos pedidos en la formula</div><input id="g-ped" type="number" min="0" placeholder="Ingresa cuantos frascos pide la formula" oninput="semaforo('g-ped','g-sem',got_frascos)"></div>
+      <div class="semaforo-box" id="g-sem" style="margin-top:8px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MOD 3: VIALES ===== -->
+<div class="mod-content" id="mod-3">
+  <div class="mod-header">
+    <div class="mod-hico" style="background:#fff0ea"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#CB542A" stroke-width="2.2" stroke-linecap="round"><path d="M9 3h6v3l3 4v11H6V10l3-4V3z"/><path d="M8 14h8M8 17h5"/></svg></div>
+    <div><div class="mod-title">Viales / Reconst. de Polvos</div><div class="mod-sub">Calcula mL a extraer y viales necesarios</div></div>
+  </div>
+
+  <div class="bloque">
+    <div class="bloque-titulo"><span class="dot"></span>DATOS DEL VIAL</div>
+    <div class="campos-row">
+      <div class="campo"><div class="campo-lbl">Contenido del vial<span class="campo-unit">mg</span></div><input id="p-cm" type="number" min="0" placeholder="ej: 500" oninput="calcPol()"></div>
+      <div class="div-sym">/</div>
+      <div class="campo"><div class="campo-lbl">Disolver en<span class="campo-unit">mL</span></div><input id="p-cv" type="number" min="0" placeholder="ej: 10" oninput="calcPol()"></div>
+    </div>
+  </div>
+
+  <div class="bloque">
+    <div class="bloque-titulo"><span class="dot"></span>FORMULA MEDICA</div>
+    <div class="campos-row">
+      <div class="campo"><div class="campo-lbl">Dosis<span class="campo-unit">mg</span></div><input id="p-d" type="number" min="0" placeholder="ej: 250" oninput="calcPol()"></div>
+      <div class="campo"><div class="campo-lbl">Cada<span class="campo-unit">horas</span></div><input id="p-f" type="number" min="0" placeholder="ej: 12" oninput="calcPol()"></div>
+      <div class="campo"><div class="campo-lbl">Duracion<span class="campo-unit">dias</span></div><input id="p-dias" type="number" min="0" placeholder="ej: 5" oninput="calcPol()"></div>
+    </div>
+  </div>
+
+  <div class="resultado-box" id="p-res">
+    <div class="res-grid" id="p-cards"></div>
+    <div class="res-nota" id="p-nota" style="margin-bottom:8px"></div>
+    <div class="bloque naranja" style="margin-bottom:0">
+      <div class="bloque-titulo"><span class="dot"></span>VERIFICAR PEDIDO DE LA FORMULA</div>
+      <div class="campo pedido"><div class="campo-lbl">Viales pedidos en la formula</div><input id="p-ped" type="number" min="0" placeholder="Ingresa cuantos viales pide la formula" oninput="semaforo('p-ped','p-sem',pol_viales)"></div>
+      <div class="semaforo-box" id="p-sem" style="margin-top:8px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MOD 4: DOSIS POR PESO ===== -->
+<div class="mod-content" id="mod-4">
+  <div class="mod-header">
+    <div class="mod-hico" style="background:#dbeafe"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#12528F" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>
+    <div><div class="mod-title">Dosis por Peso</div><div class="mod-sub">Calcula dosis segun mg/kg del paciente</div></div>
+  </div>
+
+  <div class="bloque">
+    <div class="bloque-titulo"><span class="dot"></span>DATOS DEL PACIENTE Y FORMULA</div>
+    <div class="campos-row">
+      <div class="campo"><div class="campo-lbl">Dosis prescrita<span class="campo-unit">mg/kg</span></div><input id="w-mgkg" type="number" min="0" placeholder="ej: 10" oninput="calcPes()"></div>
+      <div class="campo"><div class="campo-lbl">Peso paciente<span class="campo-unit">kg</span></div><input id="w-kg" type="number" min="0" placeholder="ej: 20" oninput="calcPes()"></div>
+    </div>
+    <div class="campos-row" style="margin-top:7px">
+      <div class="campo"><div class="campo-lbl">Cada<span class="campo-unit">horas</span></div><input id="w-f" type="number" min="0" placeholder="ej: 8" oninput="calcPes()"></div>
+      <div class="campo"><div class="campo-lbl">Duracion<span class="campo-unit">dias</span></div><input id="w-dias" type="number" min="0" placeholder="ej: 7" oninput="calcPes()"></div>
+    </div>
+  </div>
+
+  <div class="bloque">
+    <div class="bloque-titulo"><span class="dot"></span>PRODUCTO DISPONIBLE</div>
+    <div class="campos-row">
+      <div class="campo"><div class="campo-lbl">Concentracion<span class="campo-unit">mg</span></div><input id="w-cm" type="number" min="0" placeholder="ej: 250" oninput="calcPes()"></div>
+      <div class="div-sym">/</div>
+      <div class="campo"><div class="campo-lbl">En<span class="campo-unit">mL</span></div><input id="w-cv" type="number" min="0" placeholder="ej: 5" oninput="calcPes()"></div>
+      <div class="campo"><div class="campo-lbl">Tamano frasco<span class="campo-unit">mL</span></div><input id="w-fr" type="number" min="0" placeholder="ej: 120" oninput="calcPes()"></div>
+    </div>
+  </div>
+
+  <div class="resultado-box" id="w-res">
+    <div class="res-grid" id="w-cards"></div>
+    <div class="res-nota" id="w-nota" style="margin-bottom:8px"></div>
+    <div class="bloque naranja" style="margin-bottom:0">
+      <div class="bloque-titulo"><span class="dot"></span>VERIFICAR PEDIDO DE LA FORMULA</div>
+      <div class="campo pedido"><div class="campo-lbl">Frascos pedidos en la formula</div><input id="w-ped" type="number" min="0" placeholder="Ingresa cuantos frascos pide la formula" oninput="semaforo('w-ped','w-sem',pes_frascos)"></div>
+      <div class="semaforo-box" id="w-sem" style="margin-top:8px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MOD 5: VERIFICADOR ===== -->
+<div class="mod-content" id="mod-5">
+  <div class="mod-header">
+    <div class="mod-hico" style="background:#d1fae5"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#009D70" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><path d="M17 13v8M13 17h8"/></svg></div>
+    <div><div class="mod-title">Verificador de Presentaciones</div><div class="mod-sub">Compara la concentracion de formula vs disponible</div></div>
+  </div>
+
+  <div class="bloque">
+    <div class="bloque-titulo"><span class="dot"></span>CONCENTRACION EN LA FORMULA MEDICA</div>
+    <div class="campos-row">
+      <div class="campo"><div class="campo-lbl">Cantidad<span class="campo-unit">mg / UI</span></div><input id="v-fm" type="number" min="0" placeholder="ej: 500" oninput="calcVerif()"></div>
+      <div class="div-sym">/</div>
+      <div class="campo"><div class="campo-lbl">En<span class="campo-unit">mL</span></div><input id="v-fv" type="number" min="0" placeholder="ej: 5" oninput="calcVerif()"></div>
+    </div>
+  </div>
+
+  <div class="bloque">
+    <div class="bloque-titulo"><span class="dot"></span>PRODUCTO DISPONIBLE EN FARMACIA</div>
+    <div class="campos-row">
+      <div class="campo"><div class="campo-lbl">Cantidad<span class="campo-unit">mg / UI</span></div><input id="v-dm" type="number" min="0" placeholder="ej: 250" oninput="calcVerif()"></div>
+      <div class="div-sym">/</div>
+      <div class="campo"><div class="campo-lbl">En<span class="campo-unit">mL</span></div><input id="v-dv" type="number" min="0" placeholder="ej: 5" oninput="calcVerif()"></div>
+    </div>
+  </div>
+
+  <div class="resultado-box" id="v-igual-res">
+    <div class="res-nota" id="v-igual-nota" style="margin-bottom:8px"></div>
+  </div>
+
+  <div id="v-dosif-bloque" style="display:none">
+    <div class="bloque verde">
+      <div class="bloque-titulo"><span class="dot"></span>DOSIFICACION (opcional)</div>
+      <div class="campos-row">
+        <div class="campo"><div class="campo-lbl">Dosis<span class="campo-unit">mg/UI</span></div><input id="v-d" type="number" min="0" placeholder="ej: 500" oninput="calcVerifDos()"></div>
+        <div class="campo"><div class="campo-lbl">Cada<span class="campo-unit">horas</span></div><input id="v-f" type="number" min="0" placeholder="ej: 8" oninput="calcVerifDos()"></div>
+        <div class="campo"><div class="campo-lbl">Dias</div><input id="v-dias" type="number" min="0" placeholder="ej: 7" oninput="calcVerifDos()"></div>
+        <div class="campo"><div class="campo-lbl">Frasco<span class="campo-unit">mL</span></div><input id="v-fr" type="number" min="0" placeholder="ej: 120" oninput="calcVerifDos()"></div>
+      </div>
+    </div>
+    <div class="resultado-box" id="v-dos-res">
+      <div class="res-grid" id="v-cards"></div>
+      <div class="res-nota" id="v-dos-nota" style="margin-bottom:8px"></div>
+      <div class="bloque naranja" style="margin-bottom:0">
+        <div class="bloque-titulo"><span class="dot"></span>VERIFICAR PEDIDO DE LA FORMULA</div>
+        <div class="campo pedido"><div class="campo-lbl">Frascos pedidos en la formula</div><input id="v-ped" type="number" min="0" placeholder="Ingresa cuantos frascos pide la formula" oninput="semaforo('v-ped','v-sem',ver_frascos)"></div>
+        <div class="semaforo-box" id="v-sem" style="margin-top:8px"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MOD 6: EQUIVALENCIAS ===== -->
+<div class="mod-content" id="mod-6">
+  <div class="mod-header">
+    <div class="mod-hico" style="background:#e0f7fa"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#05A0D8" stroke-width="2.2" stroke-linecap="round"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3M3 16v3a2 2 0 002 2h3m8 0h3a2 2 0 002-2v-3"/><path d="M9 12h6M12 9v6"/></svg></div>
+    <div><div class="mod-title">Equivalencias de Concentracion</div><div class="mod-sub">Verifica si dos presentaciones son intercambiables</div></div>
+  </div>
+
+  <div class="bloque">
+    <div class="bloque-titulo"><span class="dot"></span>PRESENTACION 1 — Formula / Referencia</div>
+    <div class="campos-row">
+      <div class="campo"><div class="campo-lbl">Cantidad<span class="campo-unit" id="e-u1">mg</span></div><input id="e-a1" type="number" min="0" placeholder="ej: 160" oninput="calcEqv()"></div>
+      <div class="div-sym">/</div>
+      <div class="campo"><div class="campo-lbl">En<span class="campo-unit">mL</span></div><input id="e-v1" type="number" min="0" placeholder="ej: 4" oninput="calcEqv()"></div>
+    </div>
+  </div>
+
+  <div class="bloque">
+    <div class="bloque-titulo"><span class="dot"></span>PRESENTACION 2 — Disponible / Alternativa</div>
+    <div class="campos-row">
+      <div class="campo"><div class="campo-lbl">Cantidad<span class="campo-unit" id="e-u2">mg</span></div><input id="e-a2" type="number" min="0" placeholder="ej: 80" oninput="calcEqv()"></div>
+      <div class="div-sym">/</div>
+      <div class="campo"><div class="campo-lbl">En<span class="campo-unit">mL</span></div><input id="e-v2" type="number" min="0" placeholder="ej: 2" oninput="calcEqv()"></div>
+    </div>
+    <div class="campos-row" style="margin-top:7px">
+      <div class="campo"><div class="campo-lbl">Unidad</div>
+        <select id="e-u" onchange="calcEqv()">
+          <option>mg</option><option>mcg</option><option>g</option><option>UI</option><option>mEq</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="equiv-resultado" id="e-res">
+    <div class="equiv-banner" id="e-banner">-</div>
+    <div class="equiv-detalle">
+      <div class="res-nota" id="e-detalle" style="margin-bottom:8px"></div>
+      <div id="e-dosif-bloque">
+        <div class="bloque verde" style="margin-bottom:8px">
+          <div class="bloque-titulo"><span class="dot"></span>DOSIFICACION CON PRESENTACION 2 (opcional)</div>
+          <div class="campos-row">
+            <div class="campo"><div class="campo-lbl">Dosis<span class="campo-unit" id="e-du">mg</span></div><input id="e-d" type="number" min="0" placeholder="ej: 80" oninput="calcEqvDos()"></div>
+            <div class="campo"><div class="campo-lbl">Cada<span class="campo-unit">h</span></div><input id="e-f" type="number" min="0" placeholder="ej: 8" oninput="calcEqvDos()"></div>
+            <div class="campo"><div class="campo-lbl">Dias</div><input id="e-dias" type="number" min="0" placeholder="ej: 7" oninput="calcEqvDos()"></div>
+            <div class="campo"><div class="campo-lbl">Frasco<span class="campo-unit">mL</span></div><input id="e-fr" type="number" min="0" placeholder="ej: 60" oninput="calcEqvDos()"></div>
+          </div>
+        </div>
+        <div class="resultado-box" id="e-dos-res">
+          <div class="res-grid" id="e-cards"></div>
+          <div class="res-nota" id="e-dos-nota" style="margin-bottom:8px"></div>
+          <div class="bloque naranja" style="margin-bottom:0">
+            <div class="bloque-titulo"><span class="dot"></span>VERIFICAR PEDIDO DE LA FORMULA</div>
+            <div class="campo pedido"><div class="campo-lbl">Frascos pedidos en la formula</div><input id="e-ped" type="number" min="0" placeholder="Ingresa cuantos frascos pide la formula" oninput="semaforo('e-ped','e-sem',eqv_frascos)"></div>
+            <div class="semaforo-box" id="e-sem" style="margin-top:8px"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MOD 7: TABLAS ===== -->
+<div class="mod-content" id="mod-7">
+  <div class="mod-header">
+    <div class="mod-hico" style="background:#fff3e0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#CB542A" stroke-width="1.8" stroke-linecap="round"><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg></div>
+    <div><div class="mod-title">Tablas de Referencia Farmaceutica</div><div class="mod-sub">Toca cada categoria para expandirla</div></div>
+  </div>
+
+  <div class="ref-section">
+    <div class="ref-cat" onclick="toggleRef(this)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#05A0D8" stroke-width="2.5"><path d="M12 2l6 9.5c1.4 2.3 1.4 5.2 0 7.5A7 7 0 015 12.5L12 2z"/></svg>
+      Gotas, volumenes y medidas caseras
+      <svg class="arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="ref-body">
+      <table class="ref-table">
+        <tr><th>Medida</th><th>Equivale a</th><th>Nota</th></tr>
+        <tr><td><b>1 mL</b></td><td>20 gotas</td><td>Gotero estandar OMS</td></tr>
+        <tr><td>1 mL</td><td>15–16 gotas</td><td>Soluciones oleosas</td></tr>
+        <tr><td>1 mL</td><td>12–15 gotas</td><td>Soluciones alcoholicas</td></tr>
+        <tr><td><b>1 gota</b></td><td>0.05 mL</td><td>Gotero estandar</td></tr>
+        <tr><td><b>1 cucharadita</b></td><td>5 mL</td><td>Cuchara de te</td></tr>
+        <tr><td><b>1 cucharada</b></td><td>15 mL</td><td>Cuchara sopera</td></tr>
+        <tr><td><b>1 oz fluida</b></td><td>29.57 mL ≈ 30 mL</td><td>Onza liquida</td></tr>
+        <tr><td><b>1 taza</b></td><td>240 mL</td><td>8 oz fluidas</td></tr>
+        <tr><td><b>1 cc</b></td><td>1 mL</td><td>Equivalentes exactos</td></tr>
+      </table>
+      <div class="ref-note">El numero de gotas por mL varia segun la viscosidad del liquido y el tipo de gotero utilizado.</div>
+    </div>
+  </div>
+
+  <div class="ref-section">
+    <div class="ref-cat" onclick="toggleRef(this)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#009D70" stroke-width="2.5"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      Pesos y masas
+      <svg class="arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="ref-body">
+      <table class="ref-table">
+        <tr><th>Medida</th><th>Equivale a</th><th>Nota</th></tr>
+        <tr><td>1 g</td><td>1.000 mg</td><td></td></tr>
+        <tr><td>1 mg</td><td>1.000 mcg (ug)</td><td></td></tr>
+        <tr><td>1 mcg</td><td>0.001 mg</td><td></td></tr>
+        <tr><td>1 kg</td><td>1.000 g = 2.205 lb</td><td></td></tr>
+        <tr><td>1 lb</td><td>453.6 g = 0.4536 kg</td><td></td></tr>
+        <tr><td>1 gr (grano)</td><td>64.8 mg</td><td>Unidad antigua</td></tr>
+        <tr><td>1 oz (masa)</td><td>28.35 g</td><td></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="ref-section">
+    <div class="ref-cat" onclick="toggleRef(this)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#9B59B6" stroke-width="2.5"><path d="M18 2l4 4-3 3-4-4 3-3z"/><path d="M14.5 5.5L4 16l1 3 3 1 10.5-10.5-4-4z"/></svg>
+      Insulinas y presentaciones
+      <svg class="arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="ref-body">
+      <table class="ref-table">
+        <tr><th>Presentacion</th><th>Contenido</th><th>Uso</th></tr>
+        <tr><td>Insulina U-100</td><td>100 UI/mL</td><td>Estandar mundial</td></tr>
+        <tr><td>Insulina U-300</td><td>300 UI/mL</td><td>Toujeo (Glargina)</td></tr>
+        <tr><td>Insulina U-200</td><td>200 UI/mL</td><td>Humalog 200</td></tr>
+        <tr><td>KwikPen / FlexPen</td><td>300 UI/cartucho</td><td>3 mL x 100 UI/mL</td></tr>
+        <tr><td>Toujeo SoloStar</td><td>450 UI/cartucho</td><td>1.5 mL x 300 UI/mL</td></tr>
+        <tr><td>Jeringa 1 mL U-100</td><td>100 UI max</td><td>Cada division = 1 UI</td></tr>
+      </table>
+      <div class="ref-note">NUNCA intercambiar jeringas U-100 con insulinas U-300 sin conversion previa.</div>
+    </div>
+  </div>
+
+  <div class="ref-section">
+    <div class="ref-cat" onclick="toggleRef(this)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#CB542A" stroke-width="2.5"><path d="M9 3h6v3l3 4v11H6V10l3-4V3z"/></svg>
+      Concentraciones tipicas de polvos reconstituidos
+      <svg class="arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="ref-body">
+      <table class="ref-table">
+        <tr><th>Medicamento</th><th>Presentacion</th><th>Conc. final</th></tr>
+        <tr><td>Amoxicilina</td><td>250 mg/5 mL</td><td>50 mg/mL</td></tr>
+        <tr><td>Amoxicilina</td><td>500 mg/5 mL</td><td>100 mg/mL</td></tr>
+        <tr><td>Azitromicina</td><td>200 mg/5 mL</td><td>40 mg/mL</td></tr>
+        <tr><td>Cefalexina</td><td>250 mg/5 mL</td><td>50 mg/mL</td></tr>
+        <tr><td>Claritromicina</td><td>250 mg/5 mL</td><td>50 mg/mL</td></tr>
+        <tr><td>Ibuprofeno</td><td>200 mg/5 mL</td><td>40 mg/mL</td></tr>
+        <tr><td>Metronidazol</td><td>250 mg/5 mL</td><td>50 mg/mL</td></tr>
+      </table>
+      <div class="ref-note">Siempre verificar el prospecto del fabricante. Las concentraciones varian por marca comercial.</div>
+    </div>
+  </div>
+
+  <div class="ref-section">
+    <div class="ref-cat" onclick="toggleRef(this)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#12528F" stroke-width="2.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      Dosis maximas pediatricas de referencia
+      <svg class="arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="ref-body">
+      <table class="ref-table">
+        <tr><th>Medicamento</th><th>Dosis pediatrica</th><th>Dosis max/dia</th></tr>
+        <tr><td>Acetaminofen</td><td>10–15 mg/kg c/4–6h</td><td>75 mg/kg o 4.000 mg</td></tr>
+        <tr><td>Ibuprofeno</td><td>5–10 mg/kg c/6–8h</td><td>40 mg/kg o 2.400 mg</td></tr>
+        <tr><td>Amoxicilina</td><td>25–50 mg/kg/dia</td><td>3.000 mg/dia</td></tr>
+        <tr><td>Azitromicina</td><td>10 mg/kg dia 1, 5 mg/kg dia 2–5</td><td>500 mg/dia</td></tr>
+        <tr><td>Metoclopramida</td><td>0.1–0.2 mg/kg c/8h</td><td>0.5 mg/kg/dia</td></tr>
+      </table>
+      <div class="ref-note">Referencia orientativa. La prescripcion del medico siempre prevalece sobre estas tablas.</div>
+    </div>
+  </div>
+
+  <div class="ref-section">
+    <div class="ref-cat" onclick="toggleRef(this)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#05A0D8" stroke-width="2.5"><path d="M12 2v20M2 12h20"/></svg>
+      Abreviaturas frecuentes en formulas medicas
+      <svg class="arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="ref-body">
+      <table class="ref-table">
+        <tr><th>Abrev.</th><th>Significado</th><th>Equivalencia practica</th></tr>
+        <tr><td>BID / b.i.d.</td><td>Dos veces al dia</td><td>Cada 12 horas</td></tr>
+        <tr><td>TID / t.i.d.</td><td>Tres veces al dia</td><td>Cada 8 horas</td></tr>
+        <tr><td>QID / q.i.d.</td><td>Cuatro veces al dia</td><td>Cada 6 horas</td></tr>
+        <tr><td>QD / q.d.</td><td>Una vez al dia</td><td>Cada 24 horas</td></tr>
+        <tr><td>PRN / s.o.s.</td><td>Si es necesario</td><td>A demanda del paciente</td></tr>
+        <tr><td>AC</td><td>Antes de comidas</td><td>Preprandial</td></tr>
+        <tr><td>PC</td><td>Despues de comidas</td><td>Postprandial</td></tr>
+        <tr><td>HS</td><td>Al acostarse</td><td>Hora de dormir</td></tr>
+        <tr><td>VO / PO</td><td>Via oral</td><td>Por la boca</td></tr>
+        <tr><td>OD / OS / OU</td><td>Ojo derecho / izquierdo / ambos</td><td>Oftalmico</td></tr>
+        <tr><td>AD / AS / AU</td><td>Oido derecho / izquierdo / ambos</td><td>Otico</td></tr>
+        <tr><td>NR</td><td>No repetir</td><td>Formula sin renovacion</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+
+<!-- ===== MOD 8: REGLA DE 3 / CONVERSIONES ===== -->
+<div class="mod-content" id="mod-8">
+  <div class="mod-header">
+    <div class="mod-hico" style="background:#d1fae5"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#009D70" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+    <div><div class="mod-title">Regla de 3 y Conversiones</div><div class="mod-sub">Convierte unidades y calcula proporciones</div></div>
+  </div>
+  <div class="bloque">
+    <div class="bloque-titulo"><span class="dot"></span>CONVERTIDOR RAPIDO</div>
+    <div class="campos-row">
+      <div class="campo"><div class="campo-lbl">Valor</div><input id="cv-v" type="number" min="0" placeholder="ej: 0.5" oninput="calcConv()"></div>
+      <div class="campo"><div class="campo-lbl">Conversion</div>
+        <select id="cv-t" onchange="calcConv()" style="width:100%;border:1.5px solid #e8e8e8;border-radius:7px;font-size:11px;font-weight:600;color:#11273C;background:#F8FAFB;padding:6px 8px">
+          <option value="g_mg">g → mg (x1000)</option>
+          <option value="mg_g">mg → g (÷1000)</option>
+          <option value="mg_mcg">mg → mcg (x1000)</option>
+          <option value="mcg_mg">mcg → mg (÷1000)</option>
+          <option value="mgml_p">mg/mL → % (÷10)</option>
+          <option value="p_mgml">% → mg/mL (x10)</option>
+          <option value="lb_kg">lb → kg (x0.4536)</option>
+          <option value="kg_lb">kg → lb (x2.2046)</option>
+          <option value="oz_ml">oz fluida → mL (x29.57)</option>
+          <option value="cst_ml">cucharadita → mL (x5)</option>
+          <option value="csp_ml">cucharada → mL (x15)</option>
+        </select>
+      </div>
+    </div>
+    <div id="cv-res" style="display:none;margin-top:8px">
+      <div class="res-card star"><div class="res-lbl">RESULTADO</div><div class="res-val" id="cv-val" style="font-size:20px"></div><div style="font-size:10px;color:#555;margin-top:2px" id="cv-form"></div></div>
+    </div>
+  </div>
+  <div class="bloque">
+    <div class="bloque-titulo"><span class="dot"></span>REGLA DE 3 LIBRE</div>
+    <div style="font-size:10px;color:#777;margin-bottom:7px">Si A → B, entonces C → ? &nbsp;|&nbsp; D = (B × C) ÷ A</div>
+    <div class="campos-row">
+      <div class="campo"><div class="campo-lbl">A (conocido)</div><input id="r3-a" type="number" placeholder="ej: 500" oninput="calcR3()"></div>
+      <div class="div-sym" style="font-size:14px;padding-bottom:9px">→</div>
+      <div class="campo"><div class="campo-lbl">B (conocido)</div><input id="r3-b" type="number" placeholder="ej: 5" oninput="calcR3()"></div>
+    </div>
+    <div class="campos-row" style="margin-top:6px">
+      <div class="campo"><div class="campo-lbl">C (conocido)</div><input id="r3-c" type="number" placeholder="ej: 250" oninput="calcR3()"></div>
+      <div class="div-sym" style="font-size:14px;padding-bottom:9px">→</div>
+      <div class="campo"><div class="campo-lbl">D (resultado)</div><input id="r3-d" readonly style="background:#E8F5E9;border-color:#A5D6A7;font-weight:800;color:#1B5E20;width:100%;border:1.5px solid #A5D6A7;border-radius:7px;font-size:15px;padding:6px 8px"></div>
+    </div>
+    <div id="r3-n" style="display:none;margin-top:6px" class="res-nota"></div>
+  </div>
+  <div class="bloque">
+    <div class="bloque-titulo"><span class="dot"></span>mL PARA UNA DOSIS</div>
+    <div style="font-size:10px;color:#777;margin-bottom:7px">Cuantos mL extraer conociendo dosis y concentracion del producto</div>
+    <div class="campos-row">
+      <div class="campo"><div class="campo-lbl">Dosis<span class="campo-unit">mg</span></div><input id="dc-d" type="number" min="0" placeholder="ej: 250" oninput="calcDC()"></div>
+      <div class="campo"><div class="campo-lbl">Conc.<span class="campo-unit">mg</span></div><input id="dc-cm" type="number" min="0" placeholder="ej: 500" oninput="calcDC()"></div>
+      <div class="div-sym">/</div>
+      <div class="campo"><div class="campo-lbl">En<span class="campo-unit">mL</span></div><input id="dc-cv" type="number" min="0" placeholder="ej: 5" oninput="calcDC()"></div>
+    </div>
+    <div id="dc-res" style="display:none;margin-top:8px">
+      <div class="res-card star"><div class="res-lbl">mL A EXTRAER</div><div class="res-val" id="dc-val"></div></div>
+      <div class="res-nota" id="dc-n" style="margin-top:6px"></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /app -->
+
+<script>
+// ===== VARIABLES GLOBALES DE CALCULO =====
+var liq_frascos=0, ins_pens=0, got_frascos=0, pol_viales=0;
+var pes_frascos=0, ver_frascos=0, eqv_frascos=0;
+
+// ===== HELPERS =====
+function el(id){return document.getElementById(id)}
+function nv(id){var e=el(id);return e&&e.value!==''?parseFloat(e.value):0}
+function showEl(id){var e=el(id);if(e)e.style.display='block'}
+function hideEl(id){var e=el(id);if(e)e.style.display='none'}
+function addCls(id,c){var e=el(id);if(e)e.classList.add(c)}
+function remCls(id,c){var e=el(id);if(e)e.classList.remove(c)}
+function htm(id,h){var e=el(id);if(e)e.innerHTML=h}
+
+function tab(n){
+  document.querySelectorAll('.tab-btn').forEach(function(b,i){b.classList.toggle('active',i===n)});
+  document.querySelectorAll('.mod-content').forEach(function(m,i){m.classList.toggle('active',i===n)});
+}
+
+function toggleRef(cat){
+  var body=cat.nextElementSibling;
+  var open=body.classList.contains('show');
+  body.classList.toggle('show',!open);
+  cat.classList.toggle('open',!open);
+}
+
+function card(lbl,val,star){
+  return '<div class="res-card'+(star?' star':'')+'"><div class="res-lbl">'+lbl+'</div><div class="res-val">'+val+'</div></div>';
+}
+
+// ===== SEMAFORO — funcion central corregida =====
+function semaforo(pedId, semId, calculado){
+  var semBox = el(semId);
+  if(!semBox) return;
+  var ped = nv(pedId);
+  if(!ped || calculado<=0){
+    semBox.classList.remove('show');
+    semBox.innerHTML='';
+    return;
+  }
+  semBox.classList.add('show');
+  var calcCeil = Math.ceil(calculado);
+  var html='';
+  if(ped < calcCeil){
+    html='<div class="sem-alerta err"><span class="sem-icon">🔴</span><span><b>INSUFICIENTE:</b> La formula pide '+ped+' unidad(es) pero el calculo indica que se necesitan <b>'+calcCeil+'</b>. Verifique con el Regente Quimico Farmaceutico antes de dispensar.</span></div>';
+  } else if(ped > calcCeil){
+    html='<div class="sem-alerta warn"><span class="sem-icon">🟡</span><span><b>EXCESO:</b> La formula pide '+ped+' unidad(es) pero el calculo indica <b>'+calcCeil+'</b>. <b>VERIFICAR CON EL REGENTE QUIMICO FARMACEUTICO</b> antes de dispensar. No dispensar mas de lo calculado sin autorizacion.</span></div>';
+  } else {
+    html='<div class="sem-alerta ok"><span class="sem-icon">🟢</span><span><b>CORRECTO:</b> La cantidad pedida ('+ped+') coincide con lo calculado ('+calcCeil+'). Puede proceder a dispensar.</span></div>';
+  }
+  semBox.innerHTML=html;
+}
+
+// ===== MOD 0: LIQUIDOS =====
+function liqModo(){
+  var m=el('l-modo').value;
+  el('lb-ml').style.display=m==='ml'?'block':'none';
+  el('lb-mg').style.display=m==='mg'?'block':'none';
+  liq_frascos=0;remCls('l-res','show');
+}
+function calcLiq(){
+  var m=el('l-modo')?el('l-modo').value:'ml';
+  remCls('l-res','show');liq_frascos=0;
+  if(m==='ml'){
+    var ml=nv('l-ml'),f=nv('l-fml'),dias=nv('l-dml')||30,fr=nv('l-fr');
+    if(!ml||!f)return;
+    var tomas=(24/f)*dias,mlT=ml*tomas;
+    liq_frascos=fr?mlT/fr:0;
+    addCls('l-res','show');
+    htm('l-cards',card('mL POR TOMA',ml.toFixed(1)+' mL')+card('TOMAS TOTALES',tomas.toFixed(0))+card('mL TOTALES',mlT.toFixed(1)+' mL')+(fr?card('FRASCOS NECESARIOS',Math.ceil(liq_frascos),true):''));
+    htm('l-nota','<b>'+ml+' mL</b> c/<b>'+f+'h</b> x <b>'+dias+'</b> dias = <b>'+mlT.toFixed(1)+' mL</b> totales.'+(fr?' Necesita <b>'+Math.ceil(liq_frascos)+'</b> frasco(s) de '+fr+' mL.':' Ingresa tamano del frasco.'));
+  } else {
+    var d=nv('l-d'),f=nv('l-f'),dias=nv('l-dias')||30,cm=nv('l-cm'),cv=nv('l-cv'),fr=nv('l-fr2');
+    if(!d||!f||!cm||!cv)return;
+    var conc=cm/cv,mlD=d/conc,tomas=(24/f)*dias,mlT=mlD*tomas;
+    liq_frascos=fr?mlT/fr:0;
+    addCls('l-res','show');
+    htm('l-cards',card('mL POR TOMA',mlD.toFixed(2)+' mL')+card('TOMAS TOTALES',tomas.toFixed(0))+card('mL TOTALES',mlT.toFixed(1)+' mL')+(fr?card('FRASCOS NECESARIOS',Math.ceil(liq_frascos),true):''));
+    htm('l-nota','Administrar <b>'+mlD.toFixed(1)+' mL</b> por toma, <b>'+(24/f).toFixed(0)+'</b> veces/dia x <b>'+dias+'</b> dias.'+(fr?' Necesita <b>'+Math.ceil(liq_frascos)+'</b> frasco(s).':' Ingresa tamano del frasco.'));
+  }
+  el('l-ped').value='';el('l-sem').classList.remove('show');el('l-sem').innerHTML='';
+}
+
+// ===== MOD 1: INSULINAS =====
+function insModo(){
+  var m=el('i-modo').value;
+  el('ib-fijo').style.display=m==='fijo'?'block':'none';
+  el('ib-prog').style.display=m==='prog'?'block':'none';
+  el('ib-bb').style.display=m==='bb'?'block':'none';
+  ins_pens=0;remCls('i-res','show');
+  if(m==='prog')insGenPer();
+}
+function insGenPer(){
+  var n=parseInt(el('i-nper').value)||4;
+  var dp=parseInt(el('i-ptipo').value)||7;
+  var lb=dp===7?'Semana':'Mes';
+  var wrap=el('i-per-wrap');if(!wrap)return;
+  var s='<div class="bloque-titulo"><span class="dot"></span>UI/DIA POR '+lb.toUpperCase()+'</div>';
+  for(var p=1;p<=n;p++){
+    if(p%2===1)s+='<div class="campos-row">';
+    s+='<div class="campo"><div class="campo-lbl">'+lb+' '+p+'<span class="campo-unit">UI/dia</span></div><input id="i-p'+p+'" type="number" min="0" placeholder="ej:'+(10+(p-1)*4)+'" oninput="calcIns()"></div>';
+    if(p%2===0||p===n)s+='</div>';
+  }
+  wrap.innerHTML=s;
+  var pr=el('i-prog-res');if(pr)pr.style.display='none';
+  ins_pens=0;remCls('i-res','show');
+}
+function calcIns(){
+  var m=el('i-modo')?el('i-modo').value:'fijo';
+  var pen=parseFloat(el('i-pen')?el('i-pen').value:300)||300;
+  remCls('i-res','show');ins_pens=0;
+  var uiT=0,nota='';
+  if(m==='fijo'){
+    var d=nv('i-d'),ap=nv('i-aplic'),dias=nv('i-dias')||30;
+    if(!d||!ap)return;
+    var uiD=d*ap;uiT=uiD*dias;
+    nota='<b>'+d+' UI</b> x <b>'+ap+'</b>/dia x <b>'+dias+'</b> dias = <b>'+uiT.toFixed(0)+' UI</b>.';
+    ins_pens=uiT/pen;addCls('i-res','show');
+    htm('i-cards',card('UI POR DIA',uiD.toFixed(0)+' UI')+card('UI TOTALES',uiT.toFixed(0)+' UI')+card('PENS / CARTUCHOS',Math.ceil(ins_pens),true));
+  } else if(m==='prog'){
+    var n=parseInt(el('i-nper')?el('i-nper').value:4)||4;
+    var dp=parseInt(el('i-ptipo')?el('i-ptipo').value:7)||7;
+    var lb=dp===7?'Sem':'Mes';
+    var cards='',resumen='',ok=false;
+    for(var p=1;p<=n;p++){var v=nv('i-p'+p);if(v>0)ok=true;uiT+=v*dp;cards+=card(lb+' '+p,v>0?(v*dp).toFixed(0)+' UI':'-');resumen+=lb+p+':<b>'+v+'UI/d</b>=>'+(v*dp).toFixed(0)+'UI &nbsp;';}
+    if(!ok)return;
+    var pr=el('i-prog-res');if(pr){pr.style.display='block';pr.innerHTML=resumen+'<br><b>Total: '+uiT.toFixed(0)+' UI</b>';}
+    nota='Esquema '+n+' periodo(s) de '+dp+' dias: <b>'+uiT.toFixed(0)+' UI</b> totales.';
+    ins_pens=uiT/pen;addCls('i-res','show');
+    htm('i-cards',cards+card('UI TOTALES',uiT.toFixed(0)+' UI')+card('PENS / CARTUCHOS',Math.ceil(ins_pens),true));
+  } else {
+    var bas=nv('i-basal'),bap=nv('i-bap')||1,b1=nv('i-b1'),b2=nv('i-b2'),b3=nv('i-b3'),dias=nv('i-dbb')||30;
+    if(!bas&&!b1&&!b2&&!b3)return;
+    var uiD=(bas*bap)+(b1+b2+b3);uiT=uiD*dias;
+    nota='Basal:<b>'+(bas*bap)+'UI/d</b>+Bolos:<b>'+(b1+b2+b3)+'UI/d</b>=<b>'+uiD+'UI/d</b> x <b>'+dias+'</b>d.';
+    ins_pens=uiT/pen;addCls('i-res','show');
+    htm('i-cards',card('BASAL/DIA',(bas*bap).toFixed(0)+' UI')+card('BOLOS/DIA',(b1+b2+b3).toFixed(0)+' UI')+card('UI/DIA',uiD.toFixed(0)+' UI')+card('UI TOTALES',uiT.toFixed(0)+' UI')+card('PENS / CARTUCHOS',Math.ceil(ins_pens),true));
+  }
+  if(ins_pens>0)htm('i-nota',nota+' Necesita <b>'+Math.ceil(ins_pens)+'</b> pen(s) de <b>'+pen+' UI</b>.');
+  el('i-ped').value='';el('i-sem').classList.remove('show');el('i-sem').innerHTML='';
+}
+
+// ===== MOD 2: GOTEROS =====
+function calcGot(){
+  var gotas=nv('g-gotas'),f=nv('g-f'),dias=nv('g-dias')||30;
+  var ojos=parseFloat(el('g-ojos')?el('g-ojos').value:1)||1;
+  var gml=nv('g-gml')||20, fml=nv('g-fml');
+  if(!gotas||!f){remCls('g-res','show');got_frascos=0;return;}
+  var aplic=(24/f)*dias, totalG=gotas*ojos*aplic, totalMl=totalG/gml;
+  got_frascos=fml?totalMl/fml:0;
+  addCls('g-res','show');
+  htm('g-cards',card('GOTAS TOTALES',totalG.toFixed(0)+' gts')+card('mL TOTALES',totalMl.toFixed(2)+' mL')+card('APLICACIONES',aplic.toFixed(0))+(fml?card('FRASCOS NECESARIOS',Math.ceil(got_frascos),true):''));
+  htm('g-nota','<b>'+gotas+'</b> gota(s) x <b>'+ojos+'</b> ojo(s)/oido(s) c/<b>'+f+'h</b> x <b>'+dias+'</b> dias = <b>'+totalG.toFixed(0)+'</b> gotas = <b>'+totalMl.toFixed(2)+' mL</b>.'+(fml?' Necesita <b>'+Math.ceil(got_frascos)+'</b> frasco(s) de '+fml+' mL.':' Ingresa volumen del frasco.'));
+  el('g-ped').value='';el('g-sem').classList.remove('show');el('g-sem').innerHTML='';
+}
+
+// ===== MOD 3: VIALES =====
+function calcPol(){
+  var cm=nv('p-cm'),cv=nv('p-cv'),d=nv('p-d'),f=nv('p-f'),dias=nv('p-dias');
+  if(!cm||!cv||!d){remCls('p-res','show');pol_viales=0;return;}
+  var conc=cm/cv, mlD=d/conc;
+  var tomas=(f&&dias)?(24/f)*dias:0;
+  pol_viales = (tomas&&cv) ? Math.ceil((mlD*tomas)/cv) : 0;
+  addCls('p-res','show');
+  var c=card('CONC. RECONSTIT.',conc.toFixed(2)+' mg/mL')+card('mL A EXTRAER',mlD.toFixed(2)+' mL')+(pol_viales?card('VIALES NECESARIOS',pol_viales,true):'');
+  htm('p-cards',c);
+  htm('p-nota','Concentracion reconstituida: <b>'+conc.toFixed(2)+' mg/mL</b>. Extraer <b>'+mlD.toFixed(2)+' mL</b> por dosis.'+(pol_viales?' Se necesitan <b>'+pol_viales+'</b> vial(es).':' Ingresa frecuencia y duracion para calcular viales.'));
+  el('p-ped').value=''; el('p-sem').classList.remove('show'); el('p-sem').innerHTML='';
+}
+
+// ===== MOD 4: DOSIS POR PESO =====
+function calcPes(){
+  var mgkg=nv('w-mgkg'),kg=nv('w-kg'),f=nv('w-f'),dias=nv('w-dias'),cm=nv('w-cm'),cv=nv('w-cv'),fr=nv('w-fr');
+  if(!mgkg||!kg){remCls('w-res','show');pes_frascos=0;return;}
+  var dosis=mgkg*kg;
+  var mlD=(cm&&cv)?dosis/(cm/cv):0;
+  var tomas=(f&&dias)?(24/f)*dias:0;
+  var mlT=mlD*tomas;
+  pes_frascos=(fr&&mlT)?mlT/fr:0;
+  addCls('w-res','show');
+  var c=card('DOSIS CALCULADA',dosis.toFixed(1)+' mg')+(mlD?card('mL POR TOMA',mlD.toFixed(2)+' mL'):'')+(mlT?card('mL TOTALES',mlT.toFixed(1)+' mL'):'')+(pes_frascos?card('FRASCOS NECESARIOS',Math.ceil(pes_frascos),true):'');
+  htm('w-cards',c);
+  htm('w-nota','<b>'+mgkg+' mg/kg</b> x <b>'+kg+' kg</b> = <b>'+dosis.toFixed(1)+' mg</b> por dosis.'+(mlD?' Administrar <b>'+mlD.toFixed(2)+' mL</b> por toma.':'')+(pes_frascos?' Se necesitan <b>'+Math.ceil(pes_frascos)+'</b> frasco(s) de '+fr+' mL.':(!mlD?' Ingresa concentracion del producto para calcular mL.':' Ingresa tamano del frasco para calcular frascos.')));
+  el('w-ped').value=''; el('w-sem').classList.remove('show'); el('w-sem').innerHTML='';
+}
+
+// ===== MOD 5: VERIFICADOR =====
+function calcVerif(){
+  var fm=nv('v-fm'),fv=nv('v-fv'),dm=nv('v-dm'),dv=nv('v-dv');
+  if(!fm||!fv||!dm||!dv){addCls('v-igual-res','show');htm('v-igual-nota','');hideEl('v-dosif-bloque');remCls('v-dos-res','show');return;}
+  var cF=(fm/fv), cD=(dm/dv), igual=Math.abs(cF-cD)<0.001;
+  addCls('v-igual-res','show');
+  var nota='';
+  if(igual){
+    nota='<span style="color:#1B5E20;font-weight:800">✅ CONCENTRACIONES IGUALES.</span> Formula: <b>'+cF.toFixed(3)+' mg/mL</b> = Disponible: <b>'+cD.toFixed(3)+' mg/mL</b>. Puede dispensar el producto disponible sin ajuste de dosis.';
+  } else {
+    nota='<span style="color:#B71C1C;font-weight:800">⚠️ CONCENTRACIONES DISTINTAS.</span> Formula: <b>'+cF.toFixed(3)+' mg/mL</b> vs Disponible: <b>'+cD.toFixed(3)+' mg/mL</b>. Ajusta el volumen a administrar o consulta con el Regente.';
+  }
+  htm('v-igual-nota',nota);
+  showEl('v-dosif-bloque');
+  calcVerifDos();
+}
+function calcVerifDos(){
+  var dm=nv('v-dm'),dv=nv('v-dv'),d=nv('v-d'),f=nv('v-f'),dias=nv('v-dias'),fr=nv('v-fr');
+  if(!dm||!dv||!d){remCls('v-dos-res','show');ver_frascos=0;return;}
+  var conc=dm/dv, mlD=d/conc, tomas=(f&&dias)?(24/f)*dias:0, mlT=mlD*tomas;
+  ver_frascos=(fr&&mlT)?mlT/fr:0;
+  addCls('v-dos-res','show');
+  var c=card('mL POR TOMA',mlD.toFixed(2)+' mL')+(tomas?card('TOMAS TOTALES',tomas.toFixed(0)):'')+(mlT?card('mL TOTALES',mlT.toFixed(1)+' mL'):'')+(ver_frascos?card('FRASCOS NECESARIOS',Math.ceil(ver_frascos),true):'');
+  htm('v-cards',c);
+  htm('v-dos-nota','Administrar <b>'+mlD.toFixed(2)+' mL</b> por toma con el producto disponible.'+(ver_frascos?' Se necesitan <b>'+Math.ceil(ver_frascos)+'</b> frasco(s) de '+fr+' mL.':''));
+  el('v-ped').value=''; el('v-sem').classList.remove('show'); el('v-sem').innerHTML='';
+}
+
+// ===== MOD 6: EQUIVALENCIAS =====
+function calcEqv(){
+  var a1=nv('e-a1'),v1=nv('e-v1'),a2=nv('e-a2'),v2=nv('e-v2');
+  var uEl=el('e-u'), u=uEl?uEl.value:'mg';
+  var u1=el('e-u1'),u2=el('e-u2'),du=el('e-du');
+  if(u1)u1.textContent=u; if(u2)u2.textContent=u; if(du)du.textContent=u;
+  if(!a1||!v1||!a2||!v2){hideEl('e-res');eqv_frascos=0;return;}
+  var c1=a1/v1, c2=a2/v2, igual=Math.abs(c1-c2)<0.001;
+  showEl('e-res');
+  var ban=el('e-banner');
+  ban.className='equiv-banner '+(igual?'igual':'distinto');
+  ban.textContent=igual?'✅  EQUIVALENTES — MISMA CONCENTRACION':'⚠️  NO EQUIVALENTES — CONCENTRACIONES DISTINTAS';
+  htm('e-detalle','P1: <b>'+a1+' '+u+'/'+v1+' mL</b> = '+c1.toFixed(3)+' '+u+'/mL &nbsp;|&nbsp; P2: <b>'+a2+' '+u+'/'+v2+' mL</b> = '+c2.toFixed(3)+' '+u+'/mL'+(igual?'<br><span style="color:#1B5E20">Son intercambiables sin ajuste de dosis.</span>':'<br><span style="color:#B71C1C">No son directamente intercambiables. Consulte con el Regente.</span>'));
+  calcEqvDos();
+}
+function calcEqvDos(){
+  var a2=nv('e-a2'),v2=nv('e-v2'),d=nv('e-d'),f=nv('e-f'),dias=nv('e-dias'),fr=nv('e-fr');
+  if(!a2||!v2||!d){remCls('e-dos-res','show');eqv_frascos=0;return;}
+  var c2=a2/v2, mlD=d/c2, tomas=(f&&dias)?(24/f)*dias:0, mlT=mlD*tomas;
+  eqv_frascos=(fr&&mlT)?mlT/fr:0;
+  addCls('e-dos-res','show');
+  var c=card('mL POR TOMA (P2)',mlD.toFixed(2)+' mL')+(mlT?card('mL TOTALES',mlT.toFixed(1)+' mL'):'')+(eqv_frascos?card('FRASCOS NECESARIOS',Math.ceil(eqv_frascos),true):'');
+  htm('e-cards',c);
+  htm('e-dos-nota','Con Presentacion 2: administrar <b>'+mlD.toFixed(2)+' mL</b> por toma.'+(eqv_frascos?' Se necesitan <b>'+Math.ceil(eqv_frascos)+'</b> frasco(s) de '+fr+' mL.':''));
+  el('e-ped').value=''; el('e-sem').classList.remove('show'); el('e-sem').innerHTML='';
+}
+
+// ===== MOD 8: REGLA DE 3 Y CONVERSIONES =====
+function calcConv(){
+  var v=nv('cv-v'),t=el('cv-t')?el('cv-t').value:'g_mg';
+  var F={g_mg:{m:1000,u:'mg',f:'x1000'},mg_g:{m:0.001,u:'g',f:'÷1000'},mg_mcg:{m:1000,u:'mcg',f:'x1000'},mcg_mg:{m:0.001,u:'mg',f:'÷1000'},mgml_p:{m:0.1,u:'%',f:'÷10'},p_mgml:{m:10,u:'mg/mL',f:'x10'},lb_kg:{m:0.4536,u:'kg',f:'x0.4536'},kg_lb:{m:2.2046,u:'lb',f:'x2.2046'},oz_ml:{m:29.574,u:'mL',f:'x29.574'},cst_ml:{m:5,u:'mL',f:'x5'},csp_ml:{m:15,u:'mL',f:'x15'}};
+  var rd=el('cv-res');if(!v||!F[t]){if(rd)rd.style.display='none';return;}
+  var r=v*F[t].m, rs=parseFloat(r.toFixed(8)).toString();
+  if(rd)rd.style.display='block';
+  var rv=el('cv-val');if(rv)rv.textContent=rs+' '+F[t].u;
+  var rf=el('cv-form');if(rf)rf.textContent=v+' '+F[t].f+' = '+rs+' '+F[t].u;
+}
+function calcR3(){
+  var a=nv('r3-a'),b=nv('r3-b'),c=nv('r3-c');
+  var dEl=el('r3-d'),n=el('r3-n');
+  if(!a||!b||!c){if(dEl)dEl.value='';if(n)n.style.display='none';return;}
+  var d=(b*c)/a;
+  if(dEl)dEl.value=parseFloat(d.toFixed(6));
+  if(n){n.style.display='block';n.innerHTML='('+b+' x '+c+') ÷ '+a+' = <b>'+parseFloat(d.toFixed(6))+'</b>';}
+}
+function calcDC(){
+  var d=nv('dc-d'),cm=nv('dc-cm'),cv=nv('dc-cv');
+  var r=el('dc-res');if(!d||!cm||!cv){if(r)r.style.display='none';return;}
+  var ml=d/(cm/cv);if(r)r.style.display='block';
+  var v=el('dc-val');if(v)v.textContent=ml.toFixed(2)+' mL';
+  var n=el('dc-n');if(n)n.innerHTML='Conc: <b>'+cm+'/'+cv+' mL</b>=<b>'+(cm/cv).toFixed(2)+' mg/mL</b>. Para <b>'+d+' mg</b> extraer <b>'+ml.toFixed(2)+' mL</b>.';
+}
+
+</script>
+</body>
+</html>

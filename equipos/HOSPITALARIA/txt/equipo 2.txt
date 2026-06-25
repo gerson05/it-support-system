@@ -1,0 +1,155 @@
+=============================== 
+ INVENTARIO DE EQUIPO DESKTOP-TD2R4AP 
+ Fecha: mar. 21/04/2026 - Hora: 15:38:13,22 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : JF95HX1
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            DESKTOP-TD2R4AP
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              USUARIO
+Organizaci¢n registrada:                   
+Id. del producto:                          00330-80000-00000-AA070
+Fecha de instalaci¢n original:             1/07/2025, 3:40:34 a.ÿm.
+Tiempo de arranque del sistema:            16/04/2026, 1:51:22 p.ÿm.
+Fabricante del sistema:                    Dell Inc.
+Modelo el sistema:                         OptiPlex 7010
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 58 Stepping 9 GenuineIntel ~3201 Mhz
+Versi¢n del BIOS:                          Dell Inc. A29, 28/06/2018
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume3
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.110 MB
+Memoria f¡sica disponible:                 3.414 MB
+Memoria virtual: tama¤o m ximo:            9.390 MB
+Memoria virtual: disponible:               3.195 MB
+Memoria virtual: en uso:                   6.195 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\DESKTOP-TD2R4AP
+Revisi¢n(es):                              14 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5066135
+                                           [03]: KB5003791
+                                           [04]: KB5011048
+                                           [05]: KB5011056
+                                           [06]: KB5012170
+                                           [07]: KB5015684
+                                           [08]: KB5033052
+                                           [09]: KB5072653
+                                           [10]: KB5071959
+                                           [11]: KB5063979
+                                           [12]: KB5066790
+                                           [13]: KB5071982
+                                           [14]: KB5005699
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) 82579LM Gigabit Network Connection
+                                                 Nombre de conexi¢n: Ethernet
+                                                 DHCP habilitado:    No
+                                                 Direcciones IP
+                                                 [01]: 10.1.1.20
+                                                 [02]: fe80::f8d0:2daf:4781:71a3
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: S¡
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-3470 CPU @ 3.20GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 3201
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : Hynix/Hyundai
+PartNumber   : HMT351U6CFR8C-H9  
+Capacity     : 4294967296
+Speed        : 1333
+
+Manufacturer : Hynix/Hyundai
+PartNumber   : HMT351U6CFR8C-H9  
+Capacity     : 4294967296
+Speed        : 1333
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : ADATA SU650
+SerialNumber  : 2N4529464BAY
+Size          : 256052966400
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+Model         : TOSHIBA DT01ACA100
+SerialNumber  :            86PT6H5NS
+Size          : 1000202273280
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+Model         : TOSHIBA EXTERNAL_USB USB Device
+SerialNumber  : F15750052014202
+Size          : 1000202273280
+InterfaceType : USB
+MediaType     : External hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 255388319744
+FreeSpace  : 202822889472
+VolumeName : SYSTEM SSD1
+
+DeviceID   : D:
+FileSystem : NTFS
+Size       : 524286947328
+FreeSpace  : 524170117120
+VolumeName : Nuevo vol
+
+DeviceID   : F:
+FileSystem : NTFS
+Size       : 475912990720
+FreeSpace  : 287279423488
+VolumeName : BACKUP
+
+DeviceID   : G:
+FileSystem : NTFS
+Size       : 1000202039296
+FreeSpace  : 841293811712
+VolumeName : TOSHIBA EXT
+
+
+
+ 
+==== FIN DEL INFORME ==== 

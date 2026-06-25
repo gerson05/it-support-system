@@ -1,0 +1,113 @@
+=============================== 
+ INVENTARIO DE EQUIPO CHINCHINA002 
+ Fecha: lun 27/04/2026 - Hora: 10:13:56,10 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : G74D8R2
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            CHINCHINA002
+Nombre del sistema operativo:              Microsoft Windows 11 Enterprise LTSC
+Versi¢n del sistema operativo:             10.0.26100 N/D Compilaci¢n 26100
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propietario registrado:                    MISTRATO002
+Organizaci¢n registrada:                   
+Id. del producto:                          00425-00000-00002-AA402
+Fecha de instalaci¢n original:             30/01/2026, 10:09:35ÿa.ÿm.
+Tiempo de arranque del sistema:            27/04/2026, 7:54:17ÿa.ÿm.
+Fabricante del sistema:                    Dell Inc.
+Modelo del sistema:                        OptiPlex 7050
+Tipo de sistema:                           x64-based PC
+Procesadores:                              1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 158 Stepping 9 GenuineIntel ~2712 Mhz
+Versi¢n del BIOS:                          Dell Inc. 1.27.0, 18/09/2023
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Memoria f¡sica total:                      8.055 MB
+Memoria f¡sica disponible:                 4.472 MB
+Memoria virtual: tama¤o m ximo:            8.567 MB
+Memoria virtual: disponible:               5.211 MB
+Memoria virtual: en uso:                   3.356 MB
+Ubicaciones de archivos de p gina:         C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\CHINCHINA002
+Revisiones:                                3 revisi¢n(es) instaladas.
+                                           [01]: KB5045934
+                                           [02]: KB5048667
+                                           [03]: KB5049685
+Tarjetas de red:                           1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) Ethernet Connection (5) I219-LM
+                                                 Nombre de conexi¢n: Ethernet
+                                                 DHCP habilitado:    No
+                                                 Direcciones IP
+                                                 [01]: 192.168.100.126
+                                                 [02]: fe80::5ca7:3350:af94:bab6
+Seguridad basada en virtualizaci¢n:        Estado:ÿNo habilitado
+                                           App Control for Business policy: Forzado
+                                           App Control for Business user mode policy: Desactivado
+                                           Caracter¡sticas de seguridad habilitadas:
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: S¡
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-7500T CPU @ 2.70GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 2712
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : 00000000802C
+PartNumber   :                     
+Capacity     : 8589934592
+Speed        : 3200
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : SK hynix SC311 SATA 256GB
+SerialNumber  : MJ81N62521100235X
+Size          : 256052966400
+InterfaceType : SCSI
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 255251705856
+FreeSpace  : 226475192320
+VolumeName : SYSTEM
+
+
+
+ 
+==== FIN DEL INFORME ==== 

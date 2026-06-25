@@ -1,0 +1,120 @@
+=============================== 
+ INVENTARIO DE EQUIPO IMP_COM 
+ Fecha: mi‚. 22/04/2026 - Hora:  7:26:26,34 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : HWH1ZQ2
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            IMP_COM
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              Usuario de Windows
+Organizaci¢n registrada:                   
+Id. del producto:                          00330-51301-18999-AAOEM
+Fecha de instalaci¢n original:             21/10/2020, 3:23:15 p.ÿm.
+Tiempo de arranque del sistema:            17/04/2026, 9:41:26 a.ÿm.
+Fabricante del sistema:                    Dell Inc.
+Modelo el sistema:                         OptiPlex 7050
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 158 Stepping 9 GenuineIntel ~2712 Mhz
+Versi¢n del BIOS:                          Dell Inc. 1.27.0, 18/09/2023
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume2
+Configuraci¢n regional del sistema:        es-co;Espa¤ol (Colombia)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.055 MB
+Memoria f¡sica disponible:                 5.004 MB
+Memoria virtual: tama¤o m ximo:            9.335 MB
+Memoria virtual: disponible:               6.012 MB
+Memoria virtual: en uso:                   3.323 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\IMP_COM
+Revisi¢n(es):                              11 revisi¢n(es) instaladas.
+                                           [01]: KB5007289
+                                           [02]: KB4537759
+                                           [03]: KB4557968
+                                           [04]: KB5015684
+                                           [05]: KB5062554
+                                           [06]: KB5043130
+                                           [07]: KB5046823
+                                           [08]: KB5050388
+                                           [09]: KB5050111
+                                           [10]: KB5052916
+                                           [11]: KB5063706
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) Ethernet Connection (5) I219-LM
+                                                 Nombre de conexi¢n: Ethernet 2
+                                                 DHCP habilitado:    No
+                                                 Direcciones IP
+                                                 [01]: 192.168.20.152
+                                                 [02]: fe80::bd3:644c:be9d:f36
+                                                 [03]: 2800:484:8f83:db50:5459:8a9c:19c7:c240
+                                                 [04]: 2800:484:8f83:db50:3cb7:b329:b8d1:bea1
+                                                 [05]: 2800:484:8f83:db50::f4b8
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: S¡
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-7500T CPU @ 2.70GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 2712
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : 01980000802C
+PartNumber   : KMKYF9-MID          
+Capacity     : 8589934592
+Speed        : 2400
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : PM981a NVMe SED Samsung 256GB
+SerialNumber  : 3447_5730_4D70_1069_0025_3845_0000_0001.
+Size          : 256052966400
+InterfaceType : SCSI
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 255414235136
+FreeSpace  : 159874899968
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

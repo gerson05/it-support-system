@@ -1,0 +1,55 @@
+<h2>¿Cómo se ve la zona separada?</h2>
+<p class="subtitle">Mismo servidor :3000, pero identidad visual distinta — sin sidebar IT Support</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Portal de entrada + topbar Medivalle</h3>
+      <p>Una página <code>/herramientas.html</code> sirve de puerta de entrada. Cada herramienta tiene un topbar propio con logo Medivalle y nav entre herramientas (no el sidebar IT).</p>
+      <div class="mockup" style="margin-top:10px">
+        <div class="mockup-header">Vista previa — topbar de herramientas</div>
+        <div class="mockup-body" style="padding:0">
+          <div style="background:#11273C;padding:10px 20px;display:flex;align-items:center;justify-content:space-between">
+            <div style="display:flex;align-items:center;gap:12px">
+              <div style="background:#05A0D8;width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:12px">M</div>
+              <div>
+                <div style="color:#fff;font-size:13px;font-weight:700">Medivalle SF S.A.S</div>
+                <div style="color:rgba(255,255,255,.4);font-size:10px">Herramientas Internas</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:6px">
+              <div style="background:rgba(255,255,255,.1);color:#fff;padding:4px 12px;border-radius:4px;font-size:11px;font-weight:600;border:1px solid rgba(255,255,255,.2)">📋 Requerimientos</div>
+              <div style="background:#05A0D8;color:#fff;padding:4px 12px;border-radius:4px;font-size:11px;font-weight:600">🧮 MediCalc</div>
+            </div>
+          </div>
+          <div style="padding:20px;background:#f5f7fa">
+            <div style="background:#fff;border-radius:8px;padding:16px;font-size:12px;color:#555">Contenido de la herramienta activa...</div>
+          </div>
+        </div>
+      </div>
+      <p style="margin-top:8px;font-size:12px;color:#888">URLs: <code>/herramientas.html</code> · <code>/requerimientos.html</code> · <code>/medicalc.html</code></p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Páginas independientes sin navegación entre ellas</h3>
+      <p>Cada herramienta es totalmente autónoma. Sin portal. Se accede por URL directa o QR. Sin topbar compartido — solo el contenido de la herramienta con branding Medivalle.</p>
+      <div class="mockup" style="margin-top:10px">
+        <div class="mockup-header">Vista previa — página autónoma</div>
+        <div class="mockup-body" style="padding:0">
+          <div style="background:#11273C;padding:10px 20px;display:flex;align-items:center;gap:10px">
+            <div style="background:#05A0D8;width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:12px">M</div>
+            <div style="color:#fff;font-size:13px;font-weight:700">Sistema de Requerimientos — Medivalle SF S.A.S</div>
+          </div>
+          <div style="padding:20px;background:#f5f7fa">
+            <div style="background:#fff;border-radius:8px;padding:16px;font-size:12px;color:#555">Formulario de requerimiento...</div>
+          </div>
+        </div>
+      </div>
+      <p style="margin-top:8px;font-size:12px;color:#888">URLs: <code>/requerimientos.html</code> · <code>/medicalc.html</code> (sin portal)</p>
+    </div>
+  </div>
+</div>

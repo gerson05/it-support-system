@@ -1,0 +1,143 @@
+=============================== 
+ INVENTARIO DE EQUIPO DESKTOP-VJ8T1A9 
+ Fecha: lun. 04/05/2026 - Hora:  9:43:16,37 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : 3M251M2
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            DESKTOP-VJ8T1A9
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              DELL
+Organizaci¢n registrada:                   
+Id. del producto:                          00330-50690-80482-AAOEM
+Fecha de instalaci¢n original:             26/06/2024, 10:07:40 a.ÿm.
+Tiempo de arranque del sistema:            28/11/2025, 2:31:50 p.ÿm.
+Fabricante del sistema:                    Dell Inc.
+Modelo el sistema:                         OptiPlex 3050
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 158 Stepping 9 GenuineIntel ~2712 Mhz
+Versi¢n del BIOS:                          Dell Inc. 1.31.0, 9/07/2024
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.076 MB
+Memoria f¡sica disponible:                 1.580 MB
+Memoria virtual: tama¤o m ximo:            17.237 MB
+Memoria virtual: disponible:               6.609 MB
+Memoria virtual: en uso:                   10.628 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\DESKTOP-VJ8T1A9
+Revisi¢n(es):                              25 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5017022
+                                           [03]: KB5011048
+                                           [04]: KB5011056
+                                           [05]: KB5015684
+                                           [06]: KB5072653
+                                           [07]: KB5071959
+                                           [08]: KB5014032
+                                           [09]: KB5016705
+                                           [10]: KB5039336
+                                           [11]: KB5041579
+                                           [12]: KB5043935
+                                           [13]: KB5043130
+                                           [14]: KB5046823
+                                           [15]: KB5050388
+                                           [16]: KB5050111
+                                           [17]: KB5052916
+                                           [18]: KB5054682
+                                           [19]: KB5058526
+                                           [20]: KB5059504
+                                           [21]: KB5063706
+                                           [22]: KB5063261
+                                           [23]: KB5063979
+                                           [24]: KB5066790
+                                           [25]: KB5071982
+Tarjeta(s) de red:                         3 Tarjetas de interfaz de red instaladas.
+                                           [01]: Realtek PCIe GBE Family Controller
+                                                 Nombre de conexi¢n: Ethernet
+                                                 Estado:             Medios desconectados
+                                           [02]: Intel(R) Dual Band Wireless-AC 3165
+                                                 Nombre de conexi¢n: Wi-Fi
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.1.254
+                                                 Direcciones IP
+                                                 [01]: 192.168.1.111
+                                                 [02]: fe80::40eb:f167:f874:2a60
+                                                 [03]: 2800:e2:807f:fa3a:fc97:540d:678e:8cb2
+                                                 [04]: 2800:e2:807f:fa3a:ccbc:3de:31c6:b0d2
+                                           [03]: Microsoft Wi-Fi Direct Virtual Adapter
+                                                 Nombre de conexi¢n: Conexi¢n de  rea local* 10
+                                                 DHCP habilitado:    No
+                                                 Direcciones IP
+                                                 [01]: 192.168.137.1
+                                                 [02]: fe80::71aa:4ad7:232e:7e4e
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: S¡
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-7500T CPU @ 2.70GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 2712
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : 80AD000080AD
+PartNumber   : HMA81GS6AFR8N-UH    
+Capacity     : 8589934592
+Speed        : 2400
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : LITEON IT LCS-256L9S
+SerialNumber  : SD0E97900L1TH57103HD
+Size          : 256052966400
+InterfaceType : SCSI
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 255366533120
+FreeSpace  : 165210685440
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

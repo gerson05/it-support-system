@@ -1,0 +1,141 @@
+=============================== 
+ INVENTARIO DE EQUIPO EQUIPO8 
+ Fecha: mi‚. 22/04/2026 - Hora: 12:05:19,85 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : 62DVHN2
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            EQUIPO8
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              DELL
+Organizaci¢n registrada:                   
+Id. del producto:                          00330-50162-99187-AAOEM
+Fecha de instalaci¢n original:             24/05/2024, 7:21:19 a.ÿm.
+Tiempo de arranque del sistema:            14/04/2026, 12:49:41 p.ÿm.
+Fabricante del sistema:                    Dell Inc.
+Modelo el sistema:                         OptiPlex 3050
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 158 Stepping 9 GenuineIntel ~2712 Mhz
+Versi¢n del BIOS:                          Dell Inc. 1.31.0, 9/07/2024
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.075 MB
+Memoria f¡sica disponible:                 1.917 MB
+Memoria virtual: tama¤o m ximo:            22.411 MB
+Memoria virtual: disponible:               9.399 MB
+Memoria virtual: en uso:                   13.012 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\EQUIPO8
+Revisi¢n(es):                              28 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5039884
+                                           [03]: KB5011048
+                                           [04]: KB5011056
+                                           [05]: KB5015684
+                                           [06]: KB5033052
+                                           [07]: KB5072653
+                                           [08]: KB5071959
+                                           [09]: KB5014032
+                                           [10]: KB5016705
+                                           [11]: KB5039336
+                                           [12]: KB5041579
+                                           [13]: KB5043935
+                                           [14]: KB5043130
+                                           [15]: KB5046823
+                                           [16]: KB5050388
+                                           [17]: KB5050111
+                                           [18]: KB5052916
+                                           [19]: KB5054682
+                                           [20]: KB5058526
+                                           [21]: KB5059504
+                                           [22]: KB5061902
+                                           [23]: KB5063706
+                                           [24]: KB5063261
+                                           [25]: KB5063979
+                                           [26]: KB5066411
+                                           [27]: KB5066790
+                                           [28]: KB5071982
+Tarjeta(s) de red:                         3 Tarjetas de interfaz de red instaladas.
+                                           [01]: Realtek PCIe GBE Family Controller
+                                                 Nombre de conexi¢n: Ethernet
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      190.147.23.254
+                                                 Direcciones IP
+                                                 [01]: 190.147.23.129
+                                                 [02]: fe80::4597:ace:1253:db3c
+                                           [02]: Intel(R) Dual Band Wireless-AC 3165
+                                                 Nombre de conexi¢n: Wi-Fi
+                                                 Estado:             Medios desconectados
+                                           [03]: Bluetooth Device (Personal Area Network)
+                                                 Nombre de conexi¢n: Conexi¢n de red Bluetooth
+                                                 Estado:             Medios desconectados
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: S¡
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-7500T CPU @ 2.70GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 2712
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : 80AD000080AD
+PartNumber   : HMA41GS6AFR8N-TF    
+Capacity     : 8589934592
+Speed        : 2133
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : SK hynix SC311 SATA 256GB
+SerialNumber  : MS84N461510804B3F
+Size          : 256052966400
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 255366533120
+FreeSpace  : 176145940480
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

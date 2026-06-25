@@ -1,0 +1,134 @@
+=============================== 
+ INVENTARIO DE EQUIPO DESKTOP-RT26F71 
+ Fecha: mi‚. 22/04/2026 - Hora: 14:57:33.85 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : 3MXDS22
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            DESKTOP-RT26F71
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              Usuario
+Organizaci¢n registrada:                   
+Id. del producto:                          00330-80000-00000-AA807
+Fecha de instalaci¢n original:             17/9/2025, 11:39:33
+Tiempo de arranque del sistema:            10/4/2026, 08:56:13
+Fabricante del sistema:                    Dell Inc.
+Modelo el sistema:                         OptiPlex 3020
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 60 Stepping 3 GenuineIntel ~3301 Mhz
+Versi¢n del BIOS:                          Dell Inc. A05, 20/8/2014
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        580a
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8,111 MB
+Memoria f¡sica disponible:                 3,843 MB
+Memoria virtual: tama¤o m ximo:            9,391 MB
+Memoria virtual: disponible:               3,058 MB
+Memoria virtual: en uso:                   6,333 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\DESKTOP-RT26F71
+Revisi¢n(es):                              15 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5064399
+                                           [03]: KB5003791
+                                           [04]: KB5011048
+                                           [05]: KB5011056
+                                           [06]: KB5015684
+                                           [07]: KB5020683
+                                           [08]: KB5026037
+                                           [09]: KB5033052
+                                           [10]: KB5072653
+                                           [11]: KB5071959
+                                           [12]: KB5063979
+                                           [13]: KB5066790
+                                           [14]: KB5071982
+                                           [15]: KB5005699
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Realtek PCIe GbE Family Controller
+                                                 Nombre de conexi¢n: Ethernet
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.0.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.0.104
+                                                 [02]: fe80::90eb:89d3:3066:18db
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: S¡
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-4590 CPU @ 3.30GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 3301
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : Samsung
+PartNumber   : M378B1G73EB0-YK0  
+Capacity     : 8589934592
+Speed        : 1600
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : TOSHIBA MQ04ABF100
+SerialNumber  :            Z8ISPM8TT
+Size          : 1000202273280
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+Model         : AT550  256G
+SerialNumber  : AA000000000623AA
+Size          : 256052966400
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 255456477184
+FreeSpace  : 203108933632
+VolumeName : 
+
+DeviceID   : D:
+FileSystem : NTFS
+Size       : 1000203087872
+FreeSpace  : 999991250944
+VolumeName : Nuevo vol
+
+
+
+ 
+==== FIN DEL INFORME ==== 

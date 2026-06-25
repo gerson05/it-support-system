@@ -37,7 +37,7 @@ export async function renderUsers(container) {
       <div class="modal-body">
         <div id="modal-error" style="
           display:none;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);
-          color:#fca5a5;border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:14px;"></div>
+          color:var(--danger);border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:14px;"></div>
         <form id="user-form">
           <input type="hidden" id="edit-id">
           <div class="form-group">

@@ -1,0 +1,151 @@
+=============================== 
+ INVENTARIO DE EQUIPO DELL 
+ Fecha: mi‚. 22/04/2026 - Hora: 10:51:09,76 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : 38JH282
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            DELL
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              DELL
+Organizaci¢n registrada:                   
+Id. del producto:                          00330-80000-00000-AA073
+Fecha de instalaci¢n original:             30/04/2022, 11:40:18 a.ÿm.
+Tiempo de arranque del sistema:            20/04/2026, 9:53:42 a.ÿm.
+Fabricante del sistema:                    Dell Inc.
+Modelo el sistema:                         OptiPlex 3020
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 60 Stepping 3 GenuineIntel ~3301 Mhz
+Versi¢n del BIOS:                          Dell Inc. A09, 27/07/2015
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.111 MB
+Memoria f¡sica disponible:                 3.579 MB
+Memoria virtual: tama¤o m ximo:            12.207 MB
+Memoria virtual: disponible:               6.311 MB
+Memoria virtual: en uso:                   5.896 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\DELL
+Revisi¢n(es):                              32 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5027122
+                                           [03]: KB5003791
+                                           [04]: KB5011048
+                                           [05]: KB5011056
+                                           [06]: KB5012170
+                                           [07]: KB5015684
+                                           [08]: KB5072653
+                                           [09]: KB5071959
+                                           [10]: KB5014035
+                                           [11]: KB5014671
+                                           [12]: KB5015895
+                                           [13]: KB5016705
+                                           [14]: KB5018506
+                                           [15]: KB5020372
+                                           [16]: KB5022924
+                                           [17]: KB5023794
+                                           [18]: KB5025315
+                                           [19]: KB5026879
+                                           [20]: KB5028318
+                                           [21]: KB5031539
+                                           [22]: KB5032392
+                                           [23]: KB5032907
+                                           [24]: KB5043130
+                                           [25]: KB5046823
+                                           [26]: KB5063706
+                                           [27]: KB5063261
+                                           [28]: KB5063979
+                                           [29]: KB5066411
+                                           [30]: KB5066790
+                                           [31]: KB5071982
+                                           [32]: KB5005699
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Realtek PCIe GBE Family Controller
+                                                 Nombre de conexi¢n: Ethernet
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.1.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.1.9
+                                                 [02]: fe80::9157:327c:fca2:5cb1
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: S¡
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-4590 CPU @ 3.30GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 3301
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : Micron
+PartNumber   : 16JTF1G64AZ-1G6E1 
+Capacity     : 8589934592
+Speed        : 1600
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : TOSHIBA DT01ACA100
+SerialNumber  :            87KEK2MNS
+Size          : 1000202273280
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+Model         : AT550  256G
+SerialNumber  : AA000000000499AA
+Size          : 256052966400
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 255456477184
+FreeSpace  : 91455725568
+VolumeName : 
+
+DeviceID   : D:
+FileSystem : NTFS
+Size       : 1000202039296
+FreeSpace  : 1000064024576
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

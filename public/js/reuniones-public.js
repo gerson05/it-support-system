@@ -24,7 +24,7 @@ async function init() {
     salas = json.salas || [];
   } catch {
     document.getElementById('app').innerHTML =
-      '<div style="color:#f87171;text-align:center;padding:20px;">Error al cargar las salas. Recarga la página.</div>';
+      '<div style="color:var(--danger);text-align:center;padding:20px;">Error al cargar las salas. Recarga la página.</div>';
     return;
   }
   renderStep();
@@ -85,7 +85,7 @@ function renderStep1(container) {
       const div = document.getElementById('p-disponibilidad');
       if (!div) return;
       if (!ocupados.length) { div.innerHTML = '✅ Sala disponible en esa fecha'; return; }
-      div.innerHTML = `<span style="color:#f87171;">⚠ Horarios ocupados:</span> ` +
+      div.innerHTML = `<span style="color:var(--danger);">⚠ Horarios ocupados:</span> ` +
         ocupados.map(o => `${new Date(o.fecha_inicio).toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'})}–${new Date(o.fecha_fin).toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'})}`).join(', ');
     } catch {}
   }
@@ -248,7 +248,7 @@ function renderCancelView(token) {
     .then(r => r.json())
     .then(({ reunion, error }) => {
       if (error || !reunion) {
-        container.innerHTML = `<div style="text-align:center;color:#f87171;padding:20px;">Reunión no encontrada.</div>`;
+        container.innerHTML = `<div style="text-align:center;color:var(--danger);padding:20px;">Reunión no encontrada.</div>`;
         return;
       }
       const sala = reunion.sala_nombre || '-';
@@ -268,9 +268,9 @@ function renderCancelView(token) {
             🎥 Unirse a Google Meet
           </a>` : ''}
         ${reunion.estado === 'activa' ? `
-          <button id="p-cancelar" style="width:100%;padding:10px;border:1px solid rgba(239,68,68,.3);border-radius:8px;background:rgba(239,68,68,.1);color:#f87171;font-size:13px;cursor:pointer;font-family:inherit;">
+          <button id="p-cancelar" style="width:100%;padding:10px;border:1px solid rgba(239,68,68,.3);border-radius:8px;background:rgba(239,68,68,.1);color:var(--danger);font-size:13px;cursor:pointer;font-family:inherit;">
             Cancelar esta reunión
-          </button>` : '<div style="text-align:center;color:#f87171;font-size:13px;margin-top:8px;">Esta reunión ya fue cancelada.</div>'}`;
+          </button>` : '<div style="text-align:center;color:var(--danger);font-size:13px;margin-top:8px;">Esta reunión ya fue cancelada.</div>'}`;
 
       document.getElementById('p-cancelar')?.addEventListener('click', async () => {
         if (!confirm('¿Seguro que quieres cancelar esta reunión?')) return;
@@ -280,7 +280,7 @@ function renderCancelView(token) {
       });
     })
     .catch(() => {
-      container.innerHTML = `<div style="text-align:center;color:#f87171;padding:20px;">Error al cargar la reunión.</div>`;
+      container.innerHTML = `<div style="text-align:center;color:var(--danger);padding:20px;">Error al cargar la reunión.</div>`;
     });
 }
 
@@ -300,7 +300,7 @@ function showErr(msg) {
   if (existing) existing.remove();
   const el = document.createElement('div');
   el.id = 'p-err';
-  el.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#7f1d1d;color:#fca5a5;padding:10px 20px;border-radius:8px;font-size:13px;z-index:9999;white-space:nowrap;';
+  el.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#7f1d1d;color:var(--danger);padding:10px 20px;border-radius:8px;font-size:13px;z-index:9999;white-space:nowrap;';
   el.textContent = msg;
   document.body.appendChild(el);
   setTimeout(() => el?.remove(), 3500);

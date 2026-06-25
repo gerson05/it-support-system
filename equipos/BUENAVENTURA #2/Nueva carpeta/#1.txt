@@ -1,0 +1,136 @@
+=============================== 
+ INVENTARIO DE EQUIPO BUENAVEN_01 
+ Fecha: jue. 23/04/2026 - Hora: 15:16:27,74 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : MJ07BRM0
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            BUENAVEN_01
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              Usuario de Windows
+Organizaci¢n registrada:                   
+Id. del producto:                          00330-51332-20930-AAOEM
+Fecha de instalaci¢n original:             21/10/2020, 3:23:15 p.ÿm.
+Tiempo de arranque del sistema:            16/03/2026, 4:33:48 p.ÿm.
+Fabricante del sistema:                    LENOVO
+Modelo el sistema:                         10MUS19500
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 94 Stepping 3 GenuineIntel ~3312 Mhz
+Versi¢n del BIOS:                          LENOVO M1AKT59A, 27/10/2023
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume2
+Configuraci¢n regional del sistema:        es-co;Espa¤ol (Colombia)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.080 MB
+Memoria f¡sica disponible:                 2.393 MB
+Memoria virtual: tama¤o m ximo:            9.848 MB
+Memoria virtual: disponible:               1.859 MB
+Memoria virtual: en uso:                   7.989 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\BUENAVEN_01
+Revisi¢n(es):                              24 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5049613
+                                           [03]: KB4537759
+                                           [04]: KB4557968
+                                           [05]: KB5011048
+                                           [06]: KB5011056
+                                           [07]: KB5015684
+                                           [08]: KB5033052
+                                           [09]: KB5072653
+                                           [10]: KB5071959
+                                           [11]: KB5007273
+                                           [12]: KB5050111
+                                           [13]: KB5052916
+                                           [14]: KB5054682
+                                           [15]: KB5055663
+                                           [16]: KB5058526
+                                           [17]: KB5059504
+                                           [18]: KB5061902
+                                           [19]: KB5063706
+                                           [20]: KB5063261
+                                           [21]: KB5063979
+                                           [22]: KB5066411
+                                           [23]: KB5066790
+                                           [24]: KB5071982
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) Ethernet Connection (2) I219-LM
+                                                 Nombre de conexi¢n: Ethernet 2
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.110.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.110.194
+                                                 [02]: fe80::cd88:2327:6c0a:41c6
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: No
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-8500T CPU
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 3312
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : Samsung
+PartNumber   : M471A5244BB0-CRC    
+Capacity     : 4294967296
+Speed        : 2400
+
+Manufacturer : SK Hynix
+PartNumber   : HMA851S6DJR6N-XN    
+Capacity     : 4294967296
+Speed        : 3200
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : AT422
+SerialNumber  : 421000150999
+Size          : 256052966400
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 255414235136
+FreeSpace  : 187528343552
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

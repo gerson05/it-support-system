@@ -1,0 +1,168 @@
+=============================== 
+ INVENTARIO DE EQUIPO DESKTOP-4RN7DUJ 
+ Fecha: mi‚. 22/04/2026 - Hora: 10:04:02,25 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : MJ00LEH1
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            DESKTOP-4RN7DUJ
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              LENOVO
+Organizaci¢n registrada:                   
+Id. del producto:                          00330-50000-00000-AAOEM
+Fecha de instalaci¢n original:             7/12/2019, 8:03:17 a.ÿm.
+Tiempo de arranque del sistema:            30/03/2026, 7:15:04 a.ÿm.
+Fabricante del sistema:                    LENOVO
+Modelo el sistema:                         10B7A0HV00
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 60 Stepping 3 GenuineIntel ~2901 Mhz
+Versi¢n del BIOS:                          LENOVO FCKT99AUS, 18/11/2020
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.009 MB
+Memoria f¡sica disponible:                 2.630 MB
+Memoria virtual: tama¤o m ximo:            10.545 MB
+Memoria virtual: disponible:               2.823 MB
+Memoria virtual: en uso:                   7.722 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\DESKTOP-4RN7DUJ
+Revisi¢n(es):                              50 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5028951
+                                           [03]: KB5003791
+                                           [04]: KB5011048
+                                           [05]: KB5011056
+                                           [06]: KB5012170
+                                           [07]: KB5015684
+                                           [08]: KB5072653
+                                           [09]: KB5071959
+                                           [10]: KB5011352
+                                           [11]: KB5011651
+                                           [12]: KB5014032
+                                           [13]: KB5014035
+                                           [14]: KB5014671
+                                           [15]: KB5015895
+                                           [16]: KB5016705
+                                           [17]: KB5018506
+                                           [18]: KB5020372
+                                           [19]: KB5022924
+                                           [20]: KB5023794
+                                           [21]: KB5025315
+                                           [22]: KB5026879
+                                           [23]: KB5028318
+                                           [24]: KB5028380
+                                           [25]: KB5029709
+                                           [26]: KB5031539
+                                           [27]: KB5032392
+                                           [28]: KB5032907
+                                           [29]: KB5034224
+                                           [30]: KB5036447
+                                           [31]: KB5037018
+                                           [32]: KB5037240
+                                           [33]: KB5037995
+                                           [34]: KB5039336
+                                           [35]: KB5041579
+                                           [36]: KB5043935
+                                           [37]: KB5043130
+                                           [38]: KB5046823
+                                           [39]: KB5050388
+                                           [40]: KB5050111
+                                           [41]: KB5052916
+                                           [42]: KB5054682
+                                           [43]: KB5058526
+                                           [44]: KB5059504
+                                           [45]: KB5063706
+                                           [46]: KB5063261
+                                           [47]: KB5063979
+                                           [48]: KB5066790
+                                           [49]: KB5071982
+                                           [50]: KB5005699
+Tarjeta(s) de red:                         3 Tarjetas de interfaz de red instaladas.
+                                           [01]: Realtek PCIe GBE Family Controller
+                                                 Nombre de conexi¢n: Ethernet
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.100.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.100.85
+                                                 [02]: fe80::5563:91f3:bb9:6700
+                                           [02]: Wintun Userspace Tunnel
+                                                 Nombre de conexi¢n: OpenVPN Wintun
+                                                 Estado:             Medios desconectados
+                                           [03]: TAP-Windows Adapter V9
+                                                 Nombre de conexi¢n: OpenVPN TAP-Windows6
+                                                 Estado:             Medios desconectados
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: No
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-4570T CPU @ 2.90GHz
+NumberOfCores             : 2
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 2901
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : Samsung
+PartNumber   : M378B5173QH0-CK0  
+Capacity     : 4294967296
+Speed        : 1600
+
+Manufacturer : Samsung
+PartNumber   : M378B5173QH0-CK0  
+Capacity     : 4294967296
+Speed        : 1600
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : AT421
+SerialNumber  : 421000002801
+Size          : 240054796800
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 239384952832
+FreeSpace  : 144098455552
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 
