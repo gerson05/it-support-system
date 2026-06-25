@@ -98,7 +98,7 @@ router.put('/api/despachos/:id', ...canEdit, (req, res) => {
     const {
       acta_numero, acta_firmada,
       destinatario, cedula, sede, area, articulos, observaciones, requiere_acta, ticket_id,
-      agente,
+      fecha, agente,
     } = req.body;
 
     const fieldMap = {};
@@ -108,6 +108,7 @@ router.put('/api/despachos/:id', ...canEdit, (req, res) => {
     if (cedula        !== undefined) fieldMap.cedula        = cedula || null;
     if (sede          !== undefined) fieldMap.sede          = sede || null;
     if (area          !== undefined) fieldMap.area          = area || null;
+    if (fecha         !== undefined) fieldMap.fecha         = fecha || null;
     if (articulos     !== undefined) fieldMap.articulos     = JSON.stringify(articulos);
     if (observaciones !== undefined) fieldMap.observaciones = observaciones || null;
     if (requiere_acta !== undefined) fieldMap.requiere_acta = requiere_acta ? 1 : 0;
