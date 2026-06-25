@@ -8,8 +8,13 @@ import {
 
 const router = express.Router();
 
+const canRead   = [requireAuth, requirePermission('employees:read')];
+const canCreate = [requireAuth, requirePermission('employees:create')];
+const canEdit   = [requireAuth, requirePermission('employees:edit')];
+const canDelete = [requireAuth, requirePermission('employees:delete')];
+
 // GET /api/employees
-router.get('/api/employees', requireAuth, (req, res) => {
+router.get('/api/employees', ...canRead, (req, res) => {
   try {
     res.json(getAllEmployees());
   } catch (err) {
@@ -19,7 +24,7 @@ router.get('/api/employees', requireAuth, (req, res) => {
 });
 
 // GET /api/employees/:id
-router.get('/api/employees/:id', requireAuth, (req, res) => {
+router.get('/api/employees/:id', ...canRead, (req, res) => {
   try {
     const emp = getEmployeeById(req.params.id);
     if (!emp) return res.status(404).json({ error: 'Empleado no encontrado.' });
@@ -31,7 +36,7 @@ router.get('/api/employees/:id', requireAuth, (req, res) => {
 });
 
 // POST /api/employees  (Gestión Humana crea)
-router.post('/api/employees', requireAuth, (req, res) => {
+router.post('/api/employees', ...canCreate, (req, res) => {
   try {
     const { cedula, nombre_completo, cargo, area } = req.body;
 
@@ -62,7 +67,7 @@ router.post('/api/employees', requireAuth, (req, res) => {
 });
 
 // PUT /api/employees/:id  (GH edita datos, IT agrega fecha → auto-genera credenciales)
-router.put('/api/employees/:id', requireAuth, async (req, res) => {
+router.put('/api/employees/:id', ...canEdit, async (req, res) => {
   try {
     const id = req.params.id;
     if (!getEmployeeById(id)) return res.status(404).json({ error: 'Empleado no encontrado.' });
@@ -87,7 +92,7 @@ router.put('/api/employees/:id', requireAuth, async (req, res) => {
 });
 
 // DELETE /api/employees/:id
-router.delete('/api/employees/:id', requireAuth, (req, res) => {
+router.delete('/api/employees/:id', ...canDelete, (req, res) => {
   try {
     deleteEmployee(req.params.id, req.user.id);
     res.json({ ok: true });
@@ -99,13 +104,13 @@ router.delete('/api/employees/:id', requireAuth, (req, res) => {
 });
 
 // GET /api/employees-data/cargos
-router.get('/api/employees-data/cargos', requireAuth, (req, res) => {
+router.get('/api/employees-data/cargos', ...canRead, (req, res) => {
   try { res.json(getCargos()); }
   catch (err) { res.status(500).json({ error: 'Error al obtener cargos.' }); }
 });
 
 // GET /api/employees-data/areas
-router.get('/api/employees-data/areas', requireAuth, (req, res) => {
+router.get('/api/employees-data/areas', ...canRead, (req, res) => {
   try { res.json(getAreas()); }
   catch (err) { res.status(500).json({ error: 'Error al obtener áreas.' }); }
 });

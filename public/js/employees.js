@@ -1,4 +1,5 @@
 import { showToast } from './components.js';
+import { can } from './app-state.js';
 
 let _employees = [];
 let _cargos = [];
@@ -18,7 +19,8 @@ export async function renderEmployees(container) {
       <h2 class="page-title">Creación de Usuarios</h2>
       <p class="page-subtitle">Personal nuevo — flujo Gestión Humana → IT</p>
     </div>
-    <button class="btn btn-primary" id="emp-btn-new">+ Nuevo empleado</button>
+    <button class="btn btn-primary" id="emp-btn-new"
+      style="${!can('employees:create') ? 'display:none;' : ''}">+ Nuevo empleado</button>
   </div>
 
   <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center;">
@@ -397,29 +399,25 @@ function _renderTab() {
     </table>`;
 }
 
+const _BTN = (onclick, bg, label) =>
+  `<button onclick="${onclick}"
+     style="display:inline-flex;align-items:center;gap:4px;padding:5px 12px;
+            background:${bg};color:#fff;border:none;border-radius:6px;font-size:12px;
+            font-weight:500;cursor:pointer;white-space:nowrap;font-family:inherit;
+            transition:opacity .15s;"
+     onmouseover="this.style.opacity='.82'" onmouseout="this.style.opacity='1'">${label}</button>`;
+
 function _renderRow(emp, pending) {
-  const actions = pending
-    ? `<div style="display:flex;gap:6px;flex-wrap:wrap;">
-        <button onclick="window._empComplete(${emp.id})"
-          style="padding:4px 10px;background:var(--success);color:#fff;border:none;
-                 border-radius:4px;font-size:12px;cursor:pointer;white-space:nowrap;">
-          &#10003; Completar
-        </button>
-        <button onclick="window._empEdit(${emp.id})"
-          style="padding:4px 10px;background:var(--primary);color:#fff;border:none;
-                 border-radius:4px;font-size:12px;cursor:pointer;">Editar</button>
-        <button onclick="window._empDelete(${emp.id})"
-          style="padding:4px 10px;background:var(--danger);color:#fff;border:none;
-                 border-radius:4px;font-size:12px;cursor:pointer;">Eliminar</button>
-       </div>`
-    : `<div style="display:flex;gap:6px;">
-        <button onclick="window._empEdit(${emp.id})"
-          style="padding:4px 10px;background:var(--primary);color:#fff;border:none;
-                 border-radius:4px;font-size:12px;cursor:pointer;">Editar</button>
-        <button onclick="window._empDelete(${emp.id})"
-          style="padding:4px 10px;background:var(--danger);color:#fff;border:none;
-                 border-radius:4px;font-size:12px;cursor:pointer;">Eliminar</button>
-       </div>`;
+  const btnComplete = can('employees:edit')
+    ? _BTN(`window._empComplete(${emp.id})`, 'var(--success)', '&#10003; Completar') : '';
+  const btnEdit = can('employees:edit')
+    ? _BTN(`window._empEdit(${emp.id})`, 'var(--primary)', '&#9998; Editar') : '';
+  const btnDelete = can('employees:delete')
+    ? _BTN(`window._empDelete(${emp.id})`, 'var(--danger)', '&#10005; Eliminar') : '';
+
+  const actions = `<div style="display:flex;gap:6px;flex-wrap:wrap;">
+    ${pending ? btnComplete : ''}${btnEdit}${btnDelete}
+  </div>`;
 
   const extraCols = pending
     ? `<td style="padding:10px 12px;font-size:12px;color:var(--text-3);">
