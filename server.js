@@ -20,6 +20,7 @@ import farmaciasRouter from './src/farmacias/farmacias-routes.js';
 import actasRouter      from './src/actas/actas-routes.js';
 import registrosRouter  from './src/registros/registros-routes.js';
 import inventarioRouter from './src/inventario/inventario-routes.js';
+import activoRouter from './src/inventario/activo-publico-routes.js';
 import authRouter     from './src/auth/auth-routes.js';
 import userRouter     from './src/auth/user-routes.js';
 import trackingRouter from './src/tracking/tracking-routes.js';
@@ -27,6 +28,7 @@ import monitoringRouter, { startOfflineChecker } from './src/monitoring/monitori
 import aiRouter from './src/ai/ai-routes.js';
 import reqRouter from './src/requerimientos/req-routes.js';
 import reunionesRouter from './src/reuniones/reuniones-routes.js';
+import employeesRouter from './src/employees/employees-routes.js';
 import { initAdminUser } from './src/auth/auth-service.js';
 import Chatbot from './src/whatsapp/chatbot.js';
 import whatsappClient from './src/whatsapp/baileys-client.js';
@@ -61,6 +63,7 @@ app.use(farmaciasRouter);
 app.use(actasRouter);
 app.use(registrosRouter);
 app.use(inventarioRouter);
+app.use(activoRouter);
 app.use(authRouter);
 app.use(userRouter);
 app.use(trackingRouter);
@@ -68,6 +71,7 @@ app.use(monitoringRouter);
 app.use(aiRouter);
 app.use(reqRouter);
 app.use(reunionesRouter);
+app.use(employeesRouter);
 
 // Página pública de subida de acta firmada
 app.get('/firmar/:token', (_req, res) => {
