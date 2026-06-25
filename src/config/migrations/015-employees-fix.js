@@ -1,8 +1,5 @@
-// Fix employee tables: drop & recreate with nullable usuario/contraseña/usuario_id
-// Tables are empty so no data is lost.
+// Fix employee tables: ensure correct nullable schema (idempotent via IF NOT EXISTS)
 export const migrations = [
-  `DROP TABLE IF EXISTS employee_logs`,
-  `DROP TABLE IF EXISTS employees`,
   `CREATE TABLE IF NOT EXISTS employees (
     id                      INTEGER PRIMARY KEY AUTOINCREMENT,
     cedula                  TEXT NOT NULL UNIQUE,
