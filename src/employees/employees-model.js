@@ -1,0 +1,341 @@
+/**
+ * Modelo de datos y queries SQLite para la gestión de empleados.
+ * Incluye auto-generación de username/password y auditoría de cambios.
+ */
+
+/**
+ * Generar username a partir del nombre completo
+ * Extrae iniciales de todos los nombres excepto el último (apellido),
+ * combina con el apellido.
+ * Ejemplo: Kelly Johana Raigoza Herrera -> KJ + Raigoza -> KJRAIGOZA
+ */
+export function generateUsername(fullName) {
+  if (!fullName || typeof fullName !== 'string') return '';
+
+  const parts = fullName.trim().split(/\s+/).filter(p => p.length > 0);
+  if (parts.length === 0) return '';
+
+  // Último elemento es el apellido
+  const lastName = parts[parts.length - 1];
+
+  // Extraer iniciales de todos menos el último
+  const initials = parts.slice(0, -1)
+    .map(part => part.charAt(0).toUpperCase())
+    .join('');
+
+  return (initials + lastName).toUpperCase();
+}
+
+/**
+ * Generar password a partir de la cédula
+ * Toma los últimos 4 dígitos, formateados a 4 caracteres
+ * Ejemplo: 1130658563 -> 8563
+ */
+export function generatePassword(cedula) {
+  if (!cedula) return '';
+
+  const cedStr = String(cedula).replace(/\D/g, '');
+  if (cedStr.length < 4) return cedStr.padStart(4, '0');
+
+  return cedStr.slice(-4);
+}
+
+/**
+ * Asegurar username único - si existe, agregar contador
+ * KJRAIGOZA -> KJRAIGOZA2, KJRAIGOZA3, etc.
+ */
+export function ensureUniqueUsername(db, baseUsername) {
+  let username = baseUsername;
+  let counter = 2;
+
+  const checkStmt = db.prepare('SELECT COUNT(*) as cnt FROM employees WHERE username = ?');
+
+  while (checkStmt.get(username).cnt > 0) {
+    username = `${baseUsername}${counter}`;
+    counter++;
+  }
+
+  return username;
+}
+
+/**
+ * Asegurar password único - si existe, generar aleatorio
+ */
+export function ensureUniquePassword(db, basePassword) {
+  const checkStmt = db.prepare('SELECT COUNT(*) as cnt FROM employees WHERE password = ?');
+
+  if (checkStmt.get(basePassword).cnt === 0) {
+    return basePassword;
+  }
+
+  // Generar password aleatorio de 4-6 dígitos
+  let password;
+  let attempts = 0;
+  do {
+    const length = Math.floor(Math.random() * 3) + 4; // 4-6
+    password = Math.floor(Math.random() * Math.pow(10, length))
+      .toString()
+      .padStart(length, '0');
+    attempts++;
+  } while (checkStmt.get(password).cnt > 0 && attempts < 100);
+
+  return password;
+}
+
+/**
+ * Registrar cambio en employee_logs
+ */
+export function logChange(db, employeeId, action, details = '') {
+  const stmt = db.prepare(`
+    INSERT INTO employee_logs (employee_id, action, details, logged_at)
+    VALUES (?, ?, ?, datetime('now','localtime'))
+  `);
+
+  stmt.run(employeeId, action, details);
+}
+
+/**
+ * Obtener todos los empleados
+ */
+export function getAllEmployees(db, filters = {}) {
+  const { search, area, cargo, page = 1, limit = 10 } = filters;
+  const offset = (page - 1) * limit;
+
+  let query = 'SELECT * FROM employees WHERE 1=1';
+  const params = [];
+
+  if (search) {
+    query += ' AND (nombre LIKE ? OR cedula LIKE ? OR username LIKE ? OR email LIKE ?)';
+    const pattern = `%${search}%`;
+    params.push(pattern, pattern, pattern, pattern);
+  }
+
+  if (area) {
+    query += ' AND area = ?';
+    params.push(area);
+  }
+
+  if (cargo) {
+    query += ' AND cargo = ?';
+    params.push(cargo);
+  }
+
+  const countQuery = query.replace(/SELECT \*/, 'SELECT COUNT(*) as total');
+  const countParams = [...params];
+
+  query += ' ORDER BY nombre ASC LIMIT ? OFFSET ?';
+  params.push(limit, offset);
+
+  try {
+    const totalRow = db.prepare(countQuery).get(...countParams);
+    const total = totalRow ? totalRow.total : 0;
+    const employees = db.prepare(query).all(...params);
+
+    return {
+      total,
+      page,
+      limit,
+      data: employees
+    };
+  } catch (err) {
+    console.error('[EMPLOYEES] Error en getAllEmployees:', err.message);
+    return { total: 0, page, limit, data: [] };
+  }
+}
+
+/**
+ * Obtener empleado por ID
+ */
+export function getEmployeeById(db, id) {
+  try {
+    const employee = db.prepare('SELECT * FROM employees WHERE id = ?').get(id);
+    if (employee) {
+      const logs = db.prepare('SELECT * FROM employee_logs WHERE employee_id = ? ORDER BY logged_at DESC')
+        .all(id);
+      return { ...employee, logs };
+    }
+    return null;
+  } catch (err) {
+    console.error('[EMPLOYEES] Error en getEmployeeById:', err.message);
+    return null;
+  }
+}
+
+/**
+ * Crear empleado con auto-generación de credenciales
+ */
+export function createEmployee(db, employeeData) {
+  try {
+    const {
+      nombre,
+      cedula,
+      email,
+      telefono,
+      area,
+      cargo,
+      sede,
+      salario,
+      estado_civil,
+      fecha_nacimiento
+    } = employeeData;
+
+    if (!nombre || !cedula || !email) {
+      throw new Error('Campos requeridos: nombre, cedula, email');
+    }
+
+    // Auto-generar credenciales
+    let username = generateUsername(nombre);
+    username = ensureUniqueUsername(db, username);
+
+    let password = generatePassword(cedula);
+    password = ensureUniquePassword(db, password);
+
+    const stmt = db.prepare(`
+      INSERT INTO employees (
+        nombre, cedula, email, telefono, area, cargo, sede,
+        salario, estado_civil, fecha_nacimiento, username, password,
+        created_at
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now','localtime'))
+    `);
+
+    const result = stmt.run(
+      nombre, cedula, email, telefono, area, cargo, sede,
+      salario, estado_civil, fecha_nacimiento, username, password
+    );
+
+    logChange(db, result.lastInsertRowid, 'CREATE', `Usuario: ${username}`);
+
+    return {
+      id: result.lastInsertRowid,
+      username,
+      password,
+      ...employeeData
+    };
+  } catch (err) {
+    console.error('[EMPLOYEES] Error en createEmployee:', err.message);
+    throw err;
+  }
+}
+
+/**
+ * Completar datos de empleado parcialmente creado
+ */
+export function completeEmployee(db, id, updateData) {
+  try {
+    const employee = getEmployeeById(db, id);
+    if (!employee) throw new Error('Empleado no encontrado');
+
+    const fields = [];
+    const values = [];
+
+    const updatable = [
+      'nombre', 'cedula', 'email', 'telefono', 'area', 'cargo',
+      'sede', 'salario', 'estado_civil', 'fecha_nacimiento'
+    ];
+
+    for (const field of updatable) {
+      if (updateData[field] !== undefined) {
+        fields.push(`${field} = ?`);
+        values.push(updateData[field]);
+      }
+    }
+
+    if (fields.length === 0) return employee;
+
+    values.push(id);
+    const query = `UPDATE employees SET ${fields.join(', ')} WHERE id = ?`;
+    db.prepare(query).run(...values);
+
+    logChange(db, id, 'COMPLETE', JSON.stringify(updateData));
+
+    return getEmployeeById(db, id);
+  } catch (err) {
+    console.error('[EMPLOYEES] Error en completeEmployee:', err.message);
+    throw err;
+  }
+}
+
+/**
+ * Actualizar empleado
+ */
+export function updateEmployee(db, id, updateData) {
+  try {
+    const employee = getEmployeeById(db, id);
+    if (!employee) throw new Error('Empleado no encontrado');
+
+    const fields = [];
+    const values = [];
+
+    const updatable = [
+      'nombre', 'cedula', 'email', 'telefono', 'area', 'cargo',
+      'sede', 'salario', 'estado_civil', 'fecha_nacimiento', 'activo'
+    ];
+
+    for (const field of updatable) {
+      if (updateData[field] !== undefined) {
+        fields.push(`${field} = ?`);
+        values.push(updateData[field]);
+      }
+    }
+
+    if (fields.length === 0) return employee;
+
+    values.push(id);
+    const query = `UPDATE employees SET ${fields.join(', ')} WHERE id = ?`;
+    db.prepare(query).run(...values);
+
+    logChange(db, id, 'UPDATE', JSON.stringify(updateData));
+
+    return getEmployeeById(db, id);
+  } catch (err) {
+    console.error('[EMPLOYEES] Error en updateEmployee:', err.message);
+    throw err;
+  }
+}
+
+/**
+ * Eliminar empleado (soft delete)
+ */
+export function deleteEmployee(db, id) {
+  try {
+    const employee = getEmployeeById(db, id);
+    if (!employee) throw new Error('Empleado no encontrado');
+
+    db.prepare('UPDATE employees SET activo = 0 WHERE id = ?').run(id);
+    logChange(db, id, 'DELETE', 'Marcado como inactivo');
+
+    return { success: true, id };
+  } catch (err) {
+    console.error('[EMPLOYEES] Error en deleteEmployee:', err.message);
+    throw err;
+  }
+}
+
+/**
+ * Obtener lista de cargos disponibles
+ */
+export function getCargos(db) {
+  try {
+    return db.prepare('SELECT DISTINCT cargo FROM employees WHERE cargo IS NOT NULL AND activo = 1 ORDER BY cargo')
+      .all()
+      .map(row => row.cargo);
+  } catch (err) {
+    console.error('[EMPLOYEES] Error en getCargos:', err.message);
+    return [];
+  }
+}
+
+/**
+ * Obtener lista de áreas disponibles
+ */
+export function getAreas(db) {
+  try {
+    return db.prepare('SELECT DISTINCT area FROM employees WHERE area IS NOT NULL AND activo = 1 ORDER BY area')
+      .all()
+      .map(row => row.area);
+  } catch (err) {
+    console.error('[EMPLOYEES] Error en getAreas:', err.message);
+    return [];
+  }
+}
