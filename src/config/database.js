@@ -17,6 +17,7 @@ import { migrations as m011 } from './migrations/011-bodegas.js';
 import { migrations as m012 } from './migrations/012-qr-activos.js';
 import { migrations as m013 } from './migrations/013-agent-inventario.js';
 import { migrations as m014 } from './migrations/014-celulares-placa.js';
+import { migrations as m015 } from './migrations/015-employees-fix.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);
@@ -35,7 +36,7 @@ db.exec(fs.readFileSync(schemaPath, 'utf8'));
 
 const allMigrations = [
   ...m001, ...m002, ...m003, ...m004, ...m005,
-  ...m006, ...m007, ...m008, ...m009, ...m010, ...m011, ...m012, ...m013, ...m014,
+  ...m006, ...m007, ...m008, ...m009, ...m010, ...m011, ...m012, ...m013, ...m014, ...m015,
 ];
 for (const sql of allMigrations) {
   try { db.exec(sql); } catch { /* columna/tabla ya existe */ }
