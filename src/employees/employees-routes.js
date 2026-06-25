@@ -67,7 +67,7 @@ router.get('/api/employees/:id', requireAuth, (req, res) => {
  */
 router.post('/api/employees', requireAuth, requirePermission('rh'), (req, res) => {
   try {
-    const { cedula, nombre, email, telefono, area, cargo, sede, salario, estado_civil, fecha_nacimiento } = req.body;
+    const { cedula, nombre_completo, area, cargo } = req.body;
 
     // Validar cedula (8-12 dígitos)
     const cedulaRegex = /^\d{8,12}$/;
@@ -76,7 +76,7 @@ router.post('/api/employees', requireAuth, requirePermission('rh'), (req, res) =
     }
 
     // Validar nombre (>= 3 caracteres)
-    if (!nombre || nombre.trim().length < 3) {
+    if (!nombre_completo || nombre_completo.trim().length < 3) {
       return res.status(400).json({ error: 'NOMBRE_INVALID', message: 'Nombre debe tener al menos 3 caracteres' });
     }
 
@@ -94,15 +94,9 @@ router.post('/api/employees', requireAuth, requirePermission('rh'), (req, res) =
     // Crear empleado
     const result = createEmployee(db, {
       cedula: String(cedula).trim(),
-      nombre: nombre.trim(),
-      email: email ? email.trim() : null,
-      telefono: telefono ? telefono.trim() : null,
+      nombre_completo: nombre_completo.trim(),
       area: area.trim(),
-      cargo: cargo.trim(),
-      sede: sede ? sede.trim() : null,
-      salario: salario || null,
-      estado_civil: estado_civil ? estado_civil.trim() : null,
-      fecha_nacimiento: fecha_nacimiento || null
+      cargo: cargo.trim()
     });
 
     res.status(201).json(result);
