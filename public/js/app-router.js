@@ -13,6 +13,7 @@ import { renderDespacho }           from './despacho.js';
 import { renderTrazabilidad }       from './trazabilidad.js';
 import { renderMonitoreo }          from './monitoreo.js';
 import { renderUsers }              from './users.js';
+import { renderEmployees }          from './employees.js';
 import { state, can, firstAccessibleHash } from './app-state.js';
 
 function guard(permission) {
@@ -59,6 +60,7 @@ export function router() {
       '#inventario':   { perm: 'inventario:read',     nav: 'nav-inventario',    page: 'inventario',           render: () => renderInventario(app) },
       '#monitoreo':    { perm: 'full',                nav: 'nav-monitoreo',     page: 'monitoreo',            render: () => renderMonitoreo(app) },
       '#users':        { perm: 'full',                nav: 'nav-users',         page: 'users',                render: () => renderUsers(app) },
+      '#employees':    { perm: 'full',                nav: 'nav-employees',     page: 'employees',            render: () => renderEmployees(app) },
     };
 
     const route = ROUTES[hash] || ROUTES['#dashboard'];
