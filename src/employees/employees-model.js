@@ -4,7 +4,7 @@
  */
 
 /**
- * Generar username a partir del nombre completo
+ * Generar usuario a partir del nombre completo
  * Extrae iniciales de todos los nombres excepto el último (apellido),
  * combina con el apellido.
  * Ejemplo: Kelly Johana Raigoza Herrera -> KJ + Raigoza -> KJRAIGOZA
@@ -27,7 +27,7 @@ export function generateUsername(fullName) {
 }
 
 /**
- * Generar password a partir de la cédula
+ * Generar contraseña a partir de la cédula
  * Toma los últimos 4 dígitos, formateados a 4 caracteres
  * Ejemplo: 1130658563 -> 8563
  */
@@ -41,14 +41,14 @@ export function generatePassword(cedula) {
 }
 
 /**
- * Asegurar username único - si existe, agregar contador
+ * Asegurar usuario único - si existe, agregar contador
  * KJRAIGOZA -> KJRAIGOZA2, KJRAIGOZA3, etc.
  */
 export function ensureUniqueUsername(db, baseUsername) {
   let username = baseUsername;
   let counter = 2;
 
-  const checkStmt = db.prepare('SELECT COUNT(*) as cnt FROM employees WHERE username = ?');
+  const checkStmt = db.prepare('SELECT COUNT(*) as cnt FROM employees WHERE usuario = ?');
 
   while (checkStmt.get(username).cnt > 0) {
     username = `${baseUsername}${counter}`;
@@ -59,16 +59,16 @@ export function ensureUniqueUsername(db, baseUsername) {
 }
 
 /**
- * Asegurar password único - si existe, generar aleatorio
+ * Asegurar contraseña única - si existe, generar aleatorio
  */
 export function ensureUniquePassword(db, basePassword) {
-  const checkStmt = db.prepare('SELECT COUNT(*) as cnt FROM employees WHERE password = ?');
+  const checkStmt = db.prepare('SELECT COUNT(*) as cnt FROM employees WHERE contraseña = ?');
 
   if (checkStmt.get(basePassword).cnt === 0) {
     return basePassword;
   }
 
-  // Generar password aleatorio de 4-6 dígitos
+  // Generar contraseña aleatorio de 4-6 dígitos
   let password;
   let attempts = 0;
   do {
@@ -87,7 +87,7 @@ export function ensureUniquePassword(db, basePassword) {
  */
 export function logChange(db, employeeId, action, details = '') {
   const stmt = db.prepare(`
-    INSERT INTO employee_logs (employee_id, action, details, logged_at)
+    INSERT INTO employee_logs (employee_id, accion, campo_cambio, timestamp)
     VALUES (?, ?, ?, datetime('now','localtime'))
   `);
 
@@ -105,9 +105,9 @@ export function getAllEmployees(db, filters = {}) {
   const params = [];
 
   if (search) {
-    query += ' AND (nombre LIKE ? OR cedula LIKE ? OR username LIKE ? OR email LIKE ?)';
+    query += ' AND (nombre_completo LIKE ? OR cedula LIKE ? OR usuario LIKE ?)';
     const pattern = `%${search}%`;
-    params.push(pattern, pattern, pattern, pattern);
+    params.push(pattern, pattern, pattern);
   }
 
   if (area) {
@@ -123,7 +123,7 @@ export function getAllEmployees(db, filters = {}) {
   const countQuery = query.replace(/SELECT \*/, 'SELECT COUNT(*) as total');
   const countParams = [...params];
 
-  query += ' ORDER BY nombre ASC LIMIT ? OFFSET ?';
+  query += ' ORDER BY nombre_completo ASC LIMIT ? OFFSET ?';
   params.push(limit, offset);
 
   try {
@@ -167,49 +167,41 @@ export function getEmployeeById(db, id) {
 export function createEmployee(db, employeeData) {
   try {
     const {
-      nombre,
+      nombre_completo,
       cedula,
-      email,
-      telefono,
-      area,
       cargo,
-      sede,
-      salario,
-      estado_civil,
-      fecha_nacimiento
+      area
     } = employeeData;
 
-    if (!nombre || !cedula || !email) {
-      throw new Error('Campos requeridos: nombre, cedula, email');
+    if (!nombre_completo || !cedula || !cargo || !area) {
+      throw new Error('Campos requeridos: nombre_completo, cedula, cargo, area');
     }
 
     // Auto-generar credenciales
-    let username = generateUsername(nombre);
-    username = ensureUniqueUsername(db, username);
+    let usuario = generateUsername(nombre_completo);
+    usuario = ensureUniqueUsername(db, usuario);
 
-    let password = generatePassword(cedula);
-    password = ensureUniquePassword(db, password);
+    let contraseña = generatePassword(cedula);
+    contraseña = ensureUniquePassword(db, contraseña);
 
     const stmt = db.prepare(`
       INSERT INTO employees (
-        nombre, cedula, email, telefono, area, cargo, sede,
-        salario, estado_civil, fecha_nacimiento, username, password,
+        cedula, nombre_completo, cargo, area, usuario, contraseña,
         created_at
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now','localtime'))
+      VALUES (?, ?, ?, ?, ?, ?, datetime('now','localtime'))
     `);
 
     const result = stmt.run(
-      nombre, cedula, email, telefono, area, cargo, sede,
-      salario, estado_civil, fecha_nacimiento, username, password
+      cedula, nombre_completo, cargo, area, usuario, contraseña
     );
 
-    logChange(db, result.lastInsertRowid, 'CREATE', `Usuario: ${username}`);
+    logChange(db, result.lastInsertRowid, 'CREATE', `Usuario: ${usuario}`);
 
     return {
       id: result.lastInsertRowid,
-      username,
-      password,
+      usuario,
+      contraseña,
       ...employeeData
     };
   } catch (err) {
@@ -230,8 +222,7 @@ export function completeEmployee(db, id, updateData) {
     const values = [];
 
     const updatable = [
-      'nombre', 'cedula', 'email', 'telefono', 'area', 'cargo',
-      'sede', 'salario', 'estado_civil', 'fecha_nacimiento'
+      'nombre_completo', 'cedula', 'area', 'cargo', 'fecha_respuesta_soporte'
     ];
 
     for (const field of updatable) {
@@ -268,8 +259,7 @@ export function updateEmployee(db, id, updateData) {
     const values = [];
 
     const updatable = [
-      'nombre', 'cedula', 'email', 'telefono', 'area', 'cargo',
-      'sede', 'salario', 'estado_civil', 'fecha_nacimiento', 'activo'
+      'nombre_completo', 'cedula', 'area', 'cargo', 'fecha_respuesta_soporte'
     ];
 
     for (const field of updatable) {
@@ -317,9 +307,9 @@ export function deleteEmployee(db, id) {
  */
 export function getCargos(db) {
   try {
-    return db.prepare('SELECT DISTINCT cargo FROM employees WHERE cargo IS NOT NULL AND activo = 1 ORDER BY cargo')
+    return db.prepare('SELECT nombre FROM employee_cargos ORDER BY nombre')
       .all()
-      .map(row => row.cargo);
+      .map(row => row.nombre);
   } catch (err) {
     console.error('[EMPLOYEES] Error en getCargos:', err.message);
     return [];
@@ -331,9 +321,9 @@ export function getCargos(db) {
  */
 export function getAreas(db) {
   try {
-    return db.prepare('SELECT DISTINCT area FROM employees WHERE area IS NOT NULL AND activo = 1 ORDER BY area')
+    return db.prepare('SELECT nombre FROM employee_areas ORDER BY nombre')
       .all()
-      .map(row => row.area);
+      .map(row => row.nombre);
   } catch (err) {
     console.error('[EMPLOYEES] Error en getAreas:', err.message);
     return [];
