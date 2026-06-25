@@ -1,194 +1,113 @@
 import express from 'express';
-import db from '../config/database.js';
-import { requireAuth, requirePermission } from '../auth/auth-middleware.js';
+import { requireAuth } from '../auth/auth-middleware.js';
 import {
-  getAllEmployees,
-  getEmployeeById,
-  createEmployee,
-  completeEmployee,
-  updateEmployee,
-  deleteEmployee,
-  getCargos,
-  getAreas,
-  generateUsername,
-  generatePassword,
-  ensureUniqueUsername,
-  ensureUniquePassword
+  getAllEmployees, getEmployeeById,
+  createEmployee, completeEmployee, updateEmployee, deleteEmployee,
+  getCargos, getAreas,
 } from './employees-model.js';
 
 const router = express.Router();
 
-/**
- * GET /api/employees
- * Obtener lista de empleados con filtros opcionales
- */
+// GET /api/employees
 router.get('/api/employees', requireAuth, (req, res) => {
   try {
-    const filters = {
-      search: req.query.search || '',
-      area: req.query.area || '',
-      cargo: req.query.cargo || '',
-      page: parseInt(req.query.page) || 1,
-      limit: parseInt(req.query.limit) || 10
-    };
-
-    const result = getAllEmployees(db, filters);
-    res.json(result);
+    res.json(getAllEmployees());
   } catch (err) {
-    console.error('[EMPLOYEES] GET /api/employees error:', err.message);
-    res.status(500).json({ error: 'Error al obtener empleados' });
+    console.error('[employees] GET /api/employees:', err.message);
+    res.status(500).json({ error: 'Error al obtener empleados.' });
   }
 });
 
-/**
- * GET /api/employees/:id
- * Obtener detalles de un empleado específico
- */
+// GET /api/employees/:id
 router.get('/api/employees/:id', requireAuth, (req, res) => {
   try {
-    const employee = getEmployeeById(db, req.params.id);
-    if (!employee) {
-      return res.status(404).json({ error: 'Empleado no encontrado' });
-    }
-    res.json(employee);
+    const emp = getEmployeeById(req.params.id);
+    if (!emp) return res.status(404).json({ error: 'Empleado no encontrado.' });
+    res.json(emp);
   } catch (err) {
-    console.error('[EMPLOYEES] GET /api/employees/:id error:', err.message);
-    res.status(500).json({ error: 'Error al obtener empleado' });
+    console.error('[employees] GET /api/employees/:id:', err.message);
+    res.status(500).json({ error: 'Error al obtener empleado.' });
   }
 });
 
-/**
- * POST /api/employees
- * Crear nuevo empleado (solo Gestión Humana)
- * Validación:
- * - cedula: 8-12 dígitos
- * - nombre: >= 3 caracteres
- * - cargo y area requeridos
- */
-router.post('/api/employees', requireAuth, requirePermission('rh'), (req, res) => {
+// POST /api/employees  (Gestión Humana crea)
+router.post('/api/employees', requireAuth, (req, res) => {
   try {
-    const { cedula, nombre_completo, area, cargo } = req.body;
+    const { cedula, nombre_completo, cargo, area } = req.body;
 
-    // Validar cedula (8-12 dígitos)
-    const cedulaRegex = /^\d{8,12}$/;
-    if (!cedula || !cedulaRegex.test(String(cedula).trim())) {
-      return res.status(400).json({ error: 'CEDULA_INVALID', message: 'Cédula debe contener 8-12 dígitos' });
+    if (!cedula || !/^\d{8,12}$/.test(String(cedula).trim())) {
+      return res.status(400).json({ error: 'Cédula debe tener 8-12 dígitos.' });
     }
-
-    // Validar nombre (>= 3 caracteres)
     if (!nombre_completo || nombre_completo.trim().length < 3) {
-      return res.status(400).json({ error: 'NOMBRE_INVALID', message: 'Nombre debe tener al menos 3 caracteres' });
+      return res.status(400).json({ error: 'Nombre debe tener al menos 3 caracteres.' });
     }
-
-    // Validar cargo y area requeridos
     if (!cargo || !area) {
-      return res.status(400).json({ error: 'INVALID_CARGO_OR_AREA', message: 'Cargo y área son requeridos' });
+      return res.status(400).json({ error: 'Cargo y área son requeridos.' });
     }
 
-    // Verificar si cédula ya existe
-    const existing = db.prepare('SELECT COUNT(*) as cnt FROM employees WHERE cedula = ?').get(String(cedula).trim());
-    if (existing.cnt > 0) {
-      return res.status(409).json({ error: 'CEDULA_EXISTS', message: 'Esta cédula ya está registrada' });
-    }
-
-    // Crear empleado
-    const result = createEmployee(db, {
+    const id = createEmployee({
       cedula: String(cedula).trim(),
       nombre_completo: nombre_completo.trim(),
+      cargo: cargo.trim(),
       area: area.trim(),
-      cargo: cargo.trim()
+      created_by: req.user.id,
     });
 
-    res.status(201).json(result);
+    res.status(201).json({ ok: true, id });
   } catch (err) {
-    console.error('[EMPLOYEES] POST /api/employees error:', err.message);
-    res.status(500).json({ error: 'Error al crear empleado' });
+    if (err.code === 'CEDULA_EXISTS') return res.status(409).json({ error: 'Cédula ya registrada.' });
+    console.error('[employees] POST /api/employees:', err.message);
+    res.status(500).json({ error: 'Error al crear empleado.' });
   }
 });
 
-/**
- * PUT /api/employees/:id
- * Actualizar empleado (ambos roles)
- * Lógica:
- * - Si fecha_respuesta_soporte está presente: llama completeEmployee
- * - Si no: llama updateEmployee
- * - Si fecha_respuesta_soporte y no está presente: error 400
- */
-router.put('/api/employees/:id', requireAuth, (req, res) => {
+// PUT /api/employees/:id  (GH edita datos, IT agrega fecha → auto-genera credenciales)
+router.put('/api/employees/:id', requireAuth, async (req, res) => {
   try {
-    const { fecha_respuesta_soporte, ...updateData } = req.body;
+    const id = req.params.id;
+    if (!getEmployeeById(id)) return res.status(404).json({ error: 'Empleado no encontrado.' });
 
-    // Validar que el empleado existe
-    const employee = getEmployeeById(db, req.params.id);
-    if (!employee) {
-      return res.status(404).json({ error: 'EMPLOYEE_NOT_FOUND', message: 'Empleado no encontrado' });
+    const { fecha_respuesta_soporte, nombre_completo, cargo, area } = req.body;
+
+    if (fecha_respuesta_soporte) {
+      // IT completa: genera usuario + contraseña automáticamente
+      updateEmployee(id, { nombre_completo, cargo, area }, req.user.id);
+      const creds = completeEmployee(id, fecha_respuesta_soporte, req.user.id);
+      return res.json({ ok: true, ...creds, ...getEmployeeById(id) });
     }
 
-    let result;
-
-    // Si se proporciona fecha_respuesta_soporte, usar completeEmployee
-    if (fecha_respuesta_soporte !== undefined && fecha_respuesta_soporte !== null) {
-      result = completeEmployee(db, req.params.id, updateData);
-    } else if (Object.keys(updateData).length > 0) {
-      // Si hay otros datos para actualizar, usar updateEmployee
-      result = updateEmployee(db, req.params.id, updateData);
-    } else {
-      // Si no hay datos para actualizar
-      return res.status(400).json({ error: 'FECHA_REQUIRED', message: 'Se requieren datos para actualizar' });
-    }
-
-    res.json(result);
+    updateEmployee(id, { nombre_completo, cargo, area }, req.user.id);
+    res.json({ ok: true, ...getEmployeeById(id) });
   } catch (err) {
-    console.error('[EMPLOYEES] PUT /api/employees/:id error:', err.message);
-    res.status(500).json({ error: 'Error al actualizar empleado' });
+    if (err.code === 'NOT_FOUND')     return res.status(404).json({ error: 'Empleado no encontrado.' });
+    if (err.code === 'FECHA_REQUIRED') return res.status(400).json({ error: 'Fecha requerida.' });
+    console.error('[employees] PUT /api/employees/:id:', err.message);
+    res.status(500).json({ error: 'Error al actualizar empleado.' });
   }
 });
 
-/**
- * DELETE /api/employees/:id
- * Eliminar empleado (soft delete - marcar como inactivo)
- */
-router.delete('/api/employees/:id', requireAuth, requirePermission('rh'), (req, res) => {
+// DELETE /api/employees/:id
+router.delete('/api/employees/:id', requireAuth, (req, res) => {
   try {
-    const employee = getEmployeeById(db, req.params.id);
-    if (!employee) {
-      return res.status(404).json({ error: 'Empleado no encontrado' });
-    }
-
-    const result = deleteEmployee(db, req.params.id);
-    res.json(result);
+    deleteEmployee(req.params.id, req.user.id);
+    res.json({ ok: true });
   } catch (err) {
-    console.error('[EMPLOYEES] DELETE /api/employees/:id error:', err.message);
-    res.status(500).json({ error: 'Error al eliminar empleado' });
+    if (err.code === 'NOT_FOUND') return res.status(404).json({ error: 'Empleado no encontrado.' });
+    console.error('[employees] DELETE /api/employees/:id:', err.message);
+    res.status(500).json({ error: 'Error al eliminar empleado.' });
   }
 });
 
-/**
- * GET /api/employees-data/cargos
- * Obtener lista de cargos disponibles para dropdown
- */
+// GET /api/employees-data/cargos
 router.get('/api/employees-data/cargos', requireAuth, (req, res) => {
-  try {
-    const cargos = getCargos(db);
-    res.json({ data: cargos });
-  } catch (err) {
-    console.error('[EMPLOYEES] GET /api/employees-data/cargos error:', err.message);
-    res.status(500).json({ error: 'Error al obtener cargos' });
-  }
+  try { res.json(getCargos()); }
+  catch (err) { res.status(500).json({ error: 'Error al obtener cargos.' }); }
 });
 
-/**
- * GET /api/employees-data/areas
- * Obtener lista de áreas disponibles para dropdown
- */
+// GET /api/employees-data/areas
 router.get('/api/employees-data/areas', requireAuth, (req, res) => {
-  try {
-    const areas = getAreas(db);
-    res.json({ data: areas });
-  } catch (err) {
-    console.error('[EMPLOYEES] GET /api/employees-data/areas error:', err.message);
-    res.status(500).json({ error: 'Error al obtener áreas' });
-  }
+  try { res.json(getAreas()); }
+  catch (err) { res.status(500).json({ error: 'Error al obtener áreas.' }); }
 });
 
 export default router;
