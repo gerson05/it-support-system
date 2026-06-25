@@ -1,0 +1,138 @@
+=============================== 
+ INVENTARIO DE EQUIPO DESKTOP-NQ4SQID 
+ Fecha: 22/04/2026 - Hora: 12:07:42.54 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : MJ00HZGG
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            DESKTOP-NQ4SQID
+Nombre del sistema operativo:              Microsoft Windows 10 Home
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              USUARIO
+Organizaci¢n registrada:                   
+Id. del producto:                          00326-10000-00000-AA638
+Fecha de instalaci¢n original:             07/12/2019, 08:11:50 a.ÿm.
+Tiempo de arranque del sistema:            08/01/2026, 04:02:47 p.ÿm.
+Fabricante del sistema:                    LENOVO
+Modelo el sistema:                         10B7A0HV00
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 60 Stepping 3 GenuineIntel ~3001 Mhz
+Versi¢n del BIOS:                          LENOVO FCKT46AUS, 16/12/2013
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8,009 MB
+Memoria f¡sica disponible:                 3,319 MB
+Memoria virtual: tama¤o m ximo:            9,289 MB
+Memoria virtual: disponible:               3,666 MB
+Memoria virtual: en uso:                   5,623 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\DESKTOP-NQ4SQID
+Revisi¢n(es):                              27 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5037592
+                                           [03]: KB5011048
+                                           [04]: KB5011056
+                                           [05]: KB5015684
+                                           [06]: KB5072653
+                                           [07]: KB5071959
+                                           [08]: KB5014032
+                                           [09]: KB5032907
+                                           [10]: KB5037995
+                                           [11]: KB5039336
+                                           [12]: KB5041579
+                                           [13]: KB5043935
+                                           [14]: KB5043130
+                                           [15]: KB5046823
+                                           [16]: KB5050388
+                                           [17]: KB5050111
+                                           [18]: KB5052916
+                                           [19]: KB5054682
+                                           [20]: KB5058526
+                                           [21]: KB5059504
+                                           [22]: KB5063706
+                                           [23]: KB5063261
+                                           [24]: KB5063979
+                                           [25]: KB5066790
+                                           [26]: KB5071982
+                                           [27]: KB5034441
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Realtek PCIe GbE Family Controller
+                                                 Nombre de conexi¢n: Ethernet 2
+                                                 DHCP habilitado:    No
+                                                 Direcciones IP
+                                                 [01]: 192.168.0.210
+                                                 [02]: fe80::f0c1:353c:bb1a:84ff
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: No
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-4430 CPU @ 3.00GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 3001
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : Samsung
+PartNumber   : M378B5173QH0-CK0  
+Capacity     : 4294967296
+Speed        : 1600
+
+Manufacturer : 0467
+PartNumber   : RMR5040ED58E9W1600
+Capacity     : 4294967296
+Speed        : 1600
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : MKNSSDS2240GB-LT
+SerialNumber  : MK21030110081A0A2
+Size          : 240054796800
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 237250064384
+FreeSpace  : 165822472192
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

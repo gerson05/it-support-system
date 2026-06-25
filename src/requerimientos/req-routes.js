@@ -25,8 +25,10 @@ const upload = multer({
 });
 
 // ── Admin auth ──────────────────────────────────────────────────────────
-const ADMIN_USER = 'GESTION';
-const ADMIN_PASS = 'GST123';
+const ADMIN_USER = process.env.REQ_ADMIN_USER || 'GESTION';
+const ADMIN_PASS = process.env.REQ_ADMIN_PASS || 'GST123';
+if (!process.env.REQ_ADMIN_USER || !process.env.REQ_ADMIN_PASS)
+  console.warn('[Req] WARNING: REQ_ADMIN_USER / REQ_ADMIN_PASS not set, using insecure defaults');
 const TOKEN_TTL  = 8 * 60 * 60 * 1000; // 8 h
 
 function makeToken(ts) {

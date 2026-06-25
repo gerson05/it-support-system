@@ -1,0 +1,40 @@
+<h2>¿Dónde vive el sistema de requerimientos?</h2>
+<p class="subtitle">Esta decisión determina el esfuerzo de despliegue y mantenimiento a largo plazo</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Mismo servidor IT (recomendado)</h3>
+      <p>Una página standalone en <code>servidor:3000/requerimientos.html</code> — igual que MediCalc. Sin infraestructura extra. El formulario es público, el panel admin usa el RBAC existente.</p>
+      <div class="pros-cons" style="margin-top:10px">
+        <div class="pros"><h4>✓ Pros</h4><ul><li>Cero infraestructura extra</li><li>Ya tienes multer para fotos</li><li>SQLite compartido</li><li>Un solo deploy</li></ul></div>
+        <div class="cons"><h4>✗ Contras</h4><ul><li>Depende de que el server IT esté activo</li><li>Mismo dominio/puerto</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Servicio separado (otro puerto / subdominio)</h3>
+      <p>App Node.js independiente en <code>reqs.medivalle.co</code> o <code>servidor:3001</code>. Base de datos propia. Totalmente desacoplado del sistema IT.</p>
+      <div class="pros-cons" style="margin-top:10px">
+        <div class="pros"><h4>✓ Pros</h4><ul><li>100% independiente</li><li>Puede caerse IT sin afectar reqs</li><li>Deploy separado</li></ul></div>
+        <div class="cons"><h4>✗ Contras</h4><ul><li>Doble mantenimiento</li><li>Configuración extra de red</li><li>Más complejo</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Google Forms + Sheets + Apps Script</h3>
+      <p>Formulario en Google Forms, respuestas en Sheets, email automático via Apps Script. Cero hosting, gratis.</p>
+      <div class="pros-cons" style="margin-top:10px">
+        <div class="pros"><h4>✓ Pros</h4><ul><li>Sin servidor propio</li><li>Siempre disponible</li><li>Gratis</li></ul></div>
+        <div class="cons"><h4>✗ Contras</h4><ul><li>Sin UI personalizada</li><li>Sin admin integrado</li><li>Fotos limitadas</li><li>No se integra con sistema IT</li></ul></div>
+      </div>
+    </div>
+  </div>
+</div>

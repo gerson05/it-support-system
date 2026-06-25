@@ -1,0 +1,119 @@
+=============================== 
+ INVENTARIO DE EQUIPO MISTRATOX1 
+ Fecha: mar. 28/04/2026 - Hora: 12:22:46,41 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : 49MKLR2
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            MISTRATOX1
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              Dell
+Organizaci¢n registrada:                   
+Id. del producto:                          00330-50956-35495-AAOEM
+Fecha de instalaci¢n original:             7/12/2019, 1:00:01 a.ÿm.
+Tiempo de arranque del sistema:            27/03/2026, 8:34:49 a.ÿm.
+Fabricante del sistema:                    Dell Inc.
+Modelo el sistema:                         OptiPlex 3050
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 94 Stepping 3 GenuineIntel ~2496 Mhz
+Versi¢n del BIOS:                          Dell Inc. 1.31.0, 9/07/2024
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es-mx;Espa¤ol (M‚xico)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.056 MB
+Memoria f¡sica disponible:                 3.438 MB
+Memoria virtual: tama¤o m ximo:            9.336 MB
+Memoria virtual: disponible:               3.951 MB
+Memoria virtual: en uso:                   5.385 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\MISTRATOX1
+Revisi¢n(es):                              12 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5064399
+                                           [03]: KB5011048
+                                           [04]: KB5015684
+                                           [05]: KB5033052
+                                           [06]: KB5072653
+                                           [07]: KB5071959
+                                           [08]: KB5014032
+                                           [09]: KB5025315
+                                           [10]: KB5063979
+                                           [11]: KB5066790
+                                           [12]: KB5071982
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Realtek PCIe GbE Family Controller
+                                                 Nombre de conexi¢n: Ethernet
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.1.2
+                                                 Direcciones IP
+                                                 [01]: 192.168.1.182
+                                                 [02]: fe80::5255:75b1:2bfb:fd84
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: S¡
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-8500T CPU
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 2496
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : 80AD000080AD
+PartNumber   : HMA81GS6AFR8N-UH    
+Capacity     : 8589934592
+Speed        : 2400
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : Micron 1100 SATA 256GB
+SerialNumber  :         18271D737B91
+Size          : 256052966400
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 255375003648
+FreeSpace  : 197603995648
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

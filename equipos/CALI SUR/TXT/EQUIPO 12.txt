@@ -1,0 +1,121 @@
+=============================== 
+ INVENTARIO DE EQUIPO DESKTOP-EPNK73I 
+ Fecha: mi‚. 22/04/2026 - Hora: 11:57:03,07 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : 2D5CMN2
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            DESKTOP-EPNK73I
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              Dell
+Organizaci¢n registrada:                   
+Id. del producto:                          00330-50999-07580-AAOEM
+Fecha de instalaci¢n original:             29/08/2024, 11:35:17 a.ÿm.
+Tiempo de arranque del sistema:            13/04/2026, 9:45:35 a.ÿm.
+Fabricante del sistema:                    Dell Inc.
+Modelo el sistema:                         OptiPlex 7050
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 158 Stepping 9 GenuineIntel ~2400 Mhz
+Versi¢n del BIOS:                          Dell Inc. 1.27.0, 18/09/2023
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es-mx;Espa¤ol (M‚xico)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.055 MB
+Memoria f¡sica disponible:                 2.697 MB
+Memoria virtual: tama¤o m ximo:            9.335 MB
+Memoria virtual: disponible:               2.193 MB
+Memoria virtual: en uso:                   7.142 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\DESKTOP-EPNK73I
+Revisi¢n(es):                              14 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5056577
+                                           [03]: KB5011048
+                                           [04]: KB5015684
+                                           [05]: KB5033052
+                                           [06]: KB5066791
+                                           [07]: KB5014032
+                                           [08]: KB5025315
+                                           [09]: KB5041579
+                                           [10]: KB5063706
+                                           [11]: KB5063261
+                                           [12]: KB5063979
+                                           [13]: KB5066411
+                                           [14]: KB5066790
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) Ethernet Connection (5) I219-LM
+                                                 Nombre de conexi¢n: Ethernet
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      190.147.23.254
+                                                 Direcciones IP
+                                                 [01]: 190.147.23.45
+                                                 [02]: fe80::cd2:94e1:6050:36ab
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: S¡
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-7400T CPU @ 2.40GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 2400
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : 80AD000080AD
+PartNumber   : HMA81GS6AFR8N-UH    
+Capacity     : 8589934592
+Speed        : 2400
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : NVMe NVME SSD 256GB
+SerialNumber  : 0000_0000_0000_0000_00E0_4C15_1F94_7A95.
+Size          : 256052966400
+InterfaceType : SCSI
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 255375003648
+FreeSpace  : 200448122880
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

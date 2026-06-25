@@ -133,7 +133,7 @@ export async function renderSedesAdmin(container) {
                     ${p.activo ? 'Desactivar' : 'Activar'}
                   </button>
                   <button class="btn-sede-delete" data-id="${p.id}"
-                    style="padding:4px 10px;border:1px solid rgba(239,68,68,.3);border-radius:6px;background:rgba(239,68,68,.1);color:#f87171;font-size:11px;cursor:pointer;">
+                    style="padding:4px 10px;border:1px solid rgba(239,68,68,.3);border-radius:6px;background:rgba(239,68,68,.1);color:var(--danger);font-size:11px;cursor:pointer;">
                     Eliminar
                   </button>
                 </div>
@@ -177,7 +177,7 @@ export async function renderSedesAdmin(container) {
 
   // Nuevo punto — abre modal multi-paso
   container.querySelector('#btn-nuevo-punto').addEventListener('click', () => {
-    openPuntoSetupModal(() => loadSedes());
+    openPuntoSetupModal(() => loadSedes(), Object.keys(allData).sort());
   });
 
   // Filtros en tiempo real

@@ -1,0 +1,93 @@
+<h2>¿Dónde van los controles remotos?</h2>
+<p class="subtitle">Cuando el admin quiere ejecutar algo en un equipo — ¿cómo accede?</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="accordion" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:var(--surface-2);padding:12px;font-family:monospace;font-size:11px;">
+      <div style="border:1px solid var(--border);border-radius:6px;overflow:hidden;">
+        <div style="background:var(--surface);padding:8px 12px;display:flex;justify-content:space-between;align-items:center;font-size:11px;">
+          <span>● <b>PC-CONTABILIDAD</b> &nbsp;<span style="color:#22c55e">Online</span></span>
+          <span style="color:var(--text-3);">▼</span>
+        </div>
+        <div style="background:var(--surface-2);padding:10px 12px;border-top:1px solid var(--border);">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px;font-size:10px;">
+            <div style="background:var(--surface);border:1px solid var(--border);padding:6px;border-radius:4px;"><div style="color:var(--text-3)">CPU</div><b>Intel i5</b></div>
+            <div style="background:var(--surface);border:1px solid var(--border);padding:6px;border-radius:4px;"><div style="color:var(--text-3)">RAM</div><b>16 GB</b></div>
+            <div style="background:var(--surface);border:1px solid var(--border);padding:6px;border-radius:4px;"><div style="color:var(--text-3)">IP</div><b>192.168.1.5</b></div>
+          </div>
+          <div style="border-top:1px solid var(--border);padding-top:8px;margin-top:4px;">
+            <div style="font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;margin-bottom:6px;">Acciones Remotas</div>
+            <div style="display:flex;gap:4px;flex-wrap:wrap;">
+              <button style="background:#ef444420;color:#ef4444;border:1px solid #ef444440;border-radius:4px;padding:3px 8px;font-size:10px;cursor:pointer;">⟳ Reiniciar</button>
+              <button style="background:#3b82f620;color:#3b82f6;border:1px solid #3b82f640;border-radius:4px;padding:3px 8px;font-size:10px;cursor:pointer;">⊟ Apagar</button>
+              <button style="background:#8b5cf620;color:#8b5cf6;border:1px solid #8b5cf640;border-radius:4px;padding:3px 8px;font-size:10px;cursor:pointer;">▶ Script</button>
+              <button style="background:#f59e0b20;color:#f59e0b;border:1px solid #f59e0b40;border-radius:4px;padding:3px 8px;font-size:10px;cursor:pointer;">⌨ Consola</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — En el accordion</h3>
+      <p>Comandos aparecen al expandir la fila. Sin clicks extra. Compacto pero todo en un lugar.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="modal" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:var(--surface-2);padding:12px;font-family:monospace;font-size:11px;">
+      <div style="position:relative;">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:8px 12px;font-size:11px;opacity:0.4;">
+          <span>● <b>PC-CONTABILIDAD</b></span>
+        </div>
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px;width:90%;box-shadow:0 8px 24px #0004;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+              <b style="font-size:11px;">PC-CONTABILIDAD — Control Remoto</b>
+              <span style="color:var(--text-3);cursor:pointer;">✕</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:8px;">
+              <button style="background:#ef444420;color:#ef4444;border:1px solid #ef444440;border-radius:4px;padding:5px;font-size:10px;">⟳ Reiniciar PC</button>
+              <button style="background:#3b82f620;color:#3b82f6;border:1px solid #3b82f640;border-radius:4px;padding:5px;font-size:10px;">⊟ Apagar</button>
+              <button style="background:#22c55e20;color:#22c55e;border:1px solid #22c55e40;border-radius:4px;padding:5px;font-size:10px;">⟳ Reiniciar Servicio</button>
+              <button style="background:#8b5cf620;color:#8b5cf6;border:1px solid #8b5cf640;border-radius:4px;padding:5px;font-size:10px;">▶ Ejecutar Script</button>
+            </div>
+            <div style="background:#000;border-radius:4px;padding:6px;font-size:9px;color:#22c55e;font-family:monospace;min-height:40px;">
+              PS C:\&gt; _
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Modal dedicado</h3>
+      <p>Botón "Control Remoto" abre un modal grande con botones de acción + consola PowerShell. Más espacio, más foco.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="panel" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:var(--surface-2);padding:12px;font-family:monospace;font-size:11px;">
+      <div style="display:flex;gap:6px;height:100px;">
+        <div style="flex:1;border:1px solid var(--border);border-radius:6px;overflow:hidden;">
+          <div style="background:var(--surface);padding:5px 8px;font-size:10px;border-bottom:1px solid var(--border);">Lista de Equipos</div>
+          <div style="padding:4px 8px;font-size:10px;background:#3b82f620;">● <b>PC-CONTA</b></div>
+          <div style="padding:4px 8px;font-size:10px;color:var(--text-3);">○ PC-RRHH</div>
+          <div style="padding:4px 8px;font-size:10px;color:var(--text-3);">● PC-BODEGA</div>
+        </div>
+        <div style="flex:1.5;border:1px solid var(--border);border-radius:6px;overflow:hidden;">
+          <div style="background:var(--surface);padding:5px 8px;font-size:10px;border-bottom:1px solid var(--border);">PC-CONTA — Control</div>
+          <div style="padding:6px;display:grid;grid-template-columns:1fr 1fr;gap:3px;">
+            <button style="background:#ef444420;color:#ef4444;border:1px solid #ef444440;border-radius:3px;padding:3px;font-size:9px;">⟳ Reiniciar</button>
+            <button style="background:#3b82f620;color:#3b82f6;border:1px solid #3b82f640;border-radius:3px;padding:3px;font-size:9px;">⊟ Apagar</button>
+          </div>
+          <div style="background:#000;margin:0 6px;border-radius:3px;padding:4px;font-size:8px;color:#22c55e;font-family:monospace;">PS&gt; _</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Panel lateral</h3>
+      <p>Clic en equipo abre panel derecho con detalles + comandos. Vista dividida. Más navegación entre equipos.</p>
+    </div>
+  </div>
+
+</div>

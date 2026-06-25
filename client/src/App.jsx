@@ -7,6 +7,7 @@ import TechRequestDetail from './components/TechRequestDetail';
 import Settings from './components/Settings';
 import SedesAdmin from './components/SedesAdmin';
 import Despacho from './pages/Despacho';
+import Trazabilidad from './pages/Trazabilidad';
 import Roles from './components/Roles';
 import Audit from './components/Audit';
 import InventarioApp from './components/InventarioApp';
@@ -37,6 +38,7 @@ export default function App() {
   if (hash === '#faqs') return <Faqs />;
   if (hash === '#sedes') return <SedesAdmin />;
   if (hash === '#despacho') return <Despacho />;
+  if (hash === '#trazabilidad') return <Trazabilidad />;
   if (hash === '#audit') return <Audit />;
   if (hash === '#inventario') return <InventarioApp />;
   if (hash === '#roles') return <Roles />;

@@ -1,0 +1,132 @@
+=============================== 
+ INVENTARIO DE EQUIPO TULUA02_ESC 
+ Fecha: mi‚. 22/04/2026 - Hora: 14:05:09,28 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : MJ07C86X
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            TULUA02_ESC
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              USUARIO
+Organizaci¢n registrada:                   
+Id. del producto:                          00330-51332-37129-AAOEM
+Fecha de instalaci¢n original:             27/01/2025, 9:11:30 a.ÿm.
+Tiempo de arranque del sistema:            7/04/2026, 7:02:28 a.ÿm.
+Fabricante del sistema:                    LENOVO
+Modelo el sistema:                         10MQSE7500
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 94 Stepping 3 GenuineIntel ~2712 Mhz
+Versi¢n del BIOS:                          LENOVO M1AKT36A, 20/04/2018
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.080 MB
+Memoria f¡sica disponible:                 2.508 MB
+Memoria virtual: tama¤o m ximo:            13.968 MB
+Memoria virtual: disponible:               4.861 MB
+Memoria virtual: en uso:                   9.107 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\TULUA02_ESC
+Revisi¢n(es):                              20 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5027122
+                                           [03]: KB5003791
+                                           [04]: KB5011048
+                                           [05]: KB5011056
+                                           [06]: KB5012170
+                                           [07]: KB5015684
+                                           [08]: KB5033052
+                                           [09]: KB5072653
+                                           [10]: KB5071959
+                                           [11]: KB5052916
+                                           [12]: KB5054682
+                                           [13]: KB5058526
+                                           [14]: KB5059504
+                                           [15]: KB5063706
+                                           [16]: KB5063261
+                                           [17]: KB5063979
+                                           [18]: KB5066790
+                                           [19]: KB5071982
+                                           [20]: KB5005699
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) Ethernet Connection (2) I219-V
+                                                 Nombre de conexi¢n: Ethernet 2
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.0.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.0.108
+                                                 [02]: fe80::7c0a:f350:ef81:7eb1
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: No
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-6600T CPU @ 2.70GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 2712
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : SK Hynix
+PartNumber   : HMA851S6DJR6N-XN    
+Capacity     : 4294967296
+Speed        : 3200
+
+Manufacturer : SK Hynix
+PartNumber   : HMA851S6DJR6N-XN    
+Capacity     : 4294967296
+Speed        : 3200
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : ADATA SU650
+SerialNumber  : 2N272LA6A8T1
+Size          : 256052966400
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 255388319744
+FreeSpace  : 176992911360
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

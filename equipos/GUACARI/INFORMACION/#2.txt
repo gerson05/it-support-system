@@ -1,0 +1,129 @@
+=============================== 
+ INVENTARIO DE EQUIPO DISP08 
+ Fecha: jue. 23/04/2026 - Hora:  8:27:42,18 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : 83WPJK2
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            DISP08
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              Dell
+Organizaci¢n registrada:                   
+Id. del producto:                          00330-50572-31976-AAOEM
+Fecha de instalaci¢n original:             14/02/2026, 12:22:36 p.ÿm.
+Tiempo de arranque del sistema:            9/04/2026, 12:21:41 p.ÿm.
+Fabricante del sistema:                    Dell Inc.
+Modelo el sistema:                         OptiPlex 7050
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 158 Stepping 9 GenuineIntel ~2712 Mhz
+Versi¢n del BIOS:                          Dell Inc. 1.19.0, 2/12/2021
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es-mx;Espa¤ol (M‚xico)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.055 MB
+Memoria f¡sica disponible:                 2.316 MB
+Memoria virtual: tama¤o m ximo:            11.451 MB
+Memoria virtual: disponible:               2.266 MB
+Memoria virtual: en uso:                   9.185 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\DISP08
+Revisi¢n(es):                              10 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5066135
+                                           [03]: KB5011048
+                                           [04]: KB5015684
+                                           [05]: KB5033052
+                                           [06]: KB5072653
+                                           [07]: KB5066791
+                                           [08]: KB5014032
+                                           [09]: KB5025315
+                                           [10]: KB5066790
+Tarjeta(s) de red:                         3 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) Ethernet Connection (5) I219-LM
+                                                 Nombre de conexi¢n: Ethernet
+                                                 Estado:             Medios desconectados
+                                           [02]: Intel(R) Dual Band Wireless-AC 8265
+                                                 Nombre de conexi¢n: Wi-Fi
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.110.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.110.231
+                                                 [02]: fe80::1dd0:16a0:9ebd:e958
+                                           [03]: Bluetooth Device (Personal Area Network)
+                                                 Nombre de conexi¢n: Conexi¢n de red Bluetooth
+                                                 Estado:             Medios desconectados
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: S¡
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-7500T CPU @ 2.70GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 2712
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : 80CE000080CE
+PartNumber   : M471A1G44BB0-CWE    
+Capacity     : 8589934592
+Speed        : 3200
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : SKHynix_HFS256GEJ4X112N
+SerialNumber  : 0000_0000_0000_0000_ACE4_2E00_3B1B_1EDD.
+Size          : 256052966400
+InterfaceType : SCSI
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 255375003648
+FreeSpace  : 156413685760
+VolumeName : 
+
+DeviceID   : Z:
+FileSystem : NTFS
+Size       : 179360370688
+FreeSpace  : 22996496384
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

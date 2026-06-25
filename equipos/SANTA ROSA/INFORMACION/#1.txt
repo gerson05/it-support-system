@@ -1,0 +1,129 @@
+=============================== 
+ INVENTARIO DE EQUIPO COM_IMP 
+ Fecha: vie. 24/04/2026 - Hora:  8:57:51,08 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : MJ05PUAH
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            COM_IMP
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              usuario
+Organizaci¢n registrada:                   
+Id. del producto:                          00330-50063-23771-AAOEM
+Fecha de instalaci¢n original:             3/05/2024, 4:36:59 p.ÿm.
+Tiempo de arranque del sistema:            18/03/2026, 1:56:55 p.ÿm.
+Fabricante del sistema:                    LENOVO
+Modelo el sistema:                         10MQS2DC00
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 94 Stepping 3 GenuineIntel ~2208 Mhz
+Versi¢n del BIOS:                          LENOVO M1AKT56A, 27/07/2022
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume2
+Configuraci¢n regional del sistema:        es-mx;Espa¤ol (M‚xico)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.080 MB
+Memoria f¡sica disponible:                 1.708 MB
+Memoria virtual: tama¤o m ximo:            11.267 MB
+Memoria virtual: disponible:               2.577 MB
+Memoria virtual: en uso:                   8.690 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\COM_IMP
+Revisi¢n(es):                              19 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5031988
+                                           [03]: KB5011048
+                                           [04]: KB5015684
+                                           [05]: KB5072653
+                                           [06]: KB5071959
+                                           [07]: KB5014032
+                                           [08]: KB5032907
+                                           [09]: KB5037018
+                                           [10]: KB5054682
+                                           [11]: KB5058526
+                                           [12]: KB5059504
+                                           [13]: KB5063706
+                                           [14]: KB5063261
+                                           [15]: KB5063979
+                                           [16]: KB5066411
+                                           [17]: KB5066790
+                                           [18]: KB5071982
+                                           [19]: KB5034441
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) Ethernet Connection (2) I219-V
+                                                 Nombre de conexi¢n: Ethernet 2
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.20.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.20.26
+                                                 [02]: fe80::3d10:50c3:74e0:f954
+                                                 [03]: 2800:484:ee92:5000:4070:65f8:aa27:50ef
+                                                 [04]: 2800:484:ee92:5000:3ecc:5288:6918:da43
+                                                 [05]: 2800:484:ee92:5000:3d54:c695:d3f3:f25b
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: No
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-8500T CPU
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 2208
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : Samsung
+PartNumber   : M471A1K43BB1-CRC    
+Capacity     : 8589934592
+Speed        : 2400
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : SAMSUNG MZVLB256HBHQ-000L7
+SerialNumber  : 0025_3885_9103_DD7E.
+Size          : 256052966400
+InterfaceType : SCSI
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 255230734336
+FreeSpace  : 172910788608
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

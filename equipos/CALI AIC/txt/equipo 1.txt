@@ -1,0 +1,169 @@
+=============================== 
+ INVENTARIO DE EQUIPO DESKTOP-RP69F03 
+ Fecha: mar. 21/04/2026 - Hora: 10:07:41,39 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : System Serial Number
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            DESKTOP-RP69F03
+Nombre del sistema operativo:              Microsoft Windows 10 Pro for Workstations
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              USUARIO
+Organizaci¢n registrada:                   
+Id. del producto:                          00391-80000-00001-AA927
+Fecha de instalaci¢n original:             3/03/2022, 10:14:01 a.ÿm.
+Tiempo de arranque del sistema:            16/12/2025, 4:36:09 p.ÿm.
+Fabricante del sistema:                    System manufacturer
+Modelo el sistema:                         System Product Name
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 158 Stepping 11 GenuineIntel ~3600 Mhz
+Versi¢n del BIOS:                          American Megatrends Inc. 0402, 19/03/2018
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.033 MB
+Memoria f¡sica disponible:                 3.786 MB
+Memoria virtual: tama¤o m ximo:            9.961 MB
+Memoria virtual: disponible:               5.184 MB
+Memoria virtual: en uso:                   4.777 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\DESKTOP-RP69F03
+Revisi¢n(es):                              54 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5029923
+                                           [03]: KB5003791
+                                           [04]: KB5011048
+                                           [05]: KB5011056
+                                           [06]: KB5012170
+                                           [07]: KB5015684
+                                           [08]: KB5072653
+                                           [09]: KB5071959
+                                           [10]: KB5011352
+                                           [11]: KB5011651
+                                           [12]: KB5014032
+                                           [13]: KB5014035
+                                           [14]: KB5014671
+                                           [15]: KB5015895
+                                           [16]: KB5016705
+                                           [17]: KB5018506
+                                           [18]: KB5020372
+                                           [19]: KB5022924
+                                           [20]: KB5023794
+                                           [21]: KB5025315
+                                           [22]: KB5026879
+                                           [23]: KB5028318
+                                           [24]: KB5028380
+                                           [25]: KB5029709
+                                           [26]: KB5031539
+                                           [27]: KB5032392
+                                           [28]: KB5032907
+                                           [29]: KB5034224
+                                           [30]: KB5036447
+                                           [31]: KB5037018
+                                           [32]: KB5037240
+                                           [33]: KB5037995
+                                           [34]: KB5039336
+                                           [35]: KB5041579
+                                           [36]: KB5041581
+                                           [37]: KB5043935
+                                           [38]: KB5043130
+                                           [39]: KB5046823
+                                           [40]: KB5050388
+                                           [41]: KB5050111
+                                           [42]: KB5052916
+                                           [43]: KB5054682
+                                           [44]: KB5055663
+                                           [45]: KB5058526
+                                           [46]: KB5059504
+                                           [47]: KB5061902
+                                           [48]: KB5063706
+                                           [49]: KB5063261
+                                           [50]: KB5063979
+                                           [51]: KB5066411
+                                           [52]: KB5066790
+                                           [53]: KB5071982
+                                           [54]: KB5005699
+Tarjeta(s) de red:                         2 Tarjetas de interfaz de red instaladas.
+                                           [01]: Realtek PCIe GBE Family Controller
+                                                 Nombre de conexi¢n: Ethernet
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.20.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.20.12
+                                                 [02]: fe80::f0aa:fe8a:fba2:e4bf
+                                           [02]: TP-Link Gigabit PCI Express Adapter
+                                                 Nombre de conexi¢n: Ethernet 2
+                                                 Estado:             Medios desconectados
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: No
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i3-8100 CPU @ 3.60GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 3600
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : Corsair
+PartNumber   : CMK16GX4M4A2666C15  
+Capacity     : 4294967296
+Speed        : 2133
+
+Manufacturer : A-DATA
+PartNumber   :                     
+Capacity     : 4294967296
+Speed        : 2133
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : Lexar 128GB SSD
+SerialNumber  : LKC463W104887
+Size          : 128034708480
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 127431639040
+FreeSpace  : 42400997376
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

@@ -1,0 +1,156 @@
+<h2>Panel de Monitoreo — diseño final</h2>
+<p class="subtitle">Así se verá el módulo en la app. Confirma si es lo que esperas.</p>
+
+<div class="mockup">
+  <div class="mockup-header">Monitoreo de Equipos</div>
+  <div class="mockup-body" style="background:#0f172a;padding:16px;font-size:11px;">
+
+    <!-- KPI bar -->
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:16px;">
+      <div style="background:#1e293b;border-radius:6px;padding:10px;text-align:center;">
+        <div style="font-size:22px;font-weight:700;color:#22c55e;">6</div>
+        <div style="color:#64748b;font-size:10px;">Online</div>
+      </div>
+      <div style="background:#1e293b;border-radius:6px;padding:10px;text-align:center;">
+        <div style="font-size:22px;font-weight:700;color:#ef4444;">2</div>
+        <div style="color:#64748b;font-size:10px;">Offline</div>
+      </div>
+      <div style="background:#1e293b;border-radius:6px;padding:10px;text-align:center;">
+        <div style="font-size:22px;font-weight:700;color:#3b82f6;">41%</div>
+        <div style="color:#64748b;font-size:10px;">CPU prom.</div>
+      </div>
+      <div style="background:#1e293b;border-radius:6px;padding:10px;text-align:center;">
+        <div style="font-size:22px;font-weight:700;color:#8b5cf6;">58%</div>
+        <div style="color:#64748b;font-size:10px;">RAM prom.</div>
+      </div>
+      <div style="background:#1e293b;border-radius:6px;padding:10px;text-align:center;">
+        <div style="font-size:22px;font-weight:700;color:#f59e0b;">44%</div>
+        <div style="color:#64748b;font-size:10px;">Disco prom.</div>
+      </div>
+    </div>
+
+    <!-- Search + filter -->
+    <div style="display:flex;gap:8px;margin-bottom:12px;">
+      <div style="flex:1;background:#1e293b;border:1px solid #334155;border-radius:6px;padding:7px 12px;color:#64748b;">🔍 Buscar equipo, sede, usuario…</div>
+      <div style="background:#1e293b;border:1px solid #334155;border-radius:6px;padding:7px 12px;color:#64748b;">Todos ▾</div>
+    </div>
+
+    <!-- Table -->
+    <div style="background:#1e293b;border-radius:8px;overflow:hidden;">
+      <!-- Header -->
+      <div style="display:grid;grid-template-columns:24px 2fr 1fr 1fr 1fr 1fr 1fr 1fr;gap:0;padding:8px 12px;background:#0f172a;color:#64748b;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">
+        <span></span>
+        <span>Equipo</span>
+        <span>Sede</span>
+        <span style="text-align:center;">Estado</span>
+        <span style="text-align:center;">CPU</span>
+        <span style="text-align:center;">RAM</span>
+        <span style="text-align:center;">Disco</span>
+        <span style="text-align:center;">Visto</span>
+      </div>
+
+      <!-- Row 1 — expanded -->
+      <div style="border-top:1px solid #334155;background:#1e3a5f18;border-left:3px solid #3b82f6;">
+        <div style="display:grid;grid-template-columns:24px 2fr 1fr 1fr 1fr 1fr 1fr 1fr;padding:10px 12px;align-items:center;cursor:pointer;">
+          <span style="color:#3b82f6;font-size:10px;">▼</span>
+          <div>
+            <div style="color:#e2e8f0;font-weight:600;font-family:monospace;">PC-ADMIN-01</div>
+            <div style="color:#64748b;font-size:9px;">DESKTOP-4XK2J · 192.168.1.45</div>
+          </div>
+          <span style="color:#94a3b8;">Principal</span>
+          <span style="text-align:center;"><span style="background:#22c55e22;color:#22c55e;padding:2px 8px;border-radius:99px;font-size:10px;">● Online</span></span>
+          <div style="text-align:center;">
+            <div style="color:#3b82f6;font-weight:600;">34%</div>
+            <div style="background:#334155;border-radius:2px;height:3px;margin-top:2px;"><div style="background:#3b82f6;width:34%;height:100%;border-radius:2px;"></div></div>
+          </div>
+          <div style="text-align:center;">
+            <div style="color:#8b5cf6;font-weight:600;">6.2GB</div>
+            <div style="background:#334155;border-radius:2px;height:3px;margin-top:2px;"><div style="background:#8b5cf6;width:62%;height:100%;border-radius:2px;"></div></div>
+          </div>
+          <div style="text-align:center;">
+            <div style="color:#f59e0b;font-weight:600;">48%</div>
+            <div style="background:#334155;border-radius:2px;height:3px;margin-top:2px;"><div style="background:#f59e0b;width:48%;height:100%;border-radius:2px;"></div></div>
+          </div>
+          <span style="text-align:center;color:#64748b;font-size:10px;">hace 8s</span>
+        </div>
+        <!-- Accordion detail -->
+        <div style="background:#0f172a;margin:0 12px 12px;border-radius:8px;padding:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+          <div>
+            <div style="color:#64748b;font-size:10px;font-weight:600;text-transform:uppercase;margin-bottom:6px;">Procesador</div>
+            <div style="color:#e2e8f0;font-weight:600;">Intel Core i7-8700</div>
+            <div style="color:#64748b;font-size:10px;">6 núcleos · 3.2 GHz</div>
+          </div>
+          <div>
+            <div style="color:#64748b;font-size:10px;font-weight:600;text-transform:uppercase;margin-bottom:6px;">Memoria RAM</div>
+            <div style="color:#e2e8f0;font-weight:600;">16 GB DDR4</div>
+            <div style="color:#64748b;font-size:10px;">2400 MHz · 2 módulos</div>
+          </div>
+          <div>
+            <div style="color:#64748b;font-size:10px;font-weight:600;text-transform:uppercase;margin-bottom:6px;">Almacenamiento</div>
+            <div style="color:#e2e8f0;font-weight:600;">Samsung SSD 500GB</div>
+            <div style="color:#64748b;font-size:10px;">240 GB libres</div>
+          </div>
+          <div>
+            <div style="color:#64748b;font-size:10px;font-weight:600;text-transform:uppercase;margin-bottom:6px;">Sistema Operativo</div>
+            <div style="color:#e2e8f0;font-weight:600;">Windows 10 Pro</div>
+            <div style="color:#64748b;font-size:10px;">Build 22H2 · 64-bit</div>
+          </div>
+          <div>
+            <div style="color:#64748b;font-size:10px;font-weight:600;text-transform:uppercase;margin-bottom:6px;">Red</div>
+            <div style="color:#e2e8f0;font-weight:600;">192.168.1.45</div>
+            <div style="color:#64748b;font-size:10px;">Ethernet · MAC: AA:BB:CC</div>
+          </div>
+          <div>
+            <div style="color:#64748b;font-size:10px;font-weight:600;text-transform:uppercase;margin-bottom:6px;">Uptime</div>
+            <div style="color:#e2e8f0;font-weight:600;">2d 4h 17m</div>
+            <div style="color:#64748b;font-size:10px;">Último reinicio: Lun 09/06</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 2 — normal -->
+      <div style="border-top:1px solid #334155;">
+        <div style="display:grid;grid-template-columns:24px 2fr 1fr 1fr 1fr 1fr 1fr 1fr;padding:10px 12px;align-items:center;cursor:pointer;">
+          <span style="color:#64748b;font-size:10px;">▶</span>
+          <div>
+            <div style="color:#e2e8f0;font-weight:600;font-family:monospace;">PC-FARM-02</div>
+            <div style="color:#64748b;font-size:9px;">DESKTOP-8YM · 192.168.1.67</div>
+          </div>
+          <span style="color:#94a3b8;">Norte</span>
+          <span style="text-align:center;"><span style="background:#22c55e22;color:#22c55e;padding:2px 8px;border-radius:99px;font-size:10px;">● Online</span></span>
+          <div style="text-align:center;">
+            <div style="color:#ef4444;font-weight:600;">78%</div>
+            <div style="background:#334155;border-radius:2px;height:3px;margin-top:2px;"><div style="background:#ef4444;width:78%;height:100%;border-radius:2px;"></div></div>
+          </div>
+          <div style="text-align:center;">
+            <div style="color:#8b5cf6;font-weight:600;">3.1GB</div>
+            <div style="background:#334155;border-radius:2px;height:3px;margin-top:2px;"><div style="background:#8b5cf6;width:39%;height:100%;border-radius:2px;"></div></div>
+          </div>
+          <div style="text-align:center;">
+            <div style="color:#22c55e;font-weight:600;">22%</div>
+            <div style="background:#334155;border-radius:2px;height:3px;margin-top:2px;"><div style="background:#22c55e;width:22%;height:100%;border-radius:2px;"></div></div>
+          </div>
+          <span style="text-align:center;color:#64748b;font-size:10px;">hace 4s</span>
+        </div>
+      </div>
+
+      <!-- Row 3 — offline -->
+      <div style="border-top:1px solid #334155;opacity:.6;">
+        <div style="display:grid;grid-template-columns:24px 2fr 1fr 1fr 1fr 1fr 1fr 1fr;padding:10px 12px;align-items:center;">
+          <span style="color:#64748b;font-size:10px;">▶</span>
+          <div>
+            <div style="color:#94a3b8;font-weight:600;font-family:monospace;">PC-CONT-01</div>
+            <div style="color:#64748b;font-size:9px;">DESKTOP-2ZP · última IP: 192.168.1.88</div>
+          </div>
+          <span style="color:#94a3b8;">Principal</span>
+          <span style="text-align:center;"><span style="background:#ef444422;color:#ef4444;padding:2px 8px;border-radius:99px;font-size:10px;">● Offline</span></span>
+          <span style="text-align:center;color:#64748b;">—</span>
+          <span style="text-align:center;color:#64748b;">—</span>
+          <span style="text-align:center;color:#64748b;">—</span>
+          <span style="text-align:center;color:#64748b;font-size:10px;">hace 23m</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

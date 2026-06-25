@@ -1,0 +1,150 @@
+=============================== 
+ INVENTARIO DE EQUIPO MIFAR_APIA3 
+ Fecha: mar. 28/04/2026 - Hora:  9:35:27,92 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : HMN8CY1
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            MIFAR_APIA3
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              DELL
+Organizaci¢n registrada:                   
+Id. del producto:                          00331-10000-00001-AA859
+Fecha de instalaci¢n original:             7/12/2019, 8:00:17 a.ÿm.
+Tiempo de arranque del sistema:            25/04/2026, 3:11:02 p.ÿm.
+Fabricante del sistema:                    Dell Inc.
+Modelo el sistema:                         OptiPlex 7010
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 58 Stepping 9 GenuineIntel ~3201 Mhz
+Versi¢n del BIOS:                          Dell Inc. A15, 12/08/2013
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.078 MB
+Memoria f¡sica disponible:                 2.657 MB
+Memoria virtual: tama¤o m ximo:            9.358 MB
+Memoria virtual: disponible:               2.873 MB
+Memoria virtual: en uso:                   6.485 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\MIFAR_APIA3
+Revisi¢n(es):                              38 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5028853
+                                           [03]: KB5011048
+                                           [04]: KB5011056
+                                           [05]: KB5012170
+                                           [06]: KB5015684
+                                           [07]: KB5071959
+                                           [08]: KB5014032
+                                           [09]: KB5016705
+                                           [10]: KB5020372
+                                           [11]: KB5022924
+                                           [12]: KB5023794
+                                           [13]: KB5025315
+                                           [14]: KB5028318
+                                           [15]: KB5028380
+                                           [16]: KB5029709
+                                           [17]: KB5031539
+                                           [18]: KB5032392
+                                           [19]: KB5034224
+                                           [20]: KB5036447
+                                           [21]: KB5037018
+                                           [22]: KB5037240
+                                           [23]: KB5037995
+                                           [24]: KB5039336
+                                           [25]: KB5041579
+                                           [26]: KB5043935
+                                           [27]: KB5043130
+                                           [28]: KB5046823
+                                           [29]: KB5050388
+                                           [30]: KB5050111
+                                           [31]: KB5052916
+                                           [32]: KB5058526
+                                           [33]: KB5059504
+                                           [34]: KB5063706
+                                           [35]: KB5063261
+                                           [36]: KB5063979
+                                           [37]: KB5066790
+                                           [38]: KB5071982
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) 82579LM Gigabit Network Connection
+                                                 Nombre de conexi¢n: Ethernet
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.1.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.1.129
+                                                 [02]: fe80::287f:478d:2f73:1dad
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: S¡
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-3470 CPU @ 3.20GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 3201
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : Hynix/Hyundai
+PartNumber   : HMT451U6BFR8C-PB  
+Capacity     : 4294967296
+Speed        : 1600
+
+Manufacturer : Kingston
+PartNumber   : 99U5402-052.A00G  
+Capacity     : 4294967296
+Speed        : 1600
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : CT240BX500SSD1
+SerialNumber  : 2240E674234D
+Size          : 240054796800
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 239431323648
+FreeSpace  : 169903702016
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

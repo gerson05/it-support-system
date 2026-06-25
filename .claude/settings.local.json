@@ -17,7 +17,8 @@
       "Skill(update-config)",
       "mcp__code-review-graph__get_affected_flows_tool",
       "mcp__code-review-graph__get_community_tool",
-      "mcp__Claude_Preview__preview_start"
+      "mcp__Claude_Preview__preview_start",
+      "mcp__code-review-graph__find_large_functions_tool"
     ]
   },
   "enableAllProjectMcpServers": true,

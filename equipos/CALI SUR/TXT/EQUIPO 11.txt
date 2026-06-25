@@ -1,0 +1,144 @@
+=============================== 
+ INVENTARIO DE EQUIPO DESKTOP-09SSE94 
+ Fecha: mi‚. 22/04/2026 - Hora: 11:54:59,99 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : J5P8V62
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            DESKTOP-09SSE94
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              USUARIO
+Organizaci¢n registrada:                   
+Id. del producto:                          00330-50893-94033-AAOEM
+Fecha de instalaci¢n original:             3/07/2024, 3:55:01 p.ÿm.
+Tiempo de arranque del sistema:            22/04/2026, 11:53:55 a.ÿm.
+Fabricante del sistema:                    Dell Inc.
+Modelo el sistema:                         OptiPlex 3050
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 158 Stepping 9 GenuineIntel ~2712 Mhz
+Versi¢n del BIOS:                          Dell Inc. 1.31.0, 9/07/2024
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          7.916 MB
+Memoria f¡sica disponible:                 2.262 MB
+Memoria virtual: tama¤o m ximo:            9.196 MB
+Memoria virtual: disponible:               3.785 MB
+Memoria virtual: en uso:                   5.411 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\DESKTOP-09SSE94
+Revisi¢n(es):                              31 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5037592
+                                           [03]: KB5011048
+                                           [04]: KB5011056
+                                           [05]: KB5015684
+                                           [06]: KB5072653
+                                           [07]: KB5071959
+                                           [08]: KB5014032
+                                           [09]: KB5032907
+                                           [10]: KB5037995
+                                           [11]: KB5039336
+                                           [12]: KB5040565
+                                           [13]: KB5041579
+                                           [14]: KB5041581
+                                           [15]: KB5043935
+                                           [16]: KB5043130
+                                           [17]: KB5046823
+                                           [18]: KB5050388
+                                           [19]: KB5050111
+                                           [20]: KB5052916
+                                           [21]: KB5054682
+                                           [22]: KB5055663
+                                           [23]: KB5058526
+                                           [24]: KB5059504
+                                           [25]: KB5061902
+                                           [26]: KB5063706
+                                           [27]: KB5063261
+                                           [28]: KB5063979
+                                           [29]: KB5066411
+                                           [30]: KB5066790
+                                           [31]: KB5071982
+Tarjeta(s) de red:                         3 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) Dual Band Wireless-AC 3165
+                                                 Nombre de conexi¢n: Wi-Fi
+                                                 Estado:             Medios desconectados
+                                           [02]: Realtek PCIe GBE Family Controller
+                                                 Nombre de conexi¢n: Ethernet
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      190.147.23.254
+                                                 Direcciones IP
+                                                 [01]: 190.147.23.185
+                                                 [02]: fe80::bf53:4dbb:5167:8fad
+                                           [03]: Bluetooth Device (Personal Area Network)
+                                                 Nombre de conexi¢n: Conexi¢n de red Bluetooth
+                                                 Estado:             Medios desconectados
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: S¡
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-7500T CPU @ 2.70GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 2712
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : 80CE000080CE
+PartNumber   : M471A1K43BB1-CRC    
+Capacity     : 8589934592
+Speed        : 2400
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : ADATA SU650
+SerialNumber  : 2L342LSG5GRC
+Size          : 120031511040
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 118274437120
+FreeSpace  : 62212026368
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

@@ -1,0 +1,50 @@
+{
+  "allow-direct-routing": true,
+  "builder": {
+    "gc": {
+      "defaultKeepStorage": "20GB",
+      "enabled": true
+    }
+  },
+  "containerd": "/run/containerd/containerd.sock",
+  "default-network-opts": {
+    "bridge": {
+      "com.docker.network.enable_ipv4": "true",
+      "com.docker.network.enable_ipv6": "false"
+    }
+  },
+  "experimental": false,
+  "features": {
+    "cdi": true,
+    "containerd-snapshotter": true
+  },
+  "host-gateway-ips": [
+    "192.168.65.254",
+    "fdc4:f303:9324::254"
+  ],
+  "hosts": [
+    "unix:///var/run/docker.sock"
+  ],
+  "insecure-registries": [
+    "hubproxy.docker.internal:5555"
+  ],
+  "registry-mirrors": [
+    "http://hubproxy.docker.internal:5555"
+  ],
+  "ipv6": false,
+  "log-format": "json",
+  "mtu": 1500,
+  "pidfile": "/run/desktop/docker.pid",
+  "proxies": {
+    "no-proxy": "hubproxy.docker.internal,localhost,127.0.0.1,registry-1.docker.io,auth.docker.io,*.docker.io,*.docker.com,production.cloudflare.docker.com,index.docker.io"
+  },
+  "runtimes": {
+    "nvidia": {
+      "path": "nvidia-container-runtime"
+    }
+  },
+  "shutdown-timeout": 2,
+  "storage-driver": "overlayfs",
+  "swarm-default-advertise-addr": "192.168.65.3",
+  "userland-proxy": false
+}

@@ -28,19 +28,19 @@ export async function renderFaqs(container) {
       }
       #faqs-modal-overlay.open { display:flex; }
       #faqs-modal {
-        background:#1e1e38; border:1px solid rgba(255,255,255,.1);
+        background:var(--surface); border:1px solid var(--border);
         border-radius:12px; padding:28px; width:min(640px,96vw);
         margin:0 auto; display:flex; flex-direction:column; gap:16px;
       }
       #faqs-modal label { font-size:12px; color:var(--text-muted); display:block; margin-bottom:4px; }
       #faqs-modal input, #faqs-modal select, #faqs-modal textarea {
-        width:100%; padding:10px 14px; background:#0f0f22;
-        border:1px solid rgba(255,255,255,.12); border-radius:8px;
-        color:#e8e8f0; font-size:14px; box-sizing:border-box;
+        width:100%; padding:10px 14px; background:var(--surface-2);
+        border:1px solid var(--border); border-radius:8px;
+        color:var(--text); font-size:14px; box-sizing:border-box;
       }
       #faqs-modal textarea { min-height:120px; resize:vertical; font-family:inherit; }
       .faq-row { display:grid; grid-template-columns:1fr 100px 80px 60px; gap:8px;
-        padding:12px 0; border-bottom:1px solid rgba(255,255,255,.05); align-items:start; }
+        padding:12px 0; border-bottom:1px solid var(--border); align-items:start; }
       .faq-row:last-child { border-bottom:none; }
       .faq-title { font-weight:600; font-size:14px; }
       .faq-area  { font-size:12px; color:var(--text-muted); margin-top:4px; }
@@ -48,14 +48,14 @@ export async function renderFaqs(container) {
       .faq-rate  { font-size:12px; padding-top:4px; text-align:center; }
       .faq-actions { display:flex; flex-direction:column; gap:6px; }
       .btn-icon { padding:6px 10px; border:none; border-radius:6px; cursor:pointer; font-size:12px; }
-      .btn-edit   { background:rgba(102,126,234,.2); color:#667eea; }
-      .btn-delete { background:rgba(239,68,68,.15); color:#ef4444; }
-      .tag-system { font-size:10px; background:rgba(255,255,255,.07);
-        border:1px solid rgba(255,255,255,.1); border-radius:4px;
+      .btn-edit   { background:rgba(99,102,241,.15); color:var(--primary); }
+      .btn-delete { background:rgba(239,68,68,.12); color:var(--danger); }
+      .tag-system { font-size:10px; background:var(--surface-3);
+        border:1px solid var(--border); border-radius:4px;
         padding:2px 6px; color:var(--text-muted); }
-      .tag-custom { font-size:10px; background:rgba(102,126,234,.2);
-        border:1px solid rgba(102,126,234,.3); border-radius:4px;
-        padding:2px 6px; color:#a5b4fc; }
+      .tag-custom { font-size:10px; background:var(--primary-light);
+        border:1px solid rgba(99,102,241,.3); border-radius:4px;
+        padding:2px 6px; color:var(--primary); }
     </style>
 
     <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:24px;flex-wrap:wrap;gap:12px;">

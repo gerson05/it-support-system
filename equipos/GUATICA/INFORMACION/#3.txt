@@ -1,0 +1,148 @@
+=============================== 
+ INVENTARIO DE EQUIPO DESKTOP-BHDQO6C 
+ Fecha: 22/04/2026 - Hora: 12:04:13.06 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : System Serial Number
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            DESKTOP-BHDQO6C
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              USUARIO
+Organizaci¢n registrada:                   N/D
+Id. del producto:                          00331-10000-00001-AA684
+Fecha de instalaci¢n original:             20/06/2024, 10:39:51 a.ÿm.
+Tiempo de arranque del sistema:            17/12/2025, 07:05:34 a.ÿm.
+Fabricante del sistema:                    System manufacturer
+Modelo el sistema:                         System Product Name
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 158 Stepping 11 GenuineIntel ~3600 Mhz
+Versi¢n del BIOS:                          American Megatrends Inc. 0402, 19/03/2018
+Directorio de Windows:                     C:\WINDOWS
+Directorio de sistema:                     C:\WINDOWS\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          3,937 MB
+Memoria f¡sica disponible:                 719 MB
+Memoria virtual: tama¤o m ximo:            6,478 MB
+Memoria virtual: disponible:               1,719 MB
+Memoria virtual: en uso:                   4,759 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\DESKTOP-BHDQO6C
+Revisi¢n(es):                              29 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5034468
+                                           [03]: KB5011048
+                                           [04]: KB5011056
+                                           [05]: KB5015684
+                                           [06]: KB5072653
+                                           [07]: KB5071959
+                                           [08]: KB5034224
+                                           [09]: KB5036447
+                                           [10]: KB5037018
+                                           [11]: KB5037240
+                                           [12]: KB5037995
+                                           [13]: KB5039336
+                                           [14]: KB5041579
+                                           [15]: KB5043935
+                                           [16]: KB5043130
+                                           [17]: KB5046823
+                                           [18]: KB5050388
+                                           [19]: KB5050111
+                                           [20]: KB5052916
+                                           [21]: KB5054682
+                                           [22]: KB5058526
+                                           [23]: KB5059504
+                                           [24]: KB5063706
+                                           [25]: KB5063261
+                                           [26]: KB5063979
+                                           [27]: KB5066790
+                                           [28]: KB5071982
+                                           [29]: KB5068164
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Realtek PCIe GbE Family Controller
+                                                 Nombre de conexi¢n: Ethernet 2
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.18.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.18.46
+                                                 [02]: fe80::2e5c:92c3:ac0c:df6f
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: No
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i3-8100 CPU @ 3.60GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 3600
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : A-DATA
+PartNumber   :                     
+Capacity     : 4294967296
+Speed        : 2400
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : ADATA SU650
+SerialNumber  : 2L072L1NKJTU
+Size          : 120031511040
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 118957797376
+FreeSpace  : 70603268096
+VolumeName : 
+
+DeviceID   : D:
+FileSystem : NTFS
+Size       : 1072689152
+FreeSpace  : 1057353728
+VolumeName : Nuevo vol
+
+DeviceID   : E:
+FileSystem : 
+Size       : 
+FreeSpace  : 
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

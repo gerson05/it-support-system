@@ -169,3 +169,19 @@ export function getDistinctCargos(db) {
     ORDER BY cargo LIMIT 60
   `).all().map(r => r.cargo);
 }
+
+export function getTrackingRow(db, token) {
+  return db.prepare('SELECT * FROM paquete_tracking WHERE token = ?').get(token) || null;
+}
+
+export function getActaFinalByToken(db, token) {
+  const row = db.prepare('SELECT id FROM paquete_tracking WHERE token = ?').get(token);
+  if (!row) return null;
+  return db.prepare('SELECT * FROM paquete_acta_final WHERE tracking_id = ?').get(row.id) || null;
+}
+
+export function getSedesActivas(db) {
+  return db.prepare(
+    'SELECT id, ciudad, nombre_punto FROM sedes WHERE activo = 1 ORDER BY ciudad, nombre_punto'
+  ).all();
+}

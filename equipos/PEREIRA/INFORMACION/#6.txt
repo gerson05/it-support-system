@@ -1,0 +1,119 @@
+=============================== 
+ INVENTARIO DE EQUIPO MISTRATO01 
+ Fecha: jue. 23/04/2026 - Hora: 10:13:03,64 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : MJ05U2VQ
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            MISTRATO01
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              LENOVO
+Organizaci¢n registrada:                   
+Id. del producto:                          00342-50772-96045-AAOEM
+Fecha de instalaci¢n original:             10/07/2025, 12:08:25 p.ÿm.
+Tiempo de arranque del sistema:            23/04/2026, 9:23:33 a.ÿm.
+Fabricante del sistema:                    LENOVO
+Modelo el sistema:                         10MQS2L400
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 94 Stepping 3 GenuineIntel ~2712 Mhz
+Versi¢n del BIOS:                          LENOVO M1AKT24A, 25/07/2017
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.080 MB
+Memoria f¡sica disponible:                 3.186 MB
+Memoria virtual: tama¤o m ximo:            11.920 MB
+Memoria virtual: disponible:               6.153 MB
+Memoria virtual: en uso:                   5.767 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\MISTRATO01
+Revisi¢n(es):                              12 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5056577
+                                           [03]: KB5011048
+                                           [04]: KB5011056
+                                           [05]: KB5015684
+                                           [06]: KB5072653
+                                           [07]: KB5071959
+                                           [08]: KB5014032
+                                           [09]: KB5032907
+                                           [10]: KB5063261
+                                           [11]: KB5063979
+                                           [12]: KB5071982
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) Ethernet Connection (2) I219-V
+                                                 Nombre de conexi¢n: Ethernet
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.1.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.1.39
+                                                 [02]: fe80::5459:591a:3c84:2497
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: No
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-8500T CPU
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 2712
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : SK Hynix
+PartNumber   : HMA81GS6AFR8N-UH    
+Capacity     : 8589934592
+Speed        : 2400
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : SKHynix_HFS256GEJ4X112N
+SerialNumber  : 0000_0000_0000_0000_ACE4_2E00_3AD4_02D3.
+Size          : 256052966400
+InterfaceType : SCSI
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 255349534720
+FreeSpace  : 188994695168
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

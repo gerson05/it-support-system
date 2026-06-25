@@ -1,0 +1,123 @@
+=============================== 
+ INVENTARIO DE EQUIPO DESKTOP-QDG47UF 
+ Fecha: mi‚. 22/04/2026 - Hora: 15:00:20,43 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : MXL651343L
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            DESKTOP-QDG47UF
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              Usuario de Windows
+Organizaci¢n registrada:                   
+Id. del producto:                          00331-10000-00001-AA474
+Fecha de instalaci¢n original:             21/10/2020, 3:23:15 p.ÿm.
+Tiempo de arranque del sistema:            1/04/2026, 4:10:43 p.ÿm.
+Fabricante del sistema:                    HP
+Modelo el sistema:                         HP EliteDesk 800 G2 DM 65W
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 94 Stepping 3 GenuineIntel ~3192 Mhz
+Versi¢n del BIOS:                          HP N21 Ver. 02.21, 1/11/2016
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume2
+Configuraci¢n regional del sistema:        es-co;Espa¤ol (Colombia)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.073 MB
+Memoria f¡sica disponible:                 1.809 MB
+Memoria virtual: tama¤o m ximo:            10.385 MB
+Memoria virtual: disponible:               1.942 MB
+Memoria virtual: en uso:                   8.443 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\DESKTOP-QDG47UF
+Revisi¢n(es):                              11 revisi¢n(es) instaladas.
+                                           [01]: KB5056578
+                                           [02]: KB5049613
+                                           [03]: KB4537759
+                                           [04]: KB4557968
+                                           [05]: KB5011048
+                                           [06]: KB5011056
+                                           [07]: KB5015684
+                                           [08]: KB5033052
+                                           [09]: KB5055518
+                                           [10]: KB5052916
+                                           [11]: KB5054682
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) Ethernet Connection (2) I219-LM
+                                                 Nombre de conexi¢n: Ethernet 2
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.0.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.0.102
+                                                 [02]: fe80::cbd:8834:816e:cedf
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: No
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-8500T CPU
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 3192
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : Samsung
+PartNumber   : M471A5244GB0-CWE    
+Capacity     : 4294967296
+Speed        : 2133
+
+Manufacturer : Samsung
+PartNumber   : M471A5244CB0-CWE    
+Capacity     : 4294967296
+Speed        : 2133
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : SAMSUNG MZ7LN256HMJP-000H1
+SerialNumber  : S2Y9NB0JA00450
+Size          : 256052966400
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 255415283712
+FreeSpace  : 191086100480
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

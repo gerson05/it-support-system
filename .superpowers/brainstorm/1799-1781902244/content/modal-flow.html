@@ -1,0 +1,136 @@
+<h2>Flujo del modal — Crear Punto con Despacho</h2>
+<p class="subtitle">3 pasos. Despacho opcional. Checklist auto-generado de artículos.</p>
+
+<div class="split" style="gap:16px;align-items:flex-start;">
+
+  <!-- PASO 1 -->
+  <div class="mockup" style="flex:1;">
+    <div class="mockup-header">Paso 1 — Datos del punto</div>
+    <div class="mockup-body" style="padding:16px;font-size:13px;">
+      <div style="display:flex;gap:8px;margin-bottom:16px;">
+        <div style="padding:4px 12px;border-radius:20px;background:#6366f1;color:#fff;font-size:11px;font-weight:600;">1 · Punto</div>
+        <div style="padding:4px 12px;border-radius:20px;background:rgba(255,255,255,.1);color:#888;font-size:11px;">2 · Artículos</div>
+        <div style="padding:4px 12px;border-radius:20px;background:rgba(255,255,255,.1);color:#888;font-size:11px;">3 · Confirmar</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div>
+          <div style="font-size:11px;font-weight:600;color:#888;margin-bottom:3px;">CIUDAD *</div>
+          <div class="mock-input">CALI</div>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:600;color:#888;margin-bottom:3px;">NOMBRE DEL PUNTO *</div>
+          <div class="mock-input">MI FARMACIA - CALI CENTRO</div>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:600;color:#888;margin-bottom:3px;">RESPONSABLE EN PUNTO</div>
+          <div class="mock-input" style="color:#555;">Nombre del receptor en destino</div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin-top:16px;">
+        <div class="mock-button" style="background:#6366f1;color:#fff;">Siguiente →</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PASO 2 -->
+  <div class="mockup" style="flex:1;">
+    <div class="mockup-header">Paso 2 — Artículos a despachar (opcional)</div>
+    <div class="mockup-body" style="padding:16px;font-size:13px;">
+      <div style="display:flex;gap:8px;margin-bottom:16px;">
+        <div style="padding:4px 12px;border-radius:20px;background:rgba(255,255,255,.1);color:#888;font-size:11px;">✓ Punto</div>
+        <div style="padding:4px 12px;border-radius:20px;background:#6366f1;color:#fff;font-size:11px;font-weight:600;">2 · Artículos</div>
+        <div style="padding:4px 12px;border-radius:20px;background:rgba(255,255,255,.1);color:#888;font-size:11px;">3 · Confirmar</div>
+      </div>
+      <div style="font-size:11px;color:#888;margin-bottom:8px;">Si agregas artículos se crea un despacho + trazabilidad automáticamente.</div>
+
+      <!-- Artículo row mock -->
+      <div style="border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:10px;margin-bottom:6px;background:rgba(255,255,255,.04);">
+        <div style="display:grid;grid-template-columns:1fr 55px auto;gap:6px;align-items:center;">
+          <div class="mock-input" style="font-size:12px;">Computador portátil</div>
+          <div class="mock-input" style="font-size:12px;text-align:center;">2</div>
+          <div style="color:#f87171;cursor:pointer;font-size:14px;">✕</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:6px;">
+          <div class="mock-input" style="font-size:11px;color:#666;">Marca</div>
+          <div class="mock-input" style="font-size:11px;color:#666;">Modelo</div>
+          <div class="mock-input" style="font-size:11px;color:#666;">Serial</div>
+        </div>
+      </div>
+      <div style="border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:10px;margin-bottom:8px;background:rgba(255,255,255,.04);">
+        <div style="display:grid;grid-template-columns:1fr 55px auto;gap:6px;align-items:center;">
+          <div class="mock-input" style="font-size:12px;">Mouse inalámbrico</div>
+          <div class="mock-input" style="font-size:12px;text-align:center;">2</div>
+          <div style="color:#f87171;cursor:pointer;font-size:14px;">✕</div>
+        </div>
+      </div>
+      <div style="font-size:12px;color:#6366f1;cursor:pointer;">+ Agregar artículo</div>
+      <div style="display:flex;justify-content:space-between;margin-top:16px;">
+        <div class="mock-button">← Anterior</div>
+        <div class="mock-button" style="background:#6366f1;color:#fff;">Siguiente →</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PASO 3 -->
+  <div class="mockup" style="flex:1;">
+    <div class="mockup-header">Paso 3 — Confirmar y crear</div>
+    <div class="mockup-body" style="padding:16px;font-size:13px;">
+      <div style="display:flex;gap:8px;margin-bottom:16px;">
+        <div style="padding:4px 12px;border-radius:20px;background:rgba(255,255,255,.1);color:#888;font-size:11px;">✓ Punto</div>
+        <div style="padding:4px 12px;border-radius:20px;background:rgba(255,255,255,.1);color:#888;font-size:11px;">✓ Artículos</div>
+        <div style="padding:4px 12px;border-radius:20px;background:#6366f1;color:#fff;font-size:11px;font-weight:600;">3 · Confirmar</div>
+      </div>
+      <div style="background:rgba(255,255,255,.04);border-radius:8px;padding:12px;margin-bottom:10px;">
+        <div style="font-size:11px;color:#888;margin-bottom:6px;font-weight:600;">SE CREARÁ:</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;font-size:12px;">✅ <span>Punto: <strong>MI FARMACIA - CALI CENTRO</strong></span></div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;font-size:12px;">📦 <span>Despacho: <strong>DES-20260619-001</strong> (2 artículos)</span></div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:12px;">🔗 <span>Trazabilidad con link público para confirmación en destino</span></div>
+      </div>
+      <div style="background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.2);border-radius:8px;padding:10px;margin-bottom:12px;">
+        <div style="font-size:11px;font-weight:600;color:#818cf8;margin-bottom:6px;">CHECKLIST GENERADO:</div>
+        <div style="font-size:12px;display:flex;flex-direction:column;gap:4px;">
+          <div style="display:flex;gap:8px;align-items:center;"><span style="width:14px;height:14px;border:1px solid #6366f1;border-radius:3px;display:inline-block;"></span> Computador portátil × 2</div>
+          <div style="display:flex;gap:8px;align-items:center;"><span style="width:14px;height:14px;border:1px solid #6366f1;border-radius:3px;display:inline-block;"></span> Mouse inalámbrico × 2</div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:8px;">
+        <div class="mock-button">← Anterior</div>
+        <div class="mock-button" style="background:#10b981;color:#fff;font-weight:700;">✓ Crear punto</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div style="margin-top:24px;">
+  <h3>Punto en la lista después de crear (con estado del checklist)</h3>
+  <div class="mockup">
+    <div class="mockup-body" style="padding:0;">
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid rgba(255,255,255,.06);">
+        <span style="width:8px;height:8px;border-radius:50%;background:#10b981;flex-shrink:0;"></span>
+        <span style="flex:1;font-size:13px;font-weight:500;">MI FARMACIA - CALI CENTRO</span>
+        <span style="font-size:11px;padding:3px 8px;border-radius:12px;background:rgba(234,179,8,.15);color:#facc15;border:1px solid rgba(234,179,8,.2);">📦 Pendiente envío</span>
+        <div style="display:flex;gap:6px;">
+          <div class="mock-button" style="font-size:11px;padding:4px 10px;">Ver checklist</div>
+          <div class="mock-button" style="font-size:11px;padding:4px 10px;">✓ Marcar enviado</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid rgba(255,255,255,.06);">
+        <span style="width:8px;height:8px;border-radius:50%;background:#10b981;flex-shrink:0;"></span>
+        <span style="flex:1;font-size:13px;font-weight:500;">DROGUERÍA NORTE - BOGOTÁ</span>
+        <span style="font-size:11px;padding:3px 8px;border-radius:12px;background:rgba(99,102,241,.15);color:#818cf8;border:1px solid rgba(99,102,241,.2);">🚚 En tránsito</span>
+        <div style="display:flex;gap:6px;">
+          <div class="mock-button" style="font-size:11px;padding:4px 10px;">Ver checklist</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 18px;">
+        <span style="width:8px;height:8px;border-radius:50%;background:#10b981;flex-shrink:0;"></span>
+        <span style="flex:1;font-size:13px;font-weight:500;">FARMACIA SUR - MEDELLÍN</span>
+        <span style="font-size:11px;padding:3px 8px;border-radius:12px;background:rgba(16,185,129,.15);color:#34d399;border:1px solid rgba(16,185,129,.2);">✅ Entregado</span>
+        <div style="display:flex;gap:6px;">
+          <div class="mock-button" style="font-size:11px;padding:4px 10px;">Ver checklist</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
