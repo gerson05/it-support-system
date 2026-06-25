@@ -1,0 +1,131 @@
+=============================== 
+ INVENTARIO DE EQUIPO DESKTOP-9BMG2BC 
+ Fecha: 23/04/2026 - Hora: 11:56:01.09 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : FBX0JL2
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            DESKTOP-9BMG2BC
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              USUARIO
+Organizaci¢n registrada:                   
+Id. del producto:                          00330-50703-47223-AAOEM
+Fecha de instalaci¢n original:             10/09/2024, 08:04:43 a. m.
+Tiempo de arranque del sistema:            22/04/2026, 07:36:09 a. m.
+Fabricante del sistema:                    Dell Inc.
+Modelo el sistema:                         OptiPlex 7050
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 158 Stepping 9 GenuineIntel ~2712 Mhz
+Versi¢n del BIOS:                          Dell Inc. 1.27.0, 18/09/2023
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8,055 MB
+Memoria f¡sica disponible:                 4,003 MB
+Memoria virtual: tama¤o m ximo:            9,335 MB
+Memoria virtual: disponible:               4,131 MB
+Memoria virtual: en uso:                   5,204 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\DESKTOP-9BMG2BC
+Revisi¢n(es):                              23 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5042056
+                                           [03]: KB5011048
+                                           [04]: KB5011056
+                                           [05]: KB5015684
+                                           [06]: KB5072653
+                                           [07]: KB5071959
+                                           [08]: KB5014032
+                                           [09]: KB5032907
+                                           [10]: KB5043935
+                                           [11]: KB5043130
+                                           [12]: KB5046823
+                                           [13]: KB5050388
+                                           [14]: KB5050111
+                                           [15]: KB5052916
+                                           [16]: KB5054682
+                                           [17]: KB5058526
+                                           [18]: KB5059504
+                                           [19]: KB5063706
+                                           [20]: KB5063261
+                                           [21]: KB5063979
+                                           [22]: KB5066790
+                                           [23]: KB5071982
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) Ethernet Connection (5) I219-LM
+                                                 Nombre de conexi¢n: Ethernet
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.20.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.20.128
+                                                 [02]: fe80::bd32:1542:e82d:4e47
+                                                 [03]: 2800:484:bf7e:3cd0::a23d
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: S¡
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-7500T CPU @ 2.70GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 2712
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : 80AD000080AD
+PartNumber   : HMA81GS6AFR8N-UH    
+Capacity     : 8589934592
+Speed        : 2400
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : NVME SSD 256GB
+SerialNumber  : 0000_0000_0000_0000_00E0_4C13_6A9D_7F95.
+Size          : 256052966400
+InterfaceType : SCSI
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 254302007296
+FreeSpace  : 181363138560
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

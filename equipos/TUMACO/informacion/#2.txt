@@ -1,0 +1,165 @@
+=============================== 
+ INVENTARIO DE EQUIPO TUMACO2 
+ Fecha: 22/04/2026 - Hora: 10:23:48.36 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : JFCZGX1
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            TUMACO2
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              DELL
+Organizaci¢n registrada:                   
+Id. del producto:                          00331-10000-00001-AA586
+Fecha de instalaci¢n original:             27/09/2020, 3:08:58 a.ÿm.
+Tiempo de arranque del sistema:            28/03/2026, 9:06:16 p.ÿm.
+Fabricante del sistema:                    Dell Inc.
+Modelo el sistema:                         OptiPlex 7010
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 58 Stepping 9 GenuineIntel ~3201 Mhz
+Versi¢n del BIOS:                          Dell Inc. A13, 25/03/2013
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          4,014 MB
+Memoria f¡sica disponible:                 589 MB
+Memoria virtual: tama¤o m ximo:            7,348 MB
+Memoria virtual: disponible:               1,855 MB
+Memoria virtual: en uso:                   5,493 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\TUMACO2
+Revisi¢n(es):                              47 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5028951
+                                           [03]: KB4562830
+                                           [04]: KB4570334
+                                           [05]: KB4577266
+                                           [06]: KB4580325
+                                           [07]: KB5003791
+                                           [08]: KB5011048
+                                           [09]: KB5011056
+                                           [10]: KB5012170
+                                           [11]: KB5015684
+                                           [12]: KB5072653
+                                           [13]: KB5071959
+                                           [14]: KB5006753
+                                           [15]: KB5007273
+                                           [16]: KB5011352
+                                           [17]: KB5011651
+                                           [18]: KB5014032
+                                           [19]: KB5014035
+                                           [20]: KB5014671
+                                           [21]: KB5015895
+                                           [22]: KB5016705
+                                           [23]: KB5018506
+                                           [24]: KB5020372
+                                           [25]: KB5022924
+                                           [26]: KB5023794
+                                           [27]: KB5025315
+                                           [28]: KB5026879
+                                           [29]: KB5028318
+                                           [30]: KB5028380
+                                           [31]: KB5029709
+                                           [32]: KB5031539
+                                           [33]: KB5032392
+                                           [34]: KB5032907
+                                           [35]: KB5034224
+                                           [36]: KB5036447
+                                           [37]: KB5037018
+                                           [38]: KB5037240
+                                           [39]: KB5037995
+                                           [40]: KB5039336
+                                           [41]: KB5041579
+                                           [42]: KB5043935
+                                           [43]: KB5043130
+                                           [44]: KB5046823
+                                           [45]: KB5050388
+                                           [46]: KB5066790
+                                           [47]: KB5071982
+Tarjeta(s) de red:                         3 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) 82579LM Gigabit Network Connection
+                                                 Nombre de conexi¢n: Ethernet
+                                                 DHCP habilitado:    No
+                                                 Direcciones IP
+                                                 [01]: 192.168.101.100
+                                                 [02]: fe80::5e37:4e8d:a229:1820
+                                           [02]: Wintun Userspace Tunnel
+                                                 Nombre de conexi¢n: OpenVPN Wintun
+                                                 Estado:             Medios desconectados
+                                           [03]: TAP-Windows Adapter V9
+                                                 Nombre de conexi¢n: OpenVPN TAP-Windows6
+                                                 Estado:             Medios desconectados
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: S¡
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-3470 CPU @ 3.20GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 3201
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : Samsung
+PartNumber   : M378B5173DB0-CK0  
+Capacity     : 4294967296
+Speed        : 1600
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : TEAM T253X2256G
+SerialNumber  : TPBF2110010010501216
+Size          : 256052966400
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 255468879872
+FreeSpace  : 157358895104
+VolumeName : 
+
+DeviceID   : Z:
+FileSystem : NTFS
+Size       : 255468879872
+FreeSpace  : 157358895104
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

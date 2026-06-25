@@ -1,0 +1,121 @@
+=============================== 
+ INVENTARIO DE EQUIPO MISTRATO05 
+ Fecha: 24/04/2026 - Hora:  8:06:33.62 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : 8CG8307B3M
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            MISTRATO05
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              USUARIO 1
+Organizaci¢n registrada:                   
+Id. del producto:                          00330-51310-81407-AAOEM
+Fecha de instalaci¢n original:             15/12/2025, 03:31:21
+Tiempo de arranque del sistema:            23/04/2026, 01:12:53
+Fabricante del sistema:                    HP
+Modelo el sistema:                         HP EliteDesk 800 G3 DM 35W
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 94 Stepping 3 GenuineIntel ~2496 Mhz
+Versi¢n del BIOS:                          HP P21 Ver. 02.49, 08/12/2023
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8,067 MB
+Memoria f¡sica disponible:                 3,998 MB
+Memoria virtual: tama¤o m ximo:            8,579 MB
+Memoria virtual: disponible:               4,610 MB
+Memoria virtual: en uso:                   3,969 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\MISTRATO05
+Revisi¢n(es):                              6 revisi¢n(es) instaladas.
+                                           [01]: KB5042056
+                                           [02]: KB5015684
+                                           [03]: KB5048652
+                                           [04]: KB5014032
+                                           [05]: KB5025315
+                                           [06]: KB5046823
+Tarjeta(s) de red:                         2 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) Ethernet Connection (5) I219-LM
+                                                 Nombre de conexi¢n: Ethernet
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.0.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.0.5
+                                                 [02]: fe80::5dcb:2ae8:fdfd:63d4
+                                           [02]: Intel(R) Dual Band Wireless-AC 8265
+                                                 Nombre de conexi¢n: Wi-Fi
+                                                 Estado:             Medios desconectados
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: No
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-6500T CPU @ 2.50GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 2496
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : Hynix/Hyundai
+PartNumber   : HMA851S6DJR6N-XN    
+Capacity     : 4294967296
+Speed        : 2133
+
+Manufacturer : Samsung
+PartNumber   : M471A5244CB0-CWE    
+Capacity     : 4294967296
+Speed        : 2133
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : KINGSTON SA400S37240G
+SerialNumber  : 50026B76862525E8
+Size          : 240054796800
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 239371423744
+FreeSpace  : 196726722560
+VolumeName : SYSTEM
+
+
+
+ 
+==== FIN DEL INFORME ==== 

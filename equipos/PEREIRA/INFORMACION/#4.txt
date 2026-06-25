@@ -1,0 +1,138 @@
+=============================== 
+ INVENTARIO DE EQUIPO DESKTOP-Q06RBCL 
+ Fecha: jue. 23/04/2026 - Hora: 10:05:25,04 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : FTQXLP2
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            DESKTOP-Q06RBCL
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              USUARIO
+Organizaci¢n registrada:                   
+Id. del producto:                          00331-10000-00001-AA601
+Fecha de instalaci¢n original:             29/07/2024, 3:07:44 p.ÿm.
+Tiempo de arranque del sistema:            17/04/2026, 5:14:40 p.ÿm.
+Fabricante del sistema:                    Dell Inc.
+Modelo el sistema:                         OptiPlex 3050
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 158 Stepping 9 GenuineIntel ~2712 Mhz
+Versi¢n del BIOS:                          Dell Inc. 1.31.0, 9/07/2024
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.075 MB
+Memoria f¡sica disponible:                 2.880 MB
+Memoria virtual: tama¤o m ximo:            9.355 MB
+Memoria virtual: disponible:               2.604 MB
+Memoria virtual: en uso:                   6.751 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\DESKTOP-Q06RBCL
+Revisi¢n(es):                              25 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5041167
+                                           [03]: KB5011048
+                                           [04]: KB5011056
+                                           [05]: KB5015684
+                                           [06]: KB5072653
+                                           [07]: KB5071959
+                                           [08]: KB5014032
+                                           [09]: KB5032907
+                                           [10]: KB5039336
+                                           [11]: KB5041579
+                                           [12]: KB5043935
+                                           [13]: KB5043130
+                                           [14]: KB5046823
+                                           [15]: KB5050388
+                                           [16]: KB5050111
+                                           [17]: KB5052916
+                                           [18]: KB5054682
+                                           [19]: KB5058526
+                                           [20]: KB5059504
+                                           [21]: KB5063706
+                                           [22]: KB5063261
+                                           [23]: KB5063979
+                                           [24]: KB5066790
+                                           [25]: KB5071982
+Tarjeta(s) de red:                         3 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) Dual Band Wireless-AC 3165
+                                                 Nombre de conexi¢n: Wi-Fi
+                                                 Estado:             Medios desconectados
+                                           [02]: Realtek PCIe GBE Family Controller
+                                                 Nombre de conexi¢n: Ethernet
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.1.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.1.32
+                                                 [02]: fe80::fefc:eeef:c8a4:b862
+                                           [03]: Bluetooth Device (Personal Area Network)
+                                                 Nombre de conexi¢n: Conexi¢n de red Bluetooth
+                                                 Estado:             Medios desconectados
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: S¡
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-7500T CPU @ 2.70GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 2712
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : 80AD000080AD
+PartNumber   : HMA81GS6JJR8N-VK    
+Capacity     : 8589934592
+Speed        : 2667
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : ADATA SU650
+SerialNumber  : 2O022LSHK1JW
+Size          : 256052966400
+InterfaceType : SCSI
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 254300958720
+FreeSpace  : 185188921344
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

@@ -1,0 +1,179 @@
+=============================== 
+ INVENTARIO DE EQUIPO MIFAR_VIRGINIA 
+ Fecha: jue. 23/04/2026 - Hora: 15:52:30,54 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : JRXSD42
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            MIFAR_VIRGINIA
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              HP
+Organizaci¢n registrada:                   
+Id. del producto:                          00330-50000-00000-AAOEM
+Fecha de instalaci¢n original:             7/06/2022, 5:06:42 p.ÿm.
+Tiempo de arranque del sistema:            11/04/2026, 11:29:04 a.ÿm.
+Fabricante del sistema:                    Dell Inc.
+Modelo el sistema:                         OptiPlex 3020
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 60 Stepping 3 GenuineIntel ~3201 Mhz
+Versi¢n del BIOS:                          Dell Inc. A07, 14/01/2015
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.111 MB
+Memoria f¡sica disponible:                 2.259 MB
+Memoria virtual: tama¤o m ximo:            9.391 MB
+Memoria virtual: disponible:               1.610 MB
+Memoria virtual: en uso:                   7.781 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\MIFAR_VIRGINIA
+Revisi¢n(es):                              48 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5028853
+                                           [03]: KB5003791
+                                           [04]: KB5011048
+                                           [05]: KB5011056
+                                           [06]: KB5012170
+                                           [07]: KB5015684
+                                           [08]: KB5072653
+                                           [09]: KB5071959
+                                           [10]: KB5014032
+                                           [11]: KB5014035
+                                           [12]: KB5014671
+                                           [13]: KB5015895
+                                           [14]: KB5016705
+                                           [15]: KB5018506
+                                           [16]: KB5020372
+                                           [17]: KB5022924
+                                           [18]: KB5023794
+                                           [19]: KB5025315
+                                           [20]: KB5026879
+                                           [21]: KB5028318
+                                           [22]: KB5028380
+                                           [23]: KB5029709
+                                           [24]: KB5031539
+                                           [25]: KB5032392
+                                           [26]: KB5032907
+                                           [27]: KB5034224
+                                           [28]: KB5036447
+                                           [29]: KB5037018
+                                           [30]: KB5037240
+                                           [31]: KB5037995
+                                           [32]: KB5039336
+                                           [33]: KB5041579
+                                           [34]: KB5043935
+                                           [35]: KB5043130
+                                           [36]: KB5046823
+                                           [37]: KB5050388
+                                           [38]: KB5050111
+                                           [39]: KB5052916
+                                           [40]: KB5054682
+                                           [41]: KB5058526
+                                           [42]: KB5059504
+                                           [43]: KB5063706
+                                           [44]: KB5063261
+                                           [45]: KB5063979
+                                           [46]: KB5066790
+                                           [47]: KB5071982
+                                           [48]: KB5005699
+Tarjeta(s) de red:                         3 Tarjetas de interfaz de red instaladas.
+                                           [01]: Realtek PCIe GBE Family Controller
+                                                 Nombre de conexi¢n: Ethernet
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.1.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.1.7
+                                                 [02]: fe80::6edf:bf72:5838:f1f8
+                                                 [03]: 2803:da20:163:7fc0:4e39:d833:7491:3373
+                                           [02]: Wintun Userspace Tunnel
+                                                 Nombre de conexi¢n: OpenVPN Wintun
+                                                 Estado:             Medios desconectados
+                                           [03]: TAP-Windows Adapter V9
+                                                 Nombre de conexi¢n: OpenVPN TAP-Windows6
+                                                 Estado:             Medios desconectados
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: S¡
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-4460  CPU @ 3.20GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 3201
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : Samsung
+PartNumber   : M378B5273CH0-CK0  
+Capacity     : 4294967296
+Speed        : 1600
+
+Manufacturer : Samsung
+PartNumber   : M378B5273CH0-CK0  
+Capacity     : 4294967296
+Speed        : 1600
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : TOSHIBA MQ01ACF050
+SerialNumber  :            284IC5POT
+Size          : 500105249280
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+Model         : AT421
+SerialNumber  : 421000007594
+Size          : 240054796800
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 239453110272
+FreeSpace  : 146742206464
+VolumeName : 
+
+DeviceID   : D:
+FileSystem : NTFS
+Size       : 500105736192
+FreeSpace  : 499989643264
+VolumeName : Nuevo vol
+
+
+
+ 
+==== FIN DEL INFORME ==== 

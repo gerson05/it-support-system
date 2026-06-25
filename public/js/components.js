@@ -133,9 +133,10 @@ export function showToast(message, type = 'info') {
   }, 4000);
 }
 
-/* ── Sede search combobox ─────────────────────────────────────────────── */
+/* ── Sede / Bodega search combobox ────────────────────────────────────── */
 
-let _sedesCache = null;
+let _sedesCache   = null;
+let _bodegasCache = null;
 
 async function _fetchSedes() {
   if (_sedesCache) return _sedesCache;
@@ -146,6 +147,18 @@ async function _fetchSedes() {
   } catch { _sedesCache = {}; }
   return _sedesCache;
 }
+
+async function _fetchBodegas() {
+  if (_bodegasCache) return _bodegasCache;
+  try {
+    const res = await fetch('/api/bodegas');
+    const data = res.ok ? await res.json() : {};
+    _bodegasCache = data.grouped || data;
+  } catch { _bodegasCache = {}; }
+  return _bodegasCache;
+}
+
+export function invalidateBodegasCache() { _bodegasCache = null; }
 
 export function attachSedeSearch(inputEl) {
   if (!inputEl) return;
@@ -231,6 +244,100 @@ export function attachSedeSearch(inputEl) {
 
   inputEl.addEventListener('focus', async () => {
     await _fetchSedes();
+    positionDropdown();
+    renderDropdown(inputEl.value);
+  });
+
+  inputEl.addEventListener('input', () => {
+    if (dropdown.style.display !== 'none') { positionDropdown(); renderDropdown(inputEl.value); }
+  });
+
+  inputEl.addEventListener('blur', () => {
+    setTimeout(() => { dropdown.style.display = 'none'; }, 180);
+  });
+}
+
+export function attachBodegaSearch(inputEl) {
+  if (!inputEl) return;
+
+  const wrapper = document.createElement('div');
+  wrapper.style.cssText = 'position:relative;display:block;';
+  inputEl.parentNode.insertBefore(wrapper, inputEl);
+  wrapper.appendChild(inputEl);
+
+  const icon = document.createElement('div');
+  icon.style.cssText = 'position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--text-3);display:flex;align-items:center;pointer-events:none;';
+  icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>`;
+  wrapper.appendChild(icon);
+  inputEl.style.paddingRight = '28px';
+
+  const dropdown = document.createElement('div');
+  dropdown.style.cssText =
+    'display:none;position:fixed;' +
+    'background:var(--surface);border:1px solid var(--border);border-radius:8px;' +
+    'box-shadow:0 8px 24px rgba(0,0,0,.35);z-index:99999;max-height:220px;overflow-y:auto;';
+  document.body.appendChild(dropdown);
+
+  function positionDropdown() {
+    const r = inputEl.getBoundingClientRect();
+    dropdown.style.top   = `${r.bottom + 2}px`;
+    dropdown.style.left  = `${r.left}px`;
+    dropdown.style.width = `${r.width}px`;
+  }
+
+  function renderDropdown(q) {
+    const query = (q || '').toLowerCase().trim();
+    dropdown.innerHTML = '';
+    let first = true;
+    let hasAny = false;
+
+    Object.entries(_bodegasCache || {}).forEach(([ciudad, puntos]) => {
+      const matches = puntos.filter(p =>
+        p.activo !== 0 && (
+          !query ||
+          ciudad.toLowerCase().includes(query) ||
+          p.nombre_punto.toLowerCase().includes(query)
+        )
+      );
+      if (!matches.length) return;
+      hasAny = true;
+
+      const hdr = document.createElement('div');
+      hdr.style.cssText =
+        'padding:5px 12px 3px;font-size:10px;font-weight:700;color:var(--text-3);' +
+        `text-transform:uppercase;letter-spacing:.5px;${first ? '' : 'border-top:1px solid var(--border);margin-top:4px;'}`;
+      hdr.textContent = ciudad;
+      dropdown.appendChild(hdr);
+      first = false;
+
+      matches.forEach(p => {
+        const item = document.createElement('div');
+        item.style.cssText =
+          'padding:8px 12px;font-size:13px;color:var(--text);cursor:pointer;transition:background .1s;';
+        item.textContent = p.nombre_punto;
+        item.addEventListener('mouseenter', () => { item.style.background = 'var(--surface-2)'; });
+        item.addEventListener('mouseleave', () => { item.style.background = ''; });
+        item.addEventListener('mousedown', e => {
+          e.preventDefault();
+          inputEl.value = p.nombre_punto;
+          dropdown.style.display = 'none';
+        });
+        dropdown.appendChild(item);
+      });
+    });
+
+    if (!hasAny) {
+      const empty = document.createElement('div');
+      empty.style.cssText = 'padding:12px;text-align:center;font-size:13px;color:var(--text-3);';
+      empty.textContent = query ? `Sin resultados para "${q}"` : 'No hay bodegas registradas';
+      dropdown.appendChild(empty);
+    }
+
+    dropdown.style.display = '';
+  }
+
+  inputEl.addEventListener('focus', async () => {
+    await _fetchBodegas();
     positionDropdown();
     renderDropdown(inputEl.value);
   });
@@ -377,6 +484,13 @@ export function createExecutionModal(onlineAgents, commands, linkedAgentId, kbTi
         ${agentSelectorHtml}
         <div style="font-size:11px;color:var(--text-muted,#94a3b8);margin-bottom:4px;">Comandos a ejecutar:</div>
         <div style="background:#0a0a0a;border-radius:4px;padding:10px;font-family:monospace;font-size:11px;color:#4ade80;margin-bottom:14px;white-space:pre-wrap;max-height:120px;overflow-y:auto;">${cmdHtml}</div>
+        <!-- Opción de Piloto Automático -->
+        <div style="margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+          <input type="checkbox" id="exec-auto-resolve" checked style="width:16px;height:16px;cursor:pointer;accent-color:var(--primary,#3b82f6);">
+          <label for="exec-auto-resolve" style="font-size:12px;color:var(--text-2,#e2e8f0);cursor:pointer;user-select:none;">
+            Auto-resolver ticket y guardar en notas al finalizar con éxito
+          </label>
+        </div>
         <div id="exec-output-section" style="display:none;margin-bottom:12px;">
           <div style="font-size:11px;color:var(--text-muted,#94a3b8);margin-bottom:4px;">Output:</div>
           <div id="exec-output" style="background:#0a0a0a;border-radius:4px;padding:10px;font-family:monospace;font-size:11px;color:#e2e8f0;white-space:pre-wrap;max-height:160px;overflow-y:auto;"></div>

@@ -1,0 +1,117 @@
+=============================== 
+ INVENTARIO DE EQUIPO DESKTOP-94PIMQ9 
+ Fecha: mar. 28/04/2026 - Hora: 10:53:20,77 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : MJ06VUL5
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            DESKTOP-94PIMQ9
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              Lenovo
+Organizaci¢n registrada:                   
+Id. del producto:                          00330-80000-00000-AA667
+Fecha de instalaci¢n original:             1/04/2024, 1:45:05 a.ÿm.
+Tiempo de arranque del sistema:            24/04/2026, 12:07:49 a.ÿm.
+Fabricante del sistema:                    LENOVO
+Modelo el sistema:                         10MQS44300
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 158 Stepping 9 GenuineIntel ~3408 Mhz
+Versi¢n del BIOS:                          LENOVO M1AKT53A, 18/03/2022
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es-mx;Espa¤ol (M‚xico)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.080 MB
+Memoria f¡sica disponible:                 2.181 MB
+Memoria virtual: tama¤o m ximo:            10.983 MB
+Memoria virtual: disponible:               1.251 MB
+Memoria virtual: en uso:                   9.732 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\DESKTOP-94PIMQ9
+Revisi¢n(es):                              10 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5066135
+                                           [03]: KB5011048
+                                           [04]: KB5015684
+                                           [05]: KB5033052
+                                           [06]: KB5072653
+                                           [07]: KB5066791
+                                           [08]: KB5014032
+                                           [09]: KB5025315
+                                           [10]: KB5066790
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) Ethernet Connection (2) I219-V
+                                                 Nombre de conexi¢n: Ethernet
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.101.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.101.5
+                                                 [02]: fe80::1e15:2b97:c0b6:580b
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: No
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-7500 CPU @ 3.40GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 3408
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : SK Hynix
+PartNumber   : HMAG68EXNSA051N     
+Capacity     : 8589934592
+Speed        : 3200
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : SATA SSD
+SerialNumber  : 20102724000223
+Size          : 240054796800
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 239371636736
+FreeSpace  : 186384130048
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

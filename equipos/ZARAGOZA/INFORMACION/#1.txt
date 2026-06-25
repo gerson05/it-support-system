@@ -1,0 +1,221 @@
+=============================== 
+ INVENTARIO DE EQUIPO DESKTOP-4APD106 
+ Fecha: mi‚. 22/04/2026 - Hora: 11:31:22,92 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : 00000000
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            DESKTOP-4APD106
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              SOPORTE
+Organizaci¢n registrada:                   
+Id. del producto:                          00331-10000-00001-AA253
+Fecha de instalaci¢n original:             20/04/2021, 1:32:08 p. m.
+Tiempo de arranque del sistema:            22/04/2026, 9:36:26 a. m.
+Fabricante del sistema:                    ECS
+Modelo el sistema:                         BAT-I2
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 55 Stepping 8 GenuineIntel ~2408 Mhz
+Versi¢n del BIOS:                          American Megatrends Inc. 5.6.5, 16/12/2015
+Directorio de Windows:                     C:\WINDOWS
+Directorio de sistema:                     C:\WINDOWS\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es;Espa¤ol (tradicional)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          3.980 MB
+Memoria f¡sica disponible:                 1.223 MB
+Memoria virtual: tama¤o m ximo:            4.812 MB
+Memoria virtual: disponible:               1.323 MB
+Memoria virtual: en uso:                   3.489 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\DESKTOP-4APD106
+Revisi¢n(es):                              48 revisi¢n(es) instaladas.
+                                           [01]: KB5056578
+                                           [02]: KB5030841
+                                           [03]: KB4562830
+                                           [04]: KB4577586
+                                           [05]: KB4580325
+                                           [06]: KB5003791
+                                           [07]: KB5011048
+                                           [08]: KB5011056
+                                           [09]: KB5012170
+                                           [10]: KB5015684
+                                           [11]: KB5071959
+                                           [12]: KB5006753
+                                           [13]: KB5007273
+                                           [14]: KB5011352
+                                           [15]: KB5011651
+                                           [16]: KB5014032
+                                           [17]: KB5014035
+                                           [18]: KB5014671
+                                           [19]: KB5015895
+                                           [20]: KB5016705
+                                           [21]: KB5018506
+                                           [22]: KB5020372
+                                           [23]: KB5022924
+                                           [24]: KB5023794
+                                           [25]: KB5025315
+                                           [26]: KB5026879
+                                           [27]: KB5028318
+                                           [28]: KB5028380
+                                           [29]: KB5031539
+                                           [30]: KB5032392
+                                           [31]: KB5032907
+                                           [32]: KB5034224
+                                           [33]: KB5036447
+                                           [34]: KB5037018
+                                           [35]: KB5037995
+                                           [36]: KB5039336
+                                           [37]: KB5041579
+                                           [38]: KB5043935
+                                           [39]: KB5043130
+                                           [40]: KB5046823
+                                           [41]: KB5050388
+                                           [42]: KB5054682
+                                           [43]: KB5063706
+                                           [44]: KB5063261
+                                           [45]: KB5063979
+                                           [46]: KB5066790
+                                           [47]: KB5071982
+                                           [48]: KB5003503
+Tarjeta(s) de red:                         2 Tarjetas de interfaz de red instaladas.
+                                           [01]: Realtek PCIe GBE Family Controller
+                                                 Nombre de conexi¢n: Ethernet
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.1.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.1.6
+                                                 [02]: fe80::895e:faa5:dd31:ad67
+                                           [02]: Realtek USB GbE Family Controller
+                                                 Nombre de conexi¢n: Ethernet 6
+                                                 DHCP habilitado:    No
+                                                 Direcciones IP
+                                                 [01]: 192.168.130.245
+                                                 [02]: fe80::d878:5df2:7bd1:f5f3
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: S¡
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Celeron(R) CPU  J1800  @ 2.41GHz
+NumberOfCores             : 2
+NumberOfLogicalProcessors : 2
+MaxClockSpeed             : 2408
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : Undefined       
+PartNumber   :                   
+Capacity     : 4294967296
+Speed        : 1600
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : ST1000DM010-2EP102
+SerialNumber  :             ZN11QEPQ
+Size          : 1000202273280
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+Model         : Generic- MS/MS-PRO USB Device
+SerialNumber  : 058F63626472
+Size          : 
+InterfaceType : USB
+MediaType     : 
+
+Model         : Generic- Compact Flash USB Device
+SerialNumber  : 058F63626470
+Size          : 
+InterfaceType : USB
+MediaType     : 
+
+Model         : Generic- xD-Picture USB Device
+SerialNumber  : 058F63626473
+Size          : 
+InterfaceType : USB
+MediaType     : 
+
+Model         : Generic- SD/MMC USB Device
+SerialNumber  : 058F63626471
+Size          : 
+InterfaceType : USB
+MediaType     : 
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 475307962368
+FreeSpace  : 407504941056
+VolumeName : 
+
+DeviceID   : E:
+FileSystem : NTFS
+Size       : 524286947328
+FreeSpace  : 524170117120
+VolumeName : 
+
+DeviceID   : F:
+FileSystem : 
+Size       : 
+FreeSpace  : 
+VolumeName : 
+
+DeviceID   : G:
+FileSystem : 
+Size       : 
+FreeSpace  : 
+VolumeName : 
+
+DeviceID   : H:
+FileSystem : 
+Size       : 
+FreeSpace  : 
+VolumeName : 
+
+DeviceID   : I:
+FileSystem : 
+Size       : 
+FreeSpace  : 
+VolumeName : 
+
+DeviceID   : J:
+FileSystem : 
+Size       : 
+FreeSpace  : 
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

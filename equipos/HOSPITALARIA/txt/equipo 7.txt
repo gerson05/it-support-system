@@ -1,0 +1,148 @@
+=============================== 
+ INVENTARIO DE EQUIPO DESKTOP-SP97A6A 
+ Fecha: mar. 21/04/2026 - Hora: 15:51:33,97 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : 311JJ02
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            DESKTOP-SP97A6A
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              USUARIO
+Organizaci¢n registrada:                   
+Id. del producto:                          00330-80000-00000-AA930
+Fecha de instalaci¢n original:             7/12/2019, 2:01:12 a.ÿm.
+Tiempo de arranque del sistema:            18/11/2025, 4:19:33 a.ÿm.
+Fabricante del sistema:                    Dell Inc.
+Modelo el sistema:                         OptiPlex 7010
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 58 Stepping 9 GenuineIntel ~3201 Mhz
+Versi¢n del BIOS:                          Dell Inc. A16, 9/09/2013
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume4
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.078 MB
+Memoria f¡sica disponible:                 1.424 MB
+Memoria virtual: tama¤o m ximo:            26.254 MB
+Memoria virtual: disponible:               2.876 MB
+Memoria virtual: en uso:                   23.378 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\DESKTOP-SP97A6A
+Revisi¢n(es):                              13 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5066135
+                                           [03]: KB5003791
+                                           [04]: KB5011048
+                                           [05]: KB5011056
+                                           [06]: KB5015684
+                                           [07]: KB5033052
+                                           [08]: KB5072653
+                                           [09]: KB5071959
+                                           [10]: KB5063979
+                                           [11]: KB5066790
+                                           [12]: KB5071982
+                                           [13]: KB5005699
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) 82579LM Gigabit Network Connection
+                                                 Nombre de conexi¢n: Ethernet
+                                                 DHCP habilitado:    No
+                                                 Direcciones IP
+                                                 [01]: 10.1.1.55
+                                                 [02]: fe80::8ecb:75ce:ef60:1aa1
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: S¡
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-3470 CPU @ 3.20GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 3201
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : Hynix/Hyundai
+PartNumber   : HMT451U6AFR8C-PB  
+Capacity     : 4294967296
+Speed        : 1600
+
+Manufacturer : Hynix/Hyundai
+PartNumber   : HMT451U6BFR8A-PB  
+Capacity     : 4294967296
+Speed        : 1600
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : TOSHIBA DT01ACA100
+SerialNumber  :            38T5KUWFS
+Size          : 1000202273280
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+Model         : AT421
+SerialNumber  : 421000007236
+Size          : 240054796800
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 239384952832
+FreeSpace  : 160995434496
+VolumeName : 
+
+DeviceID   : D:
+FileSystem : NTFS
+Size       : 607121408
+FreeSpace  : 118128640
+VolumeName : Reservado para el sistema
+
+DeviceID   : E:
+FileSystem : NTFS
+Size       : 475307962368
+FreeSpace  : 426956578816
+VolumeName : 
+
+DeviceID   : F:
+FileSystem : NTFS
+Size       : 524286947328
+FreeSpace  : 524163833856
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

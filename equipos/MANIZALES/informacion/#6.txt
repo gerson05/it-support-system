@@ -1,0 +1,122 @@
+=============================== 
+ INVENTARIO DE EQUIPO DESKTOP-8CFFRMI 
+ Fecha: mi‚. 22/04/2026 - Hora:  7:35:32,79 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : MJ07C8CC
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            DESKTOP-8CFFRMI
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              LENOVO
+Organizaci¢n registrada:                   
+Id. del producto:                          00331-10000-00001-AA489
+Fecha de instalaci¢n original:             19/06/2025, 4:40:05 p.ÿm.
+Tiempo de arranque del sistema:            27/03/2026, 4:40:39 p.ÿm.
+Fabricante del sistema:                    LENOVO
+Modelo el sistema:                         10MQSE7500
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 94 Stepping 3 GenuineIntel ~2712 Mhz
+Versi¢n del BIOS:                          LENOVO M1AKT36A, 20/04/2018
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.080 MB
+Memoria f¡sica disponible:                 3.914 MB
+Memoria virtual: tama¤o m ximo:            12.944 MB
+Memoria virtual: disponible:               6.141 MB
+Memoria virtual: en uso:                   6.803 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\DESKTOP-8CFFRMI
+Revisi¢n(es):                              12 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5064399
+                                           [03]: KB5011048
+                                           [04]: KB5011056
+                                           [05]: KB5015684
+                                           [06]: KB5072653
+                                           [07]: KB5071959
+                                           [08]: KB5014032
+                                           [09]: KB5032907
+                                           [10]: KB5063979
+                                           [11]: KB5066790
+                                           [12]: KB5071982
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) Ethernet Connection (2) I219-V
+                                                 Nombre de conexi¢n: Ethernet
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.20.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.20.99
+                                                 [02]: fe80::450b:f5b7:4ece:60cc
+                                                 [03]: 2800:484:8f83:db50:a04b:2a8b:1b22:cf8
+                                                 [04]: 2800:484:8f83:db50:5fa9:d56e:a3fe:a415
+                                                 [05]: 2800:484:8f83:db50::a637
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: No
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-8500T CPU
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 2712
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : Samsung
+PartNumber   : M471A1K43CB1-CRC    
+Capacity     : 8589934592
+Speed        : 2400
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : SKHynix_HFS256GEJ4X112N
+SerialNumber  : 0000_0000_0000_0000_ACE4_2E00_3B1B_DA6F.
+Size          : 256052966400
+InterfaceType : SCSI
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 255349534720
+FreeSpace  : 196007084032
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

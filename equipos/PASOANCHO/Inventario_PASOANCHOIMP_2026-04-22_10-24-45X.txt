@@ -1,0 +1,110 @@
+=============================== 
+ INVENTARIO DE EQUIPO PASOANCHOIMP 
+ Fecha: mi‚. 22/04/2026 - Hora: 10:24:46,14 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : 9G7HRR2
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            PASOANCHOIMP
+Nombre del sistema operativo:              Microsoft Windows 11 Pro
+Versi¢n del sistema operativo:             10.0.22621 N/D Compilaci¢n 22621
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              N/D
+Organizaci¢n registrada:                   N/D
+Id. del producto:                          00330-51464-60117-AAOEM
+Fecha de instalaci¢n original:             22/04/2026, 8:05:21 a.ÿm.
+Tiempo de arranque del sistema:            22/04/2026, 9:24:09 a.ÿm.
+Fabricante del sistema:                    Dell Inc.
+Modelo el sistema:                         OptiPlex 7050
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 158 Stepping 9 GenuineIntel ~2712 Mhz
+Versi¢n del BIOS:                          Dell Inc. 1.27.0, 18/09/2023
+Directorio de Windows:                     C:\WINDOWS
+Directorio de sistema:                     C:\WINDOWS\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.055 MB
+Memoria f¡sica disponible:                 3.074 MB
+Memoria virtual: tama¤o m ximo:            9.975 MB
+Memoria virtual: disponible:               4.251 MB
+Memoria virtual: en uso:                   5.724 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\PASOANCHOIMP
+Revisi¢n(es):                              3 revisi¢n(es) instaladas.
+                                           [01]: KB5044033
+                                           [02]: KB5044285
+                                           [03]: KB5046247
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) Ethernet Connection (5) I219-LM
+                                                 Nombre de conexi¢n: Ethernet
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.1.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.1.70
+                                                 [02]: fe80::2f7e:5c64:5441:d9e0
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: S¡
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-7500T CPU @ 2.70GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 2712
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : 80AD000080AD
+PartNumber   : HMA81GS6AFR8N-UH    
+Capacity     : 8589934592
+Speed        : 2400
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : KBG50ZNV256G KIOXIA
+SerialNumber  : 0000_0000_0000_0000_8CE3_8E04_0457_CA42.
+Size          : 256052966400
+InterfaceType : SCSI
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 255245815808
+FreeSpace  : 85744156672
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

@@ -1,0 +1,135 @@
+=============================== 
+ INVENTARIO DE EQUIPO DESKTOP-SEOKMAO 
+ Fecha: mi‚. 22/04/2026 - Hora: 13:54:28,94 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : HV6YYQ2
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            DESKTOP-SEOKMAO
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              Dell
+Organizaci¢n registrada:                   
+Id. del producto:                          00330-51301-17124-AAOEM
+Fecha de instalaci¢n original:             2/10/2024, 10:34:19 a.ÿm.
+Tiempo de arranque del sistema:            13/04/2026, 6:50:19 a.ÿm.
+Fabricante del sistema:                    Dell Inc.
+Modelo el sistema:                         OptiPlex 7050
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 158 Stepping 9 GenuineIntel ~2712 Mhz
+Versi¢n del BIOS:                          Dell Inc. 1.27.0, 18/09/2023
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es-mx;Espa¤ol (M‚xico)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.055 MB
+Memoria f¡sica disponible:                 1.557 MB
+Memoria virtual: tama¤o m ximo:            13.854 MB
+Memoria virtual: disponible:               2.166 MB
+Memoria virtual: en uso:                   11.688 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\DESKTOP-SEOKMAO
+Revisi¢n(es):                              22 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5044020
+                                           [03]: KB5011048
+                                           [04]: KB5015684
+                                           [05]: KB5033052
+                                           [06]: KB5072653
+                                           [07]: KB5071959
+                                           [08]: KB5014032
+                                           [09]: KB5025315
+                                           [10]: KB5043130
+                                           [11]: KB5046823
+                                           [12]: KB5050388
+                                           [13]: KB5050111
+                                           [14]: KB5052916
+                                           [15]: KB5054682
+                                           [16]: KB5058526
+                                           [17]: KB5059504
+                                           [18]: KB5063706
+                                           [19]: KB5063261
+                                           [20]: KB5063979
+                                           [21]: KB5066790
+                                           [22]: KB5071982
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) Ethernet Connection (5) I219-LM
+                                                 Nombre de conexi¢n: Ethernet
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.0.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.0.106
+                                                 [02]: fe80::bca6:432b:e0f9:e862
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: S¡
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-7500T CPU @ 2.70GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 2712
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : 80CE000080CE
+PartNumber   : M471A1K43CB1-CTD    
+Capacity     : 8589934592
+Speed        : 2667
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : CL1-3D256-Q11 NVMe SSSTC 256GB
+SerialNumber  : 38F6_0156_3073_4F46.
+Size          : 256052966400
+InterfaceType : SCSI
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 255375003648
+FreeSpace  : 172580102144
+VolumeName : 
+
+DeviceID   : Z:
+FileSystem : NTFS
+Size       : 255388319744
+FreeSpace  : 176999923712
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

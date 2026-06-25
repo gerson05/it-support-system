@@ -1,0 +1,127 @@
+=============================== 
+ INVENTARIO DE EQUIPO DESKTOP-1ME7BSH 
+ Fecha: mar. 28/04/2026 - Hora: 10:56:15,28 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : 2UA60326KM
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            DESKTOP-1ME7BSH
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              Usuario de Windows
+Organizaci¢n registrada:                   
+Id. del producto:                          00342-50406-84400-AAOEM
+Fecha de instalaci¢n original:             17/03/2025, 7:35:19 p.ÿm.
+Tiempo de arranque del sistema:            14/04/2026, 9:10:49 a.ÿm.
+Fabricante del sistema:                    HP
+Modelo el sistema:                         HP EliteDesk 800 G2 DM 35W
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 94 Stepping 3 GenuineIntel ~2496 Mhz
+Versi¢n del BIOS:                          HP N21 Ver. 02.05, 11/11/2015
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es-co;Espa¤ol (Colombia)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.072 MB
+Memoria f¡sica disponible:                 3.960 MB
+Memoria virtual: tama¤o m ximo:            9.352 MB
+Memoria virtual: disponible:               4.135 MB
+Memoria virtual: en uso:                   5.217 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\DESKTOP-1ME7BSH
+Revisi¢n(es):                              15 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5056577
+                                           [03]: KB5011048
+                                           [04]: KB5015684
+                                           [05]: KB5033052
+                                           [06]: KB5072653
+                                           [07]: KB5071959
+                                           [08]: KB5014032
+                                           [09]: KB5016705
+                                           [10]: KB5052916
+                                           [11]: KB5058526
+                                           [12]: KB5059504
+                                           [13]: KB5063979
+                                           [14]: KB5066790
+                                           [15]: KB5071982
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) Ethernet Connection (2) I219-LM
+                                                 Nombre de conexi¢n: Ethernet 6
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.101.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.101.21
+                                                 [02]: fe80::9ea2:fe73:ab52:c906
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: No
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-8500T CPU
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 2496
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : Hynix/Hyundai
+PartNumber   : HMA851S6CJR6N-VK    
+Capacity     : 4294967296
+Speed        : 2133
+
+Manufacturer : Hynix/Hyundai
+PartNumber   : HMA851S6CJR6N-VK    
+Capacity     : 4294967296
+Speed        : 2133
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : AT422
+SerialNumber  : 421000165274
+Size          : 256052966400
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 255348174848
+FreeSpace  : 194465964032
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

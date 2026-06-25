@@ -1,0 +1,155 @@
+=============================== 
+ INVENTARIO DE EQUIPO DISP25 
+ Fecha: jue. 23/04/2026 - Hora:  7:43:12,08 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : 3MVPJK2
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            DISP25
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              USUARIO
+Organizaci¢n registrada:                   
+Id. del producto:                          00331-10000-00001-AA973
+Fecha de instalaci¢n original:             23/10/2023, 12:51:30 p.ÿm.
+Tiempo de arranque del sistema:            30/03/2026, 10:30:26 a.ÿm.
+Fabricante del sistema:                    Dell Inc.
+Modelo el sistema:                         OptiPlex 7050
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 158 Stepping 9 GenuineIntel ~2712 Mhz
+Versi¢n del BIOS:                          Dell Inc. 1.19.0, 2/12/2021
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          16.267 MB
+Memoria f¡sica disponible:                 9.738 MB
+Memoria virtual: tama¤o m ximo:            31.115 MB
+Memoria virtual: disponible:               24.012 MB
+Memoria virtual: en uso:                   7.103 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\DISP25
+Revisi¢n(es):                              33 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5030841
+                                           [03]: KB5003791
+                                           [04]: KB5011048
+                                           [05]: KB5011056
+                                           [06]: KB5015684
+                                           [07]: KB5072653
+                                           [08]: KB5071959
+                                           [09]: KB5031539
+                                           [10]: KB5032392
+                                           [11]: KB5032907
+                                           [12]: KB5034224
+                                           [13]: KB5036447
+                                           [14]: KB5037018
+                                           [15]: KB5037240
+                                           [16]: KB5037995
+                                           [17]: KB5039336
+                                           [18]: KB5041579
+                                           [19]: KB5043935
+                                           [20]: KB5043130
+                                           [21]: KB5046823
+                                           [22]: KB5050388
+                                           [23]: KB5050111
+                                           [24]: KB5052916
+                                           [25]: KB5054682
+                                           [26]: KB5058526
+                                           [27]: KB5059504
+                                           [28]: KB5063706
+                                           [29]: KB5063261
+                                           [30]: KB5063979
+                                           [31]: KB5066790
+                                           [32]: KB5071982
+                                           [33]: KB5005699
+Tarjeta(s) de red:                         3 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) Ethernet Connection (5) I219-LM
+                                                 Nombre de conexi¢n: Ethernet
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.10.1
+                                                 Direcciones IP
+                                                 [01]: 169.254.203.222
+                                                 [02]: fe80::eeac:bd93:84e9:1433
+                                           [02]: Intel(R) Dual Band Wireless-AC 8265
+                                                 Nombre de conexi¢n: Wi-Fi
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.100.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.100.15
+                                                 [02]: fe80::cb18:f139:a981:4579
+                                           [03]: Bluetooth Device (Personal Area Network)
+                                                 Nombre de conexi¢n: Conexi¢n de red Bluetooth
+                                                 Estado:             Medios desconectados
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: S¡
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-7500T CPU @ 2.70GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 2712
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : 80CE000080CE
+PartNumber   : M471A1K43CB1-CTD    
+Capacity     : 8589934592
+Speed        : 2667
+
+Manufacturer : 80AD000080AD
+PartNumber   : HMA81GS6AFR8N-UH    
+Capacity     : 8589934592
+Speed        : 2400
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : AT422
+SerialNumber  : 421000012536
+Size          : 256052966400
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 255456477184
+FreeSpace  : 117437509632
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

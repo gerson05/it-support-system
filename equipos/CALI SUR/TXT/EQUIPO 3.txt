@@ -1,0 +1,118 @@
+=============================== 
+ INVENTARIO DE EQUIPO BODEGA1 
+ Fecha: mi‚. 22/04/2026 - Hora: 11:40:19,29 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : MJ05TNU0
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            BODEGA1
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              BODEGA
+Organizaci¢n registrada:                   
+Id. del producto:                          00342-50771-97316-AAOEM
+Fecha de instalaci¢n original:             1/11/2025, 1:44:56 p.ÿm.
+Tiempo de arranque del sistema:            13/04/2026, 8:48:02 a.ÿm.
+Fabricante del sistema:                    LENOVO
+Modelo el sistema:                         10MQS2L400
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 94 Stepping 3 GenuineIntel ~2712 Mhz
+Versi¢n del BIOS:                          LENOVO M1AKT24A, 25/07/2017
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.080 MB
+Memoria f¡sica disponible:                 4.650 MB
+Memoria virtual: tama¤o m ximo:            8.592 MB
+Memoria virtual: disponible:               5.325 MB
+Memoria virtual: en uso:                   3.267 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\BODEGA1
+Revisi¢n(es):                              6 revisi¢n(es) instaladas.
+                                           [01]: KB5042056
+                                           [02]: KB5015684
+                                           [03]: KB5048652
+                                           [04]: KB5014032
+                                           [05]: KB5025315
+                                           [06]: KB5046823
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) Ethernet Connection (2) I219-V
+                                                 Nombre de conexi¢n: Ethernet
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      190.147.23.254
+                                                 Direcciones IP
+                                                 [01]: 190.147.23.115
+                                                 [02]: fe80::5cb1:2402:db70:80c0
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: No
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-6600T CPU @ 2.70GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 2712
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : Samsung
+PartNumber   : M471A5244CB0-CRC    
+Capacity     : 4294967296
+Speed        : 2400
+
+Manufacturer : Samsung
+PartNumber   : M471A5244CB0-CRC    
+Capacity     : 4294967296
+Speed        : 2400
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : SKHynix_HFS256GEJ4X112N
+SerialNumber  : 0000_0000_0000_0000_ACE4_2E00_3B1B_1356.
+Size          : 256052966400
+InterfaceType : SCSI
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 255374790656
+FreeSpace  : 218754314240
+VolumeName : SYSTEM
+
+
+
+ 
+==== FIN DEL INFORME ==== 

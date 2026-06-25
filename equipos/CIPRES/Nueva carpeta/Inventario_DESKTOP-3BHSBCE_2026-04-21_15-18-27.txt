@@ -1,0 +1,170 @@
+=============================== 
+ INVENTARIO DE EQUIPO DESKTOP-3BHSBCE 
+ Fecha: mar. 21/04/2026 - Hora: 15:18:27,66 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : System Serial Number
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            DESKTOP-3BHSBCE
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              SOPORTE
+Organizaci¢n registrada:                   
+Id. del producto:                          00330-80000-00000-AA383
+Fecha de instalaci¢n original:             20/12/2022, 1:43:53 p. m.
+Tiempo de arranque del sistema:            8/04/2026, 10:52:57 a. m.
+Fabricante del sistema:                    System manufacturer
+Modelo el sistema:                         System Product Name
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 158 Stepping 11 GenuineIntel ~3600 Mhz
+Versi¢n del BIOS:                          American Megatrends Inc. 0402, 19/03/2018
+Directorio de Windows:                     C:\WINDOWS
+Directorio de sistema:                     C:\WINDOWS\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume2
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es;Espa¤ol (tradicional)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          3.937 MB
+Memoria f¡sica disponible:                 807 MB
+Memoria virtual: tama¤o m ximo:            8.479 MB
+Memoria virtual: disponible:               3.550 MB
+Memoria virtual: en uso:                   4.929 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\DESKTOP-3BHSBCE
+Revisi¢n(es):                              35 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5028853
+                                           [03]: KB5011048
+                                           [04]: KB5011056
+                                           [05]: KB5012170
+                                           [06]: KB5015684
+                                           [07]: KB5072653
+                                           [08]: KB5071959
+                                           [09]: KB5018506
+                                           [10]: KB5020372
+                                           [11]: KB5023794
+                                           [12]: KB5026879
+                                           [13]: KB5028318
+                                           [14]: KB5028380
+                                           [15]: KB5029709
+                                           [16]: KB5031539
+                                           [17]: KB5032392
+                                           [18]: KB5032907
+                                           [19]: KB5034224
+                                           [20]: KB5036447
+                                           [21]: KB5037018
+                                           [22]: KB5037240
+                                           [23]: KB5037995
+                                           [24]: KB5039336
+                                           [25]: KB5041579
+                                           [26]: KB5043935
+                                           [27]: KB5050111
+                                           [28]: KB5052916
+                                           [29]: KB5054682
+                                           [30]: KB5058526
+                                           [31]: KB5063706
+                                           [32]: KB5063261
+                                           [33]: KB5063979
+                                           [34]: KB5066790
+                                           [35]: KB5071982
+Tarjeta(s) de red:                         5 Tarjetas de interfaz de red instaladas.
+                                           [01]: TAP-Windows Adapter V9
+                                                 Nombre de conexi¢n: Conexi¢n de  rea local
+                                                 Estado:             Medios desconectados
+                                           [02]: Wintun Userspace Tunnel
+                                                 Nombre de conexi¢n: OpenVPN Wintun
+                                                 Estado:             Medios desconectados
+                                           [03]: Realtek PCIe GbE Family Controller
+                                                 Nombre de conexi¢n: Ethernet
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.18.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.18.7
+                                                 [02]: fe80::d27a:e840:ef86:e719
+                                           [04]: TP-Link Gigabit PCI Express Adapter
+                                                 Nombre de conexi¢n: Ethernet 3
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.131.7
+                                                 Direcciones IP
+                                                 [01]: 192.168.131.100
+                                                 [02]: fe80::e79:2f86:cac0:9786
+                                           [05]: TP-LINK Gigabit Ethernet USB Adapter
+                                                 Nombre de conexi¢n: Ethernet 2
+                                                 Estado:             Medios desconectados
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: No
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i3-8100 CPU @ 3.60GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 3600
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : A-DATA
+PartNumber   :                     
+Capacity     : 4294967296
+Speed        : 2400
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : ST1000DM010-2EP102
+SerialNumber  :             ZN11PQM5
+Size          : 1000202273280
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 429239824384
+FreeSpace  : 366526926848
+VolumeName : 
+
+DeviceID   : D:
+FileSystem : NTFS
+Size       : 570286927872
+FreeSpace  : 570167361536
+VolumeName : 
+
+DeviceID   : F:
+FileSystem : 
+Size       : 
+FreeSpace  : 
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

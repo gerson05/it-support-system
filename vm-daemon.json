@@ -1,0 +1,1 @@
+{"proxies":{"no-proxy":"localhost,127.0.0.1,registry-1.docker.io,auth.docker.io,*.docker.io,*.docker.com,production.cloudflare.docker.com,index.docker.io"}}

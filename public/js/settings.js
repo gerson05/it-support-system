@@ -59,6 +59,18 @@ export async function renderSettings(container) {
         </p>
       </div>
 
+      <!-- Herramientas externas -->
+      <div class="card">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-3);margin-bottom:14px;">Herramientas Externas</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px;">MediCalc</div>
+            <div style="font-size:12px;color:var(--text-3);line-height:1.5;">Calculadora de dispensación segura — Medivalle SF S.A.S</div>
+          </div>
+          <a href="/medicalc.html" target="_blank" class="btn btn-secondary btn-small" style="white-space:nowrap;text-decoration:none;">Abrir →</a>
+        </div>
+      </div>
+
     </div>
   `;
 

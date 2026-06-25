@@ -1,0 +1,78 @@
+# ── Dependencias (se instalan dentro del contenedor) ──
+node_modules
+client/node_modules
+agent/node_modules
+despliegue-agente/node_modules
+
+# ── Base de datos local (se usa volumen en Docker) ────
+database/*.db
+database/*.db-journal
+database/*.db-wal
+database/*.db-shm
+
+# ── Archivos de usuario / uploads locales ─────────────
+uploads/*
+!uploads/.gitkeep
+exports/*
+!exports/.gitkeep
+
+# ── Sesión WhatsApp local ─────────────────────────────
+.wwebjs_auth/
+.wwebjs_cache/
+database/wwebjs-auth/
+database/wwebjs-cache/
+
+# ── Control de versiones ──────────────────────────────
+.git
+.gitignore
+.github
+
+# ── IDEs y editores ───────────────────────────────────
+.vscode
+.cursor
+.claude
+.gemini
+.kiro
+.qoder
+.superpowers
+.windsurfrules
+.cursorrules
+
+# ── Archivos de configuración de agentes / MCP ────────
+.mcp.json
+.opencode.json
+AGENTS.md
+CLAUDE.md
+GEMINI.md
+QODER.md
+INSTRUCCIONES.md
+
+# ── Logs ──────────────────────────────────────────────
+*.log
+server.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ── Docker (no se necesita dentro del contenedor) ─────
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# ── Documentación / planificación ─────────────────────
+README.md
+docs/
+task.md
+implementation_plan.md
+walkthrough.md
+
+# ── Archivos temporales y de test ─────────────────────
+test-*.png
+test-*.docx
+test-*.mjs
+test-*.cjs
+*.xlsx
+*.tmp
+
+# ── Cliente React (no se usa, frontend es vanilla JS en public/) ──
+client/

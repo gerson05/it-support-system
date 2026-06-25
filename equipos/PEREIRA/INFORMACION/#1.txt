@@ -1,0 +1,130 @@
+=============================== 
+ INVENTARIO DE EQUIPO MISTRATO03 
+ Fecha: jue. 23/04/2026 - Hora:  9:49:46,60 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : 8CG82641VY
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            MISTRATO03
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              Usuario de Windows
+Organizaci¢n registrada:                   
+Id. del producto:                          00330-51221-39341-AAOEM
+Fecha de instalaci¢n original:             21/10/2020, 3:23:15 p.ÿm.
+Tiempo de arranque del sistema:            9/03/2026, 9:46:17 a.ÿm.
+Fabricante del sistema:                    HP
+Modelo el sistema:                         HP EliteDesk 800 G3 DM 35W
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 94 Stepping 3 GenuineIntel ~2304 Mhz
+Versi¢n del BIOS:                          HP P21 Ver. 02.22, 17/07/2018
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume2
+Configuraci¢n regional del sistema:        es-co;Espa¤ol (Colombia)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.071 MB
+Memoria f¡sica disponible:                 2.830 MB
+Memoria virtual: tama¤o m ximo:            10.351 MB
+Memoria virtual: disponible:               1.914 MB
+Memoria virtual: en uso:                   8.437 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\MISTRATO03
+Revisi¢n(es):                              12 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5066135
+                                           [03]: KB4537759
+                                           [04]: KB4557968
+                                           [05]: KB5011048
+                                           [06]: KB5011056
+                                           [07]: KB5015684
+                                           [08]: KB5033052
+                                           [09]: KB5072653
+                                           [10]: KB5071959
+                                           [11]: KB5066790
+                                           [12]: KB5071982
+Tarjeta(s) de red:                         3 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) Dual Band Wireless-AC 8265
+                                                 Nombre de conexi¢n: Wi-Fi 2
+                                                 Estado:             Medios desconectados
+                                           [02]: Intel(R) Ethernet Connection (5) I219-LM
+                                                 Nombre de conexi¢n: Ethernet 2
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.1.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.1.29
+                                                 [02]: fe80::f18c:d05f:8137:c200
+                                           [03]: Bluetooth Device (Personal Area Network)
+                                                 Nombre de conexi¢n: Conexi¢n de red Bluetooth
+                                                 Estado:             Medios desconectados
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: No
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-8500T CPU
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 2304
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : Ramaxel
+PartNumber   : RMSA3270ME86H9F-2666
+Capacity     : 4294967296
+Speed        : 2133
+
+Manufacturer : Micron
+PartNumber   : 4ATF51264HZ-2G6E1   
+Capacity     : 4294967296
+Speed        : 2133
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : AT422
+SerialNumber  : 421000150998
+Size          : 256052966400
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 255414235136
+FreeSpace  : 181094379520
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

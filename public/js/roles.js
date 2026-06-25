@@ -285,7 +285,7 @@ function _showNewRoleForm() {
     <div style="background:var(--surface-2);border:1px solid var(--primary);border-radius:8px;padding:14px;margin-bottom:8px;">
       <div style="font-size:13px;font-weight:600;color:var(--text-1);margin-bottom:12px;">Nuevo rol</div>
       <div id="new-role-error" style="display:none;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);
-        color:#fca5a5;border-radius:6px;padding:8px 12px;font-size:13px;margin-bottom:10px;"></div>
+        color:var(--danger);border-radius:6px;padding:8px 12px;font-size:13px;margin-bottom:10px;"></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
         <div>
           <label style="font-size:12px;color:var(--text-2);display:block;margin-bottom:4px;">Nombre *</label>

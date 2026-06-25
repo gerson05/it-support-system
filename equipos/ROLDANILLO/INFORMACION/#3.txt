@@ -1,0 +1,113 @@
+=============================== 
+ INVENTARIO DE EQUIPO DISP02 
+ Fecha: mi‚. 22/04/2026 - Hora: 11:12:13,00 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : MJ04A2TE
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            DISP02
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.18363 N/D Compilaci¢n 18363
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              User
+Organizaci¢n registrada:                   
+Id. del producto:                          00330-80000-00000-AA095
+Fecha de instalaci¢n original:             12/06/2022, 2:01:17 p. m.
+Tiempo de arranque del sistema:            10/04/2026, 4:21:17 p. m.
+Fabricante del sistema:                    LENOVO
+Modelo el sistema:                         10FLS0E000
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 94 Stepping 3 GenuineIntel ~2496 Mhz
+Versi¢n del BIOS:                          LENOVO FWKT54A  , 24/06/2016
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume2
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.082 MB
+Memoria f¡sica disponible:                 3.633 MB
+Memoria virtual: tama¤o m ximo:            9.362 MB
+Memoria virtual: disponible:               4.169 MB
+Memoria virtual: en uso:                   5.193 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\DISP02
+Revisi¢n(es):                              6 revisi¢n(es) instaladas.
+                                           [01]: KB4515871
+                                           [02]: KB4513661
+                                           [03]: KB4516115
+                                           [04]: KB4517245
+                                           [05]: KB4521863
+                                           [06]: KB4517389
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) Ethernet Connection (2) I219-LM
+                                                 Nombre de conexi¢n: Ethernet 3
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.100.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.100.45
+                                                 [02]: fe80::ed9e:ee4d:23f4:da94
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: No
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-6500T CPU @ 2.50GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 2496
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : Samsung
+PartNumber   : M471A1K43BB0-CPB    
+Capacity     : 8589934592
+Speed        : 2133
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : KINGSTON SNVS250G
+SerialNumber  : 0000_0000_0000_0000_0026_B768_51F9_EFE5.
+Size          : 250056737280
+InterfaceType : SCSI
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 249819033600
+FreeSpace  : 210224787456
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

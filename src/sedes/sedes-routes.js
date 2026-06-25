@@ -197,4 +197,65 @@ router.delete('/api/sedes/:id', requireAuth, requirePermission('sedes:delete'), 
   }
 });
 
+/* ── Bodegas (para despachos) ─────────────────────────────────────────── */
+
+router.get('/api/bodegas', requireAuth, requirePermission('sedes:read'), (req, res) => {
+  try {
+    const rows = db.prepare('SELECT * FROM bodegas ORDER BY ciudad, nombre').all();
+    const grouped = {};
+    for (const b of rows) {
+      if (!grouped[b.ciudad]) grouped[b.ciudad] = [];
+      grouped[b.ciudad].push({ id: b.id, nombre_punto: b.nombre, activo: b.activo });
+    }
+    res.json({ grouped, total: rows.length, rows });
+  } catch (e) {
+    console.error('Error GET /api/bodegas:', e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+router.post('/api/bodegas', requireAuth, requirePermission('sedes:create'), (req, res) => {
+  try {
+    const { nombre, ciudad } = req.body;
+    if (!nombre?.trim() || !ciudad?.trim()) {
+      return res.status(400).json({ error: 'Nombre y ciudad son obligatorios.' });
+    }
+    const result = db.prepare(
+      'INSERT INTO bodegas (nombre, ciudad) VALUES (?, ?)'
+    ).run(nombre.trim(), ciudad.trim().toUpperCase());
+    res.status(201).json({ success: true, id: result.lastInsertRowid });
+  } catch (e) {
+    console.error('Error POST /api/bodegas:', e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+router.put('/api/bodegas/:id', requireAuth, requirePermission('sedes:edit'), (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const { nombre, ciudad, activo } = req.body;
+    const fields = [], values = [];
+    if (nombre  !== undefined) { fields.push('nombre=?');  values.push(nombre.trim()); }
+    if (ciudad  !== undefined) { fields.push('ciudad=?');  values.push(ciudad.trim().toUpperCase()); }
+    if (activo  !== undefined) { fields.push('activo=?');  values.push(activo ? 1 : 0); }
+    if (!fields.length) return res.status(400).json({ error: 'Nada que actualizar.' });
+    values.push(id);
+    db.prepare(`UPDATE bodegas SET ${fields.join(',')} WHERE id=?`).run(...values);
+    res.json({ success: true });
+  } catch (e) {
+    console.error('Error PUT /api/bodegas:', e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+router.delete('/api/bodegas/:id', requireAuth, requirePermission('sedes:delete'), (req, res) => {
+  try {
+    db.prepare('UPDATE bodegas SET activo=0 WHERE id=?').run(parseInt(req.params.id));
+    res.json({ success: true });
+  } catch (e) {
+    console.error('Error DELETE /api/bodegas:', e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 export default router;

@@ -1,0 +1,141 @@
+=============================== 
+ INVENTARIO DE EQUIPO ANSERMAN01 
+ Fecha: mar. 21/04/2026 - Hora: 10:40:00.80 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : System Serial Number
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            ANSERMAN01
+Nombre del sistema operativo:              Microsoft Windows 10 Home
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              USUARIO
+Organizaci¢n registrada:                   
+Id. del producto:                          00326-10000-00000-AA951
+Fecha de instalaci¢n original:             1/08/2024, 12:24:25 p.ÿm.
+Tiempo de arranque del sistema:            29/01/2026, 9:34:31 a.ÿm.
+Fabricante del sistema:                    System manufacturer
+Modelo el sistema:                         System Product Name
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 158 Stepping 9 GenuineIntel ~3900 Mhz
+Versi¢n del BIOS:                          American Megatrends Inc. 3401, 16/03/2017
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8,061 MB
+Memoria f¡sica disponible:                 2,579 MB
+Memoria virtual: tama¤o m ximo:            9,921 MB
+Memoria virtual: disponible:               2,777 MB
+Memoria virtual: en uso:                   7,144 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\ANSERMAN01
+Revisi¢n(es):                              26 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5041167
+                                           [03]: KB5011048
+                                           [04]: KB5011056
+                                           [05]: KB5015684
+                                           [06]: KB5072653
+                                           [07]: KB5071959
+                                           [08]: KB5014032
+                                           [09]: KB5032907
+                                           [10]: KB5039336
+                                           [11]: KB5040565
+                                           [12]: KB5041579
+                                           [13]: KB5043935
+                                           [14]: KB5043130
+                                           [15]: KB5046823
+                                           [16]: KB5050388
+                                           [17]: KB5050111
+                                           [18]: KB5052916
+                                           [19]: KB5054682
+                                           [20]: KB5058526
+                                           [21]: KB5059504
+                                           [22]: KB5063706
+                                           [23]: KB5063261
+                                           [24]: KB5063979
+                                           [25]: KB5066790
+                                           [26]: KB5071982
+Tarjeta(s) de red:                         2 Tarjetas de interfaz de red instaladas.
+                                           [01]: Realtek PCIe GBE Family Controller
+                                                 Nombre de conexi¢n: Ethernet
+                                                 Estado:             Medios desconectados
+                                           [02]: Realtek RTL8188EU Wireless LAN 802.11n USB 2.0 Network Adapter
+                                                 Nombre de conexi¢n: Wi-Fi 3
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.100.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.100.4
+                                                 [02]: fe80::77b4:1477:7a20:d55b
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: No
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i3-7100 CPU @ 3.90GHz
+NumberOfCores             : 2
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 3900
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : A-DATA
+PartNumber   :                     
+Capacity     : 4294967296
+Speed        : 2400
+
+Manufacturer : Avant
+PartNumber   : W6451U67J7240N7     
+Capacity     : 4294967296
+Speed        : 2400
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : ADATA SU650
+SerialNumber  : 2O022LSBACTP
+Size          : 256052966400
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 254300958720
+FreeSpace  : 172270211072
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

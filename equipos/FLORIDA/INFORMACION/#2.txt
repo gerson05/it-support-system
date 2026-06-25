@@ -1,0 +1,143 @@
+=============================== 
+ INVENTARIO DE EQUIPO MFLORIDA01 
+ Fecha: jue. 23/04/2026 - Hora: 11:19:53,05 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : 91ZQHN2
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            MFLORIDA01
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              Usuario de Windows
+Organizaci¢n registrada:                   
+Id. del producto:                          00330-80000-00000-AA876
+Fecha de instalaci¢n original:             21/10/2020, 3:23:15 p.ÿm.
+Tiempo de arranque del sistema:            13/04/2026, 8:03:30 a.ÿm.
+Fabricante del sistema:                    Dell Inc.
+Modelo el sistema:                         OptiPlex 7050
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 158 Stepping 9 GenuineIntel ~2712 Mhz
+Versi¢n del BIOS:                          Dell Inc. 1.27.0, 18/09/2023
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume2
+Configuraci¢n regional del sistema:        es-co;Espa¤ol (Colombia)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.055 MB
+Memoria f¡sica disponible:                 2.069 MB
+Memoria virtual: tama¤o m ximo:            11.921 MB
+Memoria virtual: disponible:               2.329 MB
+Memoria virtual: en uso:                   9.592 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\MFLORIDA01
+Revisi¢n(es):                              25 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5042056
+                                           [03]: KB4537759
+                                           [04]: KB4557968
+                                           [05]: KB5011048
+                                           [06]: KB5011056
+                                           [07]: KB5015684
+                                           [08]: KB5033052
+                                           [09]: KB5072653
+                                           [10]: KB5071959
+                                           [11]: KB5041579
+                                           [12]: KB5043935
+                                           [13]: KB5043130
+                                           [14]: KB5046823
+                                           [15]: KB5050388
+                                           [16]: KB5050111
+                                           [17]: KB5052916
+                                           [18]: KB5054682
+                                           [19]: KB5058526
+                                           [20]: KB5059504
+                                           [21]: KB5063706
+                                           [22]: KB5063261
+                                           [23]: KB5063979
+                                           [24]: KB5066790
+                                           [25]: KB5071982
+Tarjeta(s) de red:                         3 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) Ethernet Connection (5) I219-LM
+                                                 Nombre de conexi¢n: Ethernet 2
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.0.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.0.101
+                                                 [02]: fe80::bff1:3d86:6fe8:2bb6
+                                           [02]: Intel(R) Dual Band Wireless-AC 8265
+                                                 Nombre de conexi¢n: Wi-Fi 2
+                                                 Estado:             Medios desconectados
+                                           [03]: Bluetooth Device (Personal Area Network)
+                                                 Nombre de conexi¢n: Conexi¢n de red Bluetooth
+                                                 Estado:             Medios desconectados
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: S¡
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-7500T CPU @ 2.70GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 2712
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : 000000000080
+PartNumber   : SAT RC4G2400S       
+Capacity     : 4294967296
+Speed        : 2400
+
+Manufacturer : 80AD000080AD
+PartNumber   : HMA851S6DJR6N-XN    
+Capacity     : 4294967296
+Speed        : 3200
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : KXG6AZNV256G TOSHIBA
+SerialNumber  : 8CE3_8E05_0055_C612.
+Size          : 256052966400
+InterfaceType : SCSI
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 255414235136
+FreeSpace  : 134934560768
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

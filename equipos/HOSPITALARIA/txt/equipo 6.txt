@@ -1,0 +1,127 @@
+=============================== 
+ INVENTARIO DE EQUIPO DISP06 
+ Fecha: mar. 21/04/2026 - Hora: 15:50:13,33 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : MJ06X4TD
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            DISP06
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              Lenovo
+Organizaci¢n registrada:                   
+Id. del producto:                          00330-51131-03454-AAOEM
+Fecha de instalaci¢n original:             14/02/2026, 1:26:35 p.ÿm.
+Tiempo de arranque del sistema:            16/04/2026, 1:39:53 p.ÿm.
+Fabricante del sistema:                    LENOVO
+Modelo el sistema:                         10MR002XUS
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 158 Stepping 9 GenuineIntel ~3408 Mhz
+Versi¢n del BIOS:                          LENOVO M1AKT35A, 21/03/2018
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es-mx;Espa¤ol (M‚xico)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.080 MB
+Memoria f¡sica disponible:                 3.323 MB
+Memoria virtual: tama¤o m ximo:            9.360 MB
+Memoria virtual: disponible:               3.190 MB
+Memoria virtual: en uso:                   6.170 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\DISP06
+Revisi¢n(es):                              10 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5066135
+                                           [03]: KB5011048
+                                           [04]: KB5015684
+                                           [05]: KB5033052
+                                           [06]: KB5072653
+                                           [07]: KB5066791
+                                           [08]: KB5014032
+                                           [09]: KB5025315
+                                           [10]: KB5066790
+Tarjeta(s) de red:                         3 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) Ethernet Connection (2) I219-V
+                                                 Nombre de conexi¢n: Ethernet
+                                                 DHCP habilitado:    No
+                                                 Direcciones IP
+                                                 [01]: 10.1.1.56
+                                                 [02]: fe80::1d5e:8c34:1fbe:4eb1
+                                           [02]: Intel(R) Dual Band Wireless-AC 3165
+                                                 Nombre de conexi¢n: Wi-Fi
+                                                 Estado:             Medios desconectados
+                                           [03]: Bluetooth Device (Personal Area Network)
+                                                 Nombre de conexi¢n: Conexi¢n de red Bluetooth
+                                                 Estado:             Medios desconectados
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: No
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-7500 CPU @ 3.40GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 3408
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : Samsung
+PartNumber   : M471A5244CB0-CTD    
+Capacity     : 4294967296
+Speed        : 2667
+
+Manufacturer : SK Hynix
+PartNumber   : HMA851S6AFR6N-UH    
+Capacity     : 4294967296
+Speed        : 2400
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : MTFDHBA256TCK-1AS1AABHA
+SerialNumber  : 0000_0000_0000_0001_00A0_7519_222C_30A8.
+Size          : 256052966400
+InterfaceType : SCSI
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 255375003648
+FreeSpace  : 199355494400
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

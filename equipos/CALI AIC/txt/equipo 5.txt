@@ -1,0 +1,131 @@
+=============================== 
+ INVENTARIO DE EQUIPO DESKTOP-80TMHAB 
+ Fecha: mar. 21/04/2026 - Hora: 12:18:45,51 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : FKP0JL2
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            DESKTOP-80TMHAB
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              Dell
+Organizaci¢n registrada:                   
+Id. del producto:                          00330-50703-47766-AAOEM
+Fecha de instalaci¢n original:             29/08/2024, 12:05:22 p.ÿm.
+Tiempo de arranque del sistema:            10/04/2026, 6:57:15 a.ÿm.
+Fabricante del sistema:                    Dell Inc.
+Modelo el sistema:                         OptiPlex 7050
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 158 Stepping 9 GenuineIntel ~2712 Mhz
+Versi¢n del BIOS:                          Dell Inc. 1.27.0, 18/09/2023
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es-mx;Espa¤ol (M‚xico)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.055 MB
+Memoria f¡sica disponible:                 3.467 MB
+Memoria virtual: tama¤o m ximo:            10.103 MB
+Memoria virtual: disponible:               3.621 MB
+Memoria virtual: en uso:                   6.482 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\DESKTOP-80TMHAB
+Revisi¢n(es):                              24 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5042056
+                                           [03]: KB5011048
+                                           [04]: KB5015684
+                                           [05]: KB5033052
+                                           [06]: KB5072653
+                                           [07]: KB5071959
+                                           [08]: KB5014032
+                                           [09]: KB5025315
+                                           [10]: KB5041579
+                                           [11]: KB5043935
+                                           [12]: KB5043130
+                                           [13]: KB5046823
+                                           [14]: KB5050388
+                                           [15]: KB5050111
+                                           [16]: KB5052916
+                                           [17]: KB5054682
+                                           [18]: KB5058526
+                                           [19]: KB5059504
+                                           [20]: KB5063706
+                                           [21]: KB5063261
+                                           [22]: KB5063979
+                                           [23]: KB5066790
+                                           [24]: KB5071982
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) Ethernet Connection (5) I219-LM
+                                                 Nombre de conexi¢n: Ethernet
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.20.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.20.6
+                                                 [02]: fe80::d8d0:8bde:e671:a892
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: S¡
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-7500T CPU @ 2.70GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 2712
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : 859B0000802C
+PartNumber   : CT8G4SFD824A.C16FF  
+Capacity     : 8589934592
+Speed        : 2400
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : NVME SSD 256GB
+SerialNumber  : 0000_0000_0000_0000_00E0_4C14_FB95_7F9C.
+Size          : 256052966400
+InterfaceType : SCSI
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 255375003648
+FreeSpace  : 159473545216
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

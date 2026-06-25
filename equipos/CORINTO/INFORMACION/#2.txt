@@ -1,0 +1,124 @@
+=============================== 
+ INVENTARIO DE EQUIPO MFCORINTO1 
+ Fecha: lun. 27/04/2026 - Hora: 15:44:41,14 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : System Serial Number
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            MFCORINTO1
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              MI FARMACIA CORINTO
+Organizaci¢n registrada:                   
+Id. del producto:                          00330-80000-00000-AA075
+Fecha de instalaci¢n original:             19/11/2025, 9:45:03 a.ÿm.
+Tiempo de arranque del sistema:            22/04/2026, 4:33:56 p.ÿm.
+Fabricante del sistema:                    System manufacturer
+Modelo el sistema:                         System Product Name
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 158 Stepping 11 GenuineIntel ~3600 Mhz
+Versi¢n del BIOS:                          American Megatrends Inc. 0803, 20/06/2018
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.039 MB
+Memoria f¡sica disponible:                 3.764 MB
+Memoria virtual: tama¤o m ximo:            8.551 MB
+Memoria virtual: disponible:               4.392 MB
+Memoria virtual: en uso:                   4.159 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\MFCORINTO1
+Revisi¢n(es):                              6 revisi¢n(es) instaladas.
+                                           [01]: KB5042056
+                                           [02]: KB5015684
+                                           [03]: KB5048652
+                                           [04]: KB5014032
+                                           [05]: KB5025315
+                                           [06]: KB5046823
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Realtek PCIe GbE Family Controller
+                                                 Nombre de conexi¢n: Ethernet
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.10.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.10.161
+                                                 [02]: fe80::17f2:b986:5d59:65fe
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: No
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i3-8100 CPU @ 3.60GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 3600
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : A-DATA
+PartNumber   :                     
+Capacity     : 4294967296
+Speed        : 2400
+
+Manufacturer : A-DATA
+PartNumber   :                     
+Capacity     : 4294967296
+Speed        : 2400
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : SATA SSD
+SerialNumber  : 2209162560277
+Size          : 256052966400
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 255374790656
+FreeSpace  : 202119626752
+VolumeName : SYSTEM
+
+DeviceID   : D:
+FileSystem : 
+Size       : 
+FreeSpace  : 
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

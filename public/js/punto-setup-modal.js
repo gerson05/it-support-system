@@ -38,7 +38,7 @@ function stepsHtml(active) {
   }).join('');
 }
 
-export function openPuntoSetupModal(onSuccess) {
+export function openPuntoSetupModal(onSuccess, ciudadesExistentes = []) {
   let currentStep = 1;
   const data = { ciudad: '', nombre_punto: '', responsable: '', articulos: [] };
   let step2rowCount = { value: 1 };
@@ -65,8 +65,14 @@ export function openPuntoSetupModal(onSuccess) {
         <div style="display:flex;flex-direction:column;gap:12px;">
           <div>
             <label style="display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:4px;">CIUDAD *</label>
-            <input id="ps-ciudad" type="text" value="${esc(data.ciudad)}" placeholder="Ej: CALI, BOGOTÁ…"
-              style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:13px;box-sizing:border-box;text-transform:uppercase;">
+            <select id="ps-ciudad-sel" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:13px;box-sizing:border-box;">
+              <option value="">-- Seleccionar ciudad --</option>
+              ${ciudadesExistentes.map(c => `<option value="${esc(c)}"${data.ciudad === c ? ' selected' : ''}>${esc(c)}</option>`).join('')}
+              <option value="__nueva__"${data.ciudad && !ciudadesExistentes.includes(data.ciudad) ? ' selected' : ''}>+ Nueva ciudad…</option>
+            </select>
+            <input id="ps-ciudad-nueva" type="text" value="${esc(!ciudadesExistentes.includes(data.ciudad) ? data.ciudad : '')}"
+              placeholder="Nombre de la ciudad (ej: CALI)"
+              style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:13px;box-sizing:border-box;text-transform:uppercase;margin-top:6px;${data.ciudad && !ciudadesExistentes.includes(data.ciudad) ? '' : 'display:none;'}">
           </div>
           <div>
             <label style="display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:4px;">NOMBRE DEL PUNTO *</label>
@@ -85,17 +91,28 @@ export function openPuntoSetupModal(onSuccess) {
         </div>`;
 
       body.querySelector('#ps-cancel').addEventListener('click', () => overlay.remove());
+
+      const sel = body.querySelector('#ps-ciudad-sel');
+      const nuevaInput = body.querySelector('#ps-ciudad-nueva');
+      sel.addEventListener('change', () => {
+        nuevaInput.style.display = sel.value === '__nueva__' ? '' : 'none';
+        if (sel.value === '__nueva__') setTimeout(() => nuevaInput.focus(), 30);
+      });
+
       body.querySelector('#ps-next1').addEventListener('click', () => {
-        const ciudad = body.querySelector('#ps-ciudad').value.trim().toUpperCase();
+        const ciudad = sel.value === '__nueva__'
+          ? nuevaInput.value.trim().toUpperCase()
+          : sel.value;
         const nombre = body.querySelector('#ps-nombre').value.trim();
-        if (!ciudad || !nombre) { showToast('Ciudad y nombre del punto son obligatorios', 'error'); return; }
+        if (!ciudad) { showToast('Selecciona o escribe una ciudad', 'error'); return; }
+        if (!nombre) { showToast('El nombre del punto es obligatorio', 'error'); return; }
         data.ciudad = ciudad;
         data.nombre_punto = nombre;
         data.responsable = body.querySelector('#ps-responsable').value.trim();
         currentStep = 2;
         render();
       });
-      setTimeout(() => body.querySelector('#ps-ciudad')?.focus(), 50);
+      setTimeout(() => body.querySelector('#ps-ciudad-sel')?.focus(), 50);
     }
 
     else if (currentStep === 2) {

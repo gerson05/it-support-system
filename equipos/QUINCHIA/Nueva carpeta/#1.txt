@@ -1,0 +1,131 @@
+=============================== 
+ INVENTARIO DE EQUIPO AUXCONTA1 
+ Fecha: 27/04/2026 - Hora: 10:05:01.07 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : FLXWHL2
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            AUXCONTA1
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              Usuario de Windows
+Organizaci¢n registrada:                   
+Id. del producto:                          00331-10000-00001-AA156
+Fecha de instalaci¢n original:             21/10/2020, 03:23:15 p.ÿm.
+Tiempo de arranque del sistema:            16/04/2026, 04:09:38 p.ÿm.
+Fabricante del sistema:                    Dell Inc.
+Modelo el sistema:                         OptiPlex 7050
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 94 Stepping 3 GenuineIntel ~2712 Mhz
+Versi¢n del BIOS:                          Dell Inc. 1.27.0, 18/09/2023
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume2
+Configuraci¢n regional del sistema:        es-co;Espa¤ol (Colombia)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8,055 MB
+Memoria f¡sica disponible:                 3,662 MB
+Memoria virtual: tama¤o m ximo:            9,335 MB
+Memoria virtual: disponible:               4,704 MB
+Memoria virtual: en uso:                   4,631 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\AUXCONTA1
+Revisi¢n(es):                              20 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5056577
+                                           [03]: KB4537759
+                                           [04]: KB4557968
+                                           [05]: KB5011048
+                                           [06]: KB5011056
+                                           [07]: KB5015684
+                                           [08]: KB5033052
+                                           [09]: KB5072653
+                                           [10]: KB5071959
+                                           [11]: KB5007273
+                                           [12]: KB5052916
+                                           [13]: KB5054682
+                                           [14]: KB5058526
+                                           [15]: KB5059504
+                                           [16]: KB5063706
+                                           [17]: KB5063261
+                                           [18]: KB5063979
+                                           [19]: KB5066790
+                                           [20]: KB5071982
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) Ethernet Connection (5) I219-LM
+                                                 Nombre de conexi¢n: Ethernet 3
+                                                 DHCP habilitado:    No
+                                                 Direcciones IP
+                                                 [01]: 192.168.100.133
+                                                 [02]: fe80::fe76:53e8:eef2:81de
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: S¡
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-8500T CPU
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 2712
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : 80CE000080CE
+PartNumber   : M471A5244CB0-CWE    
+Capacity     : 4294967296
+Speed        : 3200
+
+Manufacturer : 802C0000802C
+PartNumber   : 4ATF51264HZ-3G2R1   
+Capacity     : 4294967296
+Speed        : 3200
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : SanDisk SD8SB8U-256G-1006
+SerialNumber  : 173608425305
+Size          : 256052966400
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 255414235136
+FreeSpace  : 126843584512
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

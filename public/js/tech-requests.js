@@ -1,16 +1,20 @@
-/**
- * Módulo de Requerimientos Tecnológicos e Incidencias.
- * Vista principal: lista filtrable con pestañas y modal de nueva solicitud.
+﻿/**
+ * tech-requests.js â€” Entry point (slim orchestrator)
+ *
+ * Only exports: renderTechRequests(container)
+ * Form modals are now in:
+ *  - tech-request-form.js â†’ openModal, openEditModal
  */
-
-import { showToast, attachSedeSearch } from './components.js';
-import { state } from './app.js';
+import { showToast } from './components.js';
 import { formatDate, formatTimeAgo } from './app.js';
-import { iconSearch, iconPlus, iconClose, iconEdit, iconNote, iconClipboard, iconWrench, iconCopy, iconSave, iconTrash } from './icons.js';
+import {
+  iconSearch, iconPlus, iconEdit, iconClipboard, iconWrench, iconTrash,
+} from './icons.js';
+import { openModal, openEditModal } from './tech-request-form.js';
 
-/* ═══════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    CONSTANTES DE DOMINIO
-   ═══════════════════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 const STATUS_CFG = {
   pendiente:   { label: 'Pendiente',   cls: 'badge-pendiente'  },
@@ -36,9 +40,25 @@ function priorityBadge(p) {
   return `<span class="badge ${c.cls}">${c.label}</span>`;
 }
 
-/* ═══════════════════════════════════════════════════
+const TH = 'padding:10px 12px;text-align:left;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;';
+const TD = 'padding:10px 12px;font-size:13px;';
+
+function renderPagination(data) {
+  if (!data || data.total_pages <= 1) return '';
+  const pages = [];
+  for (let i = 1; i <= data.total_pages; i++) {
+    const active = i === data.page;
+    pages.push(`<button class="tr-page-btn" data-page="${i}"
+      style="padding:4px 10px;font-size:12px;border:1px solid ${active ? 'var(--primary)' : 'var(--border)'};
+             border-radius:6px;background:${active ? 'var(--primary)' : 'var(--surface)'};
+             color:${active ? '#fff' : 'var(--text-2)'};cursor:pointer;">${i}</button>`);
+  }
+  return `<div style="display:flex;gap:6px;justify-content:center;padding:16px 0;">${pages.join('')}</div>`;
+}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    RENDER PRINCIPAL
-   ═══════════════════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 export async function renderTechRequests(container) {
   let activeTab   = 'requerimiento'; // 'requerimiento' | 'incidencia'
@@ -135,7 +155,7 @@ export async function renderTechRequests(container) {
     </div>
   `;
 
-  /* ── Injectar estilos de pestaña ── */
+  /* â”€â”€ Injectar estilos de pestaÃ±a â”€â”€ */
   if (!document.getElementById('tr-tab-styles')) {
     const st = document.createElement('style');
     st.id = 'tr-tab-styles';
@@ -149,7 +169,7 @@ export async function renderTechRequests(container) {
       .tr-row:hover { background:rgba(255,255,255,.04);cursor:pointer; }
       .badge-pendiente { background:rgba(245,158,11,.15);color:#f59e0b; }
 
-      /* ── Modal nueva solicitud ── */
+      /* â”€â”€ Modal nueva solicitud â”€â”€ */
       #tr-modal-overlay { backdrop-filter: blur(4px); }
 
       #tr-modal {
@@ -196,7 +216,7 @@ export async function renderTechRequests(container) {
       .tr-type-card .tc-title { font-size:13px; font-weight:700; color:#e2e8f0; }
       .tr-type-card .tc-desc { font-size:11px; color:#6b7280; margin-top:2px; }
 
-      /* Sección con línea divisora */
+      /* SecciÃ³n con lÃ­nea divisora */
       .tr-section {
         margin-top:20px; padding-top:16px;
         border-top: 1px solid rgba(255,255,255,0.07);
@@ -211,7 +231,7 @@ export async function renderTechRequests(container) {
         background:linear-gradient(90deg,rgba(99,102,241,.3),transparent);
       }
 
-      /* Fila de ítem de equipo */
+      /* Fila de Ã­tem de equipo */
       .tr-item-row {
         display:grid; grid-template-columns:2fr 58px 1fr 30px 30px;
         gap:6px; margin-bottom:8px; align-items:center;
@@ -221,7 +241,7 @@ export async function renderTechRequests(container) {
       }
       .tr-item-row:hover { border-color:rgba(99,102,241,.25); }
 
-      /* Botón add item */
+      /* BotÃ³n add item */
       #tr-btn-add-item {
         background: rgba(99,102,241,.12);
         border: 1px dashed rgba(99,102,241,.45);
@@ -249,7 +269,7 @@ export async function renderTechRequests(container) {
     document.head.appendChild(st);
   }
 
-  /* ── Función de carga de tabla ── */
+  /* â”€â”€ FunciÃ³n de carga de tabla â”€â”€ */
   async function loadTable() {
     const container2 = document.getElementById('tr-table-container');
     container2.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-muted);">Cargando…</div>`;
@@ -265,7 +285,7 @@ export async function renderTechRequests(container) {
       const res  = await fetch(`/api/tech-requests?${params}`);
       const data = await res.json();
 
-      // Actualizar contadores de pestaña
+      // Actualizar contadores de pestaÃ±a
       if (activeTab === 'requerimiento') document.getElementById('count-req').textContent = data.total;
       else                               document.getElementById('count-inc').textContent = data.total;
 
@@ -306,7 +326,7 @@ export async function renderTechRequests(container) {
                     <td style="${TD} font-size:13px;">${r.cargo}</td>
                     <td style="${TD}">${r.sede}</td>
                     ${isInc
-                      ? `<td style="${TD} font-size:12px;">${r.equipment_name || '—'}</td>`
+                      ? `<td style=”${TD} font-size:12px;”>${r.equipment_name || '—'}</td>`
                       : `<td style="${TD} text-align:center;">${r.quantity}</td>`}
                     <td style="${TD}">${statusBadge(r.status)}</td>
                     <td style="${TD} color:var(--text-muted);font-size:12px;" title="${formatDate(r.created_at)}">${formatTimeAgo(r.created_at)}</td>
@@ -316,7 +336,7 @@ export async function renderTechRequests(container) {
                         title="Editar solicitud"
                         onclick="event.stopPropagation();">${iconEdit(11)} Editar</button>
                       <button class="btn-tr-delete" data-id="${r.id}" data-ref="${r.request_number}"
-                        style="padding:4px 10px;font-size:11px;border:1px solid rgba(239,68,68,.35);border-radius:6px;background:rgba(239,68,68,.1);color:#f87171;cursor:pointer;display:inline-flex;align-items:center;gap:5px;margin-left:4px;"
+                        style="padding:4px 10px;font-size:11px;border:1px solid rgba(239,68,68,.35);border-radius:6px;background:rgba(239,68,68,.1);color:var(--danger);cursor:pointer;display:inline-flex;align-items:center;gap:5px;margin-left:4px;"
                         title="Eliminar solicitud"
                         onclick="event.stopPropagation();">${iconTrash(11)}</button>
                     </td>
@@ -345,7 +365,7 @@ export async function renderTechRequests(container) {
                     <span class="tr-card-time" title="${formatDate(r.created_at)}">${formatTimeAgo(r.created_at)}</span>
                   </div>
                   <button class="btn-tr-edit" data-id="${r.id}" onclick="event.stopPropagation();" style="display:inline-flex;align-items:center;gap:5px;">${iconEdit(11)} Editar</button>
-                  <button class="btn-tr-delete" data-id="${r.id}" data-ref="${r.request_number}" onclick="event.stopPropagation();" style="display:inline-flex;align-items:center;gap:5px;border:1px solid rgba(239,68,68,.35);border-radius:6px;background:rgba(239,68,68,.1);color:#f87171;padding:4px 10px;font-size:11px;cursor:pointer;">${iconTrash(11)}</button>
+                  <button class="btn-tr-delete" data-id="${r.id}" data-ref="${r.request_number}" onclick="event.stopPropagation();" style="display:inline-flex;align-items:center;gap:5px;border:1px solid rgba(239,68,68,.35);border-radius:6px;background:rgba(239,68,68,.1);color:var(--danger);padding:4px 10px;font-size:11px;cursor:pointer;">${iconTrash(11)}</button>
                 </div>
               </div>`).join('')}
           </div>
@@ -363,7 +383,7 @@ export async function renderTechRequests(container) {
         }, { passive: false });
       }
 
-      // Clicks en filas → detalle
+      // Clicks en filas â†’ detalle
       container2.querySelectorAll('.tr-row').forEach(row => {
         row.addEventListener('click', () => {
           window.location.hash = `#tech-request/${row.dataset.id}`;
@@ -392,7 +412,7 @@ export async function renderTechRequests(container) {
         });
       });
 
-      // Paginación
+      // PaginaciÃ³n
       container2.querySelectorAll('.tr-page-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           currentPage = parseInt(btn.dataset.page);
@@ -406,7 +426,7 @@ export async function renderTechRequests(container) {
     }
   }
 
-  /* ── Pestañas ── */
+  /* â”€â”€ PestaÃ±as â”€â”€ */
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-active'));
@@ -417,7 +437,7 @@ export async function renderTechRequests(container) {
     });
   });
 
-  /* ── Filtros ── */
+  /* â”€â”€ Filtros â”€â”€ */
   document.getElementById('tr-btn-filter').addEventListener('click', () => {
     filters = {};
     const s = document.getElementById('tr-search').value.trim();
@@ -432,15 +452,15 @@ export async function renderTechRequests(container) {
     loadTable();
   });
 
-  /* ── Enter en campos de filtro ── */
+  /* â”€â”€ Enter en campos de filtro â”€â”€ */
   ['tr-search','tr-sede'].forEach(id => {
     document.getElementById(id)?.addEventListener('keydown', e => {
       if (e.key === 'Enter') document.getElementById('tr-btn-filter').click();
     });
   });
 
-  /* ── Botón Nueva Solicitud ── */
-  /* Botón Ver Registros: abre Google Sheet si está configurado, si no la página interna */
+  /* â”€â”€ BotÃ³n Nueva Solicitud â”€â”€ */
+  /* BotÃ³n Ver Registros: abre Google Sheet si estÃ¡ configurado, si no la pÃ¡gina interna */
   fetch('/api/registros-it/sheet-url')
     .then(r => r.json())
     .then(({ url }) => {
@@ -458,587 +478,12 @@ export async function renderTechRequests(container) {
     openModal(activeTab, loadTable);
   });
 
-  /* ── Carga inicial ── */
+  /* â”€â”€ Carga inicial â”€â”€ */
   loadTable();
-  // Precargar contador de la otra pestaña
+  // Precargar contador de la otra pestaÃ±a
   fetch('/api/tech-requests?type=incidencia&limit=1')
     .then(r => r.json()).then(d => { document.getElementById('count-inc').textContent = d.total ?? 0; });
   fetch('/api/tech-requests?type=requerimiento&limit=1')
     .then(r => r.json()).then(d => { document.getElementById('count-req').textContent = d.total ?? 0; });
-}
-
-/* ═══════════════════════════════════════════════════
-   MODAL NUEVA SOLICITUD
-   ═══════════════════════════════════════════════════ */
-
-function openModal(defaultType, onSuccess) {
-  const overlay = document.getElementById('tr-modal-overlay');
-  const modal   = document.getElementById('tr-modal');
-  overlay.style.display = 'flex';
-
-  // Estado de ítems para requerimientos
-  let modalItems = [{ equipment_name: '', quantity: 1, serial: '' }];
-
-  modal.innerHTML = `
-    <!-- Header con gradiente -->
-    <div style="background:linear-gradient(135deg,rgba(99,102,241,.18),rgba(139,92,246,.12));margin:-32px -32px 24px;padding:24px 28px 20px;border-radius:16px 16px 0 0;border-bottom:1px solid rgba(99,102,241,.2);">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-        <div>
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
-            <div style="width:36px;height:36px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;">${iconNote(18)}</div>
-            <h3 style="font-size:18px;font-weight:700;color:#e2e8f0;">Nueva Solicitud</h3>
-          </div>
-          <p style="font-size:12px;color:#6b7a99;margin-left:46px;">Completa los datos para registrar el requerimiento o incidencia</p>
-        </div>
-        <button id="tr-modal-close" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);width:32px;height:32px;border-radius:8px;cursor:pointer;color:#94a3b8;display:flex;align-items:center;justify-content:center;transition:all .2s;" onmouseover="this.style.background='rgba(255,255,255,.12)'" onmouseout="this.style.background='rgba(255,255,255,.07)'">${iconClose(14)}</button>
-      </div>
-    </div>
-
-    <!-- Tipo de solicitud -->
-    <div style="margin-bottom:4px;">
-      <div style="font-size:11px;font-weight:700;color:#6366f1;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">Tipo de solicitud</div>
-      <div style="display:flex;gap:12px;">
-        <label class="tr-type-card ${defaultType==='requerimiento'?'selected':''}" id="lbl-req" for="tr-type-req">
-          <input type="radio" id="tr-type-req" name="tr-type" value="requerimiento" ${defaultType==='requerimiento'?'checked':''} style="display:none;">
-          <span class="tc-icon">${iconClipboard(22)}</span>
-          <div>
-            <div class="tc-title">Requerimiento</div>
-            <div class="tc-desc">Solicitud de equipo nuevo</div>
-          </div>
-        </label>
-        <label class="tr-type-card ${defaultType==='incidencia'?'selected':''}" id="lbl-inc" for="tr-type-inc">
-          <input type="radio" id="tr-type-inc" name="tr-type" value="incidencia" ${defaultType==='incidencia'?'checked':''} style="display:none;">
-          <span class="tc-icon">${iconWrench(22)}</span>
-          <div>
-            <div class="tc-title">Incidencia</div>
-            <div class="tc-desc">Falla o problema técnico</div>
-          </div>
-        </label>
-      </div>
-    </div>
-
-    <!-- Datos del solicitante -->
-    <div class="tr-section">
-      <div class="tr-section-title">Datos del solicitante</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-        <div class="form-group">
-          <label>Nombre completo *</label>
-          <input type="text" id="tr-f-name" placeholder="Nombre y apellido">
-        </div>
-        <div class="form-group">
-          <label>Cédula *</label>
-          <input type="text" id="tr-f-cedula" placeholder="Número de cédula">
-        </div>
-        <div class="form-group">
-          <label>Cargo *</label>
-          <input type="text" id="tr-f-cargo" placeholder="Ej: Auxiliar contable">
-        </div>
-        <div class="form-group">
-          <label>Sede / Punto *</label>
-          <input type="text" id="tr-f-sede" placeholder="Ej: Sede Central, Clínica Norte…">
-        </div>
-      </div>
-    </div>
-
-    <!-- EQUIPOS SOLICITADOS (solo requerimientos) -->
-    <div id="tr-f-items-section" class="tr-section" style="${defaultType==='incidencia'?'display:none;':''}">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <div class="tr-section-title" style="margin-bottom:0;">Equipos solicitados</div>
-        <button type="button" id="tr-btn-add-item" style="display:inline-flex;align-items:center;gap:5px;">${iconPlus(12)} Agregar equipo</button>
-      </div>
-      <div style="display:grid;grid-template-columns:2fr 58px 1fr 30px 30px;gap:6px;padding:0 8px;margin-bottom:4px;">
-        <span style="font-size:11px;color:#5a607a;">Nombre del equipo *</span>
-        <span style="font-size:11px;color:#5a607a;text-align:center;">Cant.</span>
-        <span style="font-size:11px;color:#5a607a;">Serial / Inv.</span>
-        <span></span>
-        <span></span>
-      </div>
-      <div id="tr-f-items-list"></div>
-    </div>
-
-    <!-- EQUIPO AFECTADO (solo incidencias) -->
-    <div id="tr-f-equipo-wrap" class="tr-section" style="${defaultType==='requerimiento'?'display:none;':''}">
-      <div class="tr-section-title">Equipo afectado</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-        <div class="form-group">
-          <label>Nombre / tipo de equipo</label>
-          <input type="text" id="tr-f-equipo" placeholder="Ej: Portátil Dell, Impresora…">
-        </div>
-        <div class="form-group">
-          <label>Serial o inventario</label>
-          <input type="text" id="tr-f-serial" placeholder="Opcional">
-        </div>
-      </div>
-    </div>
-
-    <!-- Descripción + prioridad -->
-    <div class="tr-section">
-      <div class="tr-section-title">Descripción y prioridad</div>
-      <div style="display:grid;grid-template-columns:2fr 1fr;gap:12px;">
-        <div class="form-group">
-          <label>Descripción *</label>
-          <textarea id="tr-f-desc" rows="3" placeholder="Describe el requerimiento o la falla del equipo…" style="resize:vertical;"></textarea>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:10px;">
-          <div class="form-group" id="tr-f-qty-wrap" style="${defaultType==='requerimiento'?'display:none;':''}">
-            <label>Cantidad</label>
-            <input type="number" id="tr-f-qty" value="1" min="1">
-          </div>
-          <div class="form-group">
-            <label>Prioridad</label>
-            <select id="tr-f-priority">
-              <option value="baja">🟢 Baja</option>
-              <option value="media" selected>🟡 Media</option>
-              <option value="alta">🟠 Alta</option>
-              <option value="critica">🔴 Crítica</option>
-            </select>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Footer -->
-    <div class="tr-modal-footer">
-      <button class="btn btn-secondary" id="tr-modal-cancel" style="padding:10px 20px;">Cancelar</button>
-      <button class="btn btn-primary" id="tr-modal-save" style="padding:10px 24px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border:none;display:inline-flex;align-items:center;gap:7px;">
-        ${iconSave(14)} Guardar Solicitud
-      </button>
-    </div>
-  `;
-
-  /* ── Utilidades de formateo de texto ──────────────────────────── */
-  const toTitleCase   = s => (s || '').toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
-  const toSentenceCase = s => { const v = (s || '').trim(); return v ? v.charAt(0).toUpperCase() + v.slice(1) : v; };
-
-  /* ── Renderizado reactivo de la lista de ítems ── */
-  function renderModalItems() {
-    const cont = document.getElementById('tr-f-items-list');
-    if (!cont) return;
-
-    cont.innerHTML = modalItems.map((item, idx) => `
-      <div class="tr-item-row">
-        <input type="text" class="tr-item-name" data-idx="${idx}"
-          value="${_esc(item.equipment_name)}"
-          placeholder="Ej: Portátil, Monitor, Teclado…">
-        <input type="number" class="tr-item-qty" data-idx="${idx}"
-          value="${item.quantity}" min="1" style="text-align:center;">
-        <input type="text" class="tr-item-serial" data-idx="${idx}"
-          value="${_esc(item.serial)}"
-          placeholder="Serial (opc.)">
-        <button type="button" class="tr-item-dup" data-idx="${idx}"
-          title="Duplicar fila (mismo equipo, serial distinto)"
-          style="background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.25);color:#818cf8;border-radius:6px;width:30px;height:36px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;">${iconCopy(13)}</button>
-        <button type="button" class="tr-item-remove" data-idx="${idx}"
-          title="Quitar equipo"
-          style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.25);color:#f87171;border-radius:6px;width:30px;height:36px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;${modalItems.length <= 1 ? 'opacity:.3;cursor:not-allowed;' : ''}"
-          ${modalItems.length <= 1 ? 'disabled' : ''}>${iconClose(13)}</button>
-      </div>
-    `).join('');
-
-    cont.querySelectorAll('.tr-item-name').forEach(inp => {
-      inp.addEventListener('input', e => { modalItems[+e.target.dataset.idx].equipment_name = e.target.value; });
-      inp.addEventListener('blur',  e => {
-        e.target.value = toTitleCase(e.target.value.trim());
-        modalItems[+e.target.dataset.idx].equipment_name = e.target.value;
-      });
-    });
-    cont.querySelectorAll('.tr-item-qty').forEach(inp =>
-      inp.addEventListener('input', e => { modalItems[+e.target.dataset.idx].quantity = parseInt(e.target.value) || 1; })
-    );
-    cont.querySelectorAll('.tr-item-serial').forEach(inp =>
-      inp.addEventListener('input', e => { modalItems[+e.target.dataset.idx].serial = e.target.value; })
-    );
-    cont.querySelectorAll('.tr-item-dup').forEach(btn =>
-      btn.addEventListener('click', e => {
-        const idx = +e.currentTarget.dataset.idx;
-        const src = modalItems[idx];
-        modalItems.splice(idx + 1, 0, { equipment_name: src.equipment_name, quantity: 1, serial: '' });
-        renderModalItems();
-        cont.querySelectorAll('.tr-item-serial')[idx + 1]?.focus();
-      })
-    );
-    cont.querySelectorAll('.tr-item-remove').forEach(btn =>
-      btn.addEventListener('click', e => {
-        const idx = +e.currentTarget.dataset.idx;
-        if (modalItems.length > 1) { modalItems.splice(idx, 1); renderModalItems(); }
-      })
-    );
-  }
-
-  renderModalItems();
-  attachSedeSearch(document.getElementById('tr-f-sede'));
-
-  document.getElementById('tr-btn-add-item')?.addEventListener('click', () => {
-    modalItems.push({ equipment_name: '', quantity: 1, serial: '' });
-    renderModalItems();
-    // Foco al último campo de nombre añadido
-    const inputs = document.querySelectorAll('#tr-f-items-list .tr-item-name');
-    inputs[inputs.length - 1]?.focus();
-  });
-
-  /* ── Toggle tipo: muestra/oculta secciones según selección ── */
-  modal.querySelectorAll('input[name="tr-type"]').forEach(radio => {
-    radio.addEventListener('change', () => {
-      const isReq = modal.querySelector('input[name="tr-type"]:checked')?.value === 'requerimiento';
-      document.getElementById('lbl-req').classList.toggle('selected',  isReq);
-      document.getElementById('lbl-inc').classList.toggle('selected', !isReq);
-      document.getElementById('tr-f-items-section').style.display  = isReq  ? 'block' : 'none';
-      document.getElementById('tr-f-equipo-wrap').style.display    = isReq  ? 'none'  : 'block';
-      document.getElementById('tr-f-qty-wrap').style.display       = isReq  ? 'none'  : 'block';
-    });
-  });
-
-  const closeModal = () => { overlay.style.display = 'none'; };
-  document.getElementById('tr-modal-close').addEventListener('click', closeModal);
-  document.getElementById('tr-modal-cancel').addEventListener('click', closeModal);
-  overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
-
-  /* Capitaliza la primera letra de cada palabra al salir del campo */
-  document.getElementById('tr-f-name').addEventListener('blur', e => {
-    e.target.value = toTitleCase(e.target.value.trim());
-  });
-  document.getElementById('tr-f-cargo').addEventListener('blur', e => {
-    e.target.value = toTitleCase(e.target.value.trim());
-  });
-  document.getElementById('tr-f-equipo').addEventListener('blur', e => {
-    e.target.value = toTitleCase(e.target.value.trim());
-  });
-  document.getElementById('tr-f-desc').addEventListener('blur', e => {
-    e.target.value = toSentenceCase(e.target.value);
-  });
-
-  document.getElementById('tr-modal-save').addEventListener('click', async () => {
-    const type   = modal.querySelector('input[name="tr-type"]:checked')?.value;
-    const name   = toTitleCase(document.getElementById('tr-f-name').value.trim());
-    const cedula = document.getElementById('tr-f-cedula').value.trim();
-    const cargo  = toTitleCase(document.getElementById('tr-f-cargo').value.trim());
-    const sede   = document.getElementById('tr-f-sede').value.trim();
-    const desc   = document.getElementById('tr-f-desc').value.trim();
-    const prio   = document.getElementById('tr-f-priority').value;
-
-    if (!type || !name || !cedula || !cargo || !sede || !desc) {
-      showToast('Completa todos los campos obligatorios (*)', 'error');
-      return;
-    }
-
-    // Datos de equipos según tipo
-    let bodyExtra = {};
-    if (type === 'requerimiento') {
-      const validItems = modalItems.filter(i => i.equipment_name.trim());
-      if (!validItems.length) {
-        showToast('Agrega al menos un equipo al requerimiento', 'error');
-        return;
-      }
-      bodyExtra = {
-        items: validItems.map(i => ({
-          equipment_name: i.equipment_name.trim(),
-          quantity:       parseInt(i.quantity) || 1,
-          serial:         i.serial.trim() || null,
-        })),
-      };
-    } else {
-      const equipo = document.getElementById('tr-f-equipo').value.trim();
-      const serial = document.getElementById('tr-f-serial').value.trim();
-      const qty    = parseInt(document.getElementById('tr-f-qty').value) || 1;
-      bodyExtra = { equipment_name: equipo || null, equipment_serial: serial || null, quantity: qty };
-    }
-
-    const btn = document.getElementById('tr-modal-save');
-    btn.textContent = 'Guardando…';
-    btn.disabled    = true;
-
-    try {
-      const res = await fetch('/api/tech-requests', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ type, requester_name: name, cedula, cargo, sede, description: desc, priority: prio, ...bodyExtra }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Error al guardar');
-      showToast(`✅ Solicitud ${data.request_number} creada`, 'success');
-      closeModal();
-      onSuccess();
-    } catch (err) {
-      showToast(err.message, 'error');
-      btn.innerHTML = `${iconSave(14)} Guardar Solicitud`;
-      btn.disabled    = false;
-    }
-  });
-}
-
-/** Escapa atributos HTML dentro del modal */
-function _esc(str) {
-  return String(str || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-}
-
-/* ═══════════════════════════════════════════════════
-   PAGINACIÓN
-   ═══════════════════════════════════════════════════ */
-
-function renderPagination(data) {
-  if (data.total_pages <= 1) return '';
-  const pages = [];
-  for (let i = 1; i <= data.total_pages; i++) {
-    pages.push(`<button class="tr-page-btn btn ${i === data.page ? 'btn-primary' : 'btn-secondary'}"
-      data-page="${i}" style="min-width:36px;padding:6px 10px;">${i}</button>`);
-  }
-  return `<div style="display:flex;gap:8px;justify-content:center;padding:16px;">${pages.join('')}</div>`;
-}
-
-/* ─ Estilos de celda reutilizables ─ */
-const TH = 'padding:10px 14px;text-align:left;font-size:12px;font-weight:600;color:var(--text-muted);white-space:nowrap;';
-const TD = 'padding:12px 14px;font-size:13px;vertical-align:middle;';
-
-/* ═══════════════════════════════════════════════════
-   MODAL EDITAR SOLICITUD
-   ═══════════════════════════════════════════════════ */
-
-async function openEditModal(id, onSuccess) {
-  // Cargar datos existentes
-  let record;
-  try {
-    const res = await fetch(`/api/tech-requests/${id}`);
-    if (!res.ok) throw new Error('No se pudo cargar la solicitud.');
-    record = await res.json();
-  } catch (err) {
-    const { showToast } = await import('./components.js');
-    showToast(err.message, 'error');
-    return;
-  }
-
-  // Reutilizar el mismo overlay del modal
-  const overlay = document.getElementById('tr-modal-overlay');
-  const modal   = document.getElementById('tr-modal');
-  overlay.style.display = 'flex';
-
-  const isReq = record.type === 'requerimiento';
-
-  // Estado de ítems para requerimientos
-  let modalItems = (record.items && record.items.length)
-    ? record.items.map(i => ({ equipment_name: i.equipment_name, quantity: i.quantity, serial: i.serial || '' }))
-    : [{ equipment_name: '', quantity: 1, serial: '' }];
-
-  const areaOptions = Object.entries(
-    (await import('./app.js').then(m => m.AREA_MAPPINGS))
-  ).map(([v, { label }]) => `<option value="${v}">${label}</option>`).join('');
-
-  modal.innerHTML = `
-    <!-- Header con gradiente -->
-    <div style="background:linear-gradient(135deg,rgba(245,158,11,.18),rgba(234,88,12,.12));margin:-32px -32px 24px;padding:24px 28px 20px;border-radius:16px 16px 0 0;border-bottom:1px solid rgba(245,158,11,.2);">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-        <div>
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
-            <div style="width:36px;height:36px;background:linear-gradient(135deg,#f59e0b,#ea580c);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;">${iconEdit(18)}</div>
-            <h3 style="font-size:18px;font-weight:700;color:#e2e8f0;">Editar Solicitud</h3>
-          </div>
-          <p style="font-size:12px;color:#6b7a99;margin-left:46px;">${record.request_number} — modifica los datos y guarda los cambios</p>
-        </div>
-        <button id="tr-modal-close" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);width:32px;height:32px;border-radius:8px;cursor:pointer;color:#94a3b8;display:flex;align-items:center;justify-content:center;transition:all .2s;">${iconClose(14)}</button>
-      </div>
-    </div>
-
-    <!-- Datos del solicitante -->
-    <div class="tr-section">
-      <div class="tr-section-title">Datos del solicitante</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-        <div class="form-group">
-          <label>Nombre completo *</label>
-          <input type="text" id="tr-f-name" value="${_esc(record.requester_name)}" placeholder="Nombre y apellido">
-        </div>
-        <div class="form-group">
-          <label>Cédula *</label>
-          <input type="text" id="tr-f-cedula" value="${_esc(record.cedula)}" placeholder="Número de cédula">
-        </div>
-        <div class="form-group">
-          <label>Cargo *</label>
-          <input type="text" id="tr-f-cargo" value="${_esc(record.cargo)}" placeholder="Ej: Auxiliar contable">
-        </div>
-        <div class="form-group">
-          <label>Sede / Punto *</label>
-          <input type="text" id="tr-f-sede" value="${_esc(record.sede)}" placeholder="Ej: Sede Central…">
-        </div>
-      </div>
-    </div>
-
-    <!-- EQUIPOS SOLICITADOS (solo requerimientos) -->
-    <div id="tr-f-items-section" class="tr-section" style="${!isReq ? 'display:none;' : ''}">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <div class="tr-section-title" style="margin-bottom:0;">Equipos solicitados</div>
-        <button type="button" id="tr-btn-add-item" style="display:inline-flex;align-items:center;gap:5px;">${iconPlus(12)} Agregar equipo</button>
-      </div>
-      <div style="display:grid;grid-template-columns:2fr 58px 1fr 30px 30px;gap:6px;padding:0 8px;margin-bottom:4px;">
-        <span style="font-size:11px;color:#5a607a;">Nombre del equipo *</span>
-        <span style="font-size:11px;color:#5a607a;text-align:center;">Cant.</span>
-        <span style="font-size:11px;color:#5a607a;">Serial / Inv.</span>
-        <span></span><span></span>
-      </div>
-      <div id="tr-f-items-list"></div>
-    </div>
-
-    <!-- EQUIPO AFECTADO (solo incidencias) -->
-    <div id="tr-f-equipo-wrap" class="tr-section" style="${isReq ? 'display:none;' : ''}">
-      <div class="tr-section-title">Equipo afectado</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-        <div class="form-group">
-          <label>Nombre / tipo de equipo</label>
-          <input type="text" id="tr-f-equipo" value="${_esc(record.equipment_name || '')}" placeholder="Ej: Portátil Dell, Impresora…">
-        </div>
-        <div class="form-group">
-          <label>Serial o inventario</label>
-          <input type="text" id="tr-f-serial" value="${_esc(record.equipment_serial || '')}" placeholder="Opcional">
-        </div>
-      </div>
-    </div>
-
-    <!-- Descripción + prioridad -->
-    <div class="tr-section">
-      <div class="tr-section-title">Descripción y prioridad</div>
-      <div style="display:grid;grid-template-columns:2fr 1fr;gap:12px;">
-        <div class="form-group">
-          <label>Descripción *</label>
-          <textarea id="tr-f-desc" rows="3" style="resize:vertical;">${_esc(record.description)}</textarea>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:10px;">
-          <div class="form-group">
-            <label>Prioridad</label>
-            <select id="tr-f-priority">
-              <option value="baja"   ${record.priority==='baja'   ?'selected':''}>🟢 Baja</option>
-              <option value="media"  ${record.priority==='media'  ?'selected':''}>🟡 Media</option>
-              <option value="alta"   ${record.priority==='alta'   ?'selected':''}>🟠 Alta</option>
-              <option value="critica"${record.priority==='critica'?'selected':''}>🔴 Crítica</option>
-            </select>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Footer -->
-    <div class="tr-modal-footer">
-      <button class="btn btn-secondary" id="tr-modal-cancel" style="padding:10px 20px;">Cancelar</button>
-      <button class="btn btn-primary" id="tr-modal-save"
-        style="padding:10px 24px;background:linear-gradient(135deg,#f59e0b,#ea580c);border:none;display:inline-flex;align-items:center;gap:7px;">
-        ${iconSave(14)} Guardar Cambios
-      </button>
-    </div>
-  `;
-
-  /* ── Utilidades de formateo ── */
-  const toTitleCase    = s => (s || '').toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
-  const toSentenceCase = s => { const v = (s || '').trim(); return v ? v.charAt(0).toUpperCase() + v.slice(1) : v; };
-
-  /* ── Renderizado de ítems ── */
-  function renderModalItems() {
-    const cont = document.getElementById('tr-f-items-list');
-    if (!cont) return;
-    cont.innerHTML = modalItems.map((item, idx) => `
-      <div class="tr-item-row">
-        <input type="text" class="tr-item-name" data-idx="${idx}"
-          value="${_esc(item.equipment_name)}" placeholder="Ej: Portátil, Monitor…">
-        <input type="number" class="tr-item-qty" data-idx="${idx}"
-          value="${item.quantity}" min="1" style="text-align:center;">
-        <input type="text" class="tr-item-serial" data-idx="${idx}"
-          value="${_esc(item.serial)}" placeholder="Serial (opc.)">
-        <button type="button" class="tr-item-dup" data-idx="${idx}"
-          style="background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.25);color:#818cf8;border-radius:6px;width:30px;height:36px;cursor:pointer;display:flex;align-items:center;justify-content:center;">${iconCopy(13)}</button>
-        <button type="button" class="tr-item-remove" data-idx="${idx}"
-          style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.25);color:#f87171;border-radius:6px;width:30px;height:36px;cursor:pointer;display:flex;align-items:center;justify-content:center;${modalItems.length <= 1 ? 'opacity:.3;cursor:not-allowed;' : ''}"
-          ${modalItems.length <= 1 ? 'disabled' : ''}>${iconClose(13)}</button>
-      </div>
-    `).join('');
-
-    cont.querySelectorAll('.tr-item-name').forEach(inp => {
-      inp.addEventListener('input', e => { modalItems[+e.target.dataset.idx].equipment_name = e.target.value; });
-      inp.addEventListener('blur',  e => {
-        e.target.value = toTitleCase(e.target.value.trim());
-        modalItems[+e.target.dataset.idx].equipment_name = e.target.value;
-      });
-    });
-    cont.querySelectorAll('.tr-item-qty').forEach(inp =>
-      inp.addEventListener('input', e => { modalItems[+e.target.dataset.idx].quantity = parseInt(e.target.value) || 1; })
-    );
-    cont.querySelectorAll('.tr-item-serial').forEach(inp =>
-      inp.addEventListener('input', e => { modalItems[+e.target.dataset.idx].serial = e.target.value; })
-    );
-    cont.querySelectorAll('.tr-item-dup').forEach(btn =>
-      btn.addEventListener('click', e => {
-        const idx = +e.currentTarget.dataset.idx;
-        modalItems.splice(idx + 1, 0, { equipment_name: modalItems[idx].equipment_name, quantity: 1, serial: '' });
-        renderModalItems();
-      })
-    );
-    cont.querySelectorAll('.tr-item-remove').forEach(btn =>
-      btn.addEventListener('click', e => {
-        const idx = +e.currentTarget.dataset.idx;
-        if (modalItems.length > 1) { modalItems.splice(idx, 1); renderModalItems(); }
-      })
-    );
-  }
-
-  renderModalItems();
-  attachSedeSearch(document.getElementById('tr-f-sede'));
-
-  document.getElementById('tr-btn-add-item')?.addEventListener('click', () => {
-    modalItems.push({ equipment_name: '', quantity: 1, serial: '' });
-    renderModalItems();
-    document.querySelectorAll('#tr-f-items-list .tr-item-name').forEach((_, i, a) => { if (i === a.length - 1) a[i].focus(); });
-  });
-
-  /* ── Blur formateo ── */
-  document.getElementById('tr-f-name').addEventListener('blur', e => { e.target.value = toTitleCase(e.target.value.trim()); });
-  document.getElementById('tr-f-cargo').addEventListener('blur', e => { e.target.value = toTitleCase(e.target.value.trim()); });
-  document.getElementById('tr-f-equipo')?.addEventListener('blur', e => { e.target.value = toTitleCase(e.target.value.trim()); });
-  document.getElementById('tr-f-desc').addEventListener('blur', e => { e.target.value = toSentenceCase(e.target.value); });
-
-  /* ── Cerrar ── */
-  const closeModal = () => { overlay.style.display = 'none'; };
-  document.getElementById('tr-modal-close').addEventListener('click', closeModal);
-  document.getElementById('tr-modal-cancel').addEventListener('click', closeModal);
-  overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
-
-  /* ── Guardar cambios ── */
-  document.getElementById('tr-modal-save').addEventListener('click', async () => {
-    const name   = toTitleCase(document.getElementById('tr-f-name').value.trim());
-    const cedula = document.getElementById('tr-f-cedula').value.trim();
-    const cargo  = toTitleCase(document.getElementById('tr-f-cargo').value.trim());
-    const sede   = document.getElementById('tr-f-sede').value.trim();
-    const desc   = toSentenceCase(document.getElementById('tr-f-desc').value);
-    const prio   = document.getElementById('tr-f-priority').value;
-
-    if (!name || !cedula || !cargo || !sede || !desc) {
-      showToast('Completa todos los campos obligatorios (*)', 'error');
-      return;
-    }
-
-    let bodyExtra = {};
-    if (isReq) {
-      const validItems = modalItems.filter(i => i.equipment_name.trim());
-      if (!validItems.length) { showToast('Agrega al menos un equipo al requerimiento', 'error'); return; }
-      bodyExtra = { items: validItems.map(i => ({ equipment_name: i.equipment_name.trim(), quantity: parseInt(i.quantity) || 1, serial: i.serial.trim() || null })) };
-    } else {
-      bodyExtra = {
-        equipment_name:   toTitleCase((document.getElementById('tr-f-equipo')?.value || '').trim()) || null,
-        equipment_serial: document.getElementById('tr-f-serial')?.value.trim() || null,
-      };
-    }
-
-    const btn = document.getElementById('tr-modal-save');
-    btn.textContent = 'Guardando…'; btn.disabled = true;
-
-    try {
-      const res = await fetch(`/api/tech-requests/${id}`, {
-        method:  'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ requester_name: name, cedula, cargo, sede, description: desc, priority: prio, agentName: 'Agente', ...bodyExtra }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Error al guardar');
-      showToast('✅ Solicitud actualizada', 'success');
-      closeModal();
-      onSuccess();
-    } catch (err) {
-      showToast(err.message, 'error');
-      btn.innerHTML = `${iconSave(14)} Guardar Cambios`; btn.disabled = false;
-    }
-  });
 }
 

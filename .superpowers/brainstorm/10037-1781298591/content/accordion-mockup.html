@@ -1,0 +1,87 @@
+<h2>Mockup — Accordion con Control Remoto</h2>
+<p class="subtitle">¿Se ve bien así? Confirma o dime qué cambiar.</p>
+
+<div class="mockup">
+  <div class="mockup-header">Panel Monitoreo — Fila expandida</div>
+  <div class="mockup-body" style="font-family:system-ui,sans-serif;font-size:13px;">
+
+    <!-- Row header (collapsed look) -->
+    <div style="display:grid;grid-template-columns:28px 2fr 1fr 1fr 1fr 1fr 1fr 1fr;padding:11px 14px;align-items:center;background:var(--surface);border-bottom:1px solid var(--border);">
+      <span style="color:#3b82f6;font-size:10px;">▼</span>
+      <div>
+        <div style="font-weight:600;font-family:monospace;font-size:13px;">PC-CONTABILIDAD</div>
+        <div style="font-size:11px;color:var(--text-3);">192.168.1.45</div>
+      </div>
+      <span style="color:var(--text-2);">Sede Norte</span>
+      <div style="text-align:center;"><span style="background:#22c55e22;color:#22c55e;padding:2px 10px;border-radius:99px;font-size:11px;">● Online</span></div>
+      <div style="text-align:center;font-size:12px;font-weight:600;color:#3b82f6;">34%</div>
+      <div style="text-align:center;font-size:12px;font-weight:600;color:#8b5cf6;">6.2GB</div>
+      <div style="text-align:center;font-size:12px;font-weight:600;color:#22c55e;">41%</div>
+      <div style="text-align:center;font-size:11px;color:var(--text-3);">hace 4s</div>
+    </div>
+
+    <!-- Accordion content -->
+    <div style="background:var(--surface-2);padding:14px;border-bottom:1px solid var(--border);">
+
+      <!-- Hardware grid -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:10px;">
+          <div style="font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Procesador</div>
+          <div style="font-weight:600;font-size:13px;">Intel Core i5-10400</div>
+          <div style="font-size:11px;color:var(--text-3);">6 núcleos · 2.9 GHz</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:10px;">
+          <div style="font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Memoria RAM</div>
+          <div style="font-weight:600;font-size:13px;">16 GB</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:10px;">
+          <div style="font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Sistema Operativo</div>
+          <div style="font-weight:600;font-size:13px;">Windows 10 Pro</div>
+          <div style="font-size:11px;color:var(--text-3);">10.0.19045</div>
+        </div>
+      </div>
+
+      <!-- Divider -->
+      <div style="border-top:1px solid var(--border);margin-bottom:12px;"></div>
+
+      <!-- Remote control section -->
+      <div style="font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">⚡ Control Remoto</div>
+
+      <!-- Action buttons row -->
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
+        <button style="background:#ef444418;color:#ef4444;border:1px solid #ef444435;border-radius:5px;padding:5px 12px;font-size:12px;cursor:pointer;font-weight:500;">⟳ Reiniciar PC</button>
+        <button style="background:#64748b18;color:#94a3b8;border:1px solid #64748b35;border-radius:5px;padding:5px 12px;font-size:12px;cursor:pointer;font-weight:500;">⊟ Apagar PC</button>
+        <button style="background:#8b5cf618;color:#8b5cf6;border:1px solid #8b5cf635;border-radius:5px;padding:5px 12px;font-size:12px;cursor:pointer;font-weight:500;">✕ Matar proceso…</button>
+        <button style="background:#06b6d418;color:#06b6d4;border:1px solid #06b6d435;border-radius:5px;padding:5px 12px;font-size:12px;cursor:pointer;font-weight:500;">🗑 Limpiar temp</button>
+        <button style="background:#3b82f618;color:#3b82f6;border:1px solid #3b82f635;border-radius:5px;padding:5px 12px;font-size:12px;cursor:pointer;font-weight:500;">≡ Ver procesos</button>
+      </div>
+
+      <!-- Console area -->
+      <div style="background:#0d1117;border-radius:6px;overflow:hidden;border:1px solid #30363d;">
+        <div style="background:#161b22;padding:6px 12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #30363d;">
+          <span style="width:10px;height:10px;border-radius:50%;background:#ef4444;display:inline-block;"></span>
+          <span style="width:10px;height:10px;border-radius:50%;background:#f59e0b;display:inline-block;"></span>
+          <span style="width:10px;height:10px;border-radius:50%;background:#22c55e;display:inline-block;"></span>
+          <span style="font-size:11px;color:#6e7681;margin-left:4px;">Consola — PC-CONTABILIDAD</span>
+        </div>
+        <!-- Simulated streaming output -->
+        <div style="padding:10px 14px;font-family:'Cascadia Code',monospace;font-size:11px;color:#c9d1d9;min-height:80px;line-height:1.6;">
+          <div style="color:#6e7681;">$ tasklist</div>
+          <div>Image Name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PID&nbsp;&nbsp;&nbsp;&nbsp;Session&nbsp;&nbsp;&nbsp;&nbsp;Mem Usage</div>
+          <div style="color:#58a6ff;">chrome.exe&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1234&nbsp;&nbsp;&nbsp;Console&nbsp;&nbsp;&nbsp;245,680 K</div>
+          <div>svchost.exe&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;852&nbsp;&nbsp;&nbsp;&nbsp;Services&nbsp;&nbsp;&nbsp;12,340 K</div>
+          <div style="color:#58a6ff;">outlook.exe&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3210&nbsp;&nbsp;&nbsp;Console&nbsp;&nbsp;&nbsp;189,200 K</div>
+          <div style="color:#3fb950;">▌</div>
+        </div>
+        <!-- Free console input -->
+        <div style="border-top:1px solid #30363d;display:flex;align-items:center;padding:6px 10px;gap:8px;">
+          <span style="color:#3fb950;font-family:monospace;font-size:12px;">PS&gt;</span>
+          <input placeholder="Escribe un comando PowerShell…" style="flex:1;background:transparent;border:none;outline:none;color:#c9d1d9;font-family:'Cascadia Code',monospace;font-size:12px;"/>
+          <button style="background:#238636;color:#fff;border:none;border-radius:4px;padding:3px 10px;font-size:11px;cursor:pointer;">▶ Ejecutar</button>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>

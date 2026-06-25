@@ -113,7 +113,7 @@ async function renderList(container, onDetail) {
       wrap.querySelectorAll('.tr-tracking-row').forEach(row =>
         row.addEventListener('click', () => onDetail(row.dataset.token)));
     } catch (e) {
-      wrap.innerHTML = `<div style="padding:30px;color:#f87171;text-align:center;">Error al cargar: ${e.message}</div>`;
+      wrap.innerHTML = `<div style="padding:30px;color:var(--danger);text-align:center;">Error al cargar: ${e.message}</div>`;
     }
   }
 
@@ -233,7 +233,7 @@ async function renderDetail(container, token, onBack) {
             </div>` : ''}
           ${t.estado !== 'entregado' && t.estado !== 'devuelto' ? `
             <button id="btn-devuelto"
-              style="padding:8px 16px;border:1px solid rgba(239,68,68,.3);border-radius:8px;background:rgba(239,68,68,.08);color:#f87171;font-size:12px;cursor:pointer;">
+              style="padding:8px 16px;border:1px solid rgba(239,68,68,.3);border-radius:8px;background:rgba(239,68,68,.08);color:var(--danger);font-size:12px;cursor:pointer;">
               ↩️ Marcar como devuelto
             </button>` : ''}
         </div>
@@ -252,7 +252,7 @@ async function renderDetail(container, token, onBack) {
     });
 
   } catch (e) {
-    container.innerHTML = `<div style="padding:30px;color:#f87171;text-align:center;">Error: ${e.message}</div>`;
+    container.innerHTML = `<div style="padding:30px;color:var(--danger);text-align:center;">Error: ${e.message}</div>`;
   }
 }
 

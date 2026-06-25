@@ -1,0 +1,119 @@
+=============================== 
+ INVENTARIO DE EQUIPO DESKTOP-BJ4E2PT 
+ Fecha: mi‚. 22/04/2026 - Hora:  7:38:49,70 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : MJ0680HU
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            DESKTOP-BJ4E2PT
+Nombre del sistema operativo:              Microsoft Windows 11 Pro
+Versi¢n del sistema operativo:             10.0.22621 N/D Compilaci¢n 22621
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              hp
+Organizaci¢n registrada:                   
+Id. del producto:                          00330-50114-42133-AAOEM
+Fecha de instalaci¢n original:             13/04/2024, 5:24:25 p.ÿm.
+Tiempo de arranque del sistema:            22/04/2026, 7:24:15 a.ÿm.
+Fabricante del sistema:                    LENOVO
+Modelo el sistema:                         10MUS1AY00
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 94 Stepping 3 GenuineIntel ~2496 Mhz
+Versi¢n del BIOS:                          LENOVO M1AKT53A, 18/03/2022
+Directorio de Windows:                     C:\WINDOWS
+Directorio de sistema:                     C:\WINDOWS\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume2
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.079 MB
+Memoria f¡sica disponible:                 4.133 MB
+Memoria virtual: tama¤o m ximo:            10.063 MB
+Memoria virtual: disponible:               6.110 MB
+Memoria virtual: en uso:                   3.953 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\DESKTOP-BJ4E2PT
+Revisi¢n(es):                              3 revisi¢n(es) instaladas.
+                                           [01]: KB5044033
+                                           [02]: KB5044285
+                                           [03]: KB5046247
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) Ethernet Connection (2) I219-LM
+                                                 Nombre de conexi¢n: Ethernet 7
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.20.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.20.75
+                                                 [02]: fe80::df58:bce5:d8df:b4da
+                                                 [03]: 2800:484:8f83:db50:7d55:afa2:b653:521e
+                                                 [04]: 2800:484:8f83:db50:bf01:49e7:3e46:8555
+                                                 [05]: 2800:484:8f83:db50::e5a6
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: No
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-8500T CPU
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 2496
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : 0443
+PartNumber   : RMSA3260MH78HAF-2666
+Capacity     : 8589934592
+Speed        : 2667
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : WD PC SN740 SDDQNQD-256G-1201
+SerialNumber  : E823_8FA6_BF53_0001_001B_448B_4C20_7D52.
+Size          : 256052966400
+InterfaceType : SCSI
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 254625705984
+FreeSpace  : 195517755392
+VolumeName : 
+
+DeviceID   : Z:
+FileSystem : 
+Size       : 
+FreeSpace  : 
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

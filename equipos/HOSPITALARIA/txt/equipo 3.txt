@@ -1,0 +1,130 @@
+=============================== 
+ INVENTARIO DE EQUIPO REGHOSP01 
+ Fecha: mar. 21/04/2026 - Hora: 15:40:13,53 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : 2NS9BZ1
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            REGHOSP01
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              USUARIO
+Organizaci¢n registrada:                   
+Id. del producto:                          00330-50244-42649-AAOEM
+Fecha de instalaci¢n original:             18/09/2025, 12:27:56 a.ÿm.
+Tiempo de arranque del sistema:            21/04/2026, 6:14:25 a.ÿm.
+Fabricante del sistema:                    Dell Inc.
+Modelo el sistema:                         OptiPlex 7010
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 58 Stepping 9 GenuineIntel ~3201 Mhz
+Versi¢n del BIOS:                          Dell Inc. A19, 18/08/2014
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        580a
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          12.174 MB
+Memoria f¡sica disponible:                 7.723 MB
+Memoria virtual: tama¤o m ximo:            14.030 MB
+Memoria virtual: disponible:               9.801 MB
+Memoria virtual: en uso:                   4.229 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\REGHOSP01
+Revisi¢n(es):                              13 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5064399
+                                           [03]: KB5003791
+                                           [04]: KB5011048
+                                           [05]: KB5011056
+                                           [06]: KB5015684
+                                           [07]: KB5033052
+                                           [08]: KB5072653
+                                           [09]: KB5071959
+                                           [10]: KB5063979
+                                           [11]: KB5066790
+                                           [12]: KB5071982
+                                           [13]: KB5005699
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) 82579LM Gigabit Network Connection
+                                                 Nombre de conexi¢n: Ethernet 2
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      10.1.1.1
+                                                 Direcciones IP
+                                                 [01]: 10.1.1.14
+                                                 [02]: fe80::eb08:5b78:2b00:372a
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: S¡
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-3470 CPU @ 3.20GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 3201
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : Micron
+PartNumber   : 8KTF51264AZ-1G6E1 
+Capacity     : 4294967296
+Speed        : 1600
+
+Manufacturer : Micron
+PartNumber   : 8JTF51264AZ-1G6E1 
+Capacity     : 4294967296
+Speed        : 1600
+
+Manufacturer : 0443
+PartNumber   : RMR5040ED58E9W1600
+Capacity     : 4294967296
+Speed        : 1600
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : ADATA SU650
+SerialNumber  : 2O492L15K4TC
+Size          : 240054796800
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 239384952832
+FreeSpace  : 71093563392
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

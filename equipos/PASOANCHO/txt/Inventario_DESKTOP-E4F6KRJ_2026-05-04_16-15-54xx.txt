@@ -1,0 +1,120 @@
+=============================== 
+ INVENTARIO DE EQUIPO DESKTOP-E4F6KRJ 
+ Fecha: lun 04/05/2026 - Hora: 16:15:54,31 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : 9VZRDW2
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            DESKTOP-E4F6KRJ
+Nombre del sistema operativo:              Microsoft Windows 11 Pro
+Versi¢n del sistema operativo:             10.0.26200 N/D Compilaci¢n 26200
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propietario registrado:                    DELL
+Organizaci¢n registrada:                   
+Id. del producto:                          00330-51957-55503-AAOEM
+Fecha de instalaci¢n original:             23/10/2025, 6:40:24 a.ÿm.
+Tiempo de arranque del sistema:            2/05/2026, 9:32:53 p.ÿm.
+Fabricante del sistema:                    Dell Inc.
+Modelo del sistema:                        OptiPlex 3060
+Tipo de sistema:                           x64-based PC
+Procesadores:                              1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 158 Stepping 10 GenuineIntel ~2112 Mhz
+Versi¢n del BIOS:                          Dell Inc. 1.32.0, 3/09/2024
+Directorio de Windows:                     C:\WINDOWS
+Directorio de sistema:                     C:\WINDOWS\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Memoria f¡sica total:                      8.015 MB
+Memoria f¡sica disponible:                 1.152 MB
+Memoria virtual: tama¤o m ximo:            11.605 MB
+Memoria virtual: disponible:               1.398 MB
+Memoria virtual: en uso:                   10.207 MB
+Ubicaciones de archivos de p gina:         C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\DESKTOP-E4F6KRJ
+Revisiones:                                4 revisi¢n(es) instaladas.
+                                           [01]: KB5082417
+                                           [02]: KB5054156
+                                           [03]: KB5083631
+                                           [04]: KB5088467
+Tarjetas de red:                           1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Realtek PCIe GbE Family Controller
+                                                 Nombre de conexi¢n: Ethernet
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.1.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.1.65
+                                                 [02]: fe80::cc06:6489:f1b0:7a64
+Seguridad basada en virtualizaci¢n:        Estado:ÿNo habilitado
+                                           App Control for Business policy: Forzado
+                                           App Control for Business user mode policy: Desactivado
+                                           Caracter¡sticas de seguridad habilitadas:
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: S¡
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-8500T CPU @ 2.10GHz
+NumberOfCores             : 6
+NumberOfLogicalProcessors : 6
+MaxClockSpeed             : 2112
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : 80CE000080CE
+PartNumber   : M471A5244BB0-CRC    
+Capacity     : 4294967296
+Speed        : 2400
+
+Manufacturer : 80CE000080CE
+PartNumber   : M471A5244BB0-CRC    
+Capacity     : 4294967296
+Speed        : 2400
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : SAMSUNG MZVL4256HBJD-00BH1
+SerialNumber  : 0025_38E4_31A2_D03B.
+Size          : 256052966400
+InterfaceType : SCSI
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 255133528064
+FreeSpace  : 167508869120
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

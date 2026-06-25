@@ -1,0 +1,116 @@
+=============================== 
+ INVENTARIO DE EQUIPO DISP26 
+ Fecha: lun 27/04/2026 - Hora: 15:57:12.59 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : 4959LR2
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            DISP26
+Nombre del sistema operativo:              Microsoft Windows 11 Pro
+Versi¢n del sistema operativo:             10.0.26200 N/D Compilaci¢n 26200
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propietario registrado:                    PUNTO
+Organizaci¢n registrada:                   N/D
+Id. del producto:                          00330-50956-35345-AAOEM
+Fecha de instalaci¢n original:             19/3/2026, 01:50:12
+Tiempo de arranque del sistema:            23/4/2026, 09:45:22
+Fabricante del sistema:                    Dell Inc.
+Modelo del sistema:                        OptiPlex 3050
+Tipo de sistema:                           x64-based PC
+Procesadores:                              1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 94 Stepping 3 GenuineIntel ~2496 Mhz
+Versi¢n del BIOS:                          Dell Inc. 1.31.0, 9/7/2024
+Directorio de Windows:                     C:\WINDOWS
+Directorio de sistema:                     C:\WINDOWS\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Memoria f¡sica total:                      8,076 MB
+Memoria f¡sica disponible:                 2,190 MB
+Memoria virtual: tama¤o m ximo:            9,164 MB
+Memoria virtual: disponible:               1,572 MB
+Memoria virtual: en uso:                   7,592 MB
+Ubicaciones de archivos de p gina:         C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\DISP26
+Revisiones:                                5 revisi¢n(es) instaladas.
+                                           [01]: KB5082417
+                                           [02]: KB5054156
+                                           [03]: KB5078674
+                                           [04]: KB5083769
+                                           [05]: KB5088467
+Tarjetas de red:                           1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Realtek PCIe GBE Family Controller
+                                                 Nombre de conexi¢n: Ethernet
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.110.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.110.180
+                                                 [02]: fe80::4c3b:90dd:416e:777c
+Seguridad basada en virtualizaci¢n:        Estado:ÿNo habilitado
+                                           App Control for Business policy: Forzado
+                                           App Control for Business user mode policy: Forzado
+                                           Caracter¡sticas de seguridad habilitadas:
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: S¡
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-6500T CPU @ 2.50GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 2496
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : 80AD000080AD
+PartNumber   : HMA81GS6AFR8N-UH    
+Capacity     : 8589934592
+Speed        : 2400
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : AT422
+SerialNumber  : 421000231062
+Size          : 256052966400
+InterfaceType : IDE
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 255047233536
+FreeSpace  : 201925820416
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

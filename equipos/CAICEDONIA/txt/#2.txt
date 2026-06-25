@@ -1,0 +1,175 @@
+=============================== 
+ INVENTARIO DE EQUIPO DESKTOP-148GT5D 
+ Fecha: 21/04/2026 - Hora: 14:00:25.15 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : 1YP4S22
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            DESKTOP-148GT5D
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              DELL
+Organizaci¢n registrada:                   
+Id. del producto:                          00330-50000-00000-AAOEM
+Fecha de instalaci¢n original:             05/02/2022, 11:10:42 a.ÿm.
+Tiempo de arranque del sistema:            11/03/2026, 4:55:58 p.ÿm.
+Fabricante del sistema:                    Dell Inc.
+Modelo el sistema:                         OptiPlex 9020
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 60 Stepping 3 GenuineIntel ~3301 Mhz
+Versi¢n del BIOS:                          Dell Inc. A22, 01/02/2018
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume1
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8,098 MB
+Memoria f¡sica disponible:                 2,496 MB
+Memoria virtual: tama¤o m ximo:            10,485 MB
+Memoria virtual: disponible:               2,784 MB
+Memoria virtual: en uso:                   7,701 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\DESKTOP-148GT5D
+Revisi¢n(es):                              52 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5030841
+                                           [03]: KB5003791
+                                           [04]: KB5011048
+                                           [05]: KB5011056
+                                           [06]: KB5012170
+                                           [07]: KB5015684
+                                           [08]: KB5072653
+                                           [09]: KB5071959
+                                           [10]: KB5011352
+                                           [11]: KB5011651
+                                           [12]: KB5014032
+                                           [13]: KB5014035
+                                           [14]: KB5014671
+                                           [15]: KB5015895
+                                           [16]: KB5016705
+                                           [17]: KB5018506
+                                           [18]: KB5020372
+                                           [19]: KB5022924
+                                           [20]: KB5023794
+                                           [21]: KB5025315
+                                           [22]: KB5026879
+                                           [23]: KB5028318
+                                           [24]: KB5028380
+                                           [25]: KB5029709
+                                           [26]: KB5031539
+                                           [27]: KB5032392
+                                           [28]: KB5032907
+                                           [29]: KB5034224
+                                           [30]: KB5036447
+                                           [31]: KB5037018
+                                           [32]: KB5037240
+                                           [33]: KB5037995
+                                           [34]: KB5039336
+                                           [35]: KB5041579
+                                           [36]: KB5043935
+                                           [37]: KB5043130
+                                           [38]: KB5046823
+                                           [39]: KB5050388
+                                           [40]: KB5050111
+                                           [41]: KB5052916
+                                           [42]: KB5054682
+                                           [43]: KB5058526
+                                           [44]: KB5059504
+                                           [45]: KB5061902
+                                           [46]: KB5063706
+                                           [47]: KB5063261
+                                           [48]: KB5063979
+                                           [49]: KB5066411
+                                           [50]: KB5066790
+                                           [51]: KB5071982
+                                           [52]: KB5005699
+Tarjeta(s) de red:                         3 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) Ethernet Connection I217-LM
+                                                 Nombre de conexi¢n: Ethernet
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.101.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.101.10
+                                                 [02]: fe80::82b8:ea8e:f641:ca0
+                                           [02]: Wintun Userspace Tunnel
+                                                 Nombre de conexi¢n: OpenVPN Wintun
+                                                 Estado:             Medios desconectados
+                                           [03]: TAP-Windows Adapter V9
+                                                 Nombre de conexi¢n: OpenVPN TAP-Windows6
+                                                 Estado:             Medios desconectados
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: S¡
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-4590 CPU @ 3.30GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 3301
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : 0000
+PartNumber   : KBL78B2K2G1SH0    
+Capacity     : 2147483648
+Speed        : 1333
+
+Manufacturer : Samsung
+PartNumber   : M378B5173DB0-CK0  
+Capacity     : 4294967296
+Speed        : 1600
+
+Manufacturer : Micron
+PartNumber   : 8JTF25664AZ-1G4H1 
+Capacity     : 2147483648
+Speed        : 1333
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : AT421
+SerialNumber  : 421000001442
+Size          : 240054796800
+InterfaceType : SCSI
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 239384952832
+FreeSpace  : 109398556672
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

@@ -1,0 +1,129 @@
+=============================== 
+ INVENTARIO DE EQUIPO DESKTOP-7AQN624 
+ Fecha: 27/04/2026 - Hora: 16:06:42,06 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : 1VD1VV1
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            DESKTOP-7AQN624
+Nombre del sistema operativo:              Microsoft Windows 10 Enterprise LTSC
+Versi¢n del sistema operativo:             10.0.17763 N/D Compilaci¢n 17763
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              User
+Organizaci¢n registrada:                   
+Id. del producto:                          00425-00000-00002-AA567
+Fecha de instalaci¢n original:             15/09/2018, 0:44:14
+Tiempo de arranque del sistema:            23/04/2026, 9:08:50
+Fabricante del sistema:                    Dell Inc.
+Modelo el sistema:                         OptiPlex 990
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 42 Stepping 7 GenuineIntel ~2701 Mhz
+Versi¢n del BIOS:                          Dell Inc. A13, 02/04/2012
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume2
+Configuraci¢n regional del sistema:        es;Espa¤ol (internacional)
+Idioma de entrada:                         es;Espa¤ol (tradicional)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.073 MB
+Memoria f¡sica disponible:                 5.157 MB
+Memoria virtual: tama¤o m ximo:            9.353 MB
+Memoria virtual: disponible:               6.185 MB
+Memoria virtual: en uso:                   3.168 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\DESKTOP-7AQN624
+Revisi¢n(es):                              12 revisi¢n(es) instaladas.
+                                           [01]: KB5082413
+                                           [02]: KB4577586
+                                           [03]: KB4589208
+                                           [04]: KB5082123
+                                           [05]: KB5058525
+                                           [06]: KB5062800
+                                           [07]: KB5065765
+                                           [08]: KB5066585
+                                           [09]: KB5070248
+                                           [10]: KB5074222
+                                           [11]: KB5075903
+                                           [12]: KB5082118
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) 82579LM Gigabit Network Connection
+                                                 Nombre de conexi¢n: Ethernet
+                                                 DHCP habilitado:    No
+                                                 Direcciones IP
+                                                 [01]: 192.168.110.58
+                                                 [02]: fe80::c645:6c2c:fd87:9b56
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: S¡
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-2500S CPU @ 2.70GHz
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 2701
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : 0443
+PartNumber   : RMR5040ED58E9W1600
+Capacity     : 4294967296
+Speed        : 1333
+
+Manufacturer : Hynix/Hyundai
+PartNumber   : HMT451U6BFR8A-PB  
+Capacity     : 4294967296
+Speed        : 1333
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : CT240BX500SSD1
+SerialNumber  : 2447E994FEDD
+Size          : 240054796800
+InterfaceType : SCSI
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 239411916800
+FreeSpace  : 203156811776
+VolumeName : 
+
+DeviceID   : D:
+FileSystem : 
+Size       : 
+FreeSpace  : 
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 

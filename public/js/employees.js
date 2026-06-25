@@ -9,7 +9,7 @@ let editingEmployeeId = null;
 const API_BASE = '/api/employees';
 
 // DOM selectors
-const tabButtons = document.querySelectorAll('[data-tab]');
+const tabButtons = document.querySelectorAll('.tab-button');
 const tabContent = document.querySelectorAll('[data-tab-content]');
 const btnNewEmployee = document.getElementById('btnNewEmployee');
 const modalEmployee = document.getElementById('modalEmployee');
@@ -17,7 +17,7 @@ const formEmployee = document.getElementById('formEmployee');
 const closeModalBtn = document.getElementById('closeModalEmployee');
 const btnCancelModal = document.getElementById('btnCancelModalEmployee');
 const employeeTableBody = document.getElementById('employeeTableBody');
-const emptyStateContainer = document.getElementById('emptyStateEmployee');
+const completadosTableBody = document.getElementById('completadosTableBody');
 const modalTitle = document.getElementById('modalTitleEmployee');
 
 // ============================================================================
@@ -45,6 +45,12 @@ function setActiveTab(tab) {
     }
   });
 
+  // Also update tab divs by id
+  const pendientesTab = document.getElementById('pendientes-tab');
+  const completadosTab = document.getElementById('completados-tab');
+  if (pendientesTab) pendientesTab.classList.toggle('active', tab === 'pendientes');
+  if (completadosTab) completadosTab.classList.toggle('active', tab === 'completados');
+
   renderEmployees();
 }
 
@@ -62,44 +68,50 @@ function filterEmployees() {
 }
 
 function renderEmployees() {
-  const filtered = filterEmployees();
+  const pendientes = allEmployees.filter(emp => emp.estado === 'pendiente');
+  const completados = allEmployees.filter(emp => emp.estado === 'completado');
 
-  if (!filtered || filtered.length === 0) {
-    employeeTableBody.innerHTML = '';
-    if (emptyStateContainer) {
-      emptyStateContainer.style.display = 'block';
-    }
-    return;
+  // Render pending employees
+  if (employeeTableBody) {
+    employeeTableBody.innerHTML = pendientes.map(emp => `
+      <tr>
+        <td>${escapeHtml(emp.cedula || '')}</td>
+        <td>${escapeHtml(emp.nombre_completo || '')}</td>
+        <td>${escapeHtml(emp.cargo || '')}</td>
+        <td>${escapeHtml(emp.area || '')}</td>
+        <td><span class="badge badge-pendiente">Pendiente</span></td>
+        <td>${escapeHtml(emp.usuario || '')}</td>
+        <td>${formatDate(emp.fecha_creacion)}</td>
+        <td>
+          <div class="actions-cell">
+            <button class="btn-sm btn-primary-sm" onclick="openEditModal('${emp.id}')">Editar</button>
+            <button class="btn-sm btn-danger-sm" onclick="deleteEmployee('${emp.id}')">Eliminar</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
   }
 
-  if (emptyStateContainer) {
-    emptyStateContainer.style.display = 'none';
+  // Render completed employees
+  if (completadosTableBody) {
+    completadosTableBody.innerHTML = completados.map(emp => `
+      <tr>
+        <td>${escapeHtml(emp.cedula || '')}</td>
+        <td>${escapeHtml(emp.nombre_completo || '')}</td>
+        <td>${escapeHtml(emp.cargo || '')}</td>
+        <td>${escapeHtml(emp.area || '')}</td>
+        <td><span class="badge badge-completado">Completado</span></td>
+        <td>${escapeHtml(emp.usuario || '')}</td>
+        <td>${formatDate(emp.fecha_creacion)}</td>
+        <td>
+          <div class="actions-cell">
+            <button class="btn-sm btn-primary-sm" onclick="openEditModal('${emp.id}')">Editar</button>
+            <button class="btn-sm btn-danger-sm" onclick="deleteEmployee('${emp.id}')">Eliminar</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
   }
-
-  employeeTableBody.innerHTML = filtered.map(emp => `
-    <tr>
-      <td>${escapeHtml(emp.cedula || '')}</td>
-      <td>${escapeHtml(emp.nombre || '')}</td>
-      <td>${escapeHtml(emp.cargo || '')}</td>
-      <td>${escapeHtml(emp.area || '')}</td>
-      <td>
-        <span class="badge badge-${emp.estado === 'pendiente' ? 'warning' : 'success'}">
-          ${emp.estado === 'pendiente' ? 'Pendiente' : 'Completado'}
-        </span>
-      </td>
-      <td>${escapeHtml(emp.usuario || '')}</td>
-      <td>••••</td>
-      <td>${formatDate(emp.fecha_creacion)}</td>
-      <td>
-        <button class="btn btn-sm btn-primary" onclick="openEditModal('${emp.id}')">
-          Editar
-        </button>
-        <button class="btn btn-sm btn-danger" onclick="deleteEmployee('${emp.id}')">
-          Eliminar
-        </button>
-      </td>
-    </tr>
-  `).join('');
 }
 
 // ============================================================================
@@ -110,6 +122,10 @@ async function loadEmployees() {
   try {
     const response = await fetch(API_BASE);
     if (!response.ok) {
+      if (response.status === 401) {
+        showNotification('Necesitas iniciar sesión', 'error');
+        return;
+      }
       throw new Error(`Error: ${response.status}`);
     }
     allEmployees = await response.json();
@@ -120,41 +136,6 @@ async function loadEmployees() {
   }
 }
 
-async function loadCargosAndAreas() {
-  try {
-    const response = await fetch('/api/dropdowns/cargos-areas');
-    if (!response.ok) {
-      throw new Error(`Error: ${response.status}`);
-    }
-    const data = await response.json();
-
-    // Populate cargo dropdown
-    const cargoSelect = document.getElementById('formEmployeeCargo');
-    if (cargoSelect) {
-      cargoSelect.innerHTML = '<option value="">Seleccione cargo</option>';
-      (data.cargos || []).forEach(cargo => {
-        const option = document.createElement('option');
-        option.value = cargo.id || cargo;
-        option.textContent = cargo.nombre || cargo;
-        cargoSelect.appendChild(option);
-      });
-    }
-
-    // Populate area dropdown
-    const areaSelect = document.getElementById('formEmployeeArea');
-    if (areaSelect) {
-      areaSelect.innerHTML = '<option value="">Seleccione área</option>';
-      (data.areas || []).forEach(area => {
-        const option = document.createElement('option');
-        option.value = area.id || area;
-        option.textContent = area.nombre || area;
-        areaSelect.appendChild(option);
-      });
-    }
-  } catch (error) {
-    console.error('Error loading dropdowns:', error);
-  }
-}
 
 // ============================================================================
 // MODAL OPERATIONS
@@ -168,22 +149,13 @@ function openNewEmployeeModal() {
 
   formEmployee.reset();
 
-  // Make cedula editable
   const cedulaInput = document.getElementById('formEmployeeCedula');
   if (cedulaInput) {
     cedulaInput.removeAttribute('readonly');
   }
 
-  // Make usuario/contraseña inputs visible but readonly
-  const usuarioInput = document.getElementById('formEmployeeUsuario');
-  const contraInput = document.getElementById('formEmployeeContraseña');
-  if (usuarioInput) usuarioInput.setAttribute('readonly', 'readonly');
-  if (contraInput) contraInput.setAttribute('readonly', 'readonly');
-
-  loadCargosAndAreas();
-
   if (modalEmployee) {
-    modalEmployee.style.display = 'flex';
+    modalEmployee.classList.add('active');
   }
 }
 
@@ -204,8 +176,8 @@ async function openEditModal(employeeId) {
     // Populate form
     const cedulaInput = document.getElementById('formEmployeeCedula');
     const nombreInput = document.getElementById('formEmployeeNombre');
-    const cargoSelect = document.getElementById('formEmployeeCargo');
-    const areaSelect = document.getElementById('formEmployeeArea');
+    const cargoInput = document.getElementById('formEmployeeCargo');
+    const areaInput = document.getElementById('formEmployeeArea');
     const usuarioInput = document.getElementById('formEmployeeUsuario');
     const contraInput = document.getElementById('formEmployeeContraseña');
     const estadoSelect = document.getElementById('formEmployeeEstado');
@@ -214,23 +186,15 @@ async function openEditModal(employeeId) {
       cedulaInput.value = employee.cedula || '';
       cedulaInput.setAttribute('readonly', 'readonly');
     }
-    if (nombreInput) nombreInput.value = employee.nombre || '';
-    if (cargoSelect) cargoSelect.value = employee.cargo || '';
-    if (areaSelect) areaSelect.value = employee.area || '';
-    if (usuarioInput) {
-      usuarioInput.value = employee.usuario || '';
-      usuarioInput.setAttribute('readonly', 'readonly');
-    }
-    if (contraInput) {
-      contraInput.value = employee.contraseña || '';
-      contraInput.setAttribute('readonly', 'readonly');
-    }
+    if (nombreInput) nombreInput.value = employee.nombre_completo || '';
+    if (cargoInput) cargoInput.value = employee.cargo || '';
+    if (areaInput) areaInput.value = employee.area || '';
+    if (usuarioInput) usuarioInput.value = employee.usuario || '';
+    if (contraInput) contraInput.value = '••••';
     if (estadoSelect) estadoSelect.value = employee.estado || 'pendiente';
 
-    loadCargosAndAreas();
-
     if (modalEmployee) {
-      modalEmployee.style.display = 'flex';
+      modalEmployee.classList.add('active');
     }
   } catch (error) {
     console.error('Error loading employee:', error);
@@ -243,7 +207,7 @@ function closeModal() {
   formEmployee.reset();
 
   if (modalEmployee) {
-    modalEmployee.style.display = 'none';
+    modalEmployee.classList.remove('active');
   }
 }
 
@@ -252,40 +216,25 @@ function closeModal() {
 // ============================================================================
 
 function validateEmployeeForm(data) {
-  // Cedula validation: 8-12 digits
   const cedulaRegex = /^\d{8,12}$/;
   if (!cedulaRegex.test(data.cedula)) {
     showNotification('Cédula debe contener 8-12 dígitos', 'error');
     return false;
   }
 
-  // Nombre validation: min 3 characters
   if (!data.nombre || data.nombre.trim().length < 3) {
     showNotification('Nombre debe tener al menos 3 caracteres', 'error');
     return false;
   }
 
-  // Cargo required
   if (!data.cargo || data.cargo.trim() === '') {
     showNotification('Cargo es requerido', 'error');
     return false;
   }
 
-  // Area required
   if (!data.area || data.area.trim() === '') {
     showNotification('Área es requerida', 'error');
     return false;
-  }
-
-  // Date validation: fecha_respuesta_soporte not future
-  if (data.fecha_respuesta_soporte) {
-    const selectedDate = new Date(data.fecha_respuesta_soporte);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    if (selectedDate > today) {
-      showNotification('La fecha no puede ser futura', 'error');
-      return false;
-    }
   }
 
   return true;
@@ -294,20 +243,15 @@ function validateEmployeeForm(data) {
 async function handleFormSubmit(e) {
   e.preventDefault();
 
-  // Gather form data
   const formData = new FormData(formEmployee);
   const data = {
     cedula: formData.get('cedula') || '',
-    nombre: formData.get('nombre') || '',
+    nombre_completo: formData.get('nombre') || '',
     cargo: formData.get('cargo') || '',
     area: formData.get('area') || '',
-    usuario: formData.get('usuario') || '',
-    contraseña: formData.get('contraseña') || '',
-    estado: formData.get('estado') || 'pendiente',
-    fecha_respuesta_soporte: formData.get('fecha_respuesta_soporte') || null
+    estado: formData.get('estado') || 'pendiente'
   };
 
-  // Validate
   if (!validateEmployeeForm(data)) {
     return;
   }
@@ -330,8 +274,6 @@ async function handleFormSubmit(e) {
     if (!response.ok) {
       throw new Error(`Error: ${response.status}`);
     }
-
-    const result = await response.json();
 
     showNotification(
       editingEmployeeId

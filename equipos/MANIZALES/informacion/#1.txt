@@ -1,0 +1,134 @@
+=============================== 
+ INVENTARIO DE EQUIPO DESKTOP-QDG47UF 
+ Fecha: mi‚. 22/04/2026 - Hora:  7:22:27,62 
+=============================== 
+ 
+==== SERIAL DEL EQUIPO ==== 
+
+
+SerialNumber : MJ05PUFC
+
+
+
+ 
+==== INFORMACIÃ“N DEL SISTEMA ==== 
+
+Nombre de host:                            DESKTOP-QDG47UF
+Nombre del sistema operativo:              Microsoft Windows 10 Pro
+Versi¢n del sistema operativo:             10.0.19045 N/D Compilaci¢n 19045
+Fabricante del sistema operativo:          Microsoft Corporation
+Configuraci¢n del sistema operativo:       Estaci¢n de trabajo independiente
+Tipo de compilaci¢n del sistema operativo: Multiprocessor Free
+Propiedad de:                              Usuario de Windows
+Organizaci¢n registrada:                   
+Id. del producto:                          00330-50063-23936-AAOEM
+Fecha de instalaci¢n original:             21/10/2020, 3:23:15 p.ÿm.
+Tiempo de arranque del sistema:            21/04/2026, 7:37:08 a.ÿm.
+Fabricante del sistema:                    LENOVO
+Modelo el sistema:                         10MQS2DC00
+Tipo de sistema:                           x64-based PC
+Procesador(es):                            1 Procesadores instalados.
+                                           [01]: Intel64 Family 6 Model 94 Stepping 3 GenuineIntel ~2208 Mhz
+Versi¢n del BIOS:                          LENOVO M1AKT23A, 7/07/2017
+Directorio de Windows:                     C:\Windows
+Directorio de sistema:                     C:\Windows\system32
+Dispositivo de arranque:                   \Device\HarddiskVolume2
+Configuraci¢n regional del sistema:        es-co;Espa¤ol (Colombia)
+Idioma de entrada:                         es-mx;Espa¤ol (M‚xico)
+Zona horaria:                              (UTC-05:00) Bogot , Lima, Quito, Rio Branco
+Cantidad total de memoria f¡sica:          8.080 MB
+Memoria f¡sica disponible:                 3.081 MB
+Memoria virtual: tama¤o m ximo:            9.360 MB
+Memoria virtual: disponible:               3.930 MB
+Memoria virtual: en uso:                   5.430 MB
+Ubicaci¢n(es) de archivo de paginaci¢n:    C:\pagefile.sys
+Dominio:                                   WORKGROUP
+Servidor de inicio de sesi¢n:              \\DESKTOP-QDG47UF
+Revisi¢n(es):                              18 revisi¢n(es) instaladas.
+                                           [01]: KB5066130
+                                           [02]: KB5056577
+                                           [03]: KB4537759
+                                           [04]: KB4557968
+                                           [05]: KB4577586
+                                           [06]: KB5011048
+                                           [07]: KB5011056
+                                           [08]: KB5015684
+                                           [09]: KB5072653
+                                           [10]: KB5071959
+                                           [11]: KB5054682
+                                           [12]: KB5058526
+                                           [13]: KB5059504
+                                           [14]: KB5063706
+                                           [15]: KB5063261
+                                           [16]: KB5063979
+                                           [17]: KB5066790
+                                           [18]: KB5071982
+Tarjeta(s) de red:                         1 Tarjetas de interfaz de red instaladas.
+                                           [01]: Intel(R) Ethernet Connection (2) I219-V
+                                                 Nombre de conexi¢n: Ethernet 2
+                                                 DHCP habilitado:    S¡
+                                                 Servidor DHCP:      192.168.20.1
+                                                 Direcciones IP
+                                                 [01]: 192.168.20.209
+                                                 [02]: fe80::a95d:472c:1b55:d50b
+                                                 [03]: 2800:484:8f83:db50:d888:9491:841c:5652
+                                                 [04]: 2800:484:8f83:db50:9b53:efe4:1cce:5745
+                                                 [05]: 2800:484:8f83:db50::898a
+Requisitos Hyper-V:                        Extensiones de modo de monitor de VM: S¡
+                                           Se habilit¢ la virtualizaci¢n en el firmware: No
+                                           Traducci¢n de direcciones de segundo nivel: S¡
+                                           La prevenci¢n de ejecuci¢n de datos est  disponible: S¡
+ 
+==== CPU ==== 
+
+
+Name                      : Intel(R) Core(TM) i5-8500T CPU
+NumberOfCores             : 4
+NumberOfLogicalProcessors : 4
+MaxClockSpeed             : 2208
+
+
+
+ 
+==== MEMORIA RAM ==== 
+
+
+Manufacturer : Samsung
+PartNumber   : M471A1K43BB1-CRC    
+Capacity     : 8589934592
+Speed        : 2400
+
+
+
+ 
+==== DISCO DURO ==== 
+
+
+Model         : HP SSD EX900 250GB
+SerialNumber  : HBSE22032700908     _00000001.
+Size          : 250056737280
+InterfaceType : SCSI
+MediaType     : Fixed hard disk media
+
+
+
+ 
+==== PARTICIONES ==== 
+
+
+DeviceID   : C:
+FileSystem : NTFS
+Size       : 249413234688
+FreeSpace  : 3207225344
+VolumeName : 
+
+DeviceID   : Z:
+FileSystem : NTFS
+Size       : 511463911424
+FreeSpace  : 446507003904
+VolumeName : 
+
+
+
+ 
+==== FIN DEL INFORME ==== 
