@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IT Support — Panel de Gestión</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/css/variables.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/theme.css">
+
+  <!-- External -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+  <!-- Theme hook (prevent flash) -->
+  <script>
+    (function(){
+      var t = localStorage.getItem('theme');
+      if (t === 'light') document.documentElement.setAttribute('data-theme','light');
+    })();
+  </script>
+</head>
+<body>
+
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-logo">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+             fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/>
+          <line x1="12" y1="17" x2="12" y2="21"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <h1>IT Support</h1>
+        <span>Panel de Gestión</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-menu">
+      <a href="#dashboard" class="menu-item" id="nav-dashboard" style="display:none;">
+        <span class="menu-icon"><i data-lucide="layout-dashboard" class="lucide"></i></span>
+        <span class="menu-label">Dashboard</span>
+      </a>
+      <a href="#tickets" class="menu-item" id="nav-tickets" style="display:none;">
+        <span class="menu-icon"><i data-lucide="ticket" class="lucide"></i></span>
+        <span class="menu-label">Tickets</span>
+      </a>
+      <a href="#tech-requests" class="menu-item" id="nav-tech-requests" style="display:none;">
+        <span class="menu-icon"><i data-lucide="package" class="lucide"></i></span>
+        <span class="menu-label">Requerimientos</span>
+      </a>
+      <a href="#faqs" class="menu-item" id="nav-faqs" style="display:none;">
+        <span class="menu-icon"><i data-lucide="book-open" class="lucide"></i></span>
+        <span class="menu-label">Base de Conocimiento</span>
+      </a>
+      <a href="#sedes" class="menu-item" id="nav-sedes" style="display:none;">
+        <span class="menu-icon"><i data-lucide="map-pin" class="lucide"></i></span>
+        <span class="menu-label">Red de Puntos</span>
+      </a>
+      <a href="#reuniones" class="menu-item" id="nav-reuniones" style="display:none;">
+        <span class="menu-icon"><i data-lucide="calendar" class="lucide"></i></span>
+        <span class="menu-label">Calendario</span>
+      </a>
+      <a href="#despacho" class="menu-item" id="nav-despacho" style="display:none;">
+        <span class="menu-icon"><i data-lucide="package-check" class="lucide"></i></span>
+        <span class="menu-label">Despacho</span>
+      </a>
+      <a href="#trazabilidad" class="menu-item" id="nav-trazabilidad" style="display:none;">
+        <span class="menu-icon"><i data-lucide="route" class="lucide"></i></span>
+        <span class="menu-label">Trazabilidad</span>
+      </a>
+      <a href="#audit" class="menu-item" id="nav-audit" style="display:none;">
+        <span class="menu-icon"><i data-lucide="shield-check" class="lucide"></i></span>
+        <span class="menu-label">Auditoría</span>
+      </a>
+      <a href="#inventario" class="menu-item" id="nav-inventario" style="display:none;">
+        <span class="menu-icon"><i data-lucide="package-search" class="lucide"></i></span>
+        <span class="menu-label">Inventario</span>
+      </a>
+      <a href="#monitoreo" class="menu-item" id="nav-monitoreo" style="display:none;">
+        <span class="menu-icon"><i data-lucide="monitor" class="lucide"></i></span>
+        <span class="menu-label">Monitoreo</span>
+      </a>
+      <a href="/farmacias.html" class="menu-item" id="nav-farmacias" style="display:none;">
+        <span class="menu-icon"><i data-lucide="map-pin" class="lucide"></i></span>
+        <span class="menu-label">Farmacias FOMAG</span>
+      </a>
+      <a href="#users" class="menu-item" id="nav-users" style="display:none;">
+        <span class="menu-icon"><i data-lucide="users" class="lucide"></i></span>
+        <span class="menu-label">Usuarios</span>
+      </a>
+      <a href="#employees" class="menu-item" id="nav-employees" style="display:none;">
+        <span class="menu-icon"><i data-lucide="user-plus" class="lucide"></i></span>
+        <span class="menu-label">Crear Usuarios</span>
+      </a>
+      <a href="#settings" class="menu-item" id="nav-settings">
+        <span class="menu-icon"><i data-lucide="settings" class="lucide"></i></span>
+        <span class="menu-label">Configuración</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="sidebar-footer">
+      <span>v1.0.0</span>
+      <span class="pulse-indicator"></span>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <header class="app-header">
+      <div class="header-search">
+        <button class="hamburger" id="sidebar-toggle" aria-label="Abrir menú">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+      <div class="header-profile">
+        <span class="agent-badge" id="header-connection-badge">Conectado</span>
+        <span id="current-user-label" style="font-size:13px;color:var(--text-2);display:none;"></span>
+        <button id="btn-logout" title="Cerrar sesión"
+          style="display:none;background:transparent;border:1px solid var(--border);
+                 color:var(--text-2);border-radius:6px;padding:4px 10px;font-size:12px;
+                 cursor:pointer;font-family:inherit;transition:all 0.15s ease;">
+          Salir
+        </button>
+        <button id="btn-theme-toggle" class="btn-theme-toggle" title="Cambiar tema" aria-label="Cambiar tema">
+          <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="6"/>
+            <line x1="12" y1="18" x2="12" y2="22"/><line x1="4.22" y1="4.22" x2="7.05" y2="7.05"/>
+            <line x1="16.95" y1="16.95" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="6" y2="12"/>
+            <line x1="18" y1="12" x2="22" y2="12"/><line x1="4.22" y1="19.78" x2="7.05" y2="16.95"/>
+            <line x1="16.95" y1="7.05" x2="19.78" y2="4.22"/>
+          </svg>
+          <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </button>
+        <div class="avatar" id="current-agent-avatar">A</div>
+      </div>
+    </header>
+
+    <div id="app" class="page-container"></div>
+  </main>
+
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- ====== SCRIPTS ====== -->
+  <!-- 1. CORE (Bootstrapping) -->
+  <script src="/js/core/constants.js"></script>
+  <script src="/js/core/api.js"></script>
+  <script src="/js/core/state.js"></script>
+  <script src="/js/core/router.js"></script>
+  <script src="/js/core/sse.js"></script>
+  <script src="/js/core/whatsapp.js"></script>
+  <script src="/js/core/scroll-lock.js"></script>
+
+  <!-- 2. UI COMPONENTS -->
+  <script src="/js/ui/modal.js"></script>
+  <script src="/js/ui/forms.js"></script>
+  <script src="/js/ui/toast.js"></script>
+  <script src="/js/ui/components.js"></script>
+
+  <!-- 3. UTILS -->
+  <script src="/js/utils/format.js"></script>
+  <script src="/js/utils/validators.js"></script>
+  <script src="/js/utils/dom.js"></script>
+  <script src="/js/utils/storage.js"></script>
+  <script src="/js/utils/logger.js"></script>
+  <script src="/js/utils/icons.js"></script>
+
+  <!-- 4. FEATURE SERVICES -->
+  <script src="/js/features/tickets/tickets-service.js"></script>
+  <script src="/js/features/despacho/despacho-service.js"></script>
+  <script src="/js/features/tech-requests/tech-request-service.js"></script>
+  <script src="/js/features/tracking/tracking-service.js"></script>
+  <script src="/js/features/inventario/inventario-service.js"></script>
+  <script src="/js/features/reuniones/reuniones-service.js"></script>
+  <script src="/js/features/usuarios/usuarios-service.js"></script>
+
+  <!-- 5. FEATURE MODULES -->
+  <script src="/js/features/dashboard/dashboard.js"></script>
+
+  <script src="/js/features/tickets/ticket-list.js"></script>
+  <script src="/js/features/tickets/ticket-detail.js"></script>
+  <script src="/js/features/tickets/ticket-ai-panel.js"></script>
+
+  <script src="/js/features/despacho/despacho-list.js"></script>
+  <script src="/js/features/despacho/despacho-detail.js"></script>
+  <script src="/js/features/despacho/despacho-form.js"></script>
+  <script src="/js/features/despacho/despacho-rotulo.js"></script>
+  <script src="/js/features/despacho/despacho-helpers.js"></script>
+
+  <script src="/js/features/tech-requests/tech-requests-list.js"></script>
+  <script src="/js/features/tech-requests/tech-request-detail.js"></script>
+  <script src="/js/features/tech-requests/tech-request-form.js"></script>
+  <script src="/js/features/tech-requests/tech-request-acta.js"></script>
+
+  <script src="/js/features/tracking/tracking-public.js"></script>
+  <script src="/js/features/tracking/trazabilidad.js"></script>
+
+  <script src="/js/features/inventario/inventario.js"></script>
+  <script src="/js/features/inventario/inventario-forms.js"></script>
+  <script src="/js/features/inventario/inventario-import.js"></script>
+  <script src="/js/features/inventario/inventario-scanner.js"></script>
+
+  <script src="/js/features/reuniones/reuniones-admin.js"></script>
+  <script src="/js/features/reuniones/reuniones-public.js"></script>
+
+  <script src="/js/features/usuarios/users.js"></script>
+  <script src="/js/features/usuarios/roles.js"></script>
+  <script src="/js/features/usuarios/employees.js"></script>
+  <script src="/js/features/usuarios/employees-form.js"></script>
+
+  <script src="/js/features/settings/settings.js"></script>
+  <script src="/js/features/settings/punto-setup-modal.js"></script>
+  <script src="/js/features/settings/sedes-admin.js"></script>
+  <script src="/js/features/settings/bodegas-admin.js"></script>
+
+  <script src="/js/features/audit/audit.js"></script>
+  <script src="/js/features/farmacias/farmacias.js"></script>
+  <script src="/js/features/firmar/firmar.js"></script>
+  <script src="/js/features/monitoreo/monitoreo.js"></script>
+  <script src="/js/features/herramientas/faqs.js"></script>
+
+  <!-- 6. INIT -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Sidebar toggle
+      const toggle = document.getElementById('sidebar-toggle');
+      const overlay = document.getElementById('sidebar-overlay');
+      const close = () => document.body.classList.remove('sidebar-open');
+
+      if (toggle) {
+        toggle.addEventListener('click', () => document.body.classList.toggle('sidebar-open'));
+      }
+      if (overlay) {
+        overlay.addEventListener('click', close);
+      }
+      document.querySelectorAll('.menu-item').forEach(el => {
+        el.addEventListener('click', close);
+      });
+
+      // Theme toggle
+      document.getElementById('btn-theme-toggle')?.addEventListener('click', function () {
+        var html = document.documentElement;
+        var isLight = html.getAttribute('data-theme') === 'light';
+        if (isLight) {
+          html.removeAttribute('data-theme');
+          localStorage.setItem('theme', 'dark');
+        } else {
+          html.setAttribute('data-theme', 'light');
+          localStorage.setItem('theme', 'light');
+        }
+      });
+
+      // Lucide icons
+      if (window.lucide) lucide.createIcons();
+      const observer = new MutationObserver(() => {
+        if (window.lucide) lucide.createIcons();
+      });
+      observer.observe(document.getElementById('app') || document.body, { childList: true, subtree: false });
+
+      // Check auth and init
+      if (typeof Router !== 'undefined') {
+        Router.init();
+      }
+    });
+  </script>
+</body>
+</html>
