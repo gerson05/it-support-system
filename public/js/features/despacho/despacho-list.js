@@ -13,7 +13,7 @@ import { createLoadingSpinner, createEmptyState } from '../../ui/components.js';
 import { fetchDespachos, actaBadge, articulosCount, _timeAgo } from './despacho-helpers.js';
 import { openDetailModal } from './despacho-detail.js';
 import { openCreateModal, openEditDespachoModal } from './despacho-form.js';
-import { renderBodegasPanel } from './bodegas-admin.js';
+import { renderBodegasPanel } from '../settings/bodegas-admin.js';
 
 export async function renderDespacho(container) {
   container.innerHTML = `
