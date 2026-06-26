@@ -1,5 +1,5 @@
 import express from 'express';
-import { requireAuth } from '../auth/auth-middleware.js';
+import { requireAuth, requirePermission } from '../auth/auth-middleware.js';
 import {
   getAllEmployees, getEmployeeById,
   createEmployee, completeEmployee, updateEmployee, deleteEmployee,

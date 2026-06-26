@@ -9,7 +9,7 @@ import { requireAuth, requirePermission } from '../auth/auth-middleware.js';
 import { createTracking }    from '../tracking/tracking-model.js';
 import {
   generateNumero, generateActaNumero,
-  getDespachos, getDespachoById, insertDespacho, patchDespacho,
+  getDespachos, getDespachoById, insertDespacho, patchDespacho, deleteDespacho,
   getBorrador, upsertBorrador, deleteBorrador,
   getTiposArticulo, upsertTipoArticulo, deactivateTipoArticulo,
   getConfirmacion, createConfirmacion, getConfirmacionByToken, confirmDelivery,
@@ -21,6 +21,7 @@ const router = express.Router();
 const canRead   = [requireAuth, requirePermission('despacho:read')];
 const canCreate = [requireAuth, requirePermission('despacho:create')];
 const canEdit   = [requireAuth, requirePermission('despacho:edit')];
+const canDelete = [requireAuth, requirePermission('despacho:delete')];
 
 /* ── Despachos CRUD ──────────────────────────────────────────────────── */
 
@@ -121,6 +122,17 @@ router.put('/api/despachos/:id', ...canEdit, (req, res) => {
     const row = getDespachoById(db, id);
     logAudit(agente || 'Sistema', 'Despacho actualizado', 'despacho', id, row?.numero, { acta_firmada, destinatario });
     res.json({ success: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+router.delete('/api/despachos/:id', ...canDelete, (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const row = getDespachoById(db, id);
+    if (!row) return res.status(404).json({ error: 'Despacho no encontrado.' });
+    deleteDespacho(db, id);
+    logAudit(req.user?.username || 'Sistema', 'Despacho eliminado', 'despacho', id, row.numero, { destinatario: row.destinatario });
+    res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 

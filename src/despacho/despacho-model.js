@@ -57,6 +57,12 @@ export function insertDespacho(db, { numero, destinatario, cedula, sede, area, a
   return db.prepare('SELECT last_insert_rowid() as id').get().id;
 }
 
+export function deleteDespacho(db, id) {
+  db.prepare('DELETE FROM confirmaciones_entrega WHERE despacho_id = ?').run(id);
+  db.prepare('DELETE FROM paquete_tracking WHERE despacho_id = ?').run(id);
+  db.prepare('DELETE FROM despachos WHERE id = ?').run(id);
+}
+
 export function patchDespacho(db, id, fieldMap) {
   const entries = Object.entries(fieldMap);
   if (!entries.length) return;
