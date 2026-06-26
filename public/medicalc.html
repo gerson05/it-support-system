@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MediCalc — IT Support</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,17 +14,17 @@
 <body>
 
 <!-- TOPBAR MEDIVALLE -->
-<div style="background:#11273C;padding:12px 28px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.08);position:sticky;top:0;z-index:100">
-  <a href="/herramientas.html" style="display:flex;align-items:center;gap:12px;text-decoration:none">
-    <div style="background:#05A0D8;width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:14px">M</div>
-    <div>
-      <div style="color:#fff;font-size:14px;font-weight:700;line-height:1.2">Medivalle SF S.A.S</div>
-      <div style="color:rgba(255,255,255,.4);font-size:10px;text-transform:uppercase;letter-spacing:.5px">Herramientas Internas</div>
+<div class="mc-topbar">
+  <a href="/herramientas.html" class="mc-brand">
+    <div class="mc-brand-ico">M</div>
+    <div class="mc-brand-text">
+      <div class="mc-brand-name">Medivalle SF S.A.S</div>
+      <div class="mc-brand-sub">Herramientas Internas</div>
     </div>
   </a>
-  <div style="display:flex;gap:6px">
-    <a href="/requerimientos.html" style="color:rgba(255,255,255,.6);font-size:12px;font-weight:500;text-decoration:none;padding:5px 12px;border-radius:5px;border:1px solid rgba(255,255,255,.12)">📋 Requerimientos</a>
-    <a href="/medicalc.html" style="background:#05A0D8;color:#fff;font-size:12px;font-weight:600;text-decoration:none;padding:5px 12px;border-radius:5px;border:1px solid #05A0D8">🧮 MediCalc</a>
+  <div class="mc-nav">
+    <a href="/requerimientos.html" class="mc-nav-link">📋 <span class="mc-nav-txt">Requerimientos</span></a>
+    <a href="/medicalc.html" class="mc-nav-link mc-nav-active">🧮 <span class="mc-nav-txt">MediCalc</span></a>
   </div>
 </div>
 
@@ -37,7 +37,7 @@
 <!-- ═══ CALCULADORA ════ -->
 <div class="medicalc-wrap">
 
-<div class="tabs-bar">
+<div class="tabs-wrap"><div class="tabs-bar">
   <button class="tab-btn active" onclick="tab(0)">
     <div class="tab-icon" style="background:#0EA5E9"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l6 9.5c1.4 2.3 1.4 5.2 0 7.5A7 7 0 015 12.5L12 2z"/></svg></div>
     <span class="tab-lbl">Liquidos</span>
@@ -74,7 +74,7 @@
     <div class="tab-icon" style="background:#009D70"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
     <span class="tab-lbl">Regla 3</span>
   </button>
-</div>
+</div></div>
 
 <!-- ===== MOD 0: LIQUIDOS ===== -->
 <div class="mod-content active" id="mod-0">

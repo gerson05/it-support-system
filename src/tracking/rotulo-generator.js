@@ -9,7 +9,7 @@ const LOGO_B64   = fs.existsSync(LOGO_PATH)
   ? 'data:image/png;base64,' + fs.readFileSync(LOGO_PATH).toString('base64')
   : '';
 
-function labelHtml(destino, qrB64, numero, emite, tipo, cajasN, dd, mm, aaaa) {
+function labelHtml(destino, qrB64, numero, emite, tipo, cajasN, dd, mm, aaaa, responsable) {
   return `
   <div class="label">
     <div class="lbl-top">
@@ -39,6 +39,10 @@ function labelHtml(destino, qrB64, numero, emite, tipo, cajasN, dd, mm, aaaa) {
         <div class="lk">REMITE</div>
         <div class="lv remite">${emite}</div>
       </div>
+      <div class="lbl-row recibe-row">
+        <div class="lk">RECIBE</div>
+        <div class="lv recibe">${responsable ? responsable.toUpperCase() : '—'}</div>
+      </div>
       <div class="lbl-row no-border cajas-row">
         <div class="lk">CAJAS</div>
         <div class="lv cajas-num">${cajasN}</div>
@@ -49,7 +53,7 @@ function labelHtml(destino, qrB64, numero, emite, tipo, cajasN, dd, mm, aaaa) {
   </div>`;
 }
 
-function labelHtmlCompact(destino, qrB64, numero, emite, tipo, cajasN, dd, mm, aaaa, wMM, hMM) {
+function labelHtmlCompact(destino, qrB64, numero, emite, tipo, cajasN, dd, mm, aaaa, wMM, hMM, responsable) {
   const qrMM = Math.min(Math.round(hMM * 0.27), 22);
   return `
   <div class="label-c">
@@ -64,6 +68,10 @@ function labelHtmlCompact(destino, qrB64, numero, emite, tipo, cajasN, dd, mm, a
       </div>
     </div>
     <div class="lc-dest">${destino}</div>
+    <div class="lc-recibe">
+      <span style="font-size:${Math.max(7, Math.round(hMM * 0.075))}px;color:#555;font-weight:700;text-transform:uppercase;letter-spacing:.4px;">RECIBE</span>
+      <span style="font-size:${Math.max(9, Math.round(hMM * 0.11))}px;font-weight:700;text-transform:uppercase;color:#000;">${responsable ? responsable.toUpperCase() : '—'}</span>
+    </div>
     <div class="lc-fecha">
       <span style="font-size:${Math.max(7, Math.round(hMM * 0.075))}px;color:#555;font-weight:600;">FECHA</span>
       <span>${dd} / ${mm} / ${aaaa}</span>
@@ -120,6 +128,8 @@ body{font-family:Arial,Helvetica,sans-serif;background:#f0f4f8}
 .dest{font-size:22px!important;color:#000!important;font-weight:900!important;text-transform:uppercase!important;line-height:1.25;word-break:break-word}
 .remite-row{min-height:55px}
 .remite{font-size:14px!important;color:#000!important;font-weight:600!important;text-transform:uppercase!important}
+.recibe-row{min-height:55px}
+.recibe{font-size:14px!important;color:#000!important;font-weight:700!important;text-transform:uppercase!important}
 .cajas-row{min-height:55px}
 .cajas-num{flex:0 0 70px!important;min-width:70px!important;max-width:70px;border-right:1.5px solid #888;justify-content:center;font-size:32px!important;color:#000!important;padding:4px 0!important}
 .lk-desc{border-left:none;width:110px;min-width:110px}
@@ -150,7 +160,8 @@ body{font-family:Arial,Helvetica,sans-serif;background:#f0f4f8}
 .lc-title{flex:1;background:#fff;color:#1e3a5f;display:flex;align-items:center;justify-content:center;text-align:center;font-weight:700;letter-spacing:2px;text-transform:uppercase;font-size:${Math.max(7, Math.round(hMM * 0.085))}px;padding:2mm;line-height:1.2}
 .lc-qr{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5mm 2mm;border-left:1.5px solid #1e3a5f;gap:1mm}
 .qr-num{font-size:6px;color:#555;text-align:center;word-break:break-all;font-family:monospace;max-width:${Math.round(hMM * 0.27)}mm}
-.lc-dest{flex:0 0 auto;min-height:${Math.round(hMM * 0.26)}mm;max-height:${Math.round(hMM * 0.32)}mm;overflow:hidden;font-size:${Math.max(10, Math.round(hMM * 0.16))}px;font-weight:900;text-transform:uppercase;color:#000;padding:2mm 3mm;display:flex;align-items:center;border-bottom:1.5px solid #888;word-break:break-word;line-height:1.1}
+.lc-dest{flex:0 0 auto;min-height:${Math.round(hMM * 0.22)}mm;max-height:${Math.round(hMM * 0.28)}mm;overflow:hidden;font-size:${Math.max(10, Math.round(hMM * 0.16))}px;font-weight:900;text-transform:uppercase;color:#000;padding:2mm 3mm;display:flex;align-items:center;border-bottom:1.5px solid #888;word-break:break-word;line-height:1.1}
+.lc-recibe{flex-shrink:0;padding:1.5mm 3mm;border-bottom:1.5px solid #888;display:flex;align-items:center;gap:3mm}
 .lc-fecha{flex-shrink:0;padding:2mm 3mm;border-bottom:1.5px solid #1e3a5f;font-size:${Math.max(12, Math.round(hMM * 0.145))}px;font-weight:700;color:#000;letter-spacing:1px;display:flex;align-items:center;gap:3mm}
 .lc-foot{display:flex;flex-shrink:0;min-height:${Math.round(hMM * 0.30)}mm}
 .lc-fcell{display:flex;flex-direction:column;justify-content:center;padding:1.5mm 2.5mm;flex:1}
@@ -183,6 +194,7 @@ export async function generateRotuloHtml(row, options = {}, trackingUrl, sedesAc
     tipo_articulo = 'ARTÍCULO',
     remite        = 'DPTO. DE SISTEMAS',
     remitente     = '',
+    responsable   = '',
     cajas         = '1',
     sedes         = '',
     printer       = 'normal',
@@ -232,8 +244,8 @@ export async function generateRotuloHtml(row, options = {}, trackingUrl, sedesAc
 
   const labelsHtml = destinations.map(d =>
     isLabel
-      ? labelHtmlCompact(d, qrB64, numero, emite, tipo, cajasN, dd, mm, aaaa, wMM, hMM)
-      : labelHtml(d, qrB64, numero, emite, tipo, cajasN, dd, mm, aaaa)
+      ? labelHtmlCompact(d, qrB64, numero, emite, tipo, cajasN, dd, mm, aaaa, wMM, hMM, responsable)
+      : labelHtml(d, qrB64, numero, emite, tipo, cajasN, dd, mm, aaaa, responsable)
   ).join('\n');
 
   const css = isLabel ? buildLabelCss(wMM, hMM) : NORMAL_CSS;
