@@ -9,7 +9,7 @@ import {
 import { showToast, createLoadingSpinner } from '../../ui/components.js';
 import { iconChevronLeft, iconAlert, iconSend } from '../../utils/icons.js';
 import DataService from '../../core/api.js';
-import { openFaqFromTicket } from './faqs.js';
+import { openFaqFromTicket } from '../herramientas/faqs.js';
 import { initAiTab } from './ticket-ai-panel.js';
 
 
