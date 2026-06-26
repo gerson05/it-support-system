@@ -1,4 +1,4 @@
-import { showToast, invalidateBodegasCache } from './components.js';
+import { showToast, invalidateBodegasCache } from '../../ui/components.js';
 
 async function fetchBodegas() {
   const r = await fetch('/api/bodegas');

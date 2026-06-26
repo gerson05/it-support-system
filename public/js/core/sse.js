@@ -1,7 +1,7 @@
-import { state }       from './app-state.js';
-import { showToast }   from './components.js';
-import { getAreaName } from './app-constants.js';
-import { router }      from './app-router.js';
+import { state }       from './state.js';
+import { showToast }   from '../ui/components.js';
+import { getAreaName } from './constants.js';
+import { router }      from './router.js';
 
 export function startRealTimeUpdates() {
   if (window._offlineMode) return;

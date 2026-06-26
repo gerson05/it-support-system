@@ -1,5 +1,5 @@
-import { showToast } from './components.js';
-import DataService from './data-service.js';
+import { showToast } from '../../ui/components.js';
+import DataService from '../../core/api.js';
 
 export function renderSimulator(container) {
   // Teléfono de prueba por defecto
