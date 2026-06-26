@@ -12,9 +12,16 @@ const Router = {
 
   // Navigate to route
   async navigate(path) {
-    const handler = this.routes[path];
+    let handler = this.routes[path];
+
+    // Fallback to dashboard if route not found
     if (!handler) {
-      console.error(`No route handler for ${path}`);
+      console.warn(`No route handler for ${path}, falling back to dashboard`);
+      handler = this.routes['dashboard'] || this.routes[''];
+    }
+
+    if (!handler) {
+      console.error(`No fallback route available`);
       return;
     }
 
