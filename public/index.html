@@ -180,34 +180,8 @@
 
   <div id="toast-container" class="toast-container"></div>
 
-  <!-- 1. CORE (simple versions without imports) -->
-  <script src="/js/core/api-simple.js"></script>
-  <script src="/js/core/state-simple.js"></script>
-  <script src="/js/core/router-simple.js"></script>
-
-  <!-- 2. UTILITIES -->
-  <script src="/js/utils/format.js"></script>
-  <script src="/js/utils/validators.js"></script>
-  <script src="/js/utils/dom.js"></script>
-  <script src="/js/utils/storage.js"></script>
-  <script src="/js/utils/logger.js"></script>
-
-  <!-- 3. UI COMPONENTS -->
-  <script src="/js/ui/modal.js"></script>
-  <script src="/js/ui/forms.js"></script>
-  <script src="/js/ui/toast.js"></script>
-
-  <!-- 4. SERVICES -->
-  <script src="/js/features/tickets/tickets-service.js"></script>
-  <script src="/js/features/despacho/despacho-service.js"></script>
-  <script src="/js/features/tech-requests/tech-request-service.js"></script>
-  <script src="/js/features/tracking/tracking-service.js"></script>
-  <script src="/js/features/inventario/inventario-service.js"></script>
-  <script src="/js/features/reuniones/reuniones-service.js"></script>
-  <script src="/js/features/usuarios/usuarios-service.js"></script>
-
-  <!-- 5. FEATURES -->
-  <script src="/js/features/dashboard/dashboard-simple.js"></script>
+  <!-- Entry point: loads all modules via ES6 imports with fixed paths -->
+  <script type="module" src="/js/core/app.js"></script>
 
   <!-- 6. INIT APP -->
   <script>

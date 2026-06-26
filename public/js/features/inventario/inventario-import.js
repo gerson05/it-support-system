@@ -5,8 +5,8 @@
  *  - openImportModal(activeTab, onSuccess) — Import Excel modal wizard
  */
 
-import { showToast } from './components.js';
-import { iconUpload, iconMonitor, iconSmartphone, iconCheck } from './icons.js';
+import { showToast } from '../../ui/components.js';
+import { iconUpload, iconMonitor, iconSmartphone, iconCheck } from '../../utils/icons.js';
 
 function esc(str) {
   return String(str || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');

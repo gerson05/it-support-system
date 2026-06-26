@@ -10,10 +10,10 @@
  *  - Post-execution actions: resolve ticket + add internal note (wirePostExecutionActions)
  */
 
-import { showToast } from './components.js';
-import { createAiKbCard, createExecutionModal } from './components.js';
-import { state } from './app.js';
-import DataService from './data-service.js';
+import { showToast } from '../../ui/components.js';
+import { createAiKbCard, createExecutionModal } from '../../ui/components.js';
+import { state } from '../../core/app.js';
+import DataService from '../../core/api.js';
 
 /* ── Public API ─────────────────────────────────────────── */
 

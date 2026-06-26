@@ -6,12 +6,12 @@
  *  - openEditModal(id, onSuccess)         — Editar solicitud
  *  - _esc(str)                            — helper interno compartido
  */
-import { showToast, attachSedeSearch } from './components.js';
-import { AREA_MAPPINGS } from './app.js';
+import { showToast, attachSedeSearch } from '../../ui/components.js';
+import { AREA_MAPPINGS } from '../../core/app.js';
 import {
   iconNote, iconPlus, iconClose, iconEdit,
   iconClipboard, iconWrench, iconCopy, iconSave,
-} from './icons.js';
+} from '../../utils/icons.js';
 
 const toTitleCase    = s => (s || '').toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
 const toSentenceCase = s => { const v = (s || '').trim(); return v ? v.charAt(0).toUpperCase() + v.slice(1) : v; };

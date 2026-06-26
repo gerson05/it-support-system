@@ -5,11 +5,11 @@
  * Form modals are now in:
  *  - tech-request-form.js â†’ openModal, openEditModal
  */
-import { showToast } from './components.js';
-import { formatDate, formatTimeAgo } from './app.js';
+import { showToast } from '../../ui/components.js';
+import { formatDate, formatTimeAgo } from '../../core/app.js';
 import {
   iconSearch, iconPlus, iconEdit, iconClipboard, iconWrench, iconTrash,
-} from './icons.js';
+} from '../../utils/icons.js';
 import { openModal, openEditModal } from './tech-request-form.js';
 
 /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•

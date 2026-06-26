@@ -8,7 +8,7 @@
  *  - articulosList(d)
  *  - API fetch wrappers
  */
-import { AREA_MAPPINGS } from './app.js';
+import { AREA_MAPPINGS } from '../../core/app.js';
 
 export function _timeAgo(dateStr) {
   const diff = Date.now() - new Date(dateStr).getTime();

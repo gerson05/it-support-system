@@ -1,5 +1,5 @@
-import { showToast } from './components.js';
-import { iconLock, iconChevronDown, iconChevronUp } from './icons.js';
+import { showToast } from '../../ui/components.js';
+import { iconLock, iconChevronDown, iconChevronUp } from '../../utils/icons.js';
 
 let _modules = [];
 let _roles   = [];

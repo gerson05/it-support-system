@@ -1,5 +1,5 @@
 // public/js/reuniones-admin.js
-import { showToast } from './components.js';
+import { showToast } from '../../ui/components.js';
 
 const esc = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
