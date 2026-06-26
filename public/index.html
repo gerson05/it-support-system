@@ -180,19 +180,19 @@
 
   <div id="toast-container" class="toast-container"></div>
 
-  <!-- New utility modules (no imports) -->
+  <!-- New utility modules (no imports, proven working) -->
   <script src="/js/utils/format.js"></script>
   <script src="/js/utils/validators.js"></script>
   <script src="/js/utils/dom.js"></script>
   <script src="/js/utils/storage.js"></script>
   <script src="/js/utils/logger.js"></script>
 
-  <!-- UI Components (no imports) -->
+  <!-- UI Components (no imports, proven working) -->
   <script src="/js/ui/modal.js"></script>
   <script src="/js/ui/forms.js"></script>
   <script src="/js/ui/toast.js"></script>
 
-  <!-- Service layers (no imports, use fetch directly) -->
+  <!-- Service layers (no imports, proven working) -->
   <script src="/js/features/tickets/tickets-service.js"></script>
   <script src="/js/features/despacho/despacho-service.js"></script>
   <script src="/js/features/tech-requests/tech-request-service.js"></script>
@@ -201,20 +201,7 @@
   <script src="/js/features/reuniones/reuniones-service.js"></script>
   <script src="/js/features/usuarios/usuarios-service.js"></script>
 
-  <!-- Legacy code with imports - load LAST so exports are available -->
-  <!-- NOTE: These have relative imports that may fail -->
-  <script src="/js/core/constants.js"></script>
-  <script src="/js/core/api.js"></script>
-  <script src="/js/core/state.js"></script>
-  <script src="/js/core/router.js"></script>
-  <script src="/js/ui/components.js"></script>
-
-  <!-- Feature modules (use legacy imports or standalone) -->
-  <script src="/js/features/dashboard/dashboard.js"></script>
-  <script src="/js/features/tickets/ticket-list.js"></script>
-  <script src="/js/features/despacho/despacho-list.js"></script>
-
-  <!-- Init script -->
+  <!-- Init + theme + sidebar -->
   <script>
     // Inicializar Lucide icons y re-inicializar en cada navegación
     document.addEventListener('DOMContentLoaded', () => {
