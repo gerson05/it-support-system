@@ -4,7 +4,7 @@ import {
   getStatusBadge,
   getAreaEmoji,
   getAreaName
-} from './app.js';
+} from '../core/app.js';
 
 /* ── Iconos SVG inline (Lucide) ──────────────────────────────────────── */
 const AREA_ICONS = {

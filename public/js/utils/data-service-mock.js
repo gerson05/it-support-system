@@ -8,7 +8,7 @@
  * This module is only active when isOfflineMode === true.
  * The simulateBotMessage chatbot engine lives here.
  */
-import { getFaqsByArea, faqs } from './faq-data.js';
+import { getFaqsByArea, faqs } from '../features/herramientas/faq-data.js';
 
 // ── Area mappings (only used in offline chatbot flow) ─────────────────────
 const AREA_MAP = {
