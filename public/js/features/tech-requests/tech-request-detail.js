@@ -4,12 +4,12 @@
  *  - tech-request-acta.js -> openActaModal, setupFirmaSection
  */
 
-import { showToast } from './components.js';
-import { state, formatDate, formatTimeAgo } from './app.js';
+import { showToast } from '../../ui/components.js';
+import { state, formatDate, formatTimeAgo } from '../../core/app.js';
 import {
   iconDocument, iconClose, iconNote, iconSave, iconClipboard,
   iconWrench, iconCheck, iconSettings, iconTrash
-} from './icons.js';
+} from '../../utils/icons.js';
 import { openActaModal, setupFirmaSection } from './tech-request-acta.js';
 
 const STATUS_CFG = {

@@ -1,8 +1,8 @@
 /**
  * Gestión de Red de Puntos desde el panel de administración.
  */
-import { showToast } from './components.js';
-import { iconMapPin } from './icons.js';
+import { showToast } from '../../ui/components.js';
+import { iconMapPin } from '../../utils/icons.js';
 import { openPuntoSetupModal, openChecklistModal } from './punto-setup-modal.js';
 
 export async function renderSedesAdmin(container) {

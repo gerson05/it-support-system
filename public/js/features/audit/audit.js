@@ -1,5 +1,5 @@
-import { createLoadingSpinner } from './components.js';
-import { iconTag, iconEdit, iconMessage, iconImage, iconClipboard, iconDocument } from './icons.js';
+import { createLoadingSpinner } from '../../ui/components.js';
+import { iconTag, iconEdit, iconMessage, iconImage, iconClipboard, iconDocument } from '../../utils/icons.js';
 
 const ACTION_ICONS = {
   'Ticket creado':      iconTag(13),

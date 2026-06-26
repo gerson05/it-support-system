@@ -8,10 +8,10 @@
  *  - setupActaInteraction(body, d, actaInfo, overlay)
  *  - setupConfCopy(container)
  */
-import { showToast } from './components.js';
-import { createLoadingSpinner } from './components.js';
-import { iconClose, iconDocument, iconEdit, iconLink, iconUpload, iconRefresh, iconDownload, iconCopy } from './icons.js';
-import { AREA_MAPPINGS } from './app.js';
+import { showToast } from '../../ui/components.js';
+import { createLoadingSpinner } from '../../ui/components.js';
+import { iconClose, iconDocument, iconEdit, iconLink, iconUpload, iconRefresh, iconDownload, iconCopy } from '../../utils/icons.js';
+import { AREA_MAPPINGS } from '../../core/app.js';
 import {
   fetchDespacho, fetchActaInfo, fetchConfirmacion,
   articulosList, actaBadge,

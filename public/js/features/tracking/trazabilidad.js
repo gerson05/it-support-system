@@ -1,4 +1,4 @@
-import { formatDate } from './app.js';
+import { formatDate } from '../../core/app.js';
 
 const ESTADOS = {
   creado:      { label: 'Creado',      cls: 'badge-pendiente', icon: '📦' },

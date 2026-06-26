@@ -1,4 +1,4 @@
-import { showToast } from './components.js';
+import { showToast } from '../../ui/components.js';
 
 let _roles = [];
 

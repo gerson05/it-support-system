@@ -8,8 +8,8 @@
  *  - despacho-detail.js    → openDetailModal, renderActaSection, setupActaInteraction
  *  - despacho-form.js      → openCreateModal, openEditDespachoModal, buildArticuloRow
  */
-import { state } from './app.js';
-import { createLoadingSpinner, createEmptyState } from './components.js';
+import { state } from '../../core/app.js';
+import { createLoadingSpinner, createEmptyState } from '../../ui/components.js';
 import { fetchDespachos, actaBadge, articulosCount, _timeAgo } from './despacho-helpers.js';
 import { openDetailModal } from './despacho-detail.js';
 import { openCreateModal, openEditDespachoModal } from './despacho-form.js';

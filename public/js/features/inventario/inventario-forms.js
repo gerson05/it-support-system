@@ -7,10 +7,10 @@
  *  - openGenerarEnlaceModal()
  */
 
-import { showToast, copyToClipboard, attachBodegaSearch } from './components.js';
-import { iconMonitor, iconSmartphone } from './icons.js';
+import { showToast, copyToClipboard, attachBodegaSearch } from '../../ui/components.js';
+import { iconMonitor, iconSmartphone } from '../../utils/icons.js';
 import { openScanner, openSmartScanner } from './inventario-scanner.js';
-import { AREA_MAPPINGS } from './app-constants.js';
+import { AREA_MAPPINGS } from '../../core/constants.js';
 
 const toTitleCase = s => (s || '').toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
 

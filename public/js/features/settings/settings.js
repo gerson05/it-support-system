@@ -1,5 +1,5 @@
-import { showToast, copyToClipboard } from './components.js';
-import { isOfflineMode } from './data-service.js';
+import { showToast, copyToClipboard } from '../../ui/components.js';
+import { isOfflineMode } from '../../core/api.js';
 
 export async function renderSettings(container) {
   container.innerHTML = `

@@ -6,8 +6,8 @@
  *  - openRotuloModal(token, numero)
  *  - printDespacho(d)
  */
-import { AREA_MAPPINGS } from './app.js';
-import { showToast } from './components.js';
+import { AREA_MAPPINGS } from '../../core/app.js';
+import { showToast } from '../../ui/components.js';
 import { articulosList } from './despacho-helpers.js';
 
 let _tiposArticulo = [];

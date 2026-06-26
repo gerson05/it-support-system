@@ -2,10 +2,10 @@ import {
   createTicketRow,
   createEmptyState,
   createLoadingSpinner
-} from './components.js';
-import { iconRefresh } from './icons.js';
-import { state } from './app.js';
-import DataService from './data-service.js';
+} from '../../ui/components.js';
+import { iconRefresh } from '../../utils/icons.js';
+import { state } from '../../core/app.js';
+import DataService from '../../core/api.js';
 
 export async function renderTicketList(container) {
   let currentPage = 1;

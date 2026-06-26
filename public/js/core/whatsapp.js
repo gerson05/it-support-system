@@ -1,4 +1,4 @@
-import { showToast, copyToClipboard } from './components.js';
+import { showToast, copyToClipboard } from '../ui/components.js';
 
 let _waPollInterval = null;
 

@@ -1,5 +1,5 @@
-import { createTicketRow, createEmptyState, createLoadingSpinner } from './components.js';
-import DataService from './data-service.js';
+import { createTicketRow, createEmptyState, createLoadingSpinner } from '../../ui/components.js';
+import DataService from '../../core/api.js';
 
 let refreshInterval = null;
 let trendChart      = null;

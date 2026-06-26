@@ -1,5 +1,5 @@
-import { state } from './app.js';
-import { showToast } from './components.js';
+import { state } from '../../core/app.js';
+import { showToast } from '../../ui/components.js';
 import { buildArticuloRow } from './despacho-form.js';
 
 const esc = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');

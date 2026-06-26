@@ -9,9 +9,9 @@ import {
   mockGetAgents, mockGetTickets, mockGetTicketById,
   mockUpdateTicket, mockAddMessage, mockAddNote,
   mockGetMetrics, mockSimulateBot, mockResetSimulation,
-} from './data-service-mock.js';
+} from '../utils/data-service-mock.js';
 
-import { apiService } from './data-service-api.js';
+import { apiService } from './api-backup.js';
 
 export const isOfflineMode =
   window.location.protocol === 'file:' || window.location.hostname === '';

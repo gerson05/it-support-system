@@ -6,8 +6,8 @@
  *  - openCreateModal(onSuccess)
  *  - openEditDespachoModal(id, onSuccess)
  */
-import { state, AREA_MAPPINGS } from './app.js';
-import { showToast, attachBodegaSearch } from './components.js';
+import { state, AREA_MAPPINGS } from '../../core/app.js';
+import { showToast, attachBodegaSearch } from '../../ui/components.js';
 import {
   fetchDespacho, createDespacho, updateDespacho,
 } from './despacho-helpers.js';

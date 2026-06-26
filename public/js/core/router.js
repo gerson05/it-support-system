@@ -1,20 +1,20 @@
-import { renderDashboard }         from './dashboard.js';
-import { renderInventario }         from './inventario.js';
-import { renderTicketList }         from './ticket-list.js';
-import { renderTicketDetail }       from './ticket-detail.js';
-import { renderSettings }           from './settings.js';
-import { renderTechRequests }       from './tech-requests.js';
-import { renderTechRequestDetail }  from './tech-request-detail.js';
-import { renderFaqs }               from './faqs.js';
-import { renderSedesAdmin }         from './sedes-admin.js';
-import { renderReuniones }          from './reuniones-admin.js';
-import { renderAudit }              from './audit.js';
-import { renderDespacho }           from './despacho.js';
-import { renderTrazabilidad }       from './trazabilidad.js';
-import { renderMonitoreo }          from './monitoreo.js';
-import { renderUsers }              from './users.js';
-import { renderEmployees }          from './employees.js';
-import { state, can, firstAccessibleHash } from './app-state.js';
+import { renderDashboard }         from '../features/dashboard/dashboard.js';
+import { renderInventario }         from '../features/inventario/inventario.js';
+import { renderTicketList }         from '../features/tickets/ticket-list.js';
+import { renderTicketDetail }       from '../features/tickets/ticket-detail.js';
+import { renderSettings }           from '../features/settings/settings.js';
+import { renderTechRequests }       from '../features/tech-requests/tech-requests-list.js';
+import { renderTechRequestDetail }  from '../features/tech-requests/tech-request-detail.js';
+import { renderFaqs }               from '../features/herramientas/faqs.js';
+import { renderSedesAdmin }         from '../features/settings/sedes-admin.js';
+import { renderReuniones }          from '../features/reuniones/reuniones-admin.js';
+import { renderAudit }              from '../features/audit/audit.js';
+import { renderDespacho }           from '../features/despacho/despacho-list.js';
+import { renderTrazabilidad }       from '../features/tracking/trazabilidad.js';
+import { renderMonitoreo }          from '../features/monitoreo/monitoreo.js';
+import { renderUsers }              from '../features/usuarios/users.js';
+import { renderEmployees }          from '../features/usuarios/employees.js';
+import { state, can, firstAccessibleHash } from './state.js';
 
 function guard(permission) {
   if (state.currentUser && !can(permission)) {

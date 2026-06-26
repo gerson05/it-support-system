@@ -5,10 +5,10 @@ import {
   getAreaEmoji,
   getAreaName,
   state
-} from './app.js';
-import { showToast, createLoadingSpinner } from './components.js';
-import { iconChevronLeft, iconAlert, iconSend } from './icons.js';
-import DataService from './data-service.js';
+} from '../../core/app.js';
+import { showToast, createLoadingSpinner } from '../../ui/components.js';
+import { iconChevronLeft, iconAlert, iconSend } from '../../utils/icons.js';
+import DataService from '../../core/api.js';
 import { openFaqFromTicket } from './faqs.js';
 import { initAiTab } from './ticket-ai-panel.js';
 

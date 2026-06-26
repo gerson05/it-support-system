@@ -7,8 +7,8 @@
  *  - routeBarcode, applyDetectedToForm, loadTesseract, parseOcrText
  */
 
-import { showToast } from './components.js';
-import { iconClose, iconCamera } from './icons.js';
+import { showToast } from '../../ui/components.js';
+import { iconClose, iconCamera } from '../../utils/icons.js';
 
 function esc(str) {
   return String(str || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');

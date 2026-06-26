@@ -1,5 +1,5 @@
-import { showToast, createLoadingSpinner, createEmptyState } from './components.js';
-import { iconLock, iconClose, iconEdit, iconTrash } from './icons.js';
+import { showToast, createLoadingSpinner, createEmptyState } from '../../ui/components.js';
+import { iconLock, iconClose, iconEdit, iconTrash } from '../../utils/icons.js';
 
 const AREA_OPTIONS = [
   { value: 'general',        label: 'General / IT' },

@@ -1,18 +1,18 @@
-import './app-scroll-lock.js';
-import { showToast }                from './components.js';
-import { DataService, isOfflineMode } from './data-service.js';
-import { state, can }               from './app-state.js';
-import { router }                   from './app-router.js';
-import { startRealTimeUpdates }     from './app-sse.js';
-import { startWhatsAppMonitor }     from './app-whatsapp.js';
+import './scroll-lock.js';
+import { showToast }                from '../ui/components.js';
+import { DataService, isOfflineMode } from './api.js';
+import { state, can }               from './state.js';
+import { router }                   from './router.js';
+import { startRealTimeUpdates }     from './sse.js';
+import { startWhatsAppMonitor }     from './whatsapp.js';
 
 // ── Re-exports para backward compat (otros módulos importan de app.js) ──
-export { state }                                            from './app-state.js';
+export { state }                                            from './state.js';
 export {
   AREA_MAPPINGS, PRIORITY_LABELS, STATUS_LABELS,
   getAreaEmoji, getAreaName, getPriorityBadge, getStatusBadge,
   formatDate, formatTimeAgo,
-}                                                           from './app-constants.js';
+}                                                           from './constants.js';
 
 /* ── Inicialización ─────────────────────────────────────────────────── */
 

@@ -7,8 +7,8 @@
  *  - Asistente de importación -> inventario-import.js
  */
 
-import { showToast } from './components.js';
-import { iconPlus, iconUpload, iconMonitor, iconSmartphone, iconCheck, iconZap, iconQrCode } from './icons.js';
+import { showToast } from '../../ui/components.js';
+import { iconPlus, iconUpload, iconMonitor, iconSmartphone, iconCheck, iconZap, iconQrCode } from '../../utils/icons.js';
 import { openForm, openGenerarEnlaceModal } from './inventario-forms.js';
 import { openImportModal } from './inventario-import.js';
 

@@ -6,12 +6,12 @@
  *  - setupFirmaSection(container, req)  — Handles obtaining signature link, direct upload, and live polling
  */
 
-import { showToast, copyToClipboard } from './components.js';
-import { state } from './app.js';
+import { showToast, copyToClipboard } from '../../ui/components.js';
+import { state } from '../../core/app.js';
 import {
   iconDocument, iconClose, iconInfo, iconPackage, iconDownload,
   iconLink, iconCopy, iconUpload, iconRefresh
-} from './icons.js';
+} from '../../utils/icons.js';
 
 function escHtml(str) {
   return String(str ?? '')
