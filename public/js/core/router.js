@@ -66,6 +66,17 @@ export function router() {
     const route = ROUTES[hash] || ROUTES['#dashboard'];
     if (route.perm && !guard(route.perm)) return;
     activate(route.nav, route.page);
-    route.render();
+    try {
+      const result = route.render();
+      if (result && typeof result.catch === 'function') {
+        result.catch(err => {
+          console.error(`[Router] Error rendering ${hash}:`, err);
+          if (app) app.innerHTML = `<div style="padding:24px;color:red;"><h3>Error rendering ${hash}</h3><pre>${err.message}</pre></div>`;
+        });
+      }
+    } catch (err) {
+      console.error(`[Router] Sync error rendering ${hash}:`, err);
+      if (app) app.innerHTML = `<div style="padding:24px;color:red;"><h3>Error</h3><pre>${err.message}</pre></div>`;
+    }
   }
 }
