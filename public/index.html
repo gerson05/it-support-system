@@ -180,19 +180,24 @@
 
   <div id="toast-container" class="toast-container"></div>
 
-  <!-- New utility modules (no imports, proven working) -->
+  <!-- 1. CORE (simple versions without imports) -->
+  <script src="/js/core/api-simple.js"></script>
+  <script src="/js/core/state-simple.js"></script>
+  <script src="/js/core/router-simple.js"></script>
+
+  <!-- 2. UTILITIES -->
   <script src="/js/utils/format.js"></script>
   <script src="/js/utils/validators.js"></script>
   <script src="/js/utils/dom.js"></script>
   <script src="/js/utils/storage.js"></script>
   <script src="/js/utils/logger.js"></script>
 
-  <!-- UI Components (no imports, proven working) -->
+  <!-- 3. UI COMPONENTS -->
   <script src="/js/ui/modal.js"></script>
   <script src="/js/ui/forms.js"></script>
   <script src="/js/ui/toast.js"></script>
 
-  <!-- Service layers (no imports, proven working) -->
+  <!-- 4. SERVICES -->
   <script src="/js/features/tickets/tickets-service.js"></script>
   <script src="/js/features/despacho/despacho-service.js"></script>
   <script src="/js/features/tech-requests/tech-request-service.js"></script>
@@ -201,14 +206,26 @@
   <script src="/js/features/reuniones/reuniones-service.js"></script>
   <script src="/js/features/usuarios/usuarios-service.js"></script>
 
-  <!-- Init + theme + sidebar -->
-  <script>
-    // Inicializar Lucide icons y re-inicializar en cada navegación
-    document.addEventListener('DOMContentLoaded', () => {
-      if (window.lucide) lucide.createIcons();
+  <!-- 5. FEATURES -->
+  <script src="/js/features/dashboard/dashboard-simple.js"></script>
 
-      // Toggle modo oscuro / claro
-      document.getElementById('btn-theme-toggle').addEventListener('click', function () {
+  <!-- 6. INIT APP -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Sidebar toggle
+      const toggle = document.getElementById('sidebar-toggle');
+      const overlay = document.getElementById('sidebar-overlay');
+      const close = () => document.body.classList.remove('sidebar-open');
+
+      if (toggle) {
+        toggle.addEventListener('click', () => document.body.classList.toggle('sidebar-open'));
+      }
+      if (overlay) {
+        overlay.addEventListener('click', close);
+      }
+
+      // Theme toggle
+      document.getElementById('btn-theme-toggle')?.addEventListener('click', function () {
         var html = document.documentElement;
         var isLight = html.getAttribute('data-theme') === 'light';
         if (isLight) {
@@ -219,12 +236,19 @@
           localStorage.setItem('theme', 'light');
         }
       });
-    });
-    // Re-render icons cuando el SPA cambia de página
-    const _observer = new MutationObserver(() => {
+
+      // Initialize router and load dashboard
+      if (typeof Router !== 'undefined') {
+        Router.init('#app');
+      }
+
+      // Lucide icons
       if (window.lucide) lucide.createIcons();
+      const observer = new MutationObserver(() => {
+        if (window.lucide) lucide.createIcons();
+      });
+      observer.observe(document.getElementById('app'), { childList: true, subtree: true });
     });
-    _observer.observe(document.getElementById('app') || document.body, { childList: true, subtree: false });
   </script>
 </body>
 </html>
