@@ -8,15 +8,34 @@
  */
 
 import { showToast } from '../../ui/components.js';
-import { iconPlus, iconUpload, iconMonitor, iconSmartphone, iconCheck, iconZap, iconQrCode } from '../../utils/icons.js';
+import { iconPlus, iconUpload, iconMonitor, iconSmartphone, iconCheck, iconZap, iconQrCode,
+         iconCpu, iconTv, iconTablet, iconScan, iconMouse, iconPrinter,
+         iconChevronLeft, iconClose, iconMenu } from '../../utils/icons.js';
 import { openForm, openGenerarEnlaceModal } from './inventario-forms.js';
 import { openImportModal } from './inventario-import.js';
 
-let _activeTab  = 'equipos';
-let _page       = 1;
-const _limit    = 20;
-let _search     = '';
-let _filterArea = '';
+/* Each tab: { id, label, apiTab, categoria, icon } */
+const TABS = [
+  { id:'computadores', label:'Computadores', apiTab:'equipos', categoria:'computadores', icon: s => iconCpu(s)        },
+  { id:'impresoras',   label:'Impresoras',   apiTab:'equipos', categoria:'impresoras',   icon: s => iconPrinter(s)    },
+  { id:'escaner',      label:'Escáneres',    apiTab:'equipos', categoria:'escaner',      icon: s => iconScan(s)       },
+  { id:'televisores',  label:'Televisores',  apiTab:'equipos', categoria:'televisores',  icon: s => iconTv(s)         },
+  { id:'monitores',    label:'Monitores',    apiTab:'equipos', categoria:'monitores',    icon: s => iconMonitor(s)    },
+  { id:'tablets',      label:'Tablets',      apiTab:'equipos', categoria:'tablets',      icon: s => iconTablet(s)     },
+  { id:'perifericos',  label:'Periféricos',  apiTab:'equipos', categoria:'perifericos',  icon: s => iconMouse(s)      },
+  { id:'celulares',    label:'Celulares',    apiTab:'celulares', categoria:'',           icon: s => iconSmartphone(s) },
+  { id:'ups',          label:'UPS',          apiTab:'ups',     categoria:'',             icon: s => iconZap(s)        },
+];
+
+let _activeTabId      = 'computadores';
+let _page             = 1;
+const _limit          = 20;
+let _search           = '';
+let _filterArea       = '';
+let _sidebarCollapsed = false;
+let _drawerOpen       = false;
+
+function activeTab() { return TABS.find(t => t.id === _activeTabId); }
 
 function esc(str) {
   return String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -25,12 +44,15 @@ function esc(str) {
 export function renderInventario(container) {
   _page = 1; _search = ''; _filterArea = '';
   container.innerHTML = `
-    <div style="margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+    <div style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
       <div>
         <h2 style="font-size:20px;font-weight:700;letter-spacing:-.4px;margin-bottom:4px;">Inventario TI</h2>
         <p style="color:var(--text-muted);font-size:14px;">Gestión de equipos, celulares y dispositivos.</p>
       </div>
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <button id="btn-inv-hamburger" class="inv-hamburger">
+          ${iconMenu(16)} Categorías
+        </button>
         <button id="btn-inv-enlace"
           style="display:flex;align-items:center;gap:7px;padding:10px 16px;background:var(--surface);border:1px solid var(--border-2);border-radius:10px;color:var(--text-2);font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;">
           ${iconQrCode(14)} Generar enlace
@@ -46,40 +68,63 @@ export function renderInventario(container) {
       </div>
     </div>
 
-    <div style="display:flex;gap:0;border-bottom:2px solid var(--glass-border);margin-bottom:0;">
-      <button id="tab-equipos" class="tab-btn tab-active" data-tab="equipos">
-        ${iconMonitor(13)} Equipos <span class="tab-count" id="count-equipos">…</span>
-      </button>
-      <button id="tab-celulares" class="tab-btn" data-tab="celulares">
-        ${iconSmartphone(13)} Celulares <span class="tab-count" id="count-celulares">…</span>
-      </button>
-      <button id="tab-ups" class="tab-btn" data-tab="ups">
-        ${iconZap(13)} UPS <span class="tab-count" id="count-ups">…</span>
-      </button>
-    </div>
-
-    <div class="inv-filter-bar">
-      <div class="inv-search-wrap">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="search" id="inv-search" placeholder="Buscar placa, serial, nombre, área…" value="">
+    <div class="inv-layout">
+      <div class="inv-sidebar${_sidebarCollapsed ? ' collapsed' : ''}" id="inv-sidebar">
+        <button class="inv-sidebar-toggle" id="inv-sidebar-toggle" title="Colapsar menú">
+          <span class="inv-sidebar-toggle-icon">${iconChevronLeft(14)}</span>
+        </button>
+        <nav class="inv-sidebar-nav">
+          ${TABS.map(t => `
+            <button class="inv-cat-btn${t.id === _activeTabId ? ' active' : ''}" data-tabid="${t.id}">
+              <span class="inv-cat-icon">${t.icon(15)}</span>
+              <span class="inv-cat-label">${t.label}</span>
+              <span class="inv-cat-count" id="count-${t.id}">…</span>
+            </button>`).join('')}
+        </nav>
       </div>
-      <div class="inv-filter-sep"></div>
-      <input type="text" id="inv-area" class="inv-area-input" placeholder="Área">
-      <button id="btn-inv-clear" class="inv-clear-btn" title="Limpiar filtros">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
+
+      <div class="inv-content">
+        <div class="inv-filter-bar">
+          <div class="inv-search-wrap">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="search" id="inv-search" placeholder="Buscar placa, serial, nombre, área…" value="">
+          </div>
+          <div class="inv-filter-sep"></div>
+          <input type="text" id="inv-area" class="inv-area-input" placeholder="Área">
+          <button id="btn-inv-clear" class="inv-clear-btn" title="Limpiar filtros">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div id="inv-table-wrap" style="margin-top:0;"></div>
+        <div id="inv-pagination" style="display:flex;justify-content:center;gap:8px;margin-top:16px;"></div>
+        <div id="inv-modal-wrap"></div>
+      </div>
     </div>
 
-    <div id="inv-table-wrap" style="margin-top:16px;"></div>
-    <div id="inv-pagination" style="display:flex;justify-content:center;gap:8px;margin-top:16px;"></div>
-    <div id="inv-modal-wrap"></div>
+    <!-- Mobile drawer -->
+    <div class="inv-drawer-overlay" id="inv-drawer-overlay">
+      <div class="inv-drawer">
+        <div class="inv-drawer-header">
+          <span>Categorías</span>
+          <button class="inv-drawer-close" id="inv-drawer-close">${iconClose(16)}</button>
+        </div>
+        <nav class="inv-drawer-nav">
+          ${TABS.map(t => `
+            <button class="inv-cat-btn${t.id === _activeTabId ? ' active' : ''}" data-tabid="${t.id}" data-drawer="true">
+              <span class="inv-cat-icon">${t.icon(15)}</span>
+              <span class="inv-cat-label">${t.label}</span>
+              <span class="inv-cat-count" id="drawer-count-${t.id}">…</span>
+            </button>`).join('')}
+        </nav>
+      </div>
+    </div>
   `;
 
-  document.querySelectorAll('.tab-btn[data-tab]').forEach(btn => {
+  document.querySelectorAll('.tab-btn[data-tabid]').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-active'));
       btn.classList.add('tab-active');
-      _activeTab = btn.dataset.tab;
+      _activeTabId = btn.dataset.tabid;
       _page = 1;
       loadTable();
     });
@@ -107,8 +152,11 @@ export function renderInventario(container) {
     loadTable();
   });
 
-  document.getElementById('btn-inv-new').addEventListener('click', () => openForm(null, _activeTab, () => { loadTable(); loadCounts(); }));
-  document.getElementById('btn-inv-import').addEventListener('click', () => openImportModal(_activeTab, () => { loadTable(); loadCounts(); }));
+  document.getElementById('btn-inv-new').addEventListener('click', () => {
+    const t = activeTab();
+    openForm(null, t.apiTab, () => { loadTable(); loadCounts(); }, false, t.categoria);
+  });
+  document.getElementById('btn-inv-import').addEventListener('click', () => openImportModal(activeTab().apiTab, () => { loadTable(); loadCounts(); }));
   document.getElementById('btn-inv-enlace').addEventListener('click', () => openGenerarEnlaceModal());
 
   loadTable();
@@ -119,16 +167,18 @@ async function loadTable() {
   const wrap = document.getElementById('inv-table-wrap');
   wrap.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted);">Cargando…</div>';
 
+  const tab = activeTab();
   const params = new URLSearchParams({ page: _page, limit: _limit });
-  if (_search)     params.set('search', _search);
-  if (_filterArea) params.set('area',   _filterArea);
+  if (_search)      params.set('search', _search);
+  if (_filterArea)  params.set('area',   _filterArea);
+  if (tab.categoria) params.set('categoria', tab.categoria);
 
   try {
-    const res  = await fetch(`/api/inventario/${_activeTab}?${params}`);
+    const res  = await fetch(`/api/inventario/${tab.apiTab}?${params}`);
     if (!res.ok) throw new Error(res.statusText);
     const data = await res.json();
 
-    const rows  = _activeTab === 'equipos' ? data.equipos : _activeTab === 'celulares' ? data.celulares : data.ups;
+    const rows = tab.apiTab === 'equipos' ? data.equipos : tab.apiTab === 'celulares' ? data.celulares : data.ups;
 
     if (!rows.length) {
       wrap.innerHTML = '<div style="padding:60px;text-align:center;color:var(--text-muted);">Sin registros.</div>';
@@ -136,12 +186,12 @@ async function loadTable() {
       return;
     }
 
-    wrap.innerHTML = _activeTab === 'equipos' ? renderEquiposTable(rows)
-                   : _activeTab === 'celulares' ? renderCelularesTable(rows)
-                   : renderUpsTable(rows);
+    wrap.innerHTML = tab.apiTab === 'celulares' ? renderCelularesTable(rows)
+                   : tab.apiTab === 'ups'       ? renderUpsTable(rows)
+                   : renderEquiposTable(rows);
 
     wrap.querySelectorAll('.btn-inv-edit').forEach(btn => {
-      btn.addEventListener('click', e => { e.stopPropagation(); openForm(JSON.parse(decodeURIComponent(btn.dataset.row)), _activeTab, () => { loadTable(); loadCounts(); }); });
+      btn.addEventListener('click', e => { e.stopPropagation(); openForm(JSON.parse(decodeURIComponent(btn.dataset.row)), tab.apiTab, () => { loadTable(); loadCounts(); }); });
     });
     wrap.querySelectorAll('.btn-inv-del').forEach(btn => {
       btn.addEventListener('click', e => { e.stopPropagation(); confirmDelete(btn.dataset.id, btn.dataset.label); });
@@ -151,9 +201,9 @@ async function loadTable() {
         e.stopPropagation();
         const clone = JSON.parse(decodeURIComponent(btn.dataset.row));
         delete clone.id; delete clone.qr_token;
-        if (_activeTab === 'celulares') { clone.imei = ''; clone.imei2 = ''; }
+        if (tab.apiTab === 'celulares') { clone.imei = ''; clone.imei2 = ''; }
         else { clone.placa = ''; clone.serial = ''; }
-        openForm(clone, _activeTab, () => { loadTable(); loadCounts(); }, true);
+        openForm(clone, tab.apiTab, () => { loadTable(); loadCounts(); }, true);
       });
     });
     wrap.querySelectorAll('.btn-inv-qr').forEach(btn => {
@@ -333,11 +383,12 @@ function renderPagination(total, totalPages) {
 }
 
 async function loadCounts() {
-  for (const tab of ['equipos', 'celulares', 'ups']) {
+  for (const t of TABS) {
     try {
-      const r = await fetch(`/api/inventario/${tab}?page=1&limit=1`);
+      const params = `page=1&limit=1${t.categoria ? `&categoria=${t.categoria}` : ''}`;
+      const r = await fetch(`/api/inventario/${t.apiTab}?${params}`);
       const d = await r.json();
-      const el = document.getElementById(`count-${tab}`);
+      const el = document.getElementById(`count-${t.id}`);
       if (el) el.textContent = d.total ?? '';
     } catch {}
   }
