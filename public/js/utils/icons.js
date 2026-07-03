@@ -245,3 +245,33 @@ export function iconImage(size = 16) {
 export function iconTag(size = 16) {
   return `${SVG_OPEN(size)}<path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>${SVG_CLOSE}`;
 }
+
+/** CPU / desktop computer (💻) */
+export function iconCpu(size = 16) {
+  return `${SVG_OPEN(size)}<rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/>${SVG_CLOSE}`;
+}
+
+/** TV / television (📺) */
+export function iconTv(size = 16) {
+  return `${SVG_OPEN(size)}<rect x="2" y="7" width="20" height="15" rx="2" ry="2"/><polyline points="17 2 12 7 7 2"/>${SVG_CLOSE}`;
+}
+
+/** Tablet device (📱 wide) */
+export function iconTablet(size = 16) {
+  return `${SVG_OPEN(size)}<rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/>${SVG_CLOSE}`;
+}
+
+/** Scan / barcode scanner */
+export function iconScan(size = 16) {
+  return `${SVG_OPEN(size)}<line x1="3" y1="12" x2="21" y2="12"/><polyline points="3 6 3 3 6 3"/><polyline points="21 6 21 3 18 3"/><polyline points="3 18 3 21 6 21"/><polyline points="21 18 21 21 18 21"/>${SVG_CLOSE}`;
+}
+
+/** Mouse / peripheral (🖱) */
+export function iconMouse(size = 16) {
+  return `${SVG_OPEN(size)}<rect x="6" y="3" width="12" height="18" rx="6"/><line x1="12" y1="3" x2="12" y2="9"/><circle cx="12" cy="13" r="1"/>${SVG_CLOSE}`;
+}
+
+/** Hamburger menu (☰) */
+export function iconMenu(size = 16) {
+  return `${SVG_OPEN(size)}<line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>${SVG_CLOSE}`;
+}
