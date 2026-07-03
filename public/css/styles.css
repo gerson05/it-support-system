@@ -1419,3 +1419,224 @@ body.sidebar-open .hamburger span:nth-child(3) { transform: translateY(-6px) rot
   .tr-table-wrap { display: none; }
   .tr-cards { display: flex; }
 }
+
+/* ==========================================================================
+   INVENTARIO SIDEBAR LAYOUT
+   ========================================================================== */
+
+.inv-layout {
+  display: flex;
+  gap: 0;
+  min-height: 0;
+  flex: 1;
+}
+
+/* ── Sidebar ── */
+.inv-sidebar {
+  width: 180px;
+  flex-shrink: 0;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: width .2s ease;
+}
+
+.inv-sidebar.collapsed {
+  width: 48px;
+}
+
+.inv-sidebar-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 10px 10px;
+  border-bottom: 1px solid var(--border);
+  background: none;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.inv-sidebar.collapsed .inv-sidebar-toggle {
+  justify-content: center;
+}
+
+.inv-sidebar-toggle-icon {
+  width: 26px;
+  height: 26px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  transition: transform .2s;
+}
+
+.inv-sidebar.collapsed .inv-sidebar-toggle-icon {
+  transform: rotate(180deg);
+}
+
+.inv-sidebar-nav {
+  padding: 8px 6px;
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.inv-cat-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 12px;
+  font-family: inherit;
+  color: var(--text-3);
+  white-space: nowrap;
+  width: 100%;
+  text-align: left;
+  transition: background .15s, color .15s;
+}
+
+.inv-cat-btn:hover {
+  background: var(--surface-2);
+  color: var(--text-2);
+}
+
+.inv-cat-btn.active {
+  background: rgba(99, 102, 241, .15);
+  color: #818cf8;
+  font-weight: 600;
+}
+
+.inv-cat-icon {
+  flex-shrink: 0;
+  width: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.inv-cat-label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.inv-cat-count {
+  background: var(--surface-3);
+  color: var(--text-3);
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-size: 10px;
+  flex-shrink: 0;
+}
+
+.inv-cat-btn.active .inv-cat-count {
+  background: rgba(99, 102, 241, .3);
+  color: #818cf8;
+}
+
+.inv-sidebar.collapsed .inv-cat-label,
+.inv-sidebar.collapsed .inv-cat-count {
+  display: none;
+}
+
+.inv-sidebar.collapsed .inv-cat-btn {
+  justify-content: center;
+  padding: 8px 0;
+}
+
+/* ── Content panel ── */
+.inv-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Mobile drawer ── */
+.inv-drawer-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .5);
+  z-index: 800;
+}
+
+.inv-drawer-overlay.open {
+  display: flex;
+}
+
+.inv-drawer {
+  width: 220px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.inv-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-2);
+}
+
+.inv-drawer-close {
+  background: none;
+  border: none;
+  color: var(--text-3);
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+}
+
+.inv-drawer-nav {
+  padding: 8px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* ── Hamburger (solo móvil) ── */
+.inv-hamburger {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border-2);
+  border-radius: 8px;
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .inv-sidebar {
+    display: none;
+  }
+
+  .inv-hamburger {
+    display: flex;
+  }
+}
