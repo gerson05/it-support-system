@@ -3,7 +3,7 @@ import { showToast }                from '../ui/components.js';
 import { DataService, isOfflineMode } from './api.js';
 import { state, can }               from './state.js';
 import { router }                   from './router.js';
-import { startRealTimeUpdates }     from './sse.js';
+import { startRealTimeUpdates, setEmployeeBadge } from './sse.js';
 import { startWhatsAppMonitor }     from './whatsapp.js';
 
 // ── Re-exports para backward compat (otros módulos importan de app.js) ──
@@ -87,7 +87,16 @@ async function init() {
     startWhatsAppMonitor();
   }
 
-  window.addEventListener('hashchange', router);
+  if (can('employees:read')) {
+    fetch('/api/employees/pending-count')
+      .then(r => r.ok ? r.json() : { count: 0 })
+      .then(({ count }) => setEmployeeBadge(count))
+      .catch(() => {});
+  }
+
+  window.addEventListener('hashchange', () => {
+    router();
+  });
   router();
 }
 

@@ -176,13 +176,127 @@ function inp(label, name, val='', req=false, type='text', scanBtn=false) {
   </div>`;
 }
 
+/* ── bloque sede+placa compartido (equipos y celulares) ── */
+function sedePlacaSection(placaRequired = false) {
+  const req     = placaRequired ? ' required' : '';
+  const reqStar = placaRequired ? ' *' : '';
+  return `
+      <div style="background:#0f172a;border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 14px;margin-bottom:12px;">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#475569;margin-bottom:8px;">Sede — genera la placa automáticamente</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:end;">
+          <div class="form-group" style="margin:0;">
+            <label style="font-size:12px;font-weight:500;color:#94a3b8;margin-bottom:5px;display:block;">Sede *</label>
+            <select id="mob-sede-placa" style="width:100%;background:#0f172a;border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#e2e8f0;font-size:13px;padding:10px 12px;-webkit-appearance:none;">
+              <option value="">— Seleccionar sede —</option>
+              <optgroup label="— Administrativo —">
+                <option value="BODEGA">Bodega</option><option value="BOGOTA">Bogotá</option>
+                <option value="CARSON">Carson · CRS</option><option value="OFICINA">Oficina</option>
+                <option value="SEDE PRINCIPAL">Sede Principal (Medivalle)</option>
+              </optgroup>
+              <optgroup label="— Caldas —">
+                <option value="AGUADAS">Aguadas</option><option value="ANSERMA">Anserma</option>
+                <option value="ARANZAZU">Aranzazu</option><option value="CHINCHINA">Chinchiná</option>
+                <option value="LA DORADA">La Dorada</option><option value="MANIZALES">Manizales</option>
+                <option value="MARQUETALIA">Marquetalia</option><option value="PENSILVANIA">Pensilvania</option>
+                <option value="RIOSUCIO">Riosucio</option><option value="SALAMINA">Salamina</option>
+                <option value="SAMANA">Samaná</option><option value="SUPIA">Supía</option>
+              </optgroup>
+              <optgroup label="— Cauca —">
+                <option value="ARGELIA">Argelia</option><option value="CORINTO">Corinto</option>
+                <option value="GUAPI">Guapi</option><option value="JAMBALO">Jambaló</option>
+                <option value="MIRANDA">Miranda</option><option value="MORALES">Morales</option>
+                <option value="PIENDAMO">Piendamó</option><option value="POPAYAN">Popayán</option>
+                <option value="SANTANDER DE QUILICHAO">Santander de Quilichao</option>
+                <option value="SILVIA">Silvia</option><option value="TORIBIO">Toribio</option><option value="TOTORO">Tótoró</option>
+              </optgroup>
+              <optgroup label="— Nariño / Putumayo —">
+                <option value="LA UNION NARINO">La Unión Nariño</option><option value="MOCOA">Mocoa</option>
+                <option value="PASTO">Pasto</option><option value="TUMACO">Tumaco</option>
+              </optgroup>
+              <optgroup label="— Quindío —"><option value="QUIMBAYA">Quimbaya</option></optgroup>
+              <optgroup label="— Risaralda —">
+                <option value="APIA">Apía</option><option value="DOSQUEBRADAS">Dosquebradas</option>
+                <option value="GUATICA">Guática</option><option value="LA VIRGINIA">La Virginia</option>
+                <option value="PEREIRA">Pereira</option><option value="SANTA ROSA">Santa Rosa</option>
+              </optgroup>
+              <optgroup label="— Cali —">
+                <option value="CALI SUR">Cali Sur · CSR</option><option value="CALI NORTE">Cali Norte · CNR</option>
+                <option value="CALI AIC">Cali AIC · CAI</option><option value="PASOANCHO">Pasoancho · PAS</option>
+                <option value="SEDE HOSPITALARIA 24H">Hospitalaria 24H · SHF</option>
+                <option value="LA FAVORITA">La Favorita · CFV</option><option value="CALI">Cali (genérico) · CAL</option>
+              </optgroup>
+              <optgroup label="— Buenaventura —">
+                <option value="BUENAVENTURA">Buenaventura · BNV</option>
+                <option value="BUENAVENTURA 2">Buenaventura 2 · BN2</option>
+                <option value="LA VERDAD 2">La Verdad 2 · BVD</option>
+              </optgroup>
+              <optgroup label="— Buga —">
+                <option value="BUGA">Buga · BGA</option><option value="SAN JOSE BUGA">San José Buga · BGJ</option>
+              </optgroup>
+              <optgroup label="— Candelaria —">
+                <option value="VILLAGORGONA">Villagorgona · VLG</option><option value="EL MANANTIAL">El Manantial · ELM</option>
+              </optgroup>
+              <optgroup label="— Cartago —">
+                <option value="CARTAGO FOMAG">Cartago Fomag · CTF</option><option value="ZARAGOZA">Zaragoza · ZRG</option>
+                <option value="CIPRES">Ciprés · CIP</option><option value="CARTAGO">Cartago · CTG</option>
+              </optgroup>
+              <optgroup label="— El Cerrito —">
+                <option value="EL CERRITO VALLEJO">Vallejo · ECV</option><option value="EL CERRITO EXITO 1">Éxito 1 · CE1</option>
+                <option value="EL CERRITO EXITO 2">Éxito 2 · CE2</option><option value="EL CERRITO EXITO 3">Éxito 3 · CE3</option>
+                <option value="EL CERRITO">El Cerrito · ECE</option>
+              </optgroup>
+              <optgroup label="— Ginebra —">
+                <option value="GINEBRA EXITO 4">Éxito 4 · GN4</option><option value="GINEBRA EXITO 5">Éxito 5 · GN5</option>
+              </optgroup>
+              <optgroup label="— Jamundí —">
+                <option value="JAMUNDI">Jamundí · JMD</option><option value="ALPHAHEALTH JAMUNDI">Alphahealth · JMA</option>
+              </optgroup>
+              <optgroup label="— Palmira —">
+                <option value="PALMIRA">Palmira · PLM</option><option value="PALMIRA A SU SALUD">A Su Salud · PLS</option>
+              </optgroup>
+              <optgroup label="— Roldanillo —">
+                <option value="ROLDANILLO FOMAG">Roldanillo Fomag · RLF</option><option value="ROLDANILLO JM">J&amp;M Urgencias · RJM</option>
+              </optgroup>
+              <optgroup label="— Tuluá —">
+                <option value="TULUA">Tuluá · TLU</option><option value="TULUA SAMARITANA">Samaritana · TLS</option>
+                <option value="TULUA FARMAPRECIOS">Farmaprecios · TLF</option>
+              </optgroup>
+              <optgroup label="— Yumbo —">
+                <option value="YUMBO">Yumbo · YMB</option><option value="YUMBO RAPI DROGAS">Rapi Drogas · YRD</option>
+                <option value="BODEGA YUMBO">Bodega Yumbo · BOD</option>
+              </optgroup>
+              <optgroup label="— Otros Valle —">
+                <option value="ALCALA">Alcalá</option><option value="ANDALUCIA">Andalucía</option>
+                <option value="ANSERMANUEVO">Ansermanuevo</option><option value="BUGALAGRANDE">Bugalagrande</option>
+                <option value="CAICEDONIA">Caicedonia</option><option value="CALIMA">Calima</option>
+                <option value="DAGUA">Dagua</option><option value="EL AGUILA">El Águila</option>
+                <option value="FLORIDA">Florida</option><option value="GUACARI">Guacarí</option>
+                <option value="LA CUMBRE">La Cumbre</option><option value="LA UNION VALLE">La Unión Valle</option>
+                <option value="PRADERA">Pradera</option><option value="RESTREPO">Restrepo</option>
+                <option value="SEVILLA">Sevilla</option><option value="TULUA">Tuluá</option>
+                <option value="YOTOCO">Yotoco</option><option value="ZARZAL">Zarzal</option>
+              </optgroup>
+            </select>
+          </div>
+          <div class="form-group" style="margin:0;">
+            <label style="font-size:12px;font-weight:500;color:#94a3b8;margin-bottom:5px;display:block;">Placa${reqStar}</label>
+            <div style="display:flex;gap:6px;">
+              <input type="text" name="placa" id="mob-placa" placeholder="Selecciona sede…"${req}
+                style="flex:1;background:#0f172a;border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#6366f1;font-size:14px;font-weight:700;font-family:monospace;letter-spacing:1px;padding:10px 12px;">
+              <button type="button" id="mob-refresh-placa" title="Recalcular"
+                style="padding:0 12px;background:#1e293b;border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#94a3b8;font-size:16px;cursor:pointer;flex-shrink:0;">↺</button>
+            </div>
+          </div>
+        </div>
+      </div>`;
+}
+
 /* ── form builder ── */
 function buildForm(t) {
   const el = document.getElementById('form-fields');
   if (t === 'equipos') {
     el.innerHTML = `
-      <div class="form-section">Identificación</div>
-      ${inp('Placa','placa','',true,  'text',true)}
+      ${sedePlacaSection(true)}
       ${inp('Serial','serial','',true,'text',true)}
       <div class="form-section">Especificaciones</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
@@ -227,44 +341,67 @@ function buildForm(t) {
     `;
   } else {
     el.innerHTML = `
-      <div class="form-section">Identificación</div>
+      ${sedePlacaSection(false)}
       ${inp('IMEI','imei','',true,'text',true)}
       ${inp('IMEI 2 (opcional)','imei2','',false,'text',true)}
-      <div class="form-section">Dispositivo</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <div class="form-group"><label>Marca</label>
+        <div class="form-group"><label>Marca / Equipo</label>
           <select name="equipo">
-            <option value="">—</option>
+            <option value="">— Seleccionar —</option>
             ${['Samsung','Xiaomi Redmi','Honor','ZTE','Infinix','Motorola','iPhone','Otro'].map(o=>`<option>${o}</option>`).join('')}
           </select></div>
         ${inp('Modelo','modelo')}
         <div class="form-group"><label>Almacenamiento</label>
           <select name="almacenamiento">
-            <option value="">—</option>
+            <option value="">— Seleccionar —</option>
             ${['32GB','64GB','128GB','256GB','512GB'].map(o=>`<option>${o}</option>`).join('')}
           </select></div>
         <div class="form-group"><label>RAM</label>
           <select name="ram">
-            <option value="">—</option>
+            <option value="">— Seleccionar —</option>
             ${['2GB','3GB','4GB','6GB','8GB','12GB','16GB'].map(o=>`<option>${o}</option>`).join('')}
           </select></div>
         <div class="form-group"><label>Operador</label>
           <select name="operador">
-            <option value="">—</option>
+            <option value="">— Seleccionar —</option>
             ${['CLARO','TIGO','MOVISTAR','WOM','ETB','AVANTEL'].map(o=>`<option>${o}</option>`).join('')}
           </select></div>
         ${inp('Línea','linea')}
+        <div class="form-group"><label>Área</label>
+          <select name="area">
+            <option value="">— Seleccionar —</option>
+            <option value="abastecimiento">Abastecimiento</option>
+            <option value="bodega">Bodega</option>
+            <option value="calidad">Calidad</option>
+            <option value="cartera">Cartera</option>
+            <option value="compra">Compras</option>
+            <option value="contabilidad">Contabilidad</option>
+            <option value="cuentas_medicas">Cuentas Médicas</option>
+            <option value="despachos">Despachos</option>
+            <option value="farmacia">Farmacia</option>
+            <option value="general">General / IT</option>
+            <option value="gerencia">Gerencia</option>
+            <option value="gestion_humana">Gestión Humana</option>
+            <option value="pqrs">PQRS</option>
+            <option value="recepcion_tecnica">Recepción Técnica</option>
+            <option value="ventas">Ventas</option>
+          </select></div>
+        ${inp('Sede / Bodega','ciudad')}
+        ${inp('Nombre completo','nombre_completo','',true)}
+        ${inp('Cédula','cedula')}
         <div class="form-group"><label>Estado</label>
           <select name="estado">
-            ${['nuevo','seminuevo','usado'].map(o=>`<option>${o}</option>`).join('')}
+            <option value="nuevo" selected>nuevo</option>
+            <option value="seminuevo">seminuevo</option>
+            <option value="usado">usado</option>
           </select></div>
+        ${inp('Accesorio','accesorio')}
+        ${inp('Entregado por','entregado_por')}
       </div>
-      <div class="form-section">Asignado a</div>
-      ${inp('Nombre completo','nombre_completo','',true)}
-      ${inp('Cédula','cedula')}
-      ${inp('Área','area')}
-      ${inp('Ciudad','ciudad')}
-      ${inp('Entregado por','entregado_por')}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;">
+        ${inp('Fecha de registro','fecha_registro','',false,'date')}
+        ${inp('Fecha de entrega','fecha_entrega','',false,'date')}
+      </div>
     `;
   }
 
@@ -272,6 +409,21 @@ function buildForm(t) {
   document.querySelectorAll('.btn-scan-field').forEach(btn => {
     btn.addEventListener('click', () => openSingleScan(btn.dataset.field));
   });
+
+  /* auto-placa: sede selector wired para equipos y celulares */
+  const sedeEl    = document.getElementById('mob-sede-placa');
+  const placaEl   = document.getElementById('mob-placa');
+  const refreshEl = document.getElementById('mob-refresh-placa');
+  async function fetchPlaca(sede) {
+    if (!sede) return;
+    try {
+      const res  = await fetch(`/api/inventario/registrar/${token}/next-placa?sede=${encodeURIComponent(sede)}`);
+      const data = await res.json();
+      if (data.placa && placaEl) placaEl.value = data.placa;
+    } catch {}
+  }
+  sedeEl?.addEventListener('change', () => fetchPlaca(sedeEl.value));
+  refreshEl?.addEventListener('click', () => fetchPlaca(sedeEl?.value || ''));
 }
 
 /* ── init ── */
@@ -337,7 +489,9 @@ async function handleSubmit(e) {
 
 /* ── barcode routing ── */
 function routeBarcode(val, detectedKeys) {
-  if (/^\d{15}$/.test(val)) {
+  const v = val.trim();
+  /* IMEI: 14-16 digits */
+  if (/^\d{14,16}$/.test(v)) {
     if (tipo === 'celulares') {
       if (!detectedKeys.has('imei'))  return 'imei';
       if (!detectedKeys.has('imei2')) return 'imei2';
@@ -346,7 +500,8 @@ function routeBarcode(val, detectedKeys) {
     }
     return null;
   }
-  if (/^[A-Z0-9\-]{5,20}$/i.test(val)) {
+  /* Serial / placa: 4-60 chars, any printable non-whitespace */
+  if (v.length >= 4 && v.length <= 60 && !/\s/.test(v)) {
     if (tipo === 'equipos') {
       if (!detectedKeys.has('placa'))  return 'placa';
       if (!detectedKeys.has('serial')) return 'serial';
@@ -388,22 +543,24 @@ function applyDetected() {
   let filled = 0;
   for (const [field, val] of detected) {
     const el = document.querySelector(`#inv-form [name="${field}"]`);
-    /* skip if already has a non-default value */
     if (!el) continue;
-    const cur = el.value;
-    const isDefaultEmpty = cur === '' || (el.tagName === 'SELECT' && el.selectedIndex <= 0);
-    if (!isDefaultEmpty) continue;
     if (setField(field, val)) filled++;
   }
   document.getElementById('detected-panel').style.display = 'none';
+  const snapshot = [...detected.entries()];
   detected.clear();
+  const fb = document.createElement('div');
   if (filled > 0) {
-    const fb = document.createElement('div');
     fb.textContent = `✓ ${filled} campo(s) llenado(s) automáticamente`;
     fb.style.cssText = 'background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.4);color:#34d399;border-radius:8px;padding:8px 12px;font-size:12px;margin-bottom:10px;text-align:center;';
+  } else if (snapshot.length > 0) {
+    fb.innerHTML = `⚠ Detectado pero sin campo coincidente: <b>${snapshot.map(([f,v])=>`${f}=${v}`).join(', ')}</b>`;
+    fb.style.cssText = 'background:rgba(234,179,8,.1);border:1px solid rgba(234,179,8,.3);color:#fbbf24;border-radius:8px;padding:8px 12px;font-size:12px;margin-bottom:10px;';
+  }
+  if (fb.textContent || fb.innerHTML) {
     const form = document.getElementById('inv-form');
     form.insertBefore(fb, form.firstChild);
-    setTimeout(() => fb.remove(), 3000);
+    setTimeout(() => fb.remove(), 4000);
   }
 }
 
@@ -417,10 +574,101 @@ function updateDetectedPanel() {
     ).join('');
 }
 
+/* ── photo fallback (HTTP / no getUserMedia) ── */
+async function openPhotoCaptureFallback() {
+  const overlay = document.createElement('div');
+  overlay.className = 'scan-overlay';
+  overlay.innerHTML = `
+    <div class="scan-modal">
+      <div class="scan-modal-header">
+        <span>📷 Fotografiar etiqueta</span>
+        <button class="btn-close-scan" id="pfb-close">✕</button>
+      </div>
+      <p style="font-size:13px;color:#94a3b8;margin-bottom:14px;line-height:1.5;">
+        Toma una foto clara de la etiqueta del equipo para extraer sus datos.
+      </p>
+      <canvas id="pfb-canvas" style="display:none"></canvas>
+      <div id="pfb-preview" style="display:none;margin-bottom:12px;">
+        <img id="pfb-img" style="width:100%;border-radius:8px;max-height:200px;object-fit:contain;background:#000;">
+      </div>
+      <div class="ocr-progress" id="pfb-prog"></div>
+      <label style="display:block;width:100%;padding:12px;background:#6366f1;color:#fff;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;text-align:center;margin-bottom:10px;">
+        📸 Tomar foto / Seleccionar imagen
+        <input type="file" accept="image/*" capture="environment" id="pfb-input" style="display:none;">
+      </label>
+      <div class="scan-detected" style="margin-bottom:10px;">
+        <div class="scan-detected-title">Detectado</div>
+        <div id="pfb-det-list" class="scan-detected-empty">Esperando foto…</div>
+      </div>
+      <div class="scan-actions">
+        <button class="btn-scan-cancel" id="pfb-cancel">Cancelar</button>
+        <button class="btn-scan-apply" id="pfb-apply" disabled>Aplicar campos</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  const localDetected = new Map();
+  const close = () => overlay.remove();
+  document.getElementById('pfb-close').onclick  = close;
+  document.getElementById('pfb-cancel').onclick = close;
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+
+  document.getElementById('pfb-apply').addEventListener('click', () => {
+    for (const [f,v] of localDetected) detected.set(f, v);
+    close();
+    applyDetected();
+  });
+
+  document.getElementById('pfb-input').addEventListener('change', async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const prog     = document.getElementById('pfb-prog');
+    const applyBtn = document.getElementById('pfb-apply');
+    const preview  = document.getElementById('pfb-preview');
+    const imgEl    = document.getElementById('pfb-img');
+    const canvas   = document.getElementById('pfb-canvas');
+
+    imgEl.src = URL.createObjectURL(file);
+    preview.style.display = 'block';
+    prog.style.display = '';
+    prog.textContent = 'Cargando motor OCR…';
+
+    try {
+      const bmp = await createImageBitmap(file);
+      canvas.width  = bmp.width;
+      canvas.height = bmp.height;
+      canvas.getContext('2d').drawImage(bmp, 0, 0);
+
+      const Tesseract = await loadTesseract();
+      prog.textContent = 'Reconociendo texto…';
+      const worker = await Tesseract.createWorker('spa+eng', 1, {
+        logger: m => { if (m.status === 'recognizing text') prog.textContent = `Reconociendo… ${Math.round((m.progress||0)*100)}%`; },
+      });
+      const { data: { text } } = await worker.recognize(canvas);
+      await worker.terminate();
+
+      const parsed = parseOcr(text);
+      if (!parsed.size) {
+        prog.textContent = 'No se detectaron datos. Intenta con mejor iluminación y enfoque.';
+      } else {
+        prog.style.display = 'none';
+        for (const [f,v] of parsed) localDetected.set(f, v);
+        document.getElementById('pfb-det-list').innerHTML =
+          [...localDetected.entries()].map(([f,v]) =>
+            `<div class="scan-det-row"><span class="scan-det-f">${f}</span><span class="scan-det-v">${esc(v)}</span></div>`
+          ).join('');
+        applyBtn.disabled = false;
+      }
+    } catch (err) {
+      prog.textContent = `Error: ${err.message}`;
+    }
+  });
+}
+
 /* ── smart scanner modal ── */
 async function openSmartScanner() {
   if (!navigator.mediaDevices?.getUserMedia) {
-    alert('La cámara no está disponible en este navegador. Asegúrate de usar HTTPS o Chrome.');
+    openPhotoCaptureFallback();
     return;
   }
 
@@ -599,11 +847,12 @@ async function openSmartScanner() {
 /* ── single field scanner ── */
 async function openSingleScan(fieldName) {
   if (!navigator.mediaDevices?.getUserMedia) {
-    alert('Cámara no disponible. Usa HTTPS o ingresa el dato manualmente.');
+    openPhotoCaptureFallback();
     return;
   }
   if (!('BarcodeDetector' in window)) {
-    alert('Tu navegador no soporta escáner. Ingresa el dato manualmente.');
+    /* fallback: open the main scanner on OCR tab so user can capture */
+    openSmartScanner();
     return;
   }
   let stream, rafId;

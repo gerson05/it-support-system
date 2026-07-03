@@ -61,6 +61,10 @@ export function getEmployeeById(id) {
   return db.prepare('SELECT * FROM employees WHERE id = ?').get(Number(id)) ?? null;
 }
 
+export function getPendingCount() {
+  return db.prepare('SELECT COUNT(*) AS n FROM employees WHERE usuario IS NULL').get().n;
+}
+
 export function getCargos() {
   return db.prepare('SELECT id, nombre FROM employee_cargos ORDER BY nombre').all();
 }

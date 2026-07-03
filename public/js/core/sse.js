@@ -63,5 +63,30 @@ export function startRealTimeUpdates() {
     if (state.currentPage === 'dashboard') setTimeout(router, 400);
   });
 
+  evtSource.addEventListener('employee-created', (e) => {
+    const data = JSON.parse(e.data);
+    showToast(`👤 Nuevo empleado pendiente de credenciales: ${data.nombre_completo}`, 'warning');
+    _shiftEmployeeBadge(1);
+  });
+
+  evtSource.addEventListener('employee-credentialed', (e) => {
+    const { pending } = JSON.parse(e.data);
+    setEmployeeBadge(pending);
+  });
+
   evtSource.onerror = () => console.warn('[SSE] Conexión perdida, reintentando...');
+}
+
+export function setEmployeeBadge(n) {
+  const badge = document.getElementById('badge-employees');
+  if (!badge) return;
+  if (n > 0) { badge.textContent = n; badge.style.display = 'flex'; }
+  else        { badge.textContent = ''; badge.style.display = 'none'; }
+}
+
+function _shiftEmployeeBadge(delta) {
+  const badge = document.getElementById('badge-employees');
+  if (!badge) return;
+  const current = parseInt(badge.textContent || '0', 10);
+  setEmployeeBadge(current + delta);
 }

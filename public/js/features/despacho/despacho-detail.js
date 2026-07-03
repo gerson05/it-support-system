@@ -182,7 +182,7 @@ export function openDetailModal(id) {
           </button>
         </div>`;
       overlay.querySelector('#modal-body').appendChild(trackingSection);
-      trackingSection.querySelector('#btn-rotulo').onclick = () => openRotuloModal(tkRes.token, d.numero);
+      trackingSection.querySelector('#btn-rotulo').onclick = () => openRotuloModal(tkRes.token, d.numero, d.destinatario);
     }
 
   }).catch(e => {

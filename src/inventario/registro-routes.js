@@ -4,6 +4,7 @@ import QRCode  from 'qrcode';
 import db from '../config/database.js';
 import { requireAuth, requirePermission } from '../auth/auth-middleware.js';
 import { getBaseUrl } from './import-service.js';
+import { getSedeCode, nextConsecutivo } from './sede-codes.js';
 
 const router = express.Router();
 
@@ -94,6 +95,22 @@ router.get('/api/inventario/registro-qr/:token', async (req, res) => {
   }
 });
 
+/* GET /api/inventario/registrar/:token/next-placa?sede=… — público, valida token */
+router.get('/api/inventario/registrar/:token/next-placa', (req, res) => {
+  try {
+    const row = db.prepare('SELECT * FROM registro_tokens WHERE token=?').get(req.params.token);
+    if (!row || !row.active) return res.status(403).json({ error: 'Token inválido.' });
+    if (row.expires_at && new Date(row.expires_at) < new Date())
+      return res.status(403).json({ error: 'Token expirado.' });
+    const sede = req.query.sede || '';
+    const code = getSedeCode(sede);
+    const num  = nextConsecutivo(db, code);
+    res.json({ placa: `AF-${code}${num}` });
+  } catch (err) {
+    res.status(500).json({ error: 'Error al calcular placa.' });
+  }
+});
+
 /* POST /api/inventario/registrar/:token — registra equipo/celular sin auth */
 router.post('/api/inventario/registrar/:token', (req, res) => {
   try {
@@ -125,9 +142,9 @@ router.post('/api/inventario/registrar/:token', (req, res) => {
         return res.status(400).json({ error: 'imei y nombre_completo son requeridos.' });
       const r = db.prepare(`
         INSERT OR IGNORE INTO inventario_celulares
-          (fecha_registro,area,ciudad,nombre_completo,cedula,linea,operador,equipo,almacenamiento,ram,modelo,imei,imei2,estado,accesorio,fecha_entrega,entregado_por)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
-      `).run(b.fecha_registro||null,b.area||null,b.ciudad||null,b.nombre_completo.trim(),
+          (placa,fecha_registro,area,ciudad,nombre_completo,cedula,linea,operador,equipo,almacenamiento,ram,modelo,imei,imei2,estado,accesorio,fecha_entrega,entregado_por)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+      `).run(b.placa||null,b.fecha_registro||null,b.area||null,b.ciudad||null,b.nombre_completo.trim(),
              b.cedula||null,b.linea||null,b.operador||null,b.equipo||null,
              b.almacenamiento||null,b.ram||null,b.modelo||null,b.imei.trim(),
              b.imei2||null,b.estado||'nuevo',b.accesorio||null,b.fecha_entrega||null,b.entregado_por||null);

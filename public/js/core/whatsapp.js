@@ -28,12 +28,20 @@ function updateWaUI(statusData) {
   } else if (statusData.status === 'awaiting_qr' && statusData.qrString) {
     btn.style.display = 'none';
     qrContainer.style.display = 'block';
+    const fallback = document.getElementById('wa-qr-fallback');
+    const textEl   = document.getElementById('wa-qr-text');
     if (statusData.qrImage) {
       qrImg.src = statusData.qrImage;
       qrImg.style.display = 'block';
-      qrImg.onerror = () => { qrImg.style.display = 'none'; };
+      qrImg.onerror = () => {
+        qrImg.style.display = 'none';
+        if (fallback) fallback.style.display = 'flex';
+      };
+      if (fallback) fallback.style.display = 'none';
+    } else {
+      qrImg.style.display = 'none';
+      if (fallback) fallback.style.display = 'flex';
     }
-    const textEl = document.getElementById('wa-qr-text');
     if (textEl) textEl.value = statusData.qrString;
     clearInterval(_waPollInterval);
     _waPollInterval = setInterval(pollWaStatus, 5000);
