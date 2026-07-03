@@ -37,6 +37,12 @@ let _drawerOpen       = false;
 
 function activeTab() { return TABS.find(t => t.id === _activeTabId); }
 
+function _toggleSidebar() {
+  _sidebarCollapsed = !_sidebarCollapsed;
+  const sidebar = document.getElementById('inv-sidebar');
+  if (sidebar) sidebar.classList.toggle('collapsed', _sidebarCollapsed);
+}
+
 function esc(str) {
   return String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
@@ -158,6 +164,8 @@ export function renderInventario(container) {
   });
   document.getElementById('btn-inv-import').addEventListener('click', () => openImportModal(activeTab().apiTab, () => { loadTable(); loadCounts(); }));
   document.getElementById('btn-inv-enlace').addEventListener('click', () => openGenerarEnlaceModal());
+
+  document.getElementById('inv-sidebar-toggle').addEventListener('click', _toggleSidebar);
 
   loadTable();
   loadCounts();
