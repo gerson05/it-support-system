@@ -43,6 +43,14 @@ function _toggleSidebar() {
   if (sidebar) sidebar.classList.toggle('collapsed', _sidebarCollapsed);
 }
 
+function _toggleDrawer(open) {
+  _drawerOpen = open;
+  const overlay = document.getElementById('inv-drawer-overlay');
+  if (!overlay) return;
+  overlay.classList.toggle('open', open);
+  document.body.style.overflow = open ? 'hidden' : '';
+}
+
 function esc(str) {
   return String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
@@ -166,6 +174,11 @@ export function renderInventario(container) {
   document.getElementById('btn-inv-enlace').addEventListener('click', () => openGenerarEnlaceModal());
 
   document.getElementById('inv-sidebar-toggle').addEventListener('click', _toggleSidebar);
+  document.getElementById('btn-inv-hamburger').addEventListener('click', () => _toggleDrawer(true));
+  document.getElementById('inv-drawer-close').addEventListener('click', () => _toggleDrawer(false));
+  document.getElementById('inv-drawer-overlay').addEventListener('click', e => {
+    if (e.target === e.currentTarget) _toggleDrawer(false);
+  });
 
   loadTable();
   loadCounts();
