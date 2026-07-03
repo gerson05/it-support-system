@@ -121,7 +121,7 @@ export function applyDetectedToForm(detectedMap) {
   }
 }
 
-export async function openSmartScanner(activeTab) {
+export async function openSmartScanner(activeTab, startTab = null) {
   if (!navigator.mediaDevices?.getUserMedia) {
     showToast('Cámara no disponible en este navegador.', 'warning');
     return;
@@ -233,9 +233,18 @@ export async function openSmartScanner(activeTab) {
     if (v1) v1.srcObject = stream;
     if (v2) v2.srcObject = stream;
   } catch (err) {
-    close();
-    showToast(err.name === 'NotAllowedError' ? 'Permiso de cámara denegado.' : 'No se pudo acceder a la cámara.', 'error');
-    return;
+    // Cámara no disponible — deshabilitar esos tabs y abrir el de captura de imagen
+    const tabCodes = document.getElementById('ss-tab-codes');
+    const tabOcr   = document.getElementById('ss-tab-ocr');
+    if (tabCodes) { tabCodes.disabled = true; tabCodes.style.opacity = '.35'; tabCodes.classList.remove('tab-active'); }
+    if (tabOcr)   { tabOcr.disabled   = true; tabOcr.style.opacity   = '.35'; tabOcr.classList.remove('tab-active'); }
+    document.getElementById('ss-pane-codes').style.display   = 'none';
+    document.getElementById('ss-pane-ocr').style.display     = 'none';
+    document.getElementById('ss-tab-capture').classList.add('tab-active');
+    document.getElementById('ss-pane-capture').style.display = '';
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    const msg = err.name === 'NotAllowedError' ? 'Cámara no autorizada — usa el tab Captura para pegar o subir imagen.' : 'Cámara no disponible — usa el tab Captura para pegar o subir imagen.';
+    showToast(msg, 'warning');
   }
 
   document.getElementById('ss-tab-codes')?.addEventListener('click', () => {
@@ -354,6 +363,10 @@ export async function openSmartScanner(activeTab) {
   }
 
   if (hasBarcodeDetector) startBarcodeScan();
+
+  if (startTab === 'capture') {
+    document.getElementById('ss-tab-capture')?.click();
+  }
 
   // ── Captura tab wiring ─────────────────────────────────
   document.getElementById('ss-tab-capture').addEventListener('click', () => {

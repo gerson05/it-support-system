@@ -146,6 +146,16 @@ async function loadTable() {
     wrap.querySelectorAll('.btn-inv-del').forEach(btn => {
       btn.addEventListener('click', e => { e.stopPropagation(); confirmDelete(btn.dataset.id, btn.dataset.label); });
     });
+    wrap.querySelectorAll('.btn-inv-dup').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const clone = JSON.parse(decodeURIComponent(btn.dataset.row));
+        delete clone.id; delete clone.qr_token;
+        if (_activeTab === 'celulares') { clone.imei = ''; clone.imei2 = ''; }
+        else { clone.placa = ''; clone.serial = ''; }
+        openForm(clone, _activeTab, () => { loadTable(); loadCounts(); }, true);
+      });
+    });
     wrap.querySelectorAll('.btn-inv-qr').forEach(btn => {
       btn.addEventListener('click', e => { e.stopPropagation(); openEtiquetaModal(btn.dataset.token); });
     });
@@ -162,6 +172,7 @@ async function loadTable() {
 
 const _ICON_EDIT = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
 const _ICON_DEL  = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>`;
+const _ICON_DUP  = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
 
 function renderEquiposTable(rows) {
   return `
@@ -204,6 +215,7 @@ function renderEquiposTable(rows) {
               ${r.qr_token ? `<button class="tbl-btn btn-inv-qr" data-token="${r.qr_token}" title="Imprimir etiqueta QR">
                 <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="3" height="3"/></svg>
               </button>` : ''}
+              <button class="tbl-btn btn-inv-dup" data-row="${encodeURIComponent(JSON.stringify(r))}" title="Duplicar">${_ICON_DUP}</button>
               <button class="tbl-btn btn-inv-edit" data-row="${encodeURIComponent(JSON.stringify(r))}" title="Editar">${_ICON_EDIT}</button>
               <button class="tbl-btn tbl-btn--del btn-inv-del" data-id="${r.id}" data-label="${esc(r.placa)} — ${esc(r.marca)}" title="Eliminar">${_ICON_DEL}</button>
             </td>
@@ -250,6 +262,7 @@ function renderCelularesTable(rows) {
               ${r.qr_token ? `<button class="tbl-btn btn-inv-qr" data-token="${r.qr_token}" title="Imprimir etiqueta QR">
                 <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="3" height="3"/></svg>
               </button>` : ''}
+              <button class="tbl-btn btn-inv-dup" data-row="${encodeURIComponent(JSON.stringify(r))}" title="Duplicar">${_ICON_DUP}</button>
               <button class="tbl-btn btn-inv-edit" data-row="${encodeURIComponent(JSON.stringify(r))}" title="Editar">${_ICON_EDIT}</button>
               <button class="tbl-btn tbl-btn--del btn-inv-del" data-id="${r.id}" data-label="${esc(r.imei)} — ${esc(r.modelo||r.equipo||'')}" title="Eliminar">${_ICON_DEL}</button>
             </td>
@@ -291,6 +304,7 @@ function renderUpsTable(rows) {
               ${r.qr_token ? `<button class="tbl-btn btn-inv-qr" data-token="${r.qr_token}" title="Imprimir etiqueta QR">
                 <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="3" height="3"/></svg>
               </button>` : ''}
+              <button class="tbl-btn btn-inv-dup" data-row="${encodeURIComponent(JSON.stringify(r))}" title="Duplicar">${_ICON_DUP}</button>
               <button class="tbl-btn btn-inv-edit" data-row="${encodeURIComponent(JSON.stringify(r))}" title="Editar">${_ICON_EDIT}</button>
               <button class="tbl-btn tbl-btn--del btn-inv-del" data-id="${r.id}" data-label="${esc(r.placa)} — ${esc(r.marca||'')}" title="Eliminar">${_ICON_DEL}</button>
             </td>

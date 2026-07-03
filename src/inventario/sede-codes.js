@@ -55,12 +55,15 @@ export const SEDE_CODES = {
   'QUIMBAYA':                               'QMB',
 
   // ── Risaralda ────────────────────────────────────────────────────────────
+  'BALBOA':                                 'BBA',
   'APIA':                                   'API',
   'DOSQUEBRADAS':                           'DQB',
   'GUATICA':                                'GTC',
   'LA VIRGINIA':                            'LVG',
   'PEREIRA':                                'PRR',
   'SANTA ROSA':                             'STR',
+
+
 
   // ── Valle del Cauca — sede única ─────────────────────────────────────────
   'ALCALA':                                 'ALC',

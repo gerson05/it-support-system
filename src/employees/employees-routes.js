@@ -3,8 +3,10 @@ import { requireAuth, requirePermission } from '../auth/auth-middleware.js';
 import {
   getAllEmployees, getEmployeeById,
   createEmployee, completeEmployee, updateEmployee, deleteEmployee,
-  getCargos, getAreas,
+  getCargos, getAreas, getPendingCount,
 } from './employees-model.js';
+import { appEvents } from '../events/broadcaster.js';
+import { sendWhatsAppMessage } from '../whatsapp/messenger.js';
 
 const router = express.Router();
 
@@ -58,6 +60,16 @@ router.post('/api/employees', ...canCreate, (req, res) => {
       created_by: req.user.id,
     });
 
+    const payload = { id, nombre_completo: nombre_completo.trim(), cargo: cargo.trim(), area: area.trim() };
+    appEvents.emit('employee:created', payload);
+
+    const itNumber = process.env.IT_WHATSAPP_NUMBER;
+    if (itNumber) {
+      sendWhatsAppMessage(itNumber,
+        `🔔 *Nuevo empleado pendiente de credenciales*\n👤 ${payload.nombre_completo}\n💼 ${payload.cargo} | ${payload.area}\n\nIngresa al panel → Crear Usuarios para generar accesos.`
+      ).catch(() => {});
+    }
+
     res.status(201).json({ ok: true, id });
   } catch (err) {
     if (err.code === 'CEDULA_EXISTS') return res.status(409).json({ error: 'Cédula ya registrada.' });
@@ -78,6 +90,7 @@ router.put('/api/employees/:id', ...canEdit, async (req, res) => {
       // IT completa: genera usuario + contraseña automáticamente
       updateEmployee(id, { nombre_completo, cargo, area }, req.user.id);
       const creds = completeEmployee(id, fecha_respuesta_soporte, req.user.id);
+      appEvents.emit('employee:credentialed', { pending: getPendingCount() });
       return res.json({ ok: true, ...creds, ...getEmployeeById(id) });
     }
 
@@ -101,6 +114,12 @@ router.delete('/api/employees/:id', ...canDelete, (req, res) => {
     console.error('[employees] DELETE /api/employees/:id:', err.message);
     res.status(500).json({ error: 'Error al eliminar empleado.' });
   }
+});
+
+// GET /api/employees/pending-count
+router.get('/api/employees/pending-count', ...canRead, (req, res) => {
+  try { res.json({ count: getPendingCount() }); }
+  catch (err) { res.status(500).json({ error: 'Error.' }); }
 });
 
 // GET /api/employees-data/cargos

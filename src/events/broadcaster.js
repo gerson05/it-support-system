@@ -37,3 +37,5 @@ appEvents.on('ticket:message',         (data) => broadcast('ticket-message', dat
 appEvents.on('tech-request:created',   (data) => broadcast('tech-request-created', data));
 appEvents.on('tech-request:updated',   (data) => broadcast('tech-request-updated', data));
 appEvents.on('tracking:evento',        (data) => broadcast('tracking-evento', data));
+appEvents.on('employee:created',       (data) => broadcast('employee-created',      data));
+appEvents.on('employee:credentialed',  (data) => broadcast('employee-credentialed', data));

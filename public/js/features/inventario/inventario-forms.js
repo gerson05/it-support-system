@@ -18,13 +18,13 @@ function esc(str) {
   return String(str || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-export function openForm(row, activeTab, onSuccess) {
-  const isEdit    = !!row;
+export function openForm(row, activeTab, onSuccess, isDuplicate = false) {
+  const isEdit    = !!row && !isDuplicate;
   const isEquipo  = activeTab === 'equipos';
   const isUps     = activeTab === 'ups';
   const modalWrap = document.getElementById('inv-modal-wrap');
 
-  modalWrap.innerHTML = isUps ? upsFormHTML(row) : isEquipo ? equipoFormHTML(row) : celularFormHTML(row);
+  modalWrap.innerHTML = isUps ? upsFormHTML(row, isDuplicate) : isEquipo ? equipoFormHTML(row, isDuplicate) : celularFormHTML(row, isDuplicate);
 
   // Bodega autocomplete para campo ciudad en celulares
   const ciudadInput = modalWrap.querySelector('#inv-input-ciudad');
@@ -70,6 +70,7 @@ export function openForm(row, activeTab, onSuccess) {
     btn.addEventListener('click', () => openScanner(btn.dataset.target));
   });
   document.getElementById('btn-smart-scan')?.addEventListener('click', () => openSmartScanner(activeTab));
+  document.getElementById('btn-capture-image')?.addEventListener('click', () => openSmartScanner(activeTab, 'capture'));
 
   form.addEventListener('submit', async e => {
     e.preventDefault();
@@ -122,20 +123,26 @@ export function openForm(row, activeTab, onSuccess) {
   });
 }
 
-export function equipoFormHTML(r) {
+export function equipoFormHTML(r, isDuplicate = false) {
   const v = k => esc(r?.[k] ?? '');
   return `
   <div class="modal-overlay" style="display:flex;">
     <div class="modal-content" style="max-width:580px;max-height:90vh;overflow-y:auto;">
       <div class="modal-header" style="flex-direction:column;align-items:flex-start;gap:8px;">
         <div style="display:flex;justify-content:space-between;align-items:center;width:100%;">
-          <h3>${r ? 'Editar equipo' : 'Nuevo equipo'}</h3>
+          <h3>${isDuplicate ? 'Duplicar equipo' : r ? 'Editar equipo' : 'Nuevo equipo'}</h3>
           <button class="modal-close" id="btn-inv-form-cancel">&times;</button>
         </div>
-        ${r ? '' : `<button type="button" id="btn-smart-scan"
-          style="display:flex;align-items:center;gap:8px;padding:8px 16px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;width:100%;justify-content:center;">
-          📷 Escanear equipo — llenar campos automáticamente
-        </button>`}
+        ${(r && !isDuplicate) ? '' : `<div style="display:flex;gap:8px;">
+          <button type="button" id="btn-smart-scan"
+            style="flex:1;display:flex;align-items:center;gap:8px;padding:8px 14px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;justify-content:center;">
+            📷 Escanear equipo
+          </button>
+          <button type="button" id="btn-capture-image"
+            style="display:flex;align-items:center;gap:7px;padding:8px 14px;background:var(--surface-2);color:var(--text-2);border:1px solid var(--border-2);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">
+            📎 Pegar captura
+          </button>
+        </div>`}
       </div>
       <div class="modal-body">
         <div id="inv-form-err" style="display:none;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:var(--danger);border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:14px;"></div>
@@ -167,20 +174,26 @@ export function equipoFormHTML(r) {
   </div>`;
 }
 
-export function celularFormHTML(r) {
+export function celularFormHTML(r, isDuplicate = false) {
   const v = k => esc(r?.[k] ?? '');
   return `
   <div class="modal-overlay" style="display:flex;">
     <div class="modal-content" style="max-width:580px;max-height:90vh;overflow-y:auto;">
       <div class="modal-header" style="flex-direction:column;align-items:flex-start;gap:8px;">
         <div style="display:flex;justify-content:space-between;align-items:center;width:100%;">
-          <h3>${r ? 'Editar celular' : 'Nuevo celular'}</h3>
+          <h3>${isDuplicate ? 'Duplicar celular' : r ? 'Editar celular' : 'Nuevo celular'}</h3>
           <button class="modal-close" id="btn-inv-form-cancel">&times;</button>
         </div>
-        ${r ? '' : `<button type="button" id="btn-smart-scan"
-          style="display:flex;align-items:center;gap:8px;padding:8px 16px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;width:100%;justify-content:center;">
-          📷 Escanear equipo — llenar campos automáticamente
-        </button>`}
+        ${(r && !isDuplicate) ? '' : `<div style="display:flex;gap:8px;">
+          <button type="button" id="btn-smart-scan"
+            style="flex:1;display:flex;align-items:center;gap:8px;padding:8px 14px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;justify-content:center;">
+            📷 Escanear equipo
+          </button>
+          <button type="button" id="btn-capture-image"
+            style="display:flex;align-items:center;gap:7px;padding:8px 14px;background:var(--surface-2);color:var(--text-2);border:1px solid var(--border-2);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">
+            📎 Pegar captura
+          </button>
+        </div>`}
       </div>
       <div class="modal-body">
         <div id="inv-form-err" style="display:none;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:var(--danger);border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:14px;"></div>
@@ -217,20 +230,26 @@ export function celularFormHTML(r) {
   </div>`;
 }
 
-export function upsFormHTML(r) {
+export function upsFormHTML(r, isDuplicate = false) {
   const v = k => esc(r?.[k] ?? '');
   return `
   <div class="modal-overlay" style="display:flex;">
     <div class="modal-content" style="max-width:480px;max-height:90vh;overflow-y:auto;">
       <div class="modal-header" style="flex-direction:column;align-items:flex-start;gap:8px;">
         <div style="display:flex;justify-content:space-between;align-items:center;width:100%;">
-          <h3>${r ? 'Editar UPS' : 'Nueva UPS'}</h3>
+          <h3>${isDuplicate ? 'Duplicar UPS' : r ? 'Editar UPS' : 'Nueva UPS'}</h3>
           <button class="modal-close" id="btn-inv-form-cancel">&times;</button>
         </div>
-        ${r ? '' : `<button type="button" id="btn-smart-scan"
-          style="display:flex;align-items:center;gap:8px;padding:8px 16px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;width:100%;justify-content:center;">
-          📷 Escanear etiqueta — llenar campos automáticamente
-        </button>`}
+        ${(r && !isDuplicate) ? '' : `<div style="display:flex;gap:8px;">
+          <button type="button" id="btn-smart-scan"
+            style="flex:1;display:flex;align-items:center;gap:8px;padding:8px 14px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;justify-content:center;">
+            📷 Escanear etiqueta
+          </button>
+          <button type="button" id="btn-capture-image"
+            style="display:flex;align-items:center;gap:7px;padding:8px 14px;background:var(--surface-2);color:var(--text-2);border:1px solid var(--border-2);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">
+            📎 Pegar captura
+          </button>
+        </div>`}
       </div>
       <div class="modal-body">
         <div id="inv-form-err" style="display:none;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:var(--danger);border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:14px;"></div>

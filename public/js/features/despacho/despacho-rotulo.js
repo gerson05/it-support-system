@@ -7,6 +7,7 @@
  *  - printDespacho(d)
  */
 import { AREA_MAPPINGS } from '../../core/app.js';
+import { state } from '../../core/state.js';
 import { showToast } from '../../ui/components.js';
 import { articulosList } from './despacho-helpers.js';
 
@@ -93,7 +94,7 @@ const LABEL_SIZES_ROTULO = [
   { v: '8x5',   l: '8 × 5 cm   (pequeño)' },
 ];
 
-export async function openRotuloModal(token, numero) {
+export async function openRotuloModal(token, numero, destinatario = '') {
   const tipos     = await loadTiposArticulo();
   const tiposOpts = tipos.length
     ? tipos.map(t => `<option value="${t.nombre}">${t.nombre}</option>`).join('')
@@ -119,10 +120,6 @@ export async function openRotuloModal(token, numero) {
         <div>
           <label style="display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:4px;">Remite (departamento)</label>
           <input id="rotulo-remite" class="form-control" value="DPTO. DE SISTEMAS" style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()" />
-        </div>
-        <div>
-          <label style="display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:4px;">Nombre de quien despacha</label>
-          <input id="rotulo-remitente" class="form-control" placeholder="Ej: CARLOS PÉREZ" style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()" />
         </div>
         <div>
           <label style="display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:4px;">Cajas</label>
@@ -247,14 +244,15 @@ export async function openRotuloModal(token, numero) {
   });
 
   overlay.querySelector('#rotulo-print').onclick = () => {
-    const tipo       = overlay.querySelector('#rotulo-tipo').value;
-    const remite     = overlay.querySelector('#rotulo-remite').value.toUpperCase();
-    const remitente  = overlay.querySelector('#rotulo-remitente').value.toUpperCase();
-    const cajas      = overlay.querySelector('#rotulo-cajas').value;
-    const modo       = overlay.querySelector('input[name="rotulo-modo"]:checked').value;
-    const printer    = overlay.querySelector('input[name="rotulo-printer"]:checked').value;
-    const label_size = overlay.querySelector('input[name="rotulo-size"]:checked')?.value || '10x8';
-    const params     = new URLSearchParams({ tipo_articulo: tipo, remite, remitente, cajas, modo, printer, label_size });
+    const tipo         = overlay.querySelector('#rotulo-tipo').value;
+    const remite       = overlay.querySelector('#rotulo-remite').value.toUpperCase();
+    const remitente    = (state.currentUser?.username || '').toUpperCase();
+    const responsable  = destinatario.toUpperCase();
+    const cajas        = overlay.querySelector('#rotulo-cajas').value;
+    const modo         = overlay.querySelector('input[name="rotulo-modo"]:checked').value;
+    const printer      = overlay.querySelector('input[name="rotulo-printer"]:checked').value;
+    const label_size   = overlay.querySelector('input[name="rotulo-size"]:checked')?.value || '10x8';
+    const params       = new URLSearchParams({ tipo_articulo: tipo, remite, remitente, responsable, cajas, modo, printer, label_size });
     if (modo === 'custom') {
       const checked = [...overlay.querySelectorAll('.rotulo-sede-cb:checked')].map(cb => cb.value);
       if (!checked.length) { showToast('Selecciona al menos una sede', 'error'); return; }
