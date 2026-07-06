@@ -297,6 +297,18 @@ function buildForm(t) {
   if (t === 'equipos') {
     el.innerHTML = `
       ${sedePlacaSection(true)}
+      <div class="form-group">
+        <label>Categoría <span class="required-star">*</span></label>
+        <select name="categoria" required>
+          <option value="computadores">💻 Computador</option>
+          <option value="impresoras">🖨 Impresora</option>
+          <option value="escaner">🖹 Escáner</option>
+          <option value="televisores">📺 Televisor</option>
+          <option value="monitores">🖥 Monitor</option>
+          <option value="tablets">📱 Tablet</option>
+          <option value="perifericos">🖱 Periférico</option>
+        </select>
+      </div>
       ${inp('Serial','serial','',true,'text',true)}
       <div class="form-section">Especificaciones</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">

@@ -134,12 +134,13 @@ export function renderInventario(container) {
     </div>
   `;
 
-  document.querySelectorAll('.tab-btn[data-tabid]').forEach(btn => {
+  document.querySelectorAll('.inv-cat-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-active'));
-      btn.classList.add('tab-active');
       _activeTabId = btn.dataset.tabid;
       _page = 1;
+      document.querySelectorAll('.inv-cat-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll(`.inv-cat-btn[data-tabid="${_activeTabId}"]`).forEach(b => b.classList.add('active'));
+      if (btn.dataset.drawer) _toggleDrawer(false);
       loadTable();
     });
   });
