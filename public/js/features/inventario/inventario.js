@@ -410,8 +410,11 @@ async function loadCounts() {
       const params = `page=1&limit=1${t.categoria ? `&categoria=${t.categoria}` : ''}`;
       const r = await fetch(`/api/inventario/${t.apiTab}?${params}`);
       const d = await r.json();
-      const el = document.getElementById(`count-${t.id}`);
-      if (el) el.textContent = d.total ?? '';
+      const total = d.total ?? '';
+      const sidebar = document.getElementById(`count-${t.id}`);
+      const drawer  = document.getElementById(`drawer-count-${t.id}`);
+      if (sidebar) sidebar.textContent = total;
+      if (drawer)  drawer.textContent  = total;
     } catch {}
   }
 }
