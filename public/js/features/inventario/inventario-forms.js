@@ -18,13 +18,19 @@ function esc(str) {
   return String(str || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-export function openForm(row, activeTab, onSuccess, isDuplicate = false) {
+export function openForm(row, activeTab, onSuccess, isDuplicate = false, defaultCategoria = '') {
   const isEdit    = !!row && !isDuplicate;
   const isEquipo  = activeTab === 'equipos';
   const isUps     = activeTab === 'ups';
   const modalWrap = document.getElementById('inv-modal-wrap');
 
   modalWrap.innerHTML = isUps ? upsFormHTML(row, isDuplicate) : isEquipo ? equipoFormHTML(row, isDuplicate) : celularFormHTML(row, isDuplicate);
+
+  /* Pre-select categoria when opening a new equipo from a category tab */
+  if (isEquipo && !row && defaultCategoria) {
+    const catSel = modalWrap.querySelector('[name="categoria"]');
+    if (catSel) catSel.value = defaultCategoria;
+  }
 
   // Bodega autocomplete para campo ciudad en celulares
   const ciudadInput = modalWrap.querySelector('#inv-input-ciudad');
@@ -148,6 +154,9 @@ export function equipoFormHTML(r, isDuplicate = false) {
         <div id="inv-form-err" style="display:none;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:var(--danger);border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:14px;"></div>
         <form id="inv-form">
           ${placaBlock(v('placa'), true)}
+          <div style="margin-bottom:12px;">
+            ${selectField('Categoría *','categoria',v('categoria')||'computadores',['computadores','impresoras','escaner','televisores','monitores','tablets','perifericos'])}
+          </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
             ${selectField('Marca *','marca',v('marca'),['Lenovo','Dell','HP','Samsung','Toshiba','Acer','Asus','Apple','Kalley','Otro'])}
             ${inputField('Nombre del equipo *','nombre_equipo',v('nombre_equipo'))}

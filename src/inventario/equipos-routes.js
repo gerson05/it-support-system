@@ -27,7 +27,7 @@ router.get('/api/inventario/equipos/next-placa', ...canRead, (req, res) => {
 /* GET /api/inventario/equipos */
 router.get('/api/inventario/equipos', ...canRead, (req, res) => {
   try {
-    const { search, area, page = 1, limit = 20 } = req.query;
+    const { search, area, categoria, page = 1, limit = 20 } = req.query;
     const where = [];
     const params = [];
     if (search) {
@@ -35,7 +35,8 @@ router.get('/api/inventario/equipos', ...canRead, (req, res) => {
       const s = `%${search}%`;
       params.push(s, s, s, s, s, s);
     }
-    if (area) { where.push('area LIKE ?'); params.push(`%${area}%`); }
+    if (area)      { where.push('area LIKE ?');      params.push(`%${area}%`); }
+    if (categoria) { where.push('categoria = ?');    params.push(categoria); }
     const wc = where.length ? 'WHERE ' + where.join(' AND ') : '';
     const offset = (parseInt(page) - 1) * parseInt(limit);
     const rows  = db.prepare(`SELECT * FROM inventario_equipos ${wc} ORDER BY created_at DESC LIMIT ? OFFSET ?`).all(...params, parseInt(limit), offset);
@@ -50,19 +51,19 @@ router.get('/api/inventario/equipos', ...canRead, (req, res) => {
 /* POST /api/inventario/equipos */
 router.post('/api/inventario/equipos', ...canCreate, (req, res) => {
   try {
-    const { placa, marca, nombre_equipo, serial, procesador, ram, tipo_ram, cap_disco, tipo_disco, serial_cargador, area, responsable, fecha_compra } = req.body;
+    const { placa, marca, nombre_equipo, serial, procesador, ram, tipo_ram, cap_disco, tipo_disco, serial_cargador, area, responsable, fecha_compra, categoria } = req.body;
     if (!placa?.trim() || !marca?.trim() || !nombre_equipo?.trim() || !serial?.trim()) {
       return res.status(400).json({ error: 'placa, marca, nombre_equipo y serial son requeridos.' });
     }
     const qr_token = randomUUID();
     const result = db.prepare(`
       INSERT INTO inventario_equipos
-        (placa,marca,nombre_equipo,serial,procesador,ram,tipo_ram,cap_disco,tipo_disco,serial_cargador,area,responsable,fecha_compra,qr_token)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        (placa,marca,nombre_equipo,serial,procesador,ram,tipo_ram,cap_disco,tipo_disco,serial_cargador,area,responsable,fecha_compra,qr_token,categoria)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
     `).run(placa.trim(), marca.trim(), nombre_equipo.trim(), serial.trim(),
            procesador||null, ram||null, tipo_ram||null, cap_disco||null,
            tipo_disco||null, serial_cargador||null, area||null,
-           responsable||null, fecha_compra||null, qr_token);
+           responsable||null, fecha_compra||null, qr_token, categoria||'computadores');
     res.status(201).json({ ok: true, id: result.lastInsertRowid, qr_token });
   } catch (err) {
     if (err.message?.includes('UNIQUE')) return res.status(409).json({ error: 'Ya existe un equipo con esa placa o serial.' });
@@ -78,17 +79,18 @@ router.put('/api/inventario/equipos/:id', ...canEdit, (req, res) => {
     if (!db.prepare('SELECT id FROM inventario_equipos WHERE id = ?').get(id)) {
       return res.status(404).json({ error: 'Equipo no encontrado.' });
     }
-    const { placa, marca, nombre_equipo, serial, procesador, ram, tipo_ram, cap_disco, tipo_disco, serial_cargador, area, responsable, fecha_compra } = req.body;
+    const { placa, marca, nombre_equipo, serial, procesador, ram, tipo_ram, cap_disco, tipo_disco, serial_cargador, area, responsable, fecha_compra, categoria } = req.body;
     db.prepare(`
       UPDATE inventario_equipos SET
         placa=?,marca=?,nombre_equipo=?,serial=?,procesador=?,ram=?,tipo_ram=?,
         cap_disco=?,tipo_disco=?,serial_cargador=?,area=?,responsable=?,
-        fecha_compra=?,updated_at=datetime('now','localtime')
+        fecha_compra=?,categoria=?,updated_at=datetime('now','localtime')
       WHERE id=?
     `).run(placa, marca, nombre_equipo, serial,
            procesador||null, ram||null, tipo_ram||null,
            cap_disco||null, tipo_disco||null, serial_cargador||null,
-           area||null, responsable||null, fecha_compra||null, id);
+           area||null, responsable||null, fecha_compra||null,
+           categoria||'computadores', id);
     res.json({ ok: true });
   } catch (err) {
     if (err.message?.includes('UNIQUE')) return res.status(409).json({ error: 'Placa o serial ya existe en otro equipo.' });
