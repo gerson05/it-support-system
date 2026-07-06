@@ -1,5 +1,6 @@
 import { showToast } from '../../ui/components.js';
 import { can } from '../../core/state.js';
+import { iconEye } from '../../utils/icons.js';
 
 let _employees = [];
 let _cargos = [];
@@ -414,9 +415,11 @@ function _renderRow(emp, pending) {
     ? _BTN(`window._empEdit(${emp.id})`, 'var(--primary)', '&#9998; Editar') : '';
   const btnDelete = can('employees:delete')
     ? _BTN(`window._empDelete(${emp.id})`, 'var(--danger)', '&#10005; Eliminar') : '';
+  const btnCreds = !pending && can('employees:read')
+    ? _BTN(`window._empCreds(${emp.id})`, '#6366f1', `${iconEye(12)} Ver credenciales`) : '';
 
   const actions = `<div style="display:flex;gap:6px;flex-wrap:wrap;">
-    ${pending ? btnComplete : ''}${btnEdit}${btnDelete}
+    ${pending ? btnComplete : btnCreds}${btnEdit}${btnDelete}
   </div>`;
 
   const extraCols = pending
@@ -604,6 +607,10 @@ async function _delete(id) {
 window._empEdit     = id => _openModal(id);
 window._empDelete   = id => _delete(id);
 window._empComplete = id => _openCompleteModal(id);
+window._empCreds    = id => {
+  const emp = _employees.find(e => e.id === id);
+  if (emp) _showCredsModal(emp.nombre_completo, emp.usuario, emp.contraseña);
+};
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function _esc(t) {
