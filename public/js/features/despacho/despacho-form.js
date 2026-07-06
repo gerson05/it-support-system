@@ -654,7 +654,31 @@ export async function openEditDespachoModal(id, onSuccess) {
         <div style="margin-bottom:14px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
             <label style="font-size:12px;font-weight:600;color:var(--text-2);">Artículos *</label>
-            <button type="button" id="btn-add-art-edit" style="font-size:12px;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface-2);color:var(--text-2);cursor:pointer;">+ Agregar fila</button>
+            <div style="display:flex;gap:6px;">
+              <button type="button" id="btn-from-inventario" style="font-size:12px;padding:4px 10px;border:1px solid var(--primary);border-radius:6px;background:var(--primary-light,rgba(99,102,241,.1));color:var(--primary);cursor:pointer;">📦 Del inventario</button>
+              <button type="button" id="btn-add-art-edit" style="font-size:12px;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface-2);color:var(--text-2);cursor:pointer;">+ Agregar fila</button>
+            </div>
+          </div>
+          <div id="inv-picker" style="display:none;border:1px solid var(--primary);border-radius:8px;background:var(--surface-2);padding:12px;margin-bottom:10px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+              <span style="font-size:12px;font-weight:600;color:var(--primary);">Inventario reciente</span>
+              <button type="button" id="btn-close-inv-picker" style="background:none;border:none;cursor:pointer;color:var(--text-3);font-size:16px;line-height:1;">✕</button>
+            </div>
+            <div style="display:flex;gap:6px;margin-bottom:8px;">
+              <input id="inv-picker-search" type="text" placeholder="Buscar por placa, serial, marca, modelo…"
+                style="flex:1;padding:6px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;">
+              <select id="inv-picker-tipo" style="padding:6px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;cursor:pointer;">
+                <option value="equipos">Equipos</option>
+                <option value="celulares">Celulares</option>
+                <option value="ups">UPS</option>
+              </select>
+            </div>
+            <div id="inv-picker-list" style="max-height:220px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;"></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:8px;border-top:1px solid var(--border);">
+              <span id="inv-picker-count" style="font-size:11px;color:var(--text-3);">0 seleccionados</span>
+              <button type="button" id="btn-add-from-inv" disabled
+                style="font-size:12px;padding:5px 14px;border:none;border-radius:6px;background:var(--primary);color:#fff;cursor:pointer;opacity:.4;">Agregar al despacho</button>
+            </div>
           </div>
           <div id="arts-list-edit" style="display:flex;flex-direction:column;gap:6px;"></div>
         </div>
@@ -738,6 +762,131 @@ export async function openEditDespachoModal(id, onSuccess) {
     wireArtRow(row);
     row.querySelector('[data-field="nombre"]')?.focus();
   };
+
+  // ── Inventory picker ──────────────────────────────────────────────────────
+  const invPicker     = overlay.querySelector('#inv-picker');
+  const invList       = overlay.querySelector('#inv-picker-list');
+  const invSearch     = overlay.querySelector('#inv-picker-search');
+  const invTipo       = overlay.querySelector('#inv-picker-tipo');
+  const invCount      = overlay.querySelector('#inv-picker-count');
+  const btnAddFromInv = overlay.querySelector('#btn-add-from-inv');
+  let   invItems      = [];
+  let   invSelected   = new Set();
+
+  function renderInvList(items) {
+    if (!items.length) {
+      invList.innerHTML = `<div style="text-align:center;padding:16px;font-size:12px;color:var(--text-3);">Sin resultados</div>`;
+      return;
+    }
+    const tipo = invTipo.value;
+    invList.innerHTML = items.map(it => {
+      const id    = it.id;
+      const label = tipo === 'celulares'
+        ? `<b>${it.equipo || it.modelo || '—'}</b> &nbsp;<span style="color:var(--text-3)">${it.marca || ''}</span>`
+        : `<b>${it.nombre_equipo || '—'}</b> &nbsp;<span style="color:var(--text-3)">${it.marca || ''}</span>`;
+      const sub   = tipo === 'celulares'
+        ? `IMEI: ${it.imei || '—'}${it.serial ? ` · S/N: ${it.serial}` : ''}`
+        : `${it.placa ? `<span style="font-family:monospace;color:var(--primary);">${it.placa}</span> · ` : ''}Serial: ${it.serial || '—'}${tipo === 'ups' && it.voltaje ? ` · ${it.voltaje}` : ''}`;
+      const checked = invSelected.has(id) ? 'checked' : '';
+      return `<label data-id="${id}" style="display:flex;align-items:flex-start;gap:8px;padding:7px 8px;border-radius:6px;cursor:pointer;border:1px solid ${invSelected.has(id) ? 'var(--primary)' : 'transparent'};background:${invSelected.has(id) ? 'rgba(99,102,241,.08)' : 'var(--surface)'};transition:.1s;">
+        <input type="checkbox" data-id="${id}" ${checked} style="margin-top:2px;cursor:pointer;flex-shrink:0;">
+        <div style="min-width:0;">
+          <div style="font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${label}</div>
+          <div style="font-size:11px;color:var(--text-3);margin-top:1px;">${sub}${it.responsable ? ` · ${it.responsable}` : ''}</div>
+        </div>
+      </label>`;
+    }).join('');
+
+    invList.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+      cb.onchange = () => {
+        const id = parseInt(cb.dataset.id);
+        if (cb.checked) invSelected.add(id); else invSelected.delete(id);
+        updateInvCount();
+        renderInvList(filterInvItems());
+      };
+    });
+  }
+
+  function filterInvItems() {
+    const q = invSearch.value.trim().toLowerCase();
+    if (!q) return invItems;
+    return invItems.filter(it => {
+      const txt = [it.placa, it.serial, it.marca, it.nombre_equipo, it.equipo, it.modelo, it.imei, it.responsable, it.voltaje].join(' ').toLowerCase();
+      return txt.includes(q);
+    });
+  }
+
+  function updateInvCount() {
+    const n = invSelected.size;
+    invCount.textContent = `${n} seleccionado${n !== 1 ? 's' : ''}`;
+    btnAddFromInv.disabled = n === 0;
+    btnAddFromInv.style.opacity = n > 0 ? '1' : '.4';
+  }
+
+  async function loadInvItems() {
+    const tipo = invTipo.value;
+    invList.innerHTML = `<div style="text-align:center;padding:16px;font-size:12px;color:var(--text-3);">Cargando…</div>`;
+    invSelected.clear();
+    updateInvCount();
+    try {
+      const res  = await fetch(`/api/inventario/${tipo}?limit=50&page=1`);
+      const json = await res.json();
+      invItems   = json.equipos || json.celulares || json.ups || [];
+      renderInvList(filterInvItems());
+    } catch {
+      invList.innerHTML = `<div style="text-align:center;padding:16px;font-size:12px;color:var(--danger);">Error al cargar inventario</div>`;
+    }
+  }
+
+  overlay.querySelector('#btn-from-inventario').onclick = () => {
+    const open = invPicker.style.display !== 'none';
+    invPicker.style.display = open ? 'none' : 'block';
+    if (!open && !invItems.length) loadInvItems();
+  };
+  overlay.querySelector('#btn-close-inv-picker').onclick = () => { invPicker.style.display = 'none'; };
+
+  invTipo.onchange = loadInvItems;
+  invSearch.addEventListener('input', () => renderInvList(filterInvItems()));
+
+  btnAddFromInv.onclick = () => {
+    const tipo     = invTipo.value;
+    const selected = invItems.filter(it => invSelected.has(it.id));
+    const firstRow = artsList.querySelector('.art-row-edit');
+    const isFirstEmpty = firstRow && !firstRow.querySelector('[data-field="nombre"]').value.trim();
+
+    selected.forEach((it, i) => {
+      const nombre = tipo === 'celulares' ? (it.equipo || it.modelo || '') : (it.nombre_equipo || '');
+      const art = {
+        nombre,
+        marca:       it.marca  || '',
+        modelo:      it.modelo || '',
+        serial:      tipo === 'celulares' ? (it.imei || '') : (it.serial || ''),
+        descripcion: tipo === 'ups' && it.voltaje ? `Voltaje: ${it.voltaje}` : '',
+      };
+      const fillRow = (row) => {
+        ['nombre','marca','modelo','serial','descripcion'].forEach(f => {
+          const el = row.querySelector(`[data-field="${f}"]`);
+          if (el) el.value = art[f] || '';
+        });
+      };
+      if (i === 0 && isFirstEmpty) {
+        fillRow(firstRow);
+      } else {
+        const div = document.createElement('div');
+        div.innerHTML = buildArtRow(art, false);
+        const row = div.firstElementChild;
+        fillRow(row);
+        artsList.appendChild(row);
+        wireArtRow(row);
+      }
+    });
+
+    invPicker.style.display = 'none';
+    invSelected.clear();
+    invItems = [];
+    showToast(`${selected.length} artículo(s) agregado(s)`, 'success');
+  };
+  // ── End inventory picker ──────────────────────────────────────────────────
 
   overlay.querySelector('#form-edit-despacho').onsubmit = async (e) => {
     e.preventDefault();
