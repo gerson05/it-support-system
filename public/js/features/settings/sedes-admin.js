@@ -123,14 +123,18 @@ export async function renderSedesAdmin(container) {
 
     for (const ciudad of ciudades) {
       const puntos = grouped[ciudad];
+      const collapseId = `rdp-city-${ciudad.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '')}`;
 
       html += `
-        <div class="card" style="margin-bottom:12px;padding:0;overflow:hidden;">
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 18px;background:rgba(99,102,241,.08);border-bottom:1px solid rgba(255,255,255,.06);">
+        <div class="card" style="margin-bottom:8px;padding:0;overflow:hidden;">
+          <div data-toggle="${collapseId}" style="display:flex;justify-content:space-between;align-items:center;padding:10px 18px;background:rgba(99,102,241,.08);border-bottom:1px solid rgba(255,255,255,.06);cursor:pointer;user-select:none;">
             <span style="font-weight:700;font-size:14px;display:flex;align-items:center;gap:6px;">${iconMapPin(14)} ${ciudad}</span>
-            <span style="font-size:12px;color:var(--text-muted);">${puntos.length} registro${puntos.length !== 1 ? 's' : ''}</span>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="font-size:12px;color:var(--text-muted);">${puntos.length} registro${puntos.length !== 1 ? 's' : ''}</span>
+              <span class="rdp-chevron" style="color:var(--text-3);font-size:12px;transition:transform .2s;">▼</span>
+            </div>
           </div>
-          <div>
+          <div id="${collapseId}" style="display:none;">
             ${puntos.map(p => {
               const tipoBadge = p.tipo === 'bodega'
                 ? `<span style="font-size:10px;padding:2px 7px;border-radius:20px;background:var(--surface-3);color:var(--text-2);font-weight:600;margin-left:6px;">Bodega</span>`
@@ -168,12 +172,24 @@ export async function renderSedesAdmin(container) {
               </div>`;
             }).join('')}
           </div>
-        </div>`;
+        </div>`; // end city card
     }
 
     if (!html) html = `<div style="text-align:center;padding:40px;color:var(--text-muted);">No se encontraron resultados.</div>`;
     listEl.innerHTML = html;
     if (countEl) countEl.textContent = `${filtered.length} registro${filtered.length !== 1 ? 's' : ''} · ${ciudades.length} ciudad${ciudades.length !== 1 ? 'es' : ''}`;
+
+    // Collapse toggle — click ciudad header para expandir/colapsar
+    listEl.querySelectorAll('[data-toggle]').forEach(header => {
+      header.addEventListener('click', () => {
+        const panel   = listEl.querySelector('#' + header.dataset.toggle);
+        const chevron = header.querySelector('.rdp-chevron');
+        if (!panel) return;
+        const open = panel.style.display !== 'none';
+        panel.style.display = open ? 'none' : '';
+        if (chevron) chevron.style.transform = open ? '' : 'rotate(180deg)';
+      });
+    });
 
     // Eventos toggle
     listEl.querySelectorAll('.btn-sede-toggle').forEach(btn => {
