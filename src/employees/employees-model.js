@@ -70,7 +70,9 @@ export function getCargos() {
 }
 
 export function getAreas() {
-  return db.prepare('SELECT id, nombre FROM employee_areas ORDER BY nombre').all();
+  return db.prepare(
+    `SELECT id, nombre, ciudad, tipo FROM puntos WHERE activo = 1 ORDER BY ciudad, nombre`
+  ).all();
 }
 
 // ─── CRUD ─────────────────────────────────────────────────────────────────────
