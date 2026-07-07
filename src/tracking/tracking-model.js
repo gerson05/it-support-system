@@ -182,6 +182,6 @@ export function getActaFinalByToken(db, token) {
 
 export function getSedesActivas(db) {
   return db.prepare(
-    'SELECT id, ciudad, nombre_punto FROM sedes WHERE activo = 1 ORDER BY ciudad, nombre_punto'
+    `SELECT id, ciudad, nombre AS nombre_punto FROM puntos WHERE tipo='punto' AND activo = 1 ORDER BY ciudad, nombre`
   ).all();
 }
