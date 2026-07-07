@@ -307,7 +307,10 @@ function _populateFilterSelect(id, items, placeholder, current) {
   const sel = document.getElementById(id);
   if (!sel) return;
   sel.innerHTML = `<option value="">${placeholder}</option>` +
-    items.map(i => `<option value="${_esc(i.nombre)}">${_esc(i.nombre)}</option>`).join('');
+    items.map(i => {
+      const label = i.ciudad ? `${_esc(i.nombre)} (${_esc(i.ciudad)})` : _esc(i.nombre);
+      return `<option value="${_esc(i.nombre)}">${label}</option>`;
+    }).join('');
   sel.value = current;
 }
 
@@ -665,16 +668,18 @@ function _initCombo(textId, listId, hiddenId, items, initialValue) {
 
   function render(filter) {
     const q = (filter || '').toLowerCase();
-    const hits = q ? items.filter(i => i.nombre.toLowerCase().includes(q)) : items;
+    const hits = q ? items.filter(i => i.nombre.toLowerCase().includes(q) || (i.ciudad && i.ciudad.toLowerCase().includes(q))) : items;
     if (!hits.length) {
       listEl.innerHTML =
         `<div style="padding:9px 12px;font-size:13px;color:var(--text-3);">Sin resultados</div>`;
     } else {
       listEl.innerHTML = hits.map(i => {
-        const label = _esc(i.nombre);
-        return `<div class="emp-combo-opt" data-val="${label}"
+        const nombre = _esc(i.nombre);
+        const ciudad = i.ciudad ? _esc(i.ciudad) : '';
+        const displayLabel = ciudad ? `${nombre} <span style="color:var(--text-3);font-size:12px;">(${ciudad})</span>` : nombre;
+        return `<div class="emp-combo-opt" data-val="${nombre}"
           style="padding:8px 12px;font-size:13px;cursor:pointer;color:var(--text-1);
-                 transition:background .1s;">${label}</div>`;
+                 transition:background .1s;">${displayLabel}</div>`;
       }).join('');
       listEl.querySelectorAll('.emp-combo-opt').forEach(opt => {
         opt.addEventListener('mouseover',  () => { opt.style.background = 'var(--surface-2)'; });
