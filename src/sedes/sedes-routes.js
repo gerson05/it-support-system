@@ -35,8 +35,8 @@ router.post('/api/sedes/setup', requireAuth, requirePermission('sedes:create'), 
       }
 
       const rs = db.prepare(`
-        INSERT INTO sedes (ciudad, nombre_punto, despacho_id, tracking_token)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO puntos (ciudad, nombre, tipo, despacho_id, tracking_token)
+        VALUES (?, ?, 'punto', ?, ?)
       `).run(ciudad.trim().toUpperCase(), nombre_punto.trim(), despachoId, trackingToken);
       sedeId = rs.lastInsertRowid;
 
@@ -66,11 +66,12 @@ router.post('/api/sedes/setup', requireAuth, requirePermission('sedes:create'), 
 router.get('/api/sedes', requireAuth, requirePermission('sedes:read'), (req, res) => {
   try {
     const rows = db.prepare(`
-      SELECT s.id, s.ciudad, s.nombre_punto, s.activo, s.created_at,
-             s.despacho_id, s.tracking_token, t.estado AS tracking_estado
-      FROM sedes s
-      LEFT JOIN paquete_tracking t ON t.token = s.tracking_token
-      ORDER BY s.ciudad, s.id
+      SELECT p.id, p.ciudad, p.nombre AS nombre_punto, p.activo, p.created_at,
+             p.despacho_id, p.tracking_token, t.estado AS tracking_estado
+      FROM puntos p
+      LEFT JOIN paquete_tracking t ON t.token = p.tracking_token
+      WHERE p.tipo = 'punto'
+      ORDER BY p.ciudad, p.id
     `).all();
 
     // Agrupar por ciudad
@@ -94,7 +95,7 @@ router.post('/api/sedes', requireAuth, requirePermission('sedes:create'), (req, 
       return res.status(400).json({ error: 'Ciudad y nombre del punto son obligatorios.' });
     }
     const result = db.prepare(
-      `INSERT INTO sedes (ciudad, nombre_punto) VALUES (?, ?)`
+      `INSERT INTO puntos (ciudad, nombre, tipo) VALUES (?, ?, 'punto')`
     ).run(ciudad.trim().toUpperCase(), nombre_punto.trim());
 
     res.status(201).json({ success: true, id: result.lastInsertRowid });
@@ -112,14 +113,14 @@ router.put('/api/sedes/:id', requireAuth, requirePermission('sedes:edit'), (req,
 
     const fields = [];
     const values = [];
-    if (ciudad      !== undefined) { fields.push('ciudad=?');       values.push(ciudad.trim().toUpperCase()); }
-    if (nombre_punto !== undefined) { fields.push('nombre_punto=?'); values.push(nombre_punto.trim()); }
-    if (activo      !== undefined) { fields.push('activo=?');       values.push(activo ? 1 : 0); }
+    if (ciudad       !== undefined) { fields.push('ciudad=?');  values.push(ciudad.trim().toUpperCase()); }
+    if (nombre_punto !== undefined) { fields.push('nombre=?');  values.push(nombre_punto.trim()); }
+    if (activo       !== undefined) { fields.push('activo=?');  values.push(activo ? 1 : 0); }
 
     if (!fields.length) return res.status(400).json({ error: 'Nada que actualizar.' });
     values.push(id);
 
-    db.prepare(`UPDATE sedes SET ${fields.join(',')} WHERE id=?`).run(...values);
+    db.prepare(`UPDATE puntos SET ${fields.join(',')} WHERE id=? AND tipo='punto'`).run(...values);
     res.json({ success: true });
   } catch (err) {
     console.error('Error PUT /api/sedes:', err);
@@ -131,7 +132,7 @@ router.put('/api/sedes/:id', requireAuth, requirePermission('sedes:edit'), (req,
 router.get('/api/sedes/:id/checklist', requireAuth, requirePermission('sedes:read'), (req, res) => {
   try {
     const sedeId = parseInt(req.params.id);
-    const sede = db.prepare('SELECT * FROM sedes WHERE id = ?').get(sedeId);
+    const sede = db.prepare('SELECT * FROM puntos WHERE id = ?').get(sedeId);
     if (!sede) return res.status(404).json({ error: 'Punto no encontrado.' });
     if (!sede.despacho_id) return res.json({ checklist: null });
 
@@ -142,7 +143,7 @@ router.get('/api/sedes/:id/checklist', requireAuth, requirePermission('sedes:rea
     res.json({
       checklist: {
         sede_id: sedeId,
-        nombre_punto: sede.nombre_punto,
+        nombre_punto: sede.nombre,
         despacho_id: sede.despacho_id,
         tracking_token: sede.tracking_token,
         tracking_url: `${baseUrl}/rastrear?token=${sede.tracking_token}`,
@@ -162,7 +163,7 @@ router.post('/api/sedes/:id/marcar-enviado', requireAuth, requirePermission('sed
     const sedeId = parseInt(req.params.id);
     const { agente = 'IT' } = req.body;
 
-    const sede = db.prepare('SELECT tracking_token FROM sedes WHERE id = ?').get(sedeId);
+    const sede = db.prepare('SELECT tracking_token FROM puntos WHERE id = ?').get(sedeId);
     if (!sede?.tracking_token) {
       return res.status(400).json({ error: 'Este punto no tiene despacho vinculado.' });
     }
@@ -189,7 +190,7 @@ router.post('/api/sedes/:id/marcar-enviado', requireAuth, requirePermission('sed
 /* ── Eliminar punto (soft delete) ── */
 router.delete('/api/sedes/:id', requireAuth, requirePermission('sedes:delete'), (req, res) => {
   try {
-    db.prepare(`UPDATE sedes SET activo=0 WHERE id=?`).run(parseInt(req.params.id));
+    db.prepare(`UPDATE puntos SET activo=0 WHERE id=? AND tipo='punto'`).run(parseInt(req.params.id));
     res.json({ success: true });
   } catch (err) {
     console.error('Error DELETE /api/sedes:', err);
@@ -201,7 +202,9 @@ router.delete('/api/sedes/:id', requireAuth, requirePermission('sedes:delete'), 
 
 router.get('/api/bodegas', requireAuth, requirePermission('sedes:read'), (req, res) => {
   try {
-    const rows = db.prepare('SELECT * FROM bodegas ORDER BY ciudad, nombre').all();
+    const rows = db.prepare(
+      `SELECT id, nombre, ciudad, activo, created_at FROM puntos WHERE tipo='bodega' ORDER BY ciudad, nombre`
+    ).all();
     const grouped = {};
     for (const b of rows) {
       if (!grouped[b.ciudad]) grouped[b.ciudad] = [];
@@ -221,7 +224,7 @@ router.post('/api/bodegas', requireAuth, requirePermission('sedes:create'), (req
       return res.status(400).json({ error: 'Nombre y ciudad son obligatorios.' });
     }
     const result = db.prepare(
-      'INSERT INTO bodegas (nombre, ciudad) VALUES (?, ?)'
+      `INSERT INTO puntos (nombre, ciudad, tipo) VALUES (?, ?, 'bodega')`
     ).run(nombre.trim(), ciudad.trim().toUpperCase());
     res.status(201).json({ success: true, id: result.lastInsertRowid });
   } catch (e) {
@@ -240,7 +243,7 @@ router.put('/api/bodegas/:id', requireAuth, requirePermission('sedes:edit'), (re
     if (activo  !== undefined) { fields.push('activo=?');  values.push(activo ? 1 : 0); }
     if (!fields.length) return res.status(400).json({ error: 'Nada que actualizar.' });
     values.push(id);
-    db.prepare(`UPDATE bodegas SET ${fields.join(',')} WHERE id=?`).run(...values);
+    db.prepare(`UPDATE puntos SET ${fields.join(',')} WHERE id=? AND tipo='bodega'`).run(...values);
     res.json({ success: true });
   } catch (e) {
     console.error('Error PUT /api/bodegas:', e);
@@ -250,10 +253,81 @@ router.put('/api/bodegas/:id', requireAuth, requirePermission('sedes:edit'), (re
 
 router.delete('/api/bodegas/:id', requireAuth, requirePermission('sedes:delete'), (req, res) => {
   try {
-    db.prepare('UPDATE bodegas SET activo=0 WHERE id=?').run(parseInt(req.params.id));
+    db.prepare(`UPDATE puntos SET activo=0 WHERE id=? AND tipo='bodega'`).run(parseInt(req.params.id));
     res.json({ success: true });
   } catch (e) {
     console.error('Error DELETE /api/bodegas:', e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+/* ── Puntos unificados ────────────────────────────────────────────────── */
+
+router.get('/api/puntos', requireAuth, requirePermission('sedes:read'), (req, res) => {
+  try {
+    const { tipo, activo } = req.query;
+    let sql = `SELECT id, nombre, ciudad, tipo, activo, created_at FROM puntos WHERE 1=1`;
+    const params = [];
+    if (tipo)              { sql += ` AND tipo = ?`;   params.push(tipo); }
+    if (activo !== undefined && activo !== '') { sql += ` AND activo = ?`; params.push(parseInt(activo)); }
+    sql += ` ORDER BY ciudad, nombre`;
+    const rows = db.prepare(sql).all(...params);
+    const grouped = {};
+    for (const r of rows) {
+      if (!grouped[r.ciudad]) grouped[r.ciudad] = [];
+      grouped[r.ciudad].push(r);
+    }
+    res.json({ puntos: rows, grouped, total: rows.length });
+  } catch (e) {
+    console.error('Error GET /api/puntos:', e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+router.post('/api/puntos', requireAuth, requirePermission('sedes:create'), (req, res) => {
+  try {
+    const { nombre, ciudad, tipo = 'punto' } = req.body;
+    if (!nombre?.trim() || !ciudad?.trim()) {
+      return res.status(400).json({ error: 'Nombre y ciudad son obligatorios.' });
+    }
+    if (!['punto', 'bodega'].includes(tipo)) {
+      return res.status(400).json({ error: 'tipo debe ser punto o bodega.' });
+    }
+    const result = db.prepare(
+      `INSERT INTO puntos (nombre, ciudad, tipo) VALUES (?, ?, ?)`
+    ).run(nombre.trim(), ciudad.trim().toUpperCase(), tipo);
+    res.status(201).json({ success: true, id: result.lastInsertRowid });
+  } catch (e) {
+    console.error('Error POST /api/puntos:', e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+router.put('/api/puntos/:id', requireAuth, requirePermission('sedes:edit'), (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const { nombre, ciudad, tipo, activo } = req.body;
+    const fields = [], values = [];
+    if (nombre !== undefined) { fields.push('nombre=?');  values.push(nombre.trim()); }
+    if (ciudad !== undefined) { fields.push('ciudad=?');  values.push(ciudad.trim().toUpperCase()); }
+    if (tipo   !== undefined) { fields.push('tipo=?');    values.push(tipo); }
+    if (activo !== undefined) { fields.push('activo=?');  values.push(activo ? 1 : 0); }
+    if (!fields.length) return res.status(400).json({ error: 'Nada que actualizar.' });
+    values.push(id);
+    db.prepare(`UPDATE puntos SET ${fields.join(',')} WHERE id=?`).run(...values);
+    res.json({ success: true });
+  } catch (e) {
+    console.error('Error PUT /api/puntos:', e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+router.delete('/api/puntos/:id', requireAuth, requirePermission('sedes:delete'), (req, res) => {
+  try {
+    db.prepare(`UPDATE puntos SET activo=0 WHERE id=?`).run(parseInt(req.params.id));
+    res.json({ success: true });
+  } catch (e) {
+    console.error('Error DELETE /api/puntos:', e);
     res.status(500).json({ error: e.message });
   }
 });
