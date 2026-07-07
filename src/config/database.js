@@ -23,6 +23,7 @@ import { migrations as m017 } from './migrations/017-despacho-delete-perm.js';
 import { migrations as m018 } from './migrations/018-acta-signers.js';
 import { migrations as m019 } from './migrations/019-confirmacion-signed.js';
 import { migrations as m020 } from './migrations/020-puntos-unificados.js';
+import { migrations as m021 } from './migrations/021-puntos-dedup.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);
@@ -44,7 +45,7 @@ db.exec(fs.readFileSync(schemaPath, 'utf8'));
 const allMigrations = [
   ...m001, ...m002, ...m003, ...m004, ...m005,
   ...m006, ...m007, ...m008, ...m009, ...m010, ...m011, ...m012, ...m013, ...m014, ...m015, ...m016, ...m017,
-  ...m018, ...m019, ...m020,
+  ...m018, ...m019, ...m020, ...m021,
 ];
 for (const sql of allMigrations) {
   try { db.exec(sql); } catch { /* columna/tabla ya existe */ }
