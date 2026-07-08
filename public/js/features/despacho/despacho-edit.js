@@ -1,5 +1,5 @@
 import { AREA_MAPPINGS } from '../../core/app.js';
-import { showToast, attachBodegaSearch } from '../../ui/components.js';
+import { showToast, attachPuntoSearch } from '../../ui/components.js';
 import { fetchDespacho, updateDespacho } from './despacho-helpers.js';
 
 const _tc = s => (s || '').toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
@@ -108,7 +108,7 @@ export async function openEditDespachoModal(id, onSuccess) {
     </div>`;
 
   document.body.appendChild(overlay);
-  attachBodegaSearch(overlay.querySelector('input[name="sede"]'));
+  attachPuntoSearch(overlay.querySelector('input[name="sede"]'));
 
   overlay.querySelector('[name="destinatario"]').addEventListener('blur', e => { e.target.value = e.target.value.trim().toUpperCase(); });
   overlay.querySelector('[name="observaciones"]').addEventListener('blur', e => { e.target.value = _sc(e.target.value); });
