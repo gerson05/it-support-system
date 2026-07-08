@@ -5,15 +5,16 @@
  * All logic is now in dedicated sub-modules:
  *  - despacho-helpers.js   → helpers + API fetch wrappers
  *  - despacho-rotulo.js    → openRotuloModal, printDespacho, openTiposArticuloModal
- *  - despacho-detail.js    → openDetailModal, renderActaSection, setupActaInteraction
- *  - despacho-form.js      → openCreateModal, openEditDespachoModal, buildArticuloRow
+ *  - despacho-detail.js    → openDetailModal, renderActaSection, renderConfirmacionSection
+ *  - despacho-form.js      → openCreateModal, buildArticuloRow
+ *  - despacho-edit.js      → openEditDespachoModal
  */
 import { state } from '../../core/app.js';
 import { createLoadingSpinner, createEmptyState } from '../../ui/components.js';
 import { fetchDespachos, actaBadge, articulosCount, _timeAgo } from './despacho-helpers.js';
 import { openDetailModal } from './despacho-detail.js';
-import { openCreateModal, openEditDespachoModal } from './despacho-form.js';
-import { renderBodegasPanel } from '../settings/bodegas-admin.js';
+import { openCreateModal } from './despacho-form.js';
+import { openEditDespachoModal } from './despacho-edit.js';
 
 export async function renderDespacho(container) {
   container.innerHTML = `
@@ -29,12 +30,6 @@ export async function renderDespacho(container) {
           <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Nuevo Despacho
         </button>
-      </div>
-
-      <!-- Tabs -->
-      <div style="display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:20px;">
-        <button id="tab-despachos" style="padding:8px 18px;border:none;border-radius:8px 8px 0 0;background:var(--primary);color:#fff;font-size:13px;font-weight:600;cursor:pointer;border-bottom:2px solid var(--primary);">Despachos</button>
-        <button id="tab-bodegas" style="padding:8px 18px;border:none;border-radius:8px 8px 0 0;background:transparent;color:var(--text-3);font-size:13px;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;">Bodegas</button>
       </div>
 
       <!-- Tab: Despachos -->
@@ -69,15 +64,15 @@ export async function renderDespacho(container) {
         </div>
       </div>
 
-      <!-- Tab: Bodegas -->
-      <div id="panel-bodegas" style="display:none;"></div>
-
     </div>`;
+
+  const PAGE_SIZE = 20;
+  let currentPage = 0;
 
   function buildParams() {
     const search    = container.querySelector('#filter-search').value.trim();
     const pendiente = container.querySelector('#filter-pendiente-acta').checked;
-    const p = { limit: 50, offset: 0 };
+    const p = { limit: PAGE_SIZE, offset: currentPage * PAGE_SIZE };
     if (search)    p.search = search;
     if (pendiente) { p.requiere_acta = 1; p.acta_firmada = 0; }
     return p;
@@ -99,9 +94,12 @@ export async function renderDespacho(container) {
       wrap.innerHTML = createEmptyState('No se encontraron despachos', '📦');
       return;
     }
+    const totalPages = Math.ceil(total / PAGE_SIZE);
+    const from = currentPage * PAGE_SIZE + 1;
+    const to   = Math.min(from + despachos.length - 1, total);
     wrap.innerHTML = `
       <div style="padding:12px 18px;font-size:12px;color:var(--text-3);border-bottom:1px solid var(--border);">
-        ${total} despacho(s) en total
+        ${total} despacho(s) en total · mostrando ${from}–${to}
       </div>
       <div style="overflow-x:auto;">
         <table style="width:100%;border-collapse:collapse;">
@@ -137,11 +135,27 @@ export async function renderDespacho(container) {
               </tr>`).join('')}
           </tbody>
         </table>
-      </div>`;
+      </div>
+      ${totalPages > 1 ? `
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-top:1px solid var(--border);flex-wrap:wrap;gap:8px;">
+        <span style="font-size:12px;color:var(--text-3);">Página ${currentPage + 1} de ${totalPages}</span>
+        <div style="display:flex;gap:6px;">
+          <button id="desp-prev" ${currentPage === 0 ? 'disabled' : ''}
+            style="padding:5px 14px;border:1px solid var(--border);border-radius:6px;background:var(--surface-2);color:var(--text-2);font-size:12px;cursor:pointer;opacity:${currentPage === 0 ? '.4' : '1'};">
+            ← Anterior
+          </button>
+          <button id="desp-next" ${currentPage >= totalPages - 1 ? 'disabled' : ''}
+            style="padding:5px 14px;border:1px solid var(--border);border-radius:6px;background:var(--surface-2);color:var(--text-2);font-size:12px;cursor:pointer;opacity:${currentPage >= totalPages - 1 ? '.4' : '1'};">
+            Siguiente →
+          </button>
+        </div>
+      </div>` : ''}`;
 
     wrap.querySelectorAll('.btn-despacho-edit').forEach(btn => {
       btn.addEventListener('click', () => openEditDespachoModal(parseInt(btn.dataset.id), loadTable));
     });
+    wrap.querySelector('#desp-prev')?.addEventListener('click', () => { currentPage--; loadTable(); });
+    wrap.querySelector('#desp-next')?.addEventListener('click', () => { currentPage++; loadTable(); });
   }
 
   // Borrador banner
@@ -178,9 +192,9 @@ export async function renderDespacho(container) {
   let searchTimer;
   container.querySelector('#filter-search').addEventListener('input', () => {
     clearTimeout(searchTimer);
-    searchTimer = setTimeout(loadTable, 350);
+    searchTimer = setTimeout(() => { currentPage = 0; loadTable(); }, 350);
   });
-  container.querySelector('#filter-pendiente-acta').addEventListener('change', loadTable);
+  container.querySelector('#filter-pendiente-acta').addEventListener('change', () => { currentPage = 0; loadTable(); });
 
   const openHandler    = (e) => openDetailModal(e.detail);
   const borradorHandler = () => checkBorrador();
@@ -195,30 +209,6 @@ export async function renderDespacho(container) {
     }
   });
   observer.observe(container, { childList: true, subtree: false });
-
-  // Tab switching
-  const tabDespachos = container.querySelector('#tab-despachos');
-  const tabBodegas   = container.querySelector('#tab-bodegas');
-  const panelDespachos = container.querySelector('#panel-despachos');
-  const panelBodegas   = container.querySelector('#panel-bodegas');
-  const btnNuevo       = container.querySelector('#btn-nuevo-despacho');
-
-  function activateTab(tab) {
-    const isDespachos = tab === 'despachos';
-    tabDespachos.style.background    = isDespachos ? 'var(--primary)' : 'transparent';
-    tabDespachos.style.color         = isDespachos ? '#fff' : 'var(--text-3)';
-    tabDespachos.style.borderBottom  = isDespachos ? '2px solid var(--primary)' : '2px solid transparent';
-    tabBodegas.style.background      = !isDespachos ? 'var(--primary)' : 'transparent';
-    tabBodegas.style.color           = !isDespachos ? '#fff' : 'var(--text-3)';
-    tabBodegas.style.borderBottom    = !isDespachos ? '2px solid var(--primary)' : '2px solid transparent';
-    panelDespachos.style.display     = isDespachos ? '' : 'none';
-    panelBodegas.style.display       = !isDespachos ? '' : 'none';
-    btnNuevo.style.display           = isDespachos ? '' : 'none';
-    if (!isDespachos) renderBodegasPanel(panelBodegas);
-  }
-
-  tabDespachos.addEventListener('click', () => activateTab('despachos'));
-  tabBodegas.addEventListener('click',   () => activateTab('bodegas'));
 
   checkBorrador();
   loadTable();

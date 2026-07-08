@@ -249,7 +249,7 @@ app.get('/api/health', (req, res) => {
 // Manejador global de errores Express (debe ir antes del fallback SPA)
 app.use((err, req, res, _next) => {
   console.error(err);
-  res.status(500).json({ error: 'Error interno del servidor.' });
+  res.status(err.status || err.statusCode || 500).json({ error: err.message || 'Error interno del servidor.' });
 });
 
 // SPA fallback: cualquier ruta no coincidente sirve index.html (va al final)

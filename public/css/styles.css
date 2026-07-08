@@ -405,6 +405,8 @@ body {
   max-width: 100%;
   box-sizing: border-box;
   animation: pageIn 0.2s ease-out;
+  display: flex;
+  flex-direction: column;
 }
 
 @keyframes pageIn {
@@ -720,11 +722,10 @@ body.modal-open { overflow: hidden; }
   align-items: center;
   gap: 8px;
   padding: 10px 16px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-top: none;
-  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
-  margin-bottom: 16px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0;
 }
 .inv-search-wrap {
   flex: 1;
@@ -1136,7 +1137,7 @@ body.sidebar-open .hamburger span:nth-child(3) { transform: translateY(-6px) rot
 
 /* ── Inventario data table ── */
 .inv-table-card {
-  background: var(--surface);
+  background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   overflow: hidden;
@@ -1145,6 +1146,12 @@ body.sidebar-open .hamburger span:nth-child(3) { transform: translateY(-6px) rot
 .inv-table-scroll {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+}
+#inv-table-wrap {
+  padding: 16px;
+}
+#inv-pagination {
+  padding: 0 16px 16px;
 }
 .data-table {
   width: 100%;
@@ -1429,15 +1436,19 @@ body.sidebar-open .hamburger span:nth-child(3) { transform: translateY(-6px) rot
   gap: 0;
   min-height: 0;
   flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,.35);
 }
 
 /* ── Sidebar ── */
 .inv-sidebar {
   width: 180px;
   flex-shrink: 0;
-  background: var(--surface);
+  background: var(--bg-2);
   border-right: 1px solid var(--border);
-  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -1556,6 +1567,135 @@ body.sidebar-open .hamburger span:nth-child(3) { transform: translateY(-6px) rot
   padding: 8px 0;
 }
 
+/* ── Export sidebar button ── */
+.inv-sidebar-footer {
+  padding: 8px 6px;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.inv-export-btn {
+  width: 100%;
+  color: var(--text-3);
+}
+
+.inv-export-btn:hover {
+  background: var(--surface-2);
+  color: #818cf8;
+}
+
+/* ── Export panel ── */
+.inv-export-panel {
+  display: none;
+  flex-direction: column;
+  padding: 12px 10px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.inv-export-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.inv-export-back {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-3);
+  font-size: 12px;
+  padding: 4px 5px;
+  border-radius: 6px;
+  transition: color .15s, background .15s;
+}
+
+.inv-export-back:hover {
+  color: var(--text);
+  background: var(--surface-2);
+}
+
+.inv-export-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.inv-export-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.inv-export-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.inv-export-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: .6px;
+}
+
+.inv-export-select {
+  width: 100%;
+  padding: 7px 8px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-2);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 12px;
+  cursor: pointer;
+  outline: none;
+}
+
+.inv-export-select:focus {
+  border-color: #6366f1;
+}
+
+.inv-export-fmts {
+  display: flex;
+  gap: 6px;
+}
+
+.inv-export-fmt-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 9px 6px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-2);
+  border-radius: 8px;
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+}
+
+.inv-export-fmt-btn:hover {
+  background: rgba(99, 102, 241, .15);
+  color: #818cf8;
+  border-color: rgba(99, 102, 241, .35);
+}
+
+.inv-export-fmt-btn:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
 /* ── Content panel ── */
 .inv-content {
   flex: 1;
@@ -1630,6 +1770,173 @@ body.sidebar-open .hamburger span:nth-child(3) { transform: translateY(-6px) rot
   cursor: pointer;
 }
 
+/* ── Gestión module tabs ── */
+.gestion-tab-btn {
+  padding: 8px 18px;
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  background: var(--surface-2);
+  color: var(--text-3);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .17s;
+}
+
+.gestion-tab-btn:hover {
+  border-color: #6366f1;
+  color: var(--text-2);
+}
+
+.gestion-tab-btn.active {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  border-color: transparent;
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 4px 14px rgba(99,102,241,.3);
+}
+
+/* ── Welcome state (sin categoría seleccionada) ── */
+.inv-welcome {
+  padding: 32px 24px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  animation: inv-fade-in .3s ease both;
+}
+
+.inv-welcome-hero {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.inv-welcome-hero-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(99,102,241,.35);
+  margin-bottom: 4px;
+}
+
+.inv-welcome-hero h3 {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0;
+  letter-spacing: -.4px;
+}
+
+.inv-welcome-hero p {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.inv-welcome-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 12px;
+}
+
+.inv-welcome-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 20px 12px 16px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: transform .18s, border-color .18s, box-shadow .18s, background .18s;
+  text-align: center;
+  animation: inv-card-in .35s ease both;
+}
+
+.inv-welcome-card:nth-child(1)  { animation-delay: 0ms }
+.inv-welcome-card:nth-child(2)  { animation-delay: 40ms }
+.inv-welcome-card:nth-child(3)  { animation-delay: 80ms }
+.inv-welcome-card:nth-child(4)  { animation-delay: 120ms }
+.inv-welcome-card:nth-child(5)  { animation-delay: 160ms }
+.inv-welcome-card:nth-child(6)  { animation-delay: 200ms }
+.inv-welcome-card:nth-child(7)  { animation-delay: 240ms }
+.inv-welcome-card:nth-child(8)  { animation-delay: 280ms }
+.inv-welcome-card:nth-child(9)  { animation-delay: 320ms }
+
+.inv-welcome-card:hover {
+  transform: translateY(-4px);
+  border-color: #6366f1;
+  box-shadow: 0 10px 28px rgba(99,102,241,.22);
+  background: rgba(99,102,241,.05);
+}
+
+.inv-welcome-card-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 13px;
+  background: linear-gradient(135deg, rgba(99,102,241,.12), rgba(139,92,246,.12));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #818cf8;
+  transition: background .18s, color .18s;
+}
+
+.inv-welcome-card:hover .inv-welcome-card-icon {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #fff;
+}
+
+.inv-welcome-card-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-2);
+  line-height: 1.2;
+}
+
+.inv-welcome-card-count {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1;
+  letter-spacing: -.5px;
+}
+
+.inv-welcome-card-label {
+  font-size: 10px;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: .6px;
+}
+
+/* ── Row / table animation ── */
+@keyframes inv-row-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes inv-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes inv-card-in {
+  from { opacity: 0; transform: translateY(12px) scale(.97); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);   }
+}
+
+.data-table tbody tr {
+  animation: inv-row-in .2s ease both;
+}
+
 /* ── Responsive ── */
 @media (max-width: 768px) {
   .inv-sidebar {
@@ -1638,5 +1945,13 @@ body.sidebar-open .hamburger span:nth-child(3) { transform: translateY(-6px) rot
 
   .inv-hamburger {
     display: flex;
+  }
+
+  .inv-welcome-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .inv-welcome-card-count {
+    font-size: 18px;
   }
 }

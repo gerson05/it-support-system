@@ -135,7 +135,7 @@ export function createConfirmacion(db, despachoId, token) {
 
 export function getConfirmacionByToken(db, token) {
   return db.prepare(`
-    SELECT c.token, c.confirmed_at, c.id,
+    SELECT c.token, c.confirmed_at, c.id, c.signed_by,
            d.numero, d.destinatario, d.articulos, d.sede, d.requiere_acta, c.despacho_id
     FROM confirmaciones_entrega c
     JOIN despachos d ON d.id = c.despacho_id
@@ -143,7 +143,10 @@ export function getConfirmacionByToken(db, token) {
   `).get(token) || null;
 }
 
-export function confirmDelivery(db, id, ip) {
-  db.prepare(`UPDATE confirmaciones_entrega SET confirmed_at = datetime('now','localtime'), ip = ? WHERE id = ?`)
-    .run(ip, id);
+export function confirmDelivery(db, id, ip, signedBy, signatureData) {
+  db.prepare(`
+    UPDATE confirmaciones_entrega
+    SET confirmed_at = datetime('now','localtime'), ip = ?, signed_by = ?, signature_data = ?
+    WHERE id = ?
+  `).run(ip, signedBy || null, signatureData || null, id);
 }

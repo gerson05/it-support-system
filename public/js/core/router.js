@@ -10,6 +10,7 @@ import { renderSedesAdmin }         from '../features/settings/sedes-admin.js';
 import { renderReuniones }          from '../features/reuniones/reuniones-admin.js';
 import { renderAudit }              from '../features/audit/audit.js';
 import { renderDespacho }           from '../features/despacho/despacho-list.js';
+import { renderGestion }            from '../features/gestion/gestion.js';
 import { renderTrazabilidad }       from '../features/tracking/trazabilidad.js';
 import { renderMonitoreo }          from '../features/monitoreo/monitoreo.js';
 import { renderUsers }              from '../features/usuarios/users.js';
@@ -46,6 +47,17 @@ export function router() {
     renderTechRequestDetail(app, hash.split('/')[1]);
 
   } else {
+    if (hash.startsWith('#gestion')) {
+      if (!guard('despacho:read')) return;
+      activate('nav-gestion', 'gestion');
+      const params = new URLSearchParams(hash.split('?')[1] || '');
+      renderGestion(app, {
+        tab: params.get('tab') || 'actas',
+        focusId: params.get('focus') ? Number(params.get('focus')) : null,
+      });
+      return;
+    }
+
     const ROUTES = {
       '#dashboard':    { perm: 'metrics:read',       nav: 'nav-dashboard',     page: 'dashboard',            render: () => renderDashboard(app) },
       '#tickets':      { perm: 'tickets:read',        nav: 'nav-tickets',       page: 'tickets',              render: () => renderTicketList(app) },
@@ -55,6 +67,7 @@ export function router() {
       '#sedes':        { perm: 'sedes:read',          nav: 'nav-sedes',         page: 'sedes',                render: () => renderSedesAdmin(app) },
       '#reuniones':    { perm: 'reuniones:read',      nav: 'nav-reuniones',     page: 'reuniones',            render: () => renderReuniones(app) },
       '#despacho':     { perm: 'despacho:read',       nav: 'nav-despacho',      page: 'despacho',             render: () => renderDespacho(app) },
+      '#gestion':      { perm: 'despacho:read',       nav: 'nav-gestion',       page: 'gestion',              render: () => renderGestion(app) },
       '#trazabilidad': { perm: 'despacho:read',       nav: 'nav-trazabilidad',  page: 'trazabilidad',         render: () => renderTrazabilidad(app) },
       '#audit':        { perm: 'audit:read',          nav: 'nav-audit',         page: 'audit',                render: () => renderAudit(app) },
       '#inventario':   { perm: 'inventario:read',     nav: 'nav-inventario',    page: 'inventario',           render: () => renderInventario(app) },
