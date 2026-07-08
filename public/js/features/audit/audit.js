@@ -79,16 +79,24 @@ export async function renderAudit(container) {
   container.querySelector('#tab-actas').onclick     = () => setTab('actas');
 
   /* ── Panel Actividad ── */
+  const AUDIT_PAGE_SIZE = 50;
+  let auditOffset = 0;
+
   async function loadAudit(offset = 0) {
+    auditOffset = offset;
     const auditContainer = container.querySelector('#audit-container');
     if (!auditContainer) return;
     try {
-      const res = await fetch(`/api/audit?limit=50&offset=${offset}`);
+      const res = await fetch(`/api/audit?limit=${AUDIT_PAGE_SIZE}&offset=${offset}`);
       const { logs, total } = await res.json();
       if (!logs.length) {
         auditContainer.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-3);">No hay eventos registrados aún.</div>';
         return;
       }
+      const totalPages  = Math.ceil(total / AUDIT_PAGE_SIZE);
+      const currentPage = Math.floor(offset / AUDIT_PAGE_SIZE);
+      const from = offset + 1;
+      const to   = Math.min(offset + logs.length, total);
       auditContainer.innerHTML = `
         <table style="width:100%;border-collapse:collapse;">
           <thead>
@@ -120,8 +128,23 @@ export async function renderAudit(container) {
             }).join('')}
           </tbody>
         </table>
-        <div style="padding:14px;text-align:right;font-size:12px;color:var(--text-3);">${total} eventos totales</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-top:1px solid var(--border);flex-wrap:wrap;gap:8px;">
+          <span style="font-size:12px;color:var(--text-3);">${total} eventos · mostrando ${from}–${to} · página ${currentPage + 1} de ${totalPages}</span>
+          ${totalPages > 1 ? `
+          <div style="display:flex;gap:6px;">
+            <button id="audit-prev" ${offset === 0 ? 'disabled' : ''}
+              style="padding:5px 14px;border:1px solid var(--border);border-radius:6px;background:var(--surface-2);color:var(--text-2);font-size:12px;cursor:pointer;opacity:${offset === 0 ? '.4' : '1'};">
+              ← Anterior
+            </button>
+            <button id="audit-next" ${currentPage >= totalPages - 1 ? 'disabled' : ''}
+              style="padding:5px 14px;border:1px solid var(--border);border-radius:6px;background:var(--surface-2);color:var(--text-2);font-size:12px;cursor:pointer;opacity:${currentPage >= totalPages - 1 ? '.4' : '1'};">
+              Siguiente →
+            </button>
+          </div>` : ''}
+        </div>
       `;
+      auditContainer.querySelector('#audit-prev')?.addEventListener('click', () => loadAudit(offset - AUDIT_PAGE_SIZE));
+      auditContainer.querySelector('#audit-next')?.addEventListener('click', () => loadAudit(offset + AUDIT_PAGE_SIZE));
     } catch (err) {
       console.error('[Audit]', err);
       auditContainer.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-3);">Error al cargar el log de auditoría.</div>';
@@ -129,7 +152,11 @@ export async function renderAudit(container) {
   }
 
   /* ── Panel Actas ── */
-  async function loadActas() {
+  const ACTAS_PAGE_SIZE = 30;
+  let actasPage = 1;
+
+  async function loadActas(page = actasPage) {
+    actasPage = page;
     const wrap = container.querySelector('#actas-container');
     if (!wrap) return;
     wrap.innerHTML = createLoadingSpinner();
@@ -137,7 +164,7 @@ export async function renderAudit(container) {
     const q      = container.querySelector('#actas-search').value.trim();
     const type   = container.querySelector('#actas-type').value;
     const status = container.querySelector('#actas-status').value;
-    const params = new URLSearchParams({ limit: 100 });
+    const params = new URLSearchParams({ limit: ACTAS_PAGE_SIZE, page });
     if (q)      params.set('q', q);
     if (type)   params.set('type', type);
     if (status) params.set('status', status);
@@ -153,7 +180,7 @@ export async function renderAudit(container) {
       }
 
       wrap.innerHTML = `
-        <div style="padding:10px 18px;font-size:12px;color:var(--text-3);border-bottom:1px solid var(--border);">${total} acta(s) en total</div>
+        <div style="padding:10px 18px;font-size:12px;color:var(--text-3);border-bottom:1px solid var(--border);">${total} acta(s) en total · página ${page} de ${Math.ceil(total / ACTAS_PAGE_SIZE)}</div>
         <div style="overflow-x:auto;">
           <table style="width:100%;border-collapse:collapse;">
             <thead>
@@ -197,7 +224,23 @@ export async function renderAudit(container) {
             </tbody>
           </table>
         </div>
+        ${Math.ceil(total / ACTAS_PAGE_SIZE) > 1 ? `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-top:1px solid var(--border);flex-wrap:wrap;gap:8px;">
+          <span style="font-size:12px;color:var(--text-3);">Página ${page} de ${Math.ceil(total / ACTAS_PAGE_SIZE)}</span>
+          <div style="display:flex;gap:6px;">
+            <button id="actas-prev" ${page <= 1 ? 'disabled' : ''}
+              style="padding:5px 14px;border:1px solid var(--border);border-radius:6px;background:var(--surface-2);color:var(--text-2);font-size:12px;cursor:pointer;opacity:${page <= 1 ? '.4' : '1'};">
+              ← Anterior
+            </button>
+            <button id="actas-next" ${page >= Math.ceil(total / ACTAS_PAGE_SIZE) ? 'disabled' : ''}
+              style="padding:5px 14px;border:1px solid var(--border);border-radius:6px;background:var(--surface-2);color:var(--text-2);font-size:12px;cursor:pointer;opacity:${page >= Math.ceil(total / ACTAS_PAGE_SIZE) ? '.4' : '1'};">
+              Siguiente →
+            </button>
+          </div>
+        </div>` : ''}
       `;
+      wrap.querySelector('#actas-prev')?.addEventListener('click', () => loadActas(page - 1));
+      wrap.querySelector('#actas-next')?.addEventListener('click', () => loadActas(page + 1));
     } catch (err) {
       console.error('[Actas]', err);
       wrap.innerHTML = `<div style="padding:40px;text-align:center;color:var(--danger);">Error al cargar las actas.</div>`;
@@ -208,11 +251,11 @@ export async function renderAudit(container) {
   let searchTimer;
   container.querySelector('#actas-search').addEventListener('input', () => {
     clearTimeout(searchTimer);
-    searchTimer = setTimeout(() => { if (activeTab === 'actas') loadActas(); }, 350);
+    searchTimer = setTimeout(() => { if (activeTab === 'actas') { actasPage = 1; loadActas(1); } }, 350);
   });
-  container.querySelector('#actas-type').addEventListener('change',   () => { if (activeTab === 'actas') loadActas(); });
-  container.querySelector('#actas-status').addEventListener('change', () => { if (activeTab === 'actas') loadActas(); });
-  container.querySelector('#actas-refresh').addEventListener('click', () => { if (activeTab === 'actas') loadActas(); });
+  container.querySelector('#actas-type').addEventListener('change',   () => { if (activeTab === 'actas') { actasPage = 1; loadActas(1); } });
+  container.querySelector('#actas-status').addEventListener('change', () => { if (activeTab === 'actas') { actasPage = 1; loadActas(1); } });
+  container.querySelector('#actas-refresh').addEventListener('click', () => { if (activeTab === 'actas') { actasPage = 1; loadActas(1); } });
 
   /* ── Carga inicial ── */
   loadAudit();

@@ -5,19 +5,18 @@
  *  - openDetailModal(id)
  *  - renderActaSection(d, actaInfo)
  *  - renderConfirmacionSection(d, conf)
- *  - setupActaInteraction(body, d, actaInfo, overlay)
  *  - setupConfCopy(container)
  */
 import { showToast } from '../../ui/components.js';
 import { createLoadingSpinner } from '../../ui/components.js';
-import { iconClose, iconDocument, iconEdit, iconLink, iconUpload, iconRefresh, iconDownload, iconCopy } from '../../utils/icons.js';
+import { iconClose, iconDocument, iconEdit, iconLink, iconCopy } from '../../utils/icons.js';
 import { AREA_MAPPINGS } from '../../core/app.js';
 import {
   fetchDespacho, fetchActaInfo, fetchConfirmacion,
   articulosList, actaBadge,
 } from './despacho-helpers.js';
 import { printDespacho, openRotuloModal } from './despacho-rotulo.js';
-import { openEditDespachoModal } from './despacho-form.js';
+import { openEditDespachoModal } from './despacho-edit.js';
 
 export function openDetailModal(id) {
   const overlay = document.createElement('div');
@@ -115,6 +114,10 @@ export function openDetailModal(id) {
       overlay.remove();
       openEditDespachoModal(d.id, () => document.querySelector('#btn-refresh-despachos')?.click());
     };
+    body.querySelector('#btn-open-actas-panel')?.addEventListener('click', () => {
+      window.location.hash = `#gestion?tab=actas&focus=${d.id}`;
+      overlay.remove();
+    });
     body.querySelector('#btn-acta-word').onclick = async () => {
       const btn = body.querySelector('#btn-acta-word');
       btn.textContent = 'Generando…'; btn.disabled = true;
@@ -130,8 +133,6 @@ export function openDetailModal(id) {
       } catch(e) { showToast(e.message, 'error'); }
       finally { btn.innerHTML = `${iconDocument(13)} Acta Word`; btn.disabled = false; }
     };
-
-    setupActaInteraction(body, d, actaInfo, overlay);
 
     if (!d.requiere_acta) {
       const confSection = body.querySelector('#conf-section');
@@ -193,11 +194,12 @@ export function openDetailModal(id) {
 export function renderConfirmacionSection(d, conf = { token: null, confirmed: false, confirmed_at: null }) {
   if (conf.confirmed) {
     const fecha = conf.confirmed_at ? new Date(conf.confirmed_at).toLocaleString('es-CO') : '';
+    const signer = conf.signed_by ? ` por <strong>${conf.signed_by}</strong>` : ' por el destinatario';
     return `
       <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#d1fae5;border-radius:8px;border:1px solid #6ee7b7;">
         <span style="font-size:18px;">✅</span>
         <div>
-          <div style="font-weight:600;color:#065f46;font-size:13px;">Recepción confirmada por el destinatario</div>
+          <div style="font-weight:600;color:#065f46;font-size:13px;">Recepción confirmada${signer}</div>
           <div style="font-size:12px;color:#047857;">${fecha}</div>
         </div>
       </div>`;
@@ -226,62 +228,23 @@ export function renderConfirmacionSection(d, conf = { token: null, confirmed: fa
 export function renderActaSection(d, actaInfo = { token: null }) {
   if (!d.requiere_acta) return '';
 
-  let firmaSection = '';
-  if (actaInfo.token && actaInfo.uploaded) {
-    firmaSection = `
-      <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#d1fae5;border-radius:8px;border:1px solid #6ee7b7;margin-bottom:10px;">
-        <span style="font-size:18px;">✅</span>
-        <div style="flex:1;">
-          <div style="font-weight:600;color:#065f46;font-size:13px;">Acta firmada recibida</div>
-          <div style="font-size:12px;color:#047857;">${actaInfo.uploaded_at ? new Date(actaInfo.uploaded_at).toLocaleString('es-CO') : ''}</div>
-        </div>
-        <div style="display:flex;gap:6px;align-items:center;">
-          <a id="btn-download-acta" href="/api/actas/download/${actaInfo.token}" style="padding:6px 12px;background:#059669;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:5px;">${iconDownload(12)} Descargar</a>
-          <button id="btn-reupload-acta" class="btn btn-secondary btn-small" style="font-size:12px;padding:6px 12px;display:inline-flex;align-items:center;gap:4px;">${iconRefresh(12)} Reemplazar</button>
-        </div>
-      </div>
-      <input type="file" id="acta-direct-upload-file" accept=".pdf,.docx" style="display:none;">`;
-  } else if (actaInfo.token && !actaInfo.uploaded) {
-    firmaSection = `
-      <div style="padding:10px 14px;background:var(--surface-3);border-radius:8px;border:1px solid var(--border);margin-bottom:10px;">
-        <div style="font-size:12px;font-weight:500;color:var(--text-2);margin-bottom:8px;display:flex;align-items:center;gap:5px;">${iconLink(12)} Link de firma activo — pendiente de subida</div>
-        <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px;">
-          <input id="link-firma-input" type="text" readonly value="${actaInfo.url || ''}"
-            style="flex:1;padding:6px 9px;border:1px solid var(--border);border-radius:5px;background:var(--surface);color:var(--text);font-size:11px;font-family:monospace;">
-          <button id="btn-copy-link" style="padding:6px 10px;border:1px solid var(--border);border-radius:5px;background:var(--surface-2);color:var(--text-2);font-size:11px;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:4px;">${iconCopy(11)} Copiar</button>
-        </div>
-        <div style="display:flex;align-items:center;gap:15px;flex-wrap:wrap;margin-bottom:8px;">
-          <img src="/api/actas/qr/${actaInfo.token}" alt="QR" style="width:100px;height:100px;border-radius:6px;background:#fff;padding:4px;display:block;">
-          <div style="display:flex;flex-direction:column;gap:8px;">
-            <button id="btn-direct-upload" class="btn btn-secondary btn-small" style="gap:5px;display:inline-flex;align-items:center;font-size:12px;padding:6px 12px;">${iconUpload(12)} Subir Acta Firmada</button>
-            <button id="btn-regen-link" style="font-size:11px;color:var(--text-3);background:none;border:none;cursor:pointer;text-decoration:underline;text-align:left;display:inline-flex;align-items:center;gap:4px;">${iconRefresh(11)} Regenerar link</button>
-          </div>
-        </div>
-      </div>
-      <input type="file" id="acta-direct-upload-file" accept=".pdf,.docx" style="display:none;">`;
-  } else {
-    firmaSection = `
-      <div style="margin-bottom:10px;">
-        <button id="btn-get-link" class="btn btn-secondary" style="font-size:12px;padding:7px 14px;display:inline-flex;align-items:center;gap:5px;">${iconLink(12)} Obtener link de firma</button>
-      </div>`;
-  }
-
-  if (d.acta_firmada) {
-    return `
-      <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#d1fae5;border-radius:8px;border:1px solid #6ee7b7;">
-        <span style="font-size:18px;">✓</span>
-        <div>
-          <div style="font-weight:600;color:#065f46;font-size:13px;">Acta marcada como firmada</div>
-          ${d.acta_numero ? `<div style="font-size:12px;color:#047857;">N° ${d.acta_numero}</div>` : ''}
-        </div>
-      </div>
-      ${firmaSection}`;
-  }
+  const firmante = actaInfo.uploaded && actaInfo.signed_by
+    ? `<div style="font-size:12px;color:var(--text-2);margin-top:6px;">Firmó: <strong>${actaInfo.signed_by}</strong>${actaInfo.signed_role ? ` · ${actaInfo.signed_role}` : ''}</div>`
+    : '';
 
   return `
     <div style="padding:12px 14px;background:var(--surface-2);border-radius:8px;border:1px solid var(--border);">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">${actaBadge(d)}</div>
-      ${firmaSection}
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:8px;">
+        <div style="display:flex;align-items:center;gap:8px;">${actaBadge(d)}</div>
+        <button id="btn-open-actas-panel" class="btn btn-secondary" style="font-size:12px;padding:7px 14px;display:inline-flex;align-items:center;gap:5px;">${iconLink(12)} Abrir gestión de acta</button>
+      </div>
+      <div style="font-size:13px;color:var(--text-2);line-height:1.5;">
+        ${actaInfo.token
+          ? (actaInfo.uploaded
+            ? `El acta ya fue subida. ${actaInfo.uploaded_at ? `Recibida el ${new Date(actaInfo.uploaded_at).toLocaleString('es-CO')}.` : ''}${firmante}`
+            : 'Ya existe un enlace de firma para este despacho. La regeneración y la subida se gestionan en la pestaña de actas.')
+          : 'Aún no existe un enlace de firma. Desde la pestaña de actas puedes generarlo y compartirlo.'}
+      </div>
     </div>`;
 }
 
@@ -297,90 +260,3 @@ export function setupConfCopy(container) {
   };
 }
 
-export function setupActaInteraction(body, d, actaInfo = { token: null }, overlay) {
-  const btnGetLink = body.querySelector('#btn-get-link');
-  if (btnGetLink) {
-    btnGetLink.onclick = async () => {
-      btnGetLink.disabled = true; btnGetLink.textContent = 'Generando…';
-      try {
-        const res = await fetch('/api/actas/token', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ entity_type: 'despacho', entity_id: d.id, entity_ref: d.acta_numero || d.numero }),
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error);
-        const newActaInfo = await fetchActaInfo('despacho', d.id);
-        body.querySelector('#acta-section').innerHTML = renderActaSection(d, newActaInfo);
-        setupActaInteraction(body, d, newActaInfo, overlay);
-        showToast('Link generado. Compártelo con el receptor.', 'success');
-      } catch (e) {
-        showToast(e.message, 'error');
-        btnGetLink.disabled = false;
-        btnGetLink.innerHTML = `${iconLink(12)} Obtener link de firma`;
-      }
-    };
-  }
-
-  const btnCopyLink = body.querySelector('#btn-copy-link');
-  if (btnCopyLink) {
-    btnCopyLink.onclick = async () => {
-      const input = body.querySelector('#link-firma-input');
-      if (!input) return;
-      try {
-        await navigator.clipboard.writeText(input.value);
-        showToast('Link copiado al portapapeles', 'success');
-      } catch { showToast('No se pudo copiar el link', 'error'); }
-    };
-  }
-
-  const btnRegen = body.querySelector('#btn-regen-link');
-  if (btnRegen) {
-    btnRegen.onclick = async () => {
-      if (!confirm('¿Regenerar el link? El link anterior dejará de funcionar.')) return;
-      btnRegen.textContent = 'Regenerando…';
-      try {
-        const res = await fetch('/api/actas/token', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ entity_type: 'despacho', entity_id: d.id, entity_ref: d.acta_numero || d.numero }),
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error);
-        const newActaInfo = await fetchActaInfo('despacho', d.id);
-        body.querySelector('#acta-section').innerHTML = renderActaSection(d, newActaInfo);
-        setupActaInteraction(body, d, newActaInfo, overlay);
-        showToast('Link regenerado', 'success');
-      } catch (e) {
-        showToast(e.message, 'error');
-        btnRegen.textContent = '🔄 Regenerar link';
-      }
-    };
-  }
-
-  // Direct upload
-  const fileInput = body.querySelector('#acta-direct-upload-file');
-  const handleUpload = async (file) => {
-    if (!file) return;
-    const ext = file.name.split('.').pop().toLowerCase();
-    if (!['pdf', 'docx'].includes(ext)) { showToast('Solo se aceptan archivos PDF o DOCX.', 'error'); return; }
-    if (file.size > 10 * 1024 * 1024) { showToast('El archivo supera el límite de 10 MB.', 'error'); return; }
-    const fd = new FormData();
-    fd.append('acta', file);
-    try {
-      const res = await fetch(`/api/actas/upload/${actaInfo.token}`, { method: 'POST', body: fd });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Error al subir');
-      const newActaInfo = await fetchActaInfo('despacho', d.id);
-      body.querySelector('#acta-section').innerHTML = renderActaSection(d, newActaInfo);
-      setupActaInteraction(body, d, newActaInfo, overlay);
-      showToast('Acta subida correctamente.', 'success');
-    } catch (e) { showToast(e.message, 'error'); }
-  };
-
-  if (fileInput) {
-    fileInput.addEventListener('change', () => handleUpload(fileInput.files[0]));
-    body.querySelector('#btn-direct-upload')?.addEventListener('click', () => fileInput.click());
-    body.querySelector('#btn-reupload-acta')?.addEventListener('click', () => fileInput.click());
-  }
-}

@@ -54,14 +54,17 @@ async function renderList(container, onDetail) {
       </div>
     </div>`;
 
+  const PAGE_SIZE = 20;
+  let currentPage = 0;
+
   async function load() {
-    const search = document.getElementById('tl-search')?.value?.trim() || '';
-    const estado = document.getElementById('tl-estado')?.value || '';
-    const qs = new URLSearchParams({ limit: 50 });
+    const search = container.querySelector('#tl-search')?.value?.trim() || '';
+    const estado = container.querySelector('#tl-estado')?.value || '';
+    const qs = new URLSearchParams({ limit: PAGE_SIZE, offset: currentPage * PAGE_SIZE });
     if (search) qs.set('search', search);
     if (estado) qs.set('estado', estado);
 
-    const wrap = document.getElementById('tl-table-wrap');
+    const wrap = container.querySelector('#tl-table-wrap');
     try {
       const res  = await fetch(`/api/tracking?${qs}`);
       const data = await res.json();
@@ -71,9 +74,13 @@ async function renderList(container, onDetail) {
         return;
       }
 
+      const totalPages = Math.ceil(data.total / PAGE_SIZE);
+      const from = currentPage * PAGE_SIZE + 1;
+      const to   = Math.min(from + data.rows.length - 1, data.total);
+
       wrap.innerHTML = `
         <div style="padding:12px 18px;font-size:12px;color:var(--text-muted);border-bottom:1px solid var(--border);">
-          ${data.total} paquete(s)
+          ${data.total} paquete(s) · mostrando ${from}–${to}
         </div>
         <div style="overflow-x:auto;">
           <table style="width:100%;border-collapse:collapse;">
@@ -108,18 +115,38 @@ async function renderList(container, onDetail) {
               }).join('')}
             </tbody>
           </table>
-        </div>`;
+        </div>
+        ${totalPages > 1 ? `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-top:1px solid var(--border);flex-wrap:wrap;gap:8px;">
+          <span style="font-size:12px;color:var(--text-muted);">Página ${currentPage + 1} de ${totalPages}</span>
+          <div style="display:flex;gap:6px;">
+            <button id="tl-prev" ${currentPage === 0 ? 'disabled' : ''}
+              style="padding:5px 14px;border:1px solid var(--border);border-radius:6px;background:var(--surface-2);color:var(--text-muted);font-size:12px;cursor:pointer;opacity:${currentPage === 0 ? '.4' : '1'};">
+              ← Anterior
+            </button>
+            <button id="tl-next" ${currentPage >= totalPages - 1 ? 'disabled' : ''}
+              style="padding:5px 14px;border:1px solid var(--border);border-radius:6px;background:var(--surface-2);color:var(--text-muted);font-size:12px;cursor:pointer;opacity:${currentPage >= totalPages - 1 ? '.4' : '1'};">
+              Siguiente →
+            </button>
+          </div>
+        </div>` : ''}`;
 
       wrap.querySelectorAll('.tr-tracking-row').forEach(row =>
         row.addEventListener('click', () => onDetail(row.dataset.token)));
+
+      wrap.querySelector('#tl-prev')?.addEventListener('click', () => { currentPage--; load(); });
+      wrap.querySelector('#tl-next')?.addEventListener('click', () => { currentPage++; load(); });
     } catch (e) {
       wrap.innerHTML = `<div style="padding:30px;color:var(--danger);text-align:center;">Error al cargar: ${e.message}</div>`;
     }
   }
 
   let timer;
-  document.getElementById('tl-search').addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(load, 300); });
-  document.getElementById('tl-estado').addEventListener('change', load);
+  container.querySelector('#tl-search').addEventListener('input', () => {
+    clearTimeout(timer);
+    timer = setTimeout(() => { currentPage = 0; load(); }, 300);
+  });
+  container.querySelector('#tl-estado').addEventListener('change', () => { currentPage = 0; load(); });
   load();
 }
 
@@ -239,9 +266,9 @@ async function renderDetail(container, token, onBack) {
         </div>
       </div>`;
 
-    document.getElementById('btn-back-tl')?.addEventListener('click', onBack);
+    container.querySelector('#btn-back-tl')?.addEventListener('click', onBack);
 
-    document.getElementById('btn-devuelto')?.addEventListener('click', async () => {
+    container.querySelector('#btn-devuelto')?.addEventListener('click', async () => {
       if (!confirm('¿Marcar este paquete como devuelto?')) return;
       const res = await fetch(`/api/tracking/${token}/estado`, {
         method: 'PUT',
@@ -257,5 +284,7 @@ async function renderDetail(container, token, onBack) {
 }
 
 export async function renderTrazabilidad(container) {
-  renderList(container, (token) => renderDetail(container, token, () => renderList(container, (t) => renderDetail(container, t, () => renderList(container, () => {})))));
+  function goList() { renderList(container, goDetail); }
+  function goDetail(token) { renderDetail(container, token, goList); }
+  goList();
 }

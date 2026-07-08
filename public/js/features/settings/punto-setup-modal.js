@@ -26,11 +26,11 @@ function wireRow(row, wrap, rowCount) {
   });
 }
 
-function stepsHtml(active) {
-  return ['Punto', 'Artículos', 'Confirmar'].map((s, i) => {
+function stepsHtml(steps, activeIdx) {
+  return steps.map((s, i) => {
     const n = i + 1;
-    const done = n < active;
-    const curr = n === active;
+    const done = n < activeIdx;
+    const curr = n === activeIdx;
     return `<span style="padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;
       background:${curr ? 'var(--primary)' : done ? 'rgba(99,102,241,.15)' : 'rgba(255,255,255,.06)'};
       color:${curr ? '#fff' : done ? '#818cf8' : 'var(--text-3)'};">
@@ -40,13 +40,17 @@ function stepsHtml(active) {
 
 export function openPuntoSetupModal(onSuccess, ciudadesExistentes = []) {
   let currentStep = 1;
-  const data = { ciudad: '', nombre_punto: '', responsable: '', articulos: [] };
+  const data = { ciudad: '', nombre_punto: '', responsable: '', articulos: [], addItems: false };
   let step2rowCount = { value: 1 };
 
   const overlay = document.createElement('div');
   overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;';
 
   function render() {
+    const steps = data.addItems
+      ? ['Punto', 'Artículos', 'Confirmar']
+      : ['Punto', 'Confirmar'];
+
     overlay.innerHTML = `
       <div style="background:var(--surface);border-radius:12px;padding:28px;width:100%;max-width:580px;margin:auto 0;box-shadow:0 20px 60px rgba(0,0,0,.4);position:relative;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
@@ -60,8 +64,9 @@ export function openPuntoSetupModal(onSuccess, ciudadesExistentes = []) {
     const body = overlay.querySelector('#ps-body');
 
     if (currentStep === 1) {
+      const visualStep = 1;
       body.innerHTML = `
-        <div style="display:flex;gap:8px;margin-bottom:22px;">${stepsHtml(1)}</div>
+        <div style="display:flex;gap:8px;margin-bottom:22px;">${stepsHtml(steps, visualStep)}</div>
         <div style="display:flex;flex-direction:column;gap:12px;">
           <div>
             <label style="display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:4px;">CIUDAD *</label>
@@ -83,6 +88,16 @@ export function openPuntoSetupModal(onSuccess, ciudadesExistentes = []) {
             <label style="display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:4px;">RESPONSABLE EN PUNTO <span style="font-weight:400;color:var(--text-3);">(opcional)</span></label>
             <input id="ps-responsable" type="text" value="${esc(data.responsable)}" placeholder="Nombre del receptor en destino"
               style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:13px;box-sizing:border-box;">
+          </div>
+          <div style="padding:14px;background:rgba(99,102,241,.06);border:1px solid rgba(99,102,241,.18);border-radius:8px;">
+            <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;">
+              <input type="checkbox" id="ps-add-items" ${data.addItems ? 'checked' : ''}
+                style="width:16px;height:16px;margin-top:1px;accent-color:var(--primary);flex-shrink:0;">
+              <div>
+                <div style="font-size:13px;font-weight:600;color:var(--text);">¿Adicionar artículos a este punto?</div>
+                <div style="font-size:11px;color:var(--text-3);margin-top:2px;">Si activas esta opción, podrás registrar los artículos a despachar y se generará trazabilidad automáticamente.</div>
+              </div>
+            </label>
           </div>
         </div>
         <div style="display:flex;justify-content:flex-end;margin-top:20px;gap:8px;">
@@ -106,10 +121,12 @@ export function openPuntoSetupModal(onSuccess, ciudadesExistentes = []) {
         const nombre = body.querySelector('#ps-nombre').value.trim();
         if (!ciudad) { showToast('Selecciona o escribe una ciudad', 'error'); return; }
         if (!nombre) { showToast('El nombre del punto es obligatorio', 'error'); return; }
-        data.ciudad = ciudad;
+        data.ciudad       = ciudad;
         data.nombre_punto = nombre;
-        data.responsable = body.querySelector('#ps-responsable').value.trim();
-        currentStep = 2;
+        data.responsable  = body.querySelector('#ps-responsable').value.trim();
+        data.addItems     = body.querySelector('#ps-add-items').checked;
+        data.articulos    = [];
+        currentStep = data.addItems ? 2 : 3;
         render();
       });
       setTimeout(() => body.querySelector('#ps-ciudad-sel')?.focus(), 50);
@@ -118,7 +135,7 @@ export function openPuntoSetupModal(onSuccess, ciudadesExistentes = []) {
     else if (currentStep === 2) {
       step2rowCount = { value: 1 };
       body.innerHTML = `
-        <div style="display:flex;gap:8px;margin-bottom:22px;">${stepsHtml(2)}</div>
+        <div style="display:flex;gap:8px;margin-bottom:22px;">${stepsHtml(steps, 2)}</div>
         <p style="font-size:12px;color:var(--text-3);margin-bottom:12px;">Si agregas artículos se crea un despacho + trazabilidad automáticamente. Puedes omitir este paso.</p>
         <div id="ps-articulos-wrap">${buildArticuloRow(0, true)}</div>
         <button type="button" id="ps-add-row" style="font-size:12px;color:var(--primary);background:none;border:none;cursor:pointer;padding:4px 0;margin-top:4px;">+ Agregar artículo</button>
@@ -142,13 +159,11 @@ export function openPuntoSetupModal(onSuccess, ciudadesExistentes = []) {
       });
 
       body.querySelector('#ps-back2').addEventListener('click', () => { currentStep = 1; render(); });
-
       body.querySelector('#ps-skip2').addEventListener('click', () => {
         data.articulos = [];
         currentStep = 3;
         render();
       });
-
       body.querySelector('#ps-next2').addEventListener('click', () => {
         data.articulos = collectArticulos(wrap);
         currentStep = 3;
@@ -158,23 +173,24 @@ export function openPuntoSetupModal(onSuccess, ciudadesExistentes = []) {
 
     else if (currentStep === 3) {
       const arts = data.articulos;
+      const visualStep = data.addItems ? 3 : 2;
       const articulosHtml = arts.length
         ? arts.map(a => `
             <div style="display:flex;align-items:center;gap:10px;font-size:13px;margin-bottom:4px;">
               <span style="width:14px;height:14px;border:1px solid var(--primary);border-radius:3px;display:inline-block;flex-shrink:0;"></span>
               ${esc(a.nombre)} × ${a.cantidad}${a.marca ? ' — ' + esc(a.marca) : ''}
             </div>`).join('')
-        : `<div style="font-size:12px;color:var(--text-3);font-style:italic;">Sin artículos — solo se creará el punto.</div>`;
+        : '';
 
       body.innerHTML = `
-        <div style="display:flex;gap:8px;margin-bottom:22px;">${stepsHtml(3)}</div>
+        <div style="display:flex;gap:8px;margin-bottom:22px;">${stepsHtml(steps, visualStep)}</div>
         <div style="background:var(--surface-2);border-radius:8px;padding:14px;margin-bottom:12px;font-size:13px;display:flex;flex-direction:column;gap:6px;">
           <div>✅ Punto: <strong>${esc(data.nombre_punto)}</strong></div>
           <div>📍 Ciudad: <strong>${esc(data.ciudad)}</strong></div>
           ${data.responsable ? `<div>👤 Responsable: <strong>${esc(data.responsable)}</strong></div>` : ''}
           ${arts.length ? `
-          <div>📦 Despacho automático (${arts.length} artículo${arts.length !== 1 ? 's' : ''})</div>
-          <div>🔗 Trazabilidad con link público para confirmación en destino</div>` : ''}
+            <div>📦 Despacho automático (${arts.length} artículo${arts.length !== 1 ? 's' : ''})</div>
+            <div>🔗 Trazabilidad con link público para confirmación en destino</div>` : ''}
         </div>
         ${arts.length ? `
         <div style="background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.2);border-radius:8px;padding:14px;margin-bottom:12px;">
@@ -186,32 +202,50 @@ export function openPuntoSetupModal(onSuccess, ciudadesExistentes = []) {
           <button id="ps-submit" class="btn btn-primary" style="background:#10b981;border-color:#10b981;">✓ Crear punto</button>
         </div>`;
 
-      body.querySelector('#ps-back3').addEventListener('click', () => { currentStep = 2; render(); });
+      body.querySelector('#ps-back3').addEventListener('click', () => {
+        currentStep = data.addItems ? 2 : 1;
+        render();
+      });
 
       body.querySelector('#ps-submit').addEventListener('click', async () => {
         const btn = body.querySelector('#ps-submit');
         btn.disabled = true;
         btn.textContent = 'Creando…';
         try {
-          const res = await fetch('/api/sedes/setup', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              ciudad: data.ciudad,
-              nombre_punto: data.nombre_punto,
-              responsable: data.responsable,
-              articulos: data.articulos,
-              agente: state.currentUser?.username || 'IT',
-            }),
-          });
-          const json = await res.json();
-          if (!res.ok) throw new Error(json.error || 'Error al crear el punto');
-
-          overlay.remove();
-          showToast(`Punto ${data.nombre_punto} creado${json.despacho_id ? ' · Despacho generado' : ''}`, 'success');
-          if (json.tracking_url) {
-            navigator.clipboard?.writeText(json.tracking_url).catch(() => {});
-            showToast('Link de trazabilidad copiado al portapapeles', 'info');
+          let res, json;
+          if (data.addItems) {
+            res  = await fetch('/api/sedes/setup', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                ciudad:       data.ciudad,
+                nombre_punto: data.nombre_punto,
+                responsable:  data.responsable,
+                articulos:    data.articulos,
+                agente:       state.currentUser?.username || 'IT',
+              }),
+            });
+            json = await res.json();
+            if (!res.ok) throw new Error(json.error || 'Error al crear el punto');
+            overlay.remove();
+            showToast(`Punto ${data.nombre_punto} creado · Despacho generado`, 'success');
+            if (json.tracking_url) {
+              navigator.clipboard?.writeText(json.tracking_url).catch(() => {});
+              showToast('Link de trazabilidad copiado al portapapeles', 'info');
+            }
+          } else {
+            res  = await fetch('/api/sedes', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                ciudad:       data.ciudad,
+                nombre_punto: data.nombre_punto,
+              }),
+            });
+            json = await res.json();
+            if (!res.ok) throw new Error(json.error || 'Error al crear el punto');
+            overlay.remove();
+            showToast(`Punto ${data.nombre_punto} creado`, 'success');
           }
           onSuccess?.();
         } catch (e) {
@@ -251,7 +285,6 @@ export async function openChecklistModal(sedeId) {
     entregado:   { label: 'Entregado',        color: '#34d399', bg: 'rgba(16,185,129,.1)',     border: 'rgba(16,185,129,.2)',   icon: '✅' },
   };
   const est = BADGE[cl.estado] || BADGE.creado;
-
   const rowIcon = cl.estado === 'entregado' ? '✅' : cl.estado === 'en_transito' ? '🚚' : '📦';
 
   const overlay = document.createElement('div');

@@ -200,7 +200,8 @@ export async function openRotuloModal(token, numero, destinatario = '') {
     if (sedesCache) return sedesCache;
     try {
       const data = await fetch('/api/sedes').then(r => r.json());
-      sedesCache = (data.sedes || data).filter(s => s.activo);
+      const grouped = data.grouped || {};
+      sedesCache = Object.values(grouped).flat().filter(s => s.activo);
       return sedesCache;
     } catch { return []; }
   }

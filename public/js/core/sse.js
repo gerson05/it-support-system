@@ -3,6 +3,10 @@ import { showToast }   from '../ui/components.js';
 import { getAreaName } from './constants.js';
 import { router }      from './router.js';
 
+function safeParse(e) {
+  try { return JSON.parse(e.data); } catch { return null; }
+}
+
 export function startRealTimeUpdates() {
   if (window._offlineMode) return;
 
@@ -13,7 +17,7 @@ export function startRealTimeUpdates() {
   });
 
   evtSource.addEventListener('ticket-created', (e) => {
-    const data = JSON.parse(e.data);
+    const data = safeParse(e); if (!data) return;
     showToast(`🎟️ Nuevo ticket: ${data.ticket_number} (${getAreaName(data.area)})`, 'info');
     if (state.currentPage === 'dashboard') {
       setTimeout(router, 400);
@@ -25,7 +29,7 @@ export function startRealTimeUpdates() {
   });
 
   evtSource.addEventListener('ticket-updated', (e) => {
-    const data = JSON.parse(e.data);
+    const data = safeParse(e); if (!data) return;
     if (state.currentPage === 'dashboard' || state.currentPage === 'tickets') {
       setTimeout(router, 400);
     } else if (state.currentPage === 'ticket-detail') {
@@ -35,7 +39,7 @@ export function startRealTimeUpdates() {
   });
 
   evtSource.addEventListener('tech-request-created', (e) => {
-    const data  = JSON.parse(e.data);
+    const data = safeParse(e); if (!data) return;
     const label = data.type === 'incidencia' ? '🔧 Incidencia' : '📋 Requerimiento';
     showToast(`${label} nuevo: ${data.request_number}`, 'info');
     if (state.currentPage === 'tech-requests') setTimeout(router, 400);
@@ -48,14 +52,14 @@ export function startRealTimeUpdates() {
   });
 
   evtSource.addEventListener('whatsapp-status', (e) => {
-    const data   = JSON.parse(e.data);
+    const data = safeParse(e); if (!data) return;
     const banner = document.getElementById('wa-status-banner');
     if (banner) banner.style.display = data.connected ? 'none' : 'block';
     if (data.connected) showToast('✅ WhatsApp conectado — los mensajes ahora llegarán al empleado.', 'success');
   });
 
   evtSource.addEventListener('ticket-message', (e) => {
-    const data = JSON.parse(e.data);
+    const data = safeParse(e); if (!data) return;
     if (state.currentPage === 'ticket-detail') {
       const currentId = parseInt(window.location.hash.split('/')[1]);
       if (currentId === data.ticketId) setTimeout(router, 400);
@@ -64,13 +68,14 @@ export function startRealTimeUpdates() {
   });
 
   evtSource.addEventListener('employee-created', (e) => {
-    const data = JSON.parse(e.data);
+    const data = safeParse(e); if (!data) return;
     showToast(`👤 Nuevo empleado pendiente de credenciales: ${data.nombre_completo}`, 'warning');
     _shiftEmployeeBadge(1);
   });
 
   evtSource.addEventListener('employee-credentialed', (e) => {
-    const { pending } = JSON.parse(e.data);
+    const data = safeParse(e); if (!data) return;
+    const { pending } = data;
     setEmployeeBadge(pending);
   });
 
