@@ -138,7 +138,7 @@ export function renderDespachoActasPanel(container, { focusId = null } = {}) {
     const existing = document.getElementById('acta-detail-modal');
     if (existing) existing.remove();
 
-    const publicUrl = acta.token ? `${location.origin}/firmar/${acta.token}` : '';
+    const publicUrl = acta.url || (acta.token ? `${location.origin}/firmar/${acta.token}` : '');
     const overlay = document.createElement('div');
     overlay.id = 'acta-detail-modal';
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:2000;display:flex;align-items:flex-start;justify-content:center;padding:24px 16px;overflow-y:auto;';

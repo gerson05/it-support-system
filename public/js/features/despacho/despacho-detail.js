@@ -206,7 +206,7 @@ export function renderConfirmacionSection(d, conf = { token: null, confirmed: fa
   }
 
   if (conf.token) {
-    const url = `${location.origin}/confirmar/${conf.token}`;
+    const url = conf.url || `${location.origin}/confirmar/${conf.token}`;
     return `
       <div style="padding:10px 14px;background:var(--surface-3);border-radius:8px;border:1px solid var(--border);">
         <div style="font-size:12px;font-weight:500;color:var(--text-2);margin-bottom:8px;display:flex;align-items:center;gap:5px;">${iconLink(12)} Enlace de confirmación activo — pendiente de respuesta</div>
