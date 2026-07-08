@@ -5,126 +5,95 @@ import db from '../config/database.js';
 import { requireAuth, requirePermission } from '../auth/auth-middleware.js';
 import { getBaseUrl } from './import-service.js';
 import { getSedeCode, nextConsecutivo } from './sede-codes.js';
+import { wrap } from '../utils/async-handler.js';
 
 const router = express.Router();
 
 const canRead   = [requireAuth, requirePermission('inventario:read')];
 const canCreate = [requireAuth, requirePermission('inventario:create')];
 
-/* POST /api/inventario/registro-token — crea token (requiere auth) */
-router.post('/api/inventario/registro-token', ...canCreate, (req, res) => {
+router.post('/api/inventario/registro-token', ...canCreate, wrap(async (req, res) => {
+  const { tipo = 'equipos', label, expires_hours, max_uses } = req.body;
+  if (!['equipos','celulares'].includes(tipo)) return res.status(400).json({ error: 'Tipo inválido.' });
+
+  const token     = crypto.randomUUID();
+  const expiresAt = expires_hours
+    ? new Date(Date.now() + Number(expires_hours) * 3600000).toISOString().replace('T',' ').slice(0,19)
+    : null;
+  const maxUses   = max_uses ? Number(max_uses) : null;
+  const createdBy = req.session?.username || req.user?.username || null;
+
+  db.prepare(`INSERT INTO registro_tokens (token,tipo,label,created_by,expires_at,max_uses)
+              VALUES (?,?,?,?,?,?)`)
+    .run(token, tipo, label||null, createdBy, expiresAt, maxUses);
+
+  const url = `${getBaseUrl(req)}/registrar/${token}`;
+  res.json({ token, url });
+}));
+
+router.get('/api/inventario/registro-tokens', ...canRead, wrap(async (req, res) => {
+  const rows = db.prepare(`
+    SELECT id,token,tipo,label,created_by,expires_at,max_uses,use_count,active,created_at
+    FROM registro_tokens ORDER BY created_at DESC LIMIT 50
+  `).all();
+  res.json({ tokens: rows });
+}));
+
+router.delete('/api/inventario/registro-tokens/:id', ...canCreate, wrap(async (req, res) => {
+  db.prepare('UPDATE registro_tokens SET active=0 WHERE id=?').run(parseInt(req.params.id));
+  res.json({ ok: true });
+}));
+
+router.get('/api/inventario/registro-status/:token', wrap(async (req, res) => {
+  const row = db.prepare('SELECT * FROM registro_tokens WHERE token=?').get(req.params.token);
+  if (!row || !row.active) return res.json({ valid: false, reason: 'Enlace no válido.' });
+  if (row.expires_at && new Date(row.expires_at) < new Date())
+    return res.json({ valid: false, reason: 'Este enlace ha expirado.' });
+  if (row.max_uses !== null && row.use_count >= row.max_uses)
+    return res.json({ valid: false, reason: 'Este enlace ya alcanzó el límite de usos.' });
+  res.json({
+    valid:      true,
+    tipo:       row.tipo,
+    label:      row.label,
+    use_count:  row.use_count,
+    max_uses:   row.max_uses,
+    expires_at: row.expires_at,
+  });
+}));
+
+router.get('/api/inventario/registro-qr/:token', wrap(async (req, res) => {
+  const row = db.prepare('SELECT token FROM registro_tokens WHERE token=?').get(req.params.token);
+  if (!row) return res.status(404).json({ error: 'Token no encontrado.' });
+  const url = `${getBaseUrl(req)}/registrar/${req.params.token}`;
+  const png = await QRCode.toBuffer(url, { type:'png', width:280, margin:1 });
+  res.setHeader('Content-Type','image/png');
+  res.send(png);
+}));
+
+router.get('/api/inventario/registrar/:token/next-placa', wrap(async (req, res) => {
+  const row = db.prepare('SELECT * FROM registro_tokens WHERE token=?').get(req.params.token);
+  if (!row || !row.active) return res.status(403).json({ error: 'Token inválido.' });
+  if (row.expires_at && new Date(row.expires_at) < new Date())
+    return res.status(403).json({ error: 'Token expirado.' });
+  const sede = req.query.sede || '';
+  const code = getSedeCode(sede);
+  const num  = nextConsecutivo(db, code);
+  res.json({ placa: `AF-${code}${num}` });
+}));
+
+router.post('/api/inventario/registrar/:token', wrap(async (req, res) => {
+  const row = db.prepare('SELECT * FROM registro_tokens WHERE token=?').get(req.params.token);
+  if (!row || !row.active) return res.status(403).json({ error: 'Enlace no válido.' });
+  if (row.expires_at && new Date(row.expires_at) < new Date())
+    return res.status(403).json({ error: 'Enlace expirado.' });
+  if (row.max_uses !== null && row.use_count >= row.max_uses)
+    return res.status(403).json({ error: 'Límite de usos alcanzado.' });
+
+  const tipo = row.tipo;
+  const b    = req.body;
+  let   id;
+
   try {
-    const { tipo = 'equipos', label, expires_hours, max_uses } = req.body;
-    if (!['equipos','celulares'].includes(tipo)) return res.status(400).json({ error: 'Tipo inválido.' });
-
-    const token     = crypto.randomUUID();
-    const expiresAt = expires_hours
-      ? new Date(Date.now() + Number(expires_hours) * 3600000).toISOString().replace('T',' ').slice(0,19)
-      : null;
-    const maxUses   = max_uses ? Number(max_uses) : null;
-    const createdBy = req.session?.username || req.user?.username || null;
-
-    db.prepare(`INSERT INTO registro_tokens (token,tipo,label,created_by,expires_at,max_uses)
-                VALUES (?,?,?,?,?,?)`)
-      .run(token, tipo, label||null, createdBy, expiresAt, maxUses);
-
-    const url = `${getBaseUrl(req)}/registrar/${token}`;
-    res.json({ token, url });
-  } catch (err) {
-    console.error('POST /api/inventario/registro-token:', err);
-    res.status(500).json({ error: err.message });
-  }
-});
-
-/* GET /api/inventario/registro-tokens — lista tokens activos (requiere auth) */
-router.get('/api/inventario/registro-tokens', ...canRead, (req, res) => {
-  try {
-    const rows = db.prepare(`
-      SELECT id,token,tipo,label,created_by,expires_at,max_uses,use_count,active,created_at
-      FROM registro_tokens ORDER BY created_at DESC LIMIT 50
-    `).all();
-    res.json({ tokens: rows });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-/* DELETE /api/inventario/registro-tokens/:id — desactiva token */
-router.delete('/api/inventario/registro-tokens/:id', ...canCreate, (req, res) => {
-  try {
-    db.prepare('UPDATE registro_tokens SET active=0 WHERE id=?').run(parseInt(req.params.id));
-    res.json({ ok: true });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-/* GET /api/inventario/registro-status/:token — valida token (público) */
-router.get('/api/inventario/registro-status/:token', (req, res) => {
-  try {
-    const row = db.prepare('SELECT * FROM registro_tokens WHERE token=?').get(req.params.token);
-    if (!row || !row.active) return res.json({ valid: false, reason: 'Enlace no válido.' });
-    if (row.expires_at && new Date(row.expires_at) < new Date())
-      return res.json({ valid: false, reason: 'Este enlace ha expirado.' });
-    if (row.max_uses !== null && row.use_count >= row.max_uses)
-      return res.json({ valid: false, reason: 'Este enlace ya alcanzó el límite de usos.' });
-    res.json({
-      valid:      true,
-      tipo:       row.tipo,
-      label:      row.label,
-      use_count:  row.use_count,
-      max_uses:   row.max_uses,
-      expires_at: row.expires_at,
-    });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-/* GET /api/inventario/registro-qr/:token — QR PNG (público) */
-router.get('/api/inventario/registro-qr/:token', async (req, res) => {
-  try {
-    const row = db.prepare('SELECT token FROM registro_tokens WHERE token=?').get(req.params.token);
-    if (!row) return res.status(404).json({ error: 'Token no encontrado.' });
-    const url = `${getBaseUrl(req)}/registrar/${req.params.token}`;
-    const png = await QRCode.toBuffer(url, { type:'png', width:280, margin:1 });
-    res.setHeader('Content-Type','image/png');
-    res.send(png);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-/* GET /api/inventario/registrar/:token/next-placa?sede=… — público, valida token */
-router.get('/api/inventario/registrar/:token/next-placa', (req, res) => {
-  try {
-    const row = db.prepare('SELECT * FROM registro_tokens WHERE token=?').get(req.params.token);
-    if (!row || !row.active) return res.status(403).json({ error: 'Token inválido.' });
-    if (row.expires_at && new Date(row.expires_at) < new Date())
-      return res.status(403).json({ error: 'Token expirado.' });
-    const sede = req.query.sede || '';
-    const code = getSedeCode(sede);
-    const num  = nextConsecutivo(db, code);
-    res.json({ placa: `AF-${code}${num}` });
-  } catch (err) {
-    res.status(500).json({ error: 'Error al calcular placa.' });
-  }
-});
-
-/* POST /api/inventario/registrar/:token — registra equipo/celular sin auth */
-router.post('/api/inventario/registrar/:token', (req, res) => {
-  try {
-    const row = db.prepare('SELECT * FROM registro_tokens WHERE token=?').get(req.params.token);
-    if (!row || !row.active) return res.status(403).json({ error: 'Enlace no válido.' });
-    if (row.expires_at && new Date(row.expires_at) < new Date())
-      return res.status(403).json({ error: 'Enlace expirado.' });
-    if (row.max_uses !== null && row.use_count >= row.max_uses)
-      return res.status(403).json({ error: 'Límite de usos alcanzado.' });
-
-    const tipo = row.tipo;
-    const b    = req.body;
-    let   id;
-
     if (tipo === 'equipos') {
       if (!b.placa?.trim() || !b.serial?.trim() || !b.marca?.trim() || !b.nombre_equipo?.trim())
         return res.status(400).json({ error: 'placa, marca, nombre_equipo y serial son requeridos.' });
@@ -151,14 +120,13 @@ router.post('/api/inventario/registrar/:token', (req, res) => {
       if (!r.changes) return res.status(409).json({ error: 'Ya existe un celular con ese IMEI.' });
       id = r.lastInsertRowid;
     }
-
-    db.prepare('UPDATE registro_tokens SET use_count=use_count+1 WHERE token=?').run(req.params.token);
-    res.status(201).json({ ok: true, id });
   } catch (err) {
     if (err.message?.includes('UNIQUE')) return res.status(409).json({ error: 'Registro duplicado.' });
-    console.error('POST /api/inventario/registrar/:token:', err);
-    res.status(500).json({ error: err.message });
+    throw err;
   }
-});
+
+  db.prepare('UPDATE registro_tokens SET use_count=use_count+1 WHERE token=?').run(req.params.token);
+  res.status(201).json({ ok: true, id });
+}));
 
 export default router;

@@ -3,6 +3,7 @@ import crypto from 'crypto';
 import db from '../config/database.js';
 import { requireAuth, requirePermission } from '../auth/auth-middleware.js';
 import { getSedeCode, nextConsecutivo } from '../inventario/sede-codes.js';
+import { wrap } from '../utils/async-handler.js';
 
 const router = Router();
 const canRead    = [requireAuth, requirePermission('monitoring:read')];
@@ -145,61 +146,51 @@ router.post('/api/monitoring/register', (req, res) => {
 });
 
 /* POST /api/monitoring/heartbeat */
-router.post('/api/monitoring/heartbeat', agentAuth, (req, res) => {
+router.post('/api/monitoring/heartbeat', agentAuth, wrap(async (req, res) => {
+  const { cpu_percent, ram_used, disk_used, uptime } = req.body;
+  let pending = [];
+
+  db.prepare('BEGIN').run();
   try {
-    const { cpu_percent, ram_used, disk_used, uptime } = req.body;
-    let pending = [];
+    db.prepare(`UPDATE agentes SET estado='online', last_seen=datetime('now') WHERE id=?`)
+      .run(req.agentId);
 
-    db.prepare('BEGIN').run();
-    try {
-      // Update agent status
-      db.prepare(`UPDATE agentes SET estado='online', last_seen=datetime('now') WHERE id=?`)
-        .run(req.agentId);
+    db.prepare(`
+      INSERT INTO metricas_agentes (agente_id, cpu_percent, ram_used, disk_used, uptime)
+      VALUES (?,?,?,?,?)
+    `).run(req.agentId, cpu_percent, ram_used, disk_used, uptime);
 
-      // Insert metrics
-      db.prepare(`
-        INSERT INTO metricas_agentes (agente_id, cpu_percent, ram_used, disk_used, uptime)
-        VALUES (?,?,?,?,?)
-      `).run(req.agentId, cpu_percent, ram_used, disk_used, uptime);
+    const agent = db.prepare('SELECT ram_total, disk_total FROM agentes WHERE id=?').get(req.agentId);
 
-      // Get agent details for broadcast
-      const agent = db.prepare('SELECT ram_total, disk_total FROM agentes WHERE id=?').get(req.agentId);
+    const cmds = db.prepare(`
+      SELECT id, tipo, parametro FROM comandos_agente
+      WHERE agente_id = ? AND estado = 'pendiente'
+      ORDER BY id ASC LIMIT 5
+    `).all(req.agentId);
 
-      // Get pending commands
-      const cmds = db.prepare(`
-        SELECT id, tipo, parametro FROM comandos_agente
-        WHERE agente_id = ? AND estado = 'pendiente'
-        ORDER BY id ASC LIMIT 5
-      `).all(req.agentId);
-
-      if (cmds.length) {
-        const ids = cmds.map(c => c.id);
-        db.prepare(
-          `UPDATE comandos_agente SET estado = 'ejecutando', updated_at = datetime('now')
-           WHERE id IN (${ids.map(() => '?').join(',')})`
-        ).run(...ids);
-      }
-
-      db.prepare('COMMIT').run();
-      pending = cmds;
-
-      // Broadcast after transaction completes
-      broadcast({
-        type: 'metrics', agent_id: req.agentId,
-        cpu_percent, ram_used, disk_used, uptime,
-        ram_total: agent?.ram_total, disk_total: agent?.disk_total,
-      });
-
-      res.json({ ok: true, commands: pending });
-    } catch (te) {
-      try { db.prepare('ROLLBACK').run(); } catch {}
-      throw te;
+    if (cmds.length) {
+      const ids = cmds.map(c => c.id);
+      db.prepare(
+        `UPDATE comandos_agente SET estado = 'ejecutando', updated_at = datetime('now')
+         WHERE id IN (${ids.map(() => '?').join(',')})`
+      ).run(...ids);
     }
-  } catch (e) {
-    console.error('[Heartbeat] Error:', e.message);
-    res.status(500).json({ error: e.message });
+
+    db.prepare('COMMIT').run();
+    pending = cmds;
+
+    broadcast({
+      type: 'metrics', agent_id: req.agentId,
+      cpu_percent, ram_used, disk_used, uptime,
+      ram_total: agent?.ram_total, disk_total: agent?.disk_total,
+    });
+
+    res.json({ ok: true, commands: pending });
+  } catch (te) {
+    try { db.prepare('ROLLBACK').run(); } catch {}
+    throw te;
   }
-});
+}));
 
 /* GET /api/monitoring/agents */
 router.get('/api/monitoring/agents', ...canRead, (req, res) => {

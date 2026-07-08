@@ -6,6 +6,7 @@ import path       from 'node:path';
 import fs         from 'node:fs';
 import db         from '../config/database.js';
 import { sendReqEmail } from './email-service.js';
+import { wrap } from '../utils/async-handler.js';
 
 const router = express.Router();
 
@@ -106,7 +107,7 @@ router.post('/api/req/admin/login', (req, res) => {
 });
 
 // ── POST /api/req ───────────────────────────────────────────────────────
-router.post('/api/req', (req, res) => {
+router.post('/api/req', wrap(async (req, res) => {
   const { area, nombre, correo, punto, tipo, descripcion,
           fecha_requerida, ticket_relacionado, observaciones, prioridad, fotos } = req.body;
 
@@ -122,24 +123,19 @@ router.post('/api/req', (req, res) => {
 
   const ticket_num = nextTicket();
 
-  try {
-    db.prepare(`INSERT INTO requerimientos
-      (ticket_num,area,nombre,correo,punto,tipo,descripcion,fecha_requerida,ticket_relacionado,observaciones,prioridad,fotos)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`)
-      .run(ticket_num, area.trim(), nombre.trim(), (correo||'').trim(), punto.trim(),
-           tipo, descripcion.trim(), fecha_requerida||'', ticket_relacionado||'',
-           observaciones||'', prioridad||'NORMAL', JSON.stringify(fotos||[]));
-  } catch (e) {
-    console.error('[Req] Insert error:', e.message);
-    return res.status(500).json({ error: 'Error al crear el requerimiento.' });
-  }
+  db.prepare(`INSERT INTO requerimientos
+    (ticket_num,area,nombre,correo,punto,tipo,descripcion,fecha_requerida,ticket_relacionado,observaciones,prioridad,fotos)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`)
+    .run(ticket_num, area.trim(), nombre.trim(), (correo||'').trim(), punto.trim(),
+         tipo, descripcion.trim(), fecha_requerida||'', ticket_relacionado||'',
+         observaciones||'', prioridad||'NORMAL', JSON.stringify(fotos||[]));
 
   sendReqEmail({ ticket_num, area, nombre, correo, punto, tipo,
                  descripcion, fecha_requerida, observaciones, prioridad })
     .catch(e => console.error('[Req] Email error:', e.message));
 
   res.json({ ok: true, ticket_num });
-});
+}));
 
 // ── GET /api/req ────────────────────────────────────────────────────────
 router.get('/api/req', (req, res) => {

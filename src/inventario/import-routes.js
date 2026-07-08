@@ -3,6 +3,7 @@ import multer  from 'multer';
 import ExcelJS from 'exceljs';
 import db from '../config/database.js';
 import { requireAuth, requirePermission } from '../auth/auth-middleware.js';
+import { wrap } from '../utils/async-handler.js';
 import {
   EQUIPOS_COLMAP,
   UPS_COLMAP,
@@ -17,7 +18,7 @@ const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 
 const canCreate = [requireAuth, requirePermission('inventario:create')];
 
 /* ── POST /api/inventario/:type/import — parse xlsx, return preview ── */
-router.post('/api/inventario/:type/import', ...canCreate, upload.single('file'), async (req, res) => {
+router.post('/api/inventario/:type/import', ...canCreate, upload.single('file'), wrap(async (req, res) => {
   const type = req.params.type;
   if (!['equipos', 'celulares', 'ups'].includes(type)) return res.status(400).json({ error: 'Tipo inválido.' });
   if (!req.file) return res.status(400).json({ error: 'No se recibió archivo.' });
@@ -61,14 +62,13 @@ router.post('/api/inventario/:type/import', ...canCreate, upload.single('file'),
     });
 
     res.json({ preview: rows.slice(0, 5), mapping, total: rows.length, rows, sheets: sheetNames, activeSheet: ws.name });
-  } catch (err) {
-    console.error('POST /api/inventario/:type/import:', err);
+  } catch {
     res.status(400).json({ error: 'No se pudo leer el archivo. Verifica que sea un .xlsx válido.' });
   }
-});
+}));
 
 /* ── POST /api/inventario/:type/import/confirm — bulk insert ── */
-router.post('/api/inventario/:type/import/confirm', ...canCreate, (req, res) => {
+router.post('/api/inventario/:type/import/confirm', ...canCreate, wrap(async (req, res) => {
   const type = req.params.type;
   if (!['equipos', 'celulares', 'ups'].includes(type)) return res.status(400).json({ error: 'Tipo inválido.' });
 
@@ -79,9 +79,8 @@ router.post('/api/inventario/:type/import/confirm', ...canCreate, (req, res) => 
   let inserted = 0, skipped = 0;
   const errors = [];
 
+  db.exec('BEGIN');
   try {
-    db.exec('BEGIN');
-
     if (type === 'equipos') {
       const stmt = db.prepare(`
         INSERT ${orClause} INTO inventario_equipos
@@ -162,11 +161,10 @@ router.post('/api/inventario/:type/import/confirm', ...canCreate, (req, res) => 
     db.exec('COMMIT');
   } catch (err) {
     try { db.exec('ROLLBACK'); } catch {}
-    console.error('Import confirm error:', err);
-    return res.status(500).json({ error: err.message });
+    throw err;
   }
 
   res.json({ inserted, skipped, errors });
-});
+}));
 
 export default router;
