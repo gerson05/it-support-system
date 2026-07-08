@@ -160,6 +160,118 @@ async function _fetchBodegas() {
 
 export function invalidateBodegasCache() { _bodegasCache = null; }
 
+let _puntosCache = null;
+async function _fetchPuntos() {
+  if (_puntosCache) return _puntosCache;
+  try {
+    const res = await fetch('/api/puntos?activo=1');
+    const data = res.ok ? await res.json() : {};
+    _puntosCache = data.grouped || {};
+  } catch { _puntosCache = {}; }
+  return _puntosCache;
+}
+export function invalidatePuntosCache() { _puntosCache = null; }
+
+export function attachPuntoSearch(inputEl) {
+  if (!inputEl) return;
+
+  const wrapper = document.createElement('div');
+  wrapper.style.cssText = 'position:relative;display:block;';
+  inputEl.parentNode.insertBefore(wrapper, inputEl);
+  wrapper.appendChild(inputEl);
+
+  const icon = document.createElement('div');
+  icon.style.cssText = 'position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--text-3);display:flex;align-items:center;pointer-events:none;';
+  icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>`;
+  wrapper.appendChild(icon);
+  inputEl.style.paddingRight = '28px';
+
+  const dropdown = document.createElement('div');
+  dropdown.style.cssText =
+    'display:none;position:fixed;' +
+    'background:var(--surface);border:1px solid var(--border);border-radius:8px;' +
+    'box-shadow:0 8px 24px rgba(0,0,0,.35);z-index:99999;max-height:220px;overflow-y:auto;';
+  document.body.appendChild(dropdown);
+
+  function positionDropdown() {
+    const r = inputEl.getBoundingClientRect();
+    dropdown.style.top   = `${r.bottom + 2}px`;
+    dropdown.style.left  = `${r.left}px`;
+    dropdown.style.width = `${r.width}px`;
+  }
+
+  function renderDropdown(q) {
+    const query = (q || '').toLowerCase().trim();
+    dropdown.innerHTML = '';
+    let first = true;
+    let hasAny = false;
+
+    Object.entries(_puntosCache || {}).forEach(([ciudad, puntos]) => {
+      const matches = puntos.filter(p =>
+        p.activo !== 0 && (
+          !query ||
+          ciudad.toLowerCase().includes(query) ||
+          (p.nombre || '').toLowerCase().includes(query)
+        )
+      );
+      if (!matches.length) return;
+      hasAny = true;
+
+      const hdr = document.createElement('div');
+      hdr.style.cssText =
+        'padding:5px 12px 3px;font-size:10px;font-weight:700;color:var(--text-3);' +
+        `text-transform:uppercase;letter-spacing:.5px;${first ? '' : 'border-top:1px solid var(--border);margin-top:4px;'}`;
+      hdr.textContent = ciudad;
+      dropdown.appendChild(hdr);
+      first = false;
+
+      matches.forEach(p => {
+        const item = document.createElement('div');
+        item.style.cssText =
+          'padding:8px 12px;font-size:13px;color:var(--text);cursor:pointer;transition:background .1s;display:flex;align-items:center;justify-content:space-between;gap:8px;';
+        const label = document.createElement('span');
+        label.textContent = p.nombre;
+        const badge = document.createElement('span');
+        badge.style.cssText = 'font-size:10px;padding:1px 6px;border-radius:99px;background:var(--surface-3);color:var(--text-3);flex-shrink:0;';
+        badge.textContent = p.tipo === 'bodega' ? 'Bodega' : 'Punto';
+        item.appendChild(label);
+        item.appendChild(badge);
+        item.addEventListener('mouseenter', () => { item.style.background = 'var(--surface-2)'; });
+        item.addEventListener('mouseleave', () => { item.style.background = ''; });
+        item.addEventListener('mousedown', e => {
+          e.preventDefault();
+          inputEl.value = p.nombre;
+          dropdown.style.display = 'none';
+        });
+        dropdown.appendChild(item);
+      });
+    });
+
+    if (!hasAny) {
+      const empty = document.createElement('div');
+      empty.style.cssText = 'padding:12px;text-align:center;font-size:13px;color:var(--text-3);';
+      empty.textContent = query ? `Sin resultados para "${q}"` : 'No hay puntos registrados';
+      dropdown.appendChild(empty);
+    }
+
+    dropdown.style.display = '';
+  }
+
+  inputEl.addEventListener('focus', async () => {
+    await _fetchPuntos();
+    positionDropdown();
+    renderDropdown(inputEl.value);
+  });
+
+  inputEl.addEventListener('input', () => {
+    if (dropdown.style.display !== 'none') { positionDropdown(); renderDropdown(inputEl.value); }
+  });
+
+  inputEl.addEventListener('blur', () => {
+    setTimeout(() => { dropdown.style.display = 'none'; }, 180);
+  });
+}
+
 export function attachSedeSearch(inputEl) {
   if (!inputEl) return;
 

@@ -6,7 +6,7 @@
  *  - openCreateModal(onSuccess)
  */
 import { state, AREA_MAPPINGS } from '../../core/app.js';
-import { showToast, attachBodegaSearch } from '../../ui/components.js';
+import { showToast, attachPuntoSearch } from '../../ui/components.js';
 import {
   fetchDespacho, createDespacho, updateDespacho,
 } from './despacho-helpers.js';
@@ -189,7 +189,7 @@ export async function openCreateModal(onSuccess) {
   overlay.querySelector('[name="observaciones"]').addEventListener('blur', e => { e.target.value = _sc(e.target.value); });
 
   // Sede autocomplete
-  attachBodegaSearch(overlay.querySelector('input[name="sede"]'));
+  attachPuntoSearch(overlay.querySelector('input[name="sede"]'));
 
   // Acta toggle
   const checkAcata = overlay.querySelector('#check-requiere-acta');
