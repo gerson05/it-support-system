@@ -4,7 +4,7 @@ function show(stateId) {
   ['state-loading','state-ready','state-success','state-already','state-invalid']
     .forEach(id => {
       const el = document.getElementById(id);
-      if (el) el.style.display = id === stateId ? '' : 'none';
+      if (el) el.style.display = id === stateId ? 'block' : 'none';
     });
 }
 
