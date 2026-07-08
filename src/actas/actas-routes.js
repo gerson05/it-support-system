@@ -3,30 +3,16 @@ import multer     from 'multer';
 import path       from 'path';
 import fs         from 'fs';
 import crypto     from 'crypto';
-import os         from 'os';
 import QRCode     from 'qrcode';
 import { fileURLToPath } from 'url';
 import db         from '../config/database.js';
 import { requireAuth, requirePermission } from '../auth/auth-middleware.js';
 import { wrap } from '../utils/async-handler.js';
+import { getBaseUrl } from '../utils/get-base-url.js';
 
 const canRead = [requireAuth, requirePermission('despacho:read')];
 const canEdit = [requireAuth, requirePermission('despacho:edit')];
 
-function getBaseUrl(req) {
-  if (process.env.PUBLIC_TUNNEL_URL) return process.env.PUBLIC_TUNNEL_URL;
-  const host = req.headers.host || '';
-  const isLocal = /^(localhost|127\.|::1)/i.test(host);
-  if (isLocal) {
-    const port = host.split(':')[1] || '3000';
-    for (const addrs of Object.values(os.networkInterfaces())) {
-      for (const a of addrs) {
-        if (a.family === 'IPv4' && !a.internal) return `${req.protocol}://${a.address}:${port}`;
-      }
-    }
-  }
-  return `${req.protocol}://${host}`;
-}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);
@@ -131,7 +117,12 @@ router.get('/api/actas', ...canRead, wrap(async (req, res) => {
     LIMIT ? OFFSET ?
   `).all(...params, Number(limit), offset);
 
-  res.json({ actas, total });
+  const base = getBaseUrl(req);
+  const actasWithUrl = actas.map(a => ({
+    ...a,
+    url: a.token ? `${base}/firmar/${a.token}` : null,
+  }));
+  res.json({ actas: actasWithUrl, total });
 }));
 
 router.post('/api/actas/token', ...canEdit, wrap(async (req, res) => {

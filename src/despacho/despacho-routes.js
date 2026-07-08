@@ -16,6 +16,7 @@ import {
 } from './despacho-model.js';
 import { escHtml, confirmarPage } from './confirmacion-page.js';
 import { wrap } from '../utils/async-handler.js';
+import { getBaseUrl } from '../utils/get-base-url.js';
 
 const router = express.Router();
 
@@ -163,7 +164,8 @@ router.delete('/api/tipos-articulo/:id', ...canEdit, wrap(async (req, res) => {
 router.get('/api/despachos/:id/confirmacion', ...canRead, wrap(async (req, res) => {
   const row = getConfirmacion(db, parseInt(req.params.id));
   if (!row) return res.json({ token: null, confirmed: false });
-  res.json({ token: row.token, confirmed: !!row.confirmed_at, confirmed_at: row.confirmed_at || null, signed_by: row.signed_by || null });
+  const base = getBaseUrl(req);
+  res.json({ token: row.token, url: row.token ? `${base}/confirmar/${row.token}` : null, confirmed: !!row.confirmed_at, confirmed_at: row.confirmed_at || null, signed_by: row.signed_by || null });
 }));
 
 router.post('/api/despachos/:id/confirmacion', ...canEdit, wrap(async (req, res) => {
@@ -177,7 +179,8 @@ router.post('/api/despachos/:id/confirmacion', ...canEdit, wrap(async (req, res)
 
   const token = crypto.randomBytes(20).toString('hex');
   createConfirmacion(db, despachoId, token);
-  res.json({ token });
+  const base = getBaseUrl(req);
+  res.json({ token, url: `${base}/confirmar/${token}` });
 }));
 
 router.get('/confirmar/:token', wrap(async (req, res) => {
