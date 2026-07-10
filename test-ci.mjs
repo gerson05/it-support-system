@@ -1,5 +1,7 @@
 import { spawn } from 'child_process';
 import http from 'http';
+import { DatabaseSync } from 'node:sqlite';
+import fs from 'fs';
 
 const PORT = process.env.PORT || 3001;
 const BASE = `http://localhost:${PORT}`;
@@ -55,6 +57,20 @@ async function main() {
   console.log('Waiting for server to start...');
   await sleep(5000);
 
+  // Seed test sede so chatbot city lookup works
+  try {
+    const dbPath = process.env.DATABASE_PATH || 'database/tickets.db';
+    if (fs.existsSync(dbPath)) {
+      const seedDb = new DatabaseSync(dbPath);
+      const count = seedDb.prepare('SELECT COUNT(*) AS n FROM sedes').get().n;
+      if (count === 0) {
+        seedDb.prepare("INSERT INTO sedes (ciudad, nombre_punto) VALUES ('Cali', 'SEDE PRINCIPAL')").run();
+        console.log('Seeded test sede: Cali / SEDE PRINCIPAL');
+      }
+      seedDb.close();
+    }
+  } catch (e) { console.warn('Seed warning:', e.message); }
+
   // Health (no auth required)
   const health = await get('/api/health').catch(e => ({ status: 0, body: e.message }));
   check('Health check', health.status === 200, `HTTP ${health.status}`);
@@ -81,10 +97,10 @@ async function main() {
   console.log('\n--- Chatbot flow ---');
   const flow = [
     { phone: '573001234567', message: 'hola' },
-    { phone: '573001234567', message: '5' },
-    { phone: '573001234567', message: '1' },
-    { phone: '573001234567', message: '2' },
-    { phone: '573001234567', message: 'Software contable no abre' },
+    { phone: '573001234567', message: '1' },          // Problema técnico
+    { phone: '573001234567', message: 'Cali' },       // Ciudad → auto-selecciona SEDE PRINCIPAL
+    { phone: '573001234567', message: 'Juan Test' },  // Nombre
+    { phone: '573001234567', message: 'Software contable no abre' }, // Problema → crea ticket
   ];
   for (const msg of flow) {
     const r = await post('/api/simulate', msg).catch(e => ({ status: 0, body: e.message }));
