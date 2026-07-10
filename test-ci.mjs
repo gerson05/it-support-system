@@ -88,7 +88,9 @@ async function main() {
   ];
   for (const msg of flow) {
     const r = await post('/api/simulate', msg).catch(e => ({ status: 0, body: e.message }));
+    const reply = r.body?.response?.slice(0, 100) || JSON.stringify(r.body).slice(0, 100);
     check(`simulate "${msg.message}"`, r.status === 200, `HTTP ${r.status}`);
+    console.log(`  bot: ${reply}`);
     await sleep(200);
   }
 
