@@ -64,6 +64,8 @@ async function main() {
     username: 'admin',
     password: process.env.INIT_ADMIN_PASS,
   }).catch(e => ({ status: 0, body: e.message }));
+  console.log(`  login response: ${JSON.stringify(login.body)}`);
+  console.log(`  session cookie: ${sessionCookie || '(none)'}`);
   check('Admin login', login.status === 200, `HTTP ${login.status}`);
 
   // Authenticated endpoints
@@ -92,6 +94,7 @@ async function main() {
 
   // Verify ticket was created (authenticated)
   const tickets = await get('/api/tickets').catch(e => ({ status: 0, body: {} }));
+  console.log(`  tickets response: HTTP ${tickets.status} body=${JSON.stringify(tickets.body).slice(0, 200)}`);
   check('Ticket was created', (tickets.body?.total ?? 0) > 0, `total=${tickets.body?.total}`);
 
   server.kill();
