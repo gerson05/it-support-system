@@ -46,16 +46,13 @@ export async function renderSettings(container) {
       </div>
 
       <!-- Mensajes automáticos WP -->
-      <div class="card" id="wp-messages-card">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-3);">Mensajes automáticos de WhatsApp</div>
-          <span id="wp-msg-status" style="font-size:11px;color:var(--text-3);"></span>
-        </div>
-        <p style="font-size:12px;color:var(--text-2);margin-bottom:14px;line-height:1.5;">
-          Edita los textos que el bot envía automáticamente. Usa <code style="background:var(--surface-3);padding:1px 5px;border-radius:3px;">{variable}</code> para insertar valores dinámicos (ver sugerencias en cada campo).
-        </p>
-        <div id="wp-messages-list" style="display:flex;flex-direction:column;gap:14px;">
-          <div style="text-align:center;padding:20px;font-size:13px;color:var(--text-3);">Cargando mensajes…</div>
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+          <div>
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-3);margin-bottom:4px;">Mensajes automáticos de WhatsApp</div>
+            <div style="font-size:12px;color:var(--text-2);line-height:1.5;">Textos que el bot envía automáticamente. <span id="wp-msg-status" style="color:var(--primary);"></span></div>
+          </div>
+          <button id="btn-open-wp-messages" class="btn btn-secondary btn-small" style="white-space:nowrap;">Editar mensajes →</button>
         </div>
       </div>
 
@@ -81,18 +78,63 @@ export async function renderSettings(container) {
 }
 
 async function loadWpMessages() {
-  const list   = document.getElementById('wp-messages-list');
   const status = document.getElementById('wp-msg-status');
-  if (!list) return;
   try {
     const res  = await fetch('/api/admin/wp-messages');
     if (!res.ok) throw new Error();
     const msgs = await res.json();
     const customCount = Object.values(msgs).filter(m => m.isCustom).length;
     if (status) status.textContent = customCount ? `${customCount} personalizado${customCount !== 1 ? 's' : ''}` : '';
+  } catch { /* silent */ }
+}
+
+function openWpMessagesModal() {
+  const existing = document.getElementById('wp-messages-modal');
+  if (existing) { existing.remove(); }
+
+  const overlay = document.createElement('div');
+  overlay.id = 'wp-messages-modal';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);z-index:1000;display:flex;align-items:flex-start;justify-content:center;padding:32px 16px;overflow-y:auto;';
+
+  overlay.innerHTML = `
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);width:min(680px,100%);box-shadow:0 24px 64px rgba(0,0,0,.5);display:flex;flex-direction:column;">
+      <!-- Header -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--border);flex-shrink:0;">
+        <div>
+          <div style="font-size:15px;font-weight:700;color:var(--text);">Mensajes automáticos de WhatsApp</div>
+          <div style="font-size:12px;color:var(--text-3);margin-top:2px;">Usa <code style="background:var(--surface-3);padding:1px 5px;border-radius:3px;">{variable}</code> para insertar valores dinámicos</div>
+        </div>
+        <button id="btn-close-wp-modal" style="width:32px;height:32px;border:1px solid var(--border);border-radius:8px;background:var(--surface-2);color:var(--text-2);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✕</button>
+      </div>
+      <!-- Body -->
+      <div id="wp-messages-list" style="padding:20px 24px;display:flex;flex-direction:column;gap:14px;overflow-y:auto;max-height:calc(90vh - 100px);">
+        <div style="text-align:center;padding:30px;font-size:13px;color:var(--text-3);">Cargando mensajes…</div>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  overlay.querySelector('#btn-close-wp-modal').onclick = () => overlay.remove();
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+
+  populateWpMessagesList();
+}
+
+async function populateWpMessagesList() {
+  const list = document.getElementById('wp-messages-list');
+  if (!list) return;
+  try {
+    const res  = await fetch('/api/admin/wp-messages');
+    if (!res.ok) throw new Error();
+    const msgs = await res.json();
+
+    const customCount = Object.values(msgs).filter(m => m.isCustom).length;
+    const status = document.getElementById('wp-msg-status');
+    if (status) status.textContent = customCount ? `${customCount} personalizado${customCount !== 1 ? 's' : ''}` : '';
 
     list.innerHTML = Object.values(msgs).map(m => `
-      <div style="border:1px solid var(--border);border-radius:8px;padding:12px;background:var(--surface-2);" data-msg-key="${m.key}">
+      <div style="border:1px solid var(--border);border-radius:8px;padding:12px;background:var(--surface-2);">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;gap:8px;flex-wrap:wrap;">
           <div style="font-size:12px;font-weight:600;color:var(--text);">${m.label}</div>
           <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
@@ -124,7 +166,7 @@ async function loadWpMessages() {
           });
           if (!r.ok) throw new Error();
           showToast('Mensaje guardado ✓', 'success');
-          loadWpMessages();
+          populateWpMessagesList();
         } catch {
           showToast('Error al guardar.', 'error');
           btn.disabled = false; btn.textContent = 'Guardar';
@@ -139,7 +181,7 @@ async function loadWpMessages() {
         try {
           await fetch(`/api/admin/wp-messages/${btn.dataset.key}`, { method: 'DELETE' });
           showToast('Mensaje restaurado al original.', 'success');
-          loadWpMessages();
+          populateWpMessagesList();
         } catch {
           showToast('Error al restaurar.', 'error');
           btn.disabled = false;
@@ -148,7 +190,7 @@ async function loadWpMessages() {
     });
 
   } catch {
-    if (list) list.innerHTML = `<div style="font-size:12px;color:var(--text-3);padding:12px;">No disponible (servidor apagado).</div>`;
+    if (list) list.innerHTML = `<div style="font-size:12px;color:var(--text-3);padding:20px;text-align:center;">No disponible (servidor apagado).</div>`;
   }
 }
 
@@ -200,6 +242,9 @@ async function loadWaStatus() {
 
 function bindEvents() {
   // Copiar URL de red — el handler real se añade en loadNetworkUrl() cuando hay IP del servidor
+
+  // Abrir modal de mensajes WP
+  document.getElementById('btn-open-wp-messages')?.addEventListener('click', openWpMessagesModal);
 
   // Reconectar WhatsApp
   document.getElementById('btn-wa-reconnect')?.addEventListener('click', async () => {
