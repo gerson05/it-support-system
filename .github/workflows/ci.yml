@@ -39,5 +39,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Reset database for clean test environment
+        run: rm -f database/tickets.db database/tickets.db-shm database/tickets.db-wal
+
       - name: Run smoke tests
         run: node test-ci.mjs
