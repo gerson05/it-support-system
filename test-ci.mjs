@@ -1,56 +1,53 @@
 import { spawn } from 'child_process';
 import http from 'http';
 
-const BASE = `http://localhost:${process.env.PORT || 3001}`;
+const PORT = process.env.PORT || 3001;
+const BASE = `http://localhost:${PORT}`;
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-function get(path) {
-  return new Promise((resolve, reject) => {
-    http.get(`${BASE}${path}`, res => {
-      let data = '';
-      res.on('data', c => (data += c));
-      res.on('end', () => {
-        try { resolve({ status: res.statusCode, body: JSON.parse(data) }); }
-        catch { resolve({ status: res.statusCode, body: data }); }
-      });
-    }).on('error', reject);
-  });
-}
+let sessionCookie = '';
 
-function post(path, payload) {
+function request(method, path, payload) {
   return new Promise((resolve, reject) => {
-    const raw = JSON.stringify(payload);
+    const raw = payload ? JSON.stringify(payload) : null;
     const req = http.request({
       hostname: 'localhost',
-      port: process.env.PORT || 3001,
-      path, method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(raw) },
+      port: PORT,
+      path,
+      method,
+      headers: {
+        ...(raw ? { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(raw) } : {}),
+        ...(sessionCookie ? { 'Cookie': sessionCookie } : {}),
+      },
     }, res => {
       let data = '';
       res.on('data', c => (data += c));
       res.on('end', () => {
+        const setCookie = res.headers['set-cookie'];
+        if (setCookie) sessionCookie = setCookie.map(c => c.split(';')[0]).join('; ');
         try { resolve({ status: res.statusCode, body: JSON.parse(data) }); }
         catch { resolve({ status: res.statusCode, body: data }); }
       });
     });
     req.on('error', reject);
-    req.write(raw);
+    if (raw) req.write(raw);
     req.end();
   });
 }
 
-let failed = false;
+const get  = path         => request('GET',  path);
+const post = (path, data) => request('POST', path, data);
 
+let failed = false;
 function check(label, pass, detail = '') {
-  const mark = pass ? '✓' : '✗';
-  console.log(`${mark} ${label}${detail ? ` [${detail}]` : ''}`);
+  console.log(`${pass ? '✓' : '✗'} ${label}${detail ? ` [${detail}]` : ''}`);
   if (!pass) failed = true;
 }
 
 async function main() {
   const server = spawn('node', ['server.js'], {
     stdio: 'pipe',
-    env: { ...process.env, PORT: process.env.PORT || '3001' },
+    env: { ...process.env, PORT },
   });
   server.stdout.on('data', d => process.stdout.write(d));
   server.stderr.on('data', d => process.stderr.write(d));
@@ -58,14 +55,24 @@ async function main() {
   console.log('Waiting for server to start...');
   await sleep(5000);
 
-  // Basic endpoints
-  for (const [path, label, acceptedStatuses] of [
-    ['/api/health', 'Health check', [200]],
-    ['/api/tickets', 'Tickets list', [200]],
-    ['/api/metrics', 'Metrics', [200]],
+  // Health (no auth required)
+  const health = await get('/api/health').catch(e => ({ status: 0, body: e.message }));
+  check('Health check', health.status === 200, `HTTP ${health.status}`);
+
+  // Login to get session cookie
+  const login = await post('/api/auth/login', {
+    username: 'admin',
+    password: process.env.INIT_ADMIN_PASS,
+  }).catch(e => ({ status: 0, body: e.message }));
+  check('Admin login', login.status === 200, `HTTP ${login.status}`);
+
+  // Authenticated endpoints
+  for (const [path, label] of [
+    ['/api/tickets', 'Tickets list'],
+    ['/api/metrics', 'Metrics'],
   ]) {
     const r = await get(path).catch(e => ({ status: 0, body: e.message }));
-    check(label, acceptedStatuses.includes(r.status), `HTTP ${r.status}`);
+    check(label, r.status === 200, `HTTP ${r.status}`);
   }
 
   // Chatbot flow — creates a ticket
@@ -83,7 +90,7 @@ async function main() {
     await sleep(200);
   }
 
-  // Ticket created
+  // Verify ticket was created (authenticated)
   const tickets = await get('/api/tickets').catch(e => ({ status: 0, body: {} }));
   check('Ticket was created', (tickets.body?.total ?? 0) > 0, `total=${tickets.body?.total}`);
 

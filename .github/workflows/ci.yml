@@ -26,6 +26,7 @@ jobs:
       REQ_ADMIN_SECRET: ci-secret-32-chars-long-for-test
       REQ_ADMIN_USER: admin
       REQ_ADMIN_PASS: ci-test-pass
+      INIT_ADMIN_PASS: ci-admin-password-for-tests
 
     steps:
       - uses: actions/checkout@v4
