@@ -20,6 +20,19 @@ const AUTH_DIR = path.resolve(__dirname, '../../database/wwebjs-auth');
 
 const chatbot = new Chatbot();
 
+/** Elimina Chromium SingletonLock/Cookie/Socket para evitar bloqueo tras reinicio. */
+function clearChromiumLocks(authDir) {
+  if (!fs.existsSync(authDir)) return;
+  for (const entry of fs.readdirSync(authDir)) {
+    const profileDir = path.join(authDir, entry);
+    for (const lock of ['SingletonLock', 'SingletonCookie', 'SingletonSocket']) {
+      const f = path.join(profileDir, lock);
+      try { if (fs.existsSync(f)) { fs.rmSync(f); console.log(`[WhatsApp] Lock eliminado: ${f}`); } }
+      catch {}
+    }
+  }
+}
+
 /** Borra la carpeta de autenticación local para forzar QR fresco. */
 function clearAuthData() {
   try {
@@ -62,6 +75,7 @@ class WhatsAppClient {
     this.status = 'disconnected';
 
     console.log('[WhatsApp] Iniciando cliente...');
+    clearChromiumLocks(AUTH_DIR);
 
     this.client = new Client({
       authStrategy: new LocalAuth({ dataPath: AUTH_DIR }),
