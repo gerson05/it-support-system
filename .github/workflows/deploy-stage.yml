@@ -1,19 +1,30 @@
 name: Deploy Stage
 
 on:
-  push:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
     branches: [stage]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-stage
+  cancel-in-progress: false
 
 jobs:
   deploy:
     name: Deploy to Stage
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     permissions:
       contents: read
       packages: write
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
       - uses: docker/setup-buildx-action@v3
 
@@ -31,11 +42,11 @@ jobs:
           push: true
           tags: |
             ghcr.io/${{ github.repository }}:stage
-            ghcr.io/${{ github.repository }}:stage-${{ github.sha }}
+            ghcr.io/${{ github.repository }}:stage-${{ github.event.workflow_run.head_sha || github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
       - name: Notify stage deployment
         run: |
           echo "Stage image pushed: ghcr.io/${{ github.repository }}:stage"
-          echo "SHA: ${{ github.sha }}"
+          echo "SHA: ${{ github.event.workflow_run.head_sha || github.sha }}"
