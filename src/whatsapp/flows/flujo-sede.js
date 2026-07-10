@@ -107,7 +107,7 @@ export function handleSede(step, { text, cleanText, session, phone, db }) {
   if (step === 'ask_ciudad_confirm') {
     const idx   = parseInt(cleanText) - 1;
     const cands = ctx.ciudad_candidates || [];
-    if (idx < 0 || idx >= cands.length) {
+    if (isNaN(idx) || idx < 0 || idx >= cands.length) {
       const lista = cands.map((c, i) => `*${i + 1}️⃣* ${c}`).join('\n');
       return `⚠️ Opción no válida. Responde con un número:\n\n${lista}`;
     }
@@ -130,7 +130,7 @@ export function handleSede(step, { text, cleanText, session, phone, db }) {
   // ask_punto
   const idx    = parseInt(cleanText) - 1;
   const puntos = ctx.punto_options || [];
-  if (idx < 0 || idx >= puntos.length) {
+  if (isNaN(idx) || idx < 0 || idx >= puntos.length) {
     const lista = puntos.map((p, i) => `*${i + 1}️⃣* ${displaySede(p)}`).join('\n');
     return `⚠️ Opción no válida. Responde con un número:\n\n${lista}`;
   }

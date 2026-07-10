@@ -97,10 +97,14 @@ async function main() {
   console.log('\n--- Chatbot flow ---');
   const flow = [
     { phone: '573001234567', message: 'hola' },
-    { phone: '573001234567', message: '1' },          // Problema técnico
-    { phone: '573001234567', message: 'Cali' },       // Ciudad → auto-selecciona SEDE PRINCIPAL
-    { phone: '573001234567', message: 'Juan Test' },  // Nombre
-    { phone: '573001234567', message: 'Software contable no abre' }, // Problema → crea ticket
+    { phone: '573001234567', message: '1' },          // Problema técnico → ask_ciudad
+    { phone: '573001234567', message: 'Cali' },       // Ciudad → CALI / CALIMA → ask_ciudad_confirm
+    { phone: '573001234567', message: '1' },          // Seleccionar CALI → 7 puntos → ask_punto
+    { phone: '573001234567', message: '1' },          // Seleccionar MEDIVALLE - SEDE PRINCIPAL → menu_area
+    { phone: '573001234567', message: '1' },          // Área: Cartera → ask_ticket_name
+    { phone: '573001234567', message: 'Juan Test' },  // Nombre → awaiting_description
+    { phone: '573001234567', message: 'Software contable no abre' }, // Descripción → create_ticket (sin IA)
+    { phone: '573001234567', message: 'no' },         // Confirmar → crea ticket
   ];
   for (const msg of flow) {
     const r = await post('/api/simulate', msg).catch(e => ({ status: 0, body: e.message }));

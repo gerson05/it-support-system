@@ -269,6 +269,7 @@ export const SEDES = [
 
 /** Nombre corto para mostrar en el chat (sin el prefijo "MI FARMACIA - ") */
 export function displaySede(sede) {
+  if (!sede) return '';
   if (sede.toUpperCase().startsWith('MI FARMACIA - ')) {
     return sede.slice('MI FARMACIA - '.length);
   }
