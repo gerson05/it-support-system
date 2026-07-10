@@ -40,7 +40,7 @@ function priorityBadge(p) {
   return `<span class="badge ${c.cls}">${c.label}</span>`;
 }
 
-const TH = 'padding:10px 12px;text-align:left;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;';
+const TH = 'padding:8px 10px;text-align:left;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;';
 const TD = 'padding:10px 12px;font-size:13px;';
 
 function renderPagination(data) {
@@ -302,8 +302,8 @@ export async function renderTechRequests(container) {
         container2.innerHTML = `
         <div class="card">
           <!-- Desktop: tabla -->
-          <div class="tr-table-wrap" style="overflow-x:auto;">
-            <table style="width:100%;border-collapse:collapse;">
+          <div class="tr-table-wrap">
+            <table style="width:100%;border-collapse:collapse;table-layout:fixed;">
               <thead>
                 <tr style="border-bottom:1px solid var(--glass-border);">
                   <th style="${TH}">N.º Solicitud</th>

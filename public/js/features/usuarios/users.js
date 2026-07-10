@@ -141,6 +141,7 @@ async function loadUsers(tabContainer) {
     }
 
     wrap.innerHTML = `
+      <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
       <table class="data-table">
         <thead>
           <tr>
@@ -171,7 +172,8 @@ async function loadUsers(tabContainer) {
               </td>
             </tr>`).join('')}
         </tbody>
-      </table>`;
+      </table>
+      </div>`;
 
     wrap.querySelectorAll('.btn-edit').forEach(btn => {
       btn.addEventListener('click', () => {

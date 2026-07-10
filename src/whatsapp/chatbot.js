@@ -2,6 +2,7 @@ import { appEvents }                   from '../events/broadcaster.js';
 import { setStep, getCtx }             from './chatbot-session.js';
 import { checkRateLimit, getBusinessStatus, nextBusinessDay } from './chatbot-utils.js';
 import { AREA_NAMES, STATUS_LABELS_WA } from './chatbot-config.js';
+import { getMsg }                      from './chatbot-messages.js';
 import { handleOOS }                   from './flows/flujo-oos.js';
 import { handleSede }                  from './flows/flujo-sede.js';
 import { handleSoporte }               from './flows/flujo-soporte.js';
@@ -20,7 +21,7 @@ export class Chatbot {
     if (text === '__IMAGE__') {
       const sess = db.prepare('SELECT current_step FROM conversations WHERE phone=?').get(phone);
       if (!sess || sess.current_step !== 'awaiting_description') {
-        return `📸 _Imagen recibida._ Para que analicemos el error de tu captura, escribe *Hola*, selecciona *Soporte técnico* y cuando llegues a describir el problema envía la imagen. 📲`;
+        return getMsg(db, 'image_out_of_flow');
       }
     }
 
@@ -54,7 +55,7 @@ export class Chatbot {
     /* ── Comando rápido: consultar estado de tickets ── */
     if (!isCommand && !inBotFlow && /^(estado|mis tickets?|consultar|ver ticket|mi caso)/i.test(lower)) {
       const tickets = db.prepare(`SELECT ticket_number, status, area, created_at FROM tickets WHERE phone=? ORDER BY id DESC LIMIT 3`).all(phone);
-      if (!tickets.length) return `📭 No tienes tickets registrados aún.\n\nEscribe *Hola* para iniciar una nueva consulta de soporte.`;
+      if (!tickets.length) return getMsg(db, 'estado_no_tickets');
       const lines = tickets.map(t =>
         `🎟️ *${t.ticket_number}*\n   ${STATUS_LABELS_WA[t.status] || t.status}\n   ${AREA_NAMES[t.area] || t.area} · ${new Date(t.created_at).toLocaleDateString('es-CO')}`
       ).join('\n\n');
@@ -73,7 +74,7 @@ export class Chatbot {
         }
         db.prepare(`UPDATE tickets SET updated_at=datetime('now','localtime') WHERE id=?`).run(activeTicket.id);
         appEvents.emit('ticket:message', { ticketId: activeTicket.id });
-        return `📥 *Mensaje agregado al Ticket ${activeTicket.ticket_number}*\n\nTu mensaje fue registrado. El equipo de IT te responderá pronto.\n\n_Para nueva consulta escribe *menu*._`;
+        return getMsg(db, 'ticket_added', { ticketNumber: activeTicket.ticket_number });
       }
     }
 
@@ -85,18 +86,11 @@ export class Chatbot {
           const isClosing = bizStatus === 'closing';
           setStep(db, phone, 'oos_name', null, '{}');
           response = isClosing
-            ? `⚠️ *Estamos a punto de cerrar*\n\nNuestro horario de atención termina a las *4:40 PM*.\nTu caso quedará agendado para el *${nextBusinessDay()}* a las 7:00 AM.\n\n¿Cuál es tu nombre completo?`
-            : `⏰ *Fuera de horario de atención*\n\nNuestro equipo de IT atiende de *lunes a viernes de 7:00 AM a 4:40 PM*.\n\nTu caso quedará registrado y será atendido el *${nextBusinessDay()}* a primera hora.\n\n¿Cuál es tu nombre completo?`;
+            ? getMsg(db, 'oos_closing', { nextDay: nextBusinessDay() })
+            : getMsg(db, 'oos_closed',  { nextDay: nextBusinessDay() });
         } else {
           setStep(db, phone, 'select_type', null, '{}');
-          response =
-            `🖥️ *¡Hola! Soy el asistente de IT* 🤖\n\n` +
-            `¿En qué te puedo ayudar hoy?\n\n` +
-            `*1️⃣* 🔧 Tengo un *problema técnico*\n` +
-            `*2️⃣* 📋 Necesito *equipos o materiales* (requerimiento)\n` +
-            `*3️⃣* ⚠️ Voy a *enviar un equipo con falla* (incidencia)\n\n` +
-            `_Responde con el número de tu opción._\n\n` +
-            `💡 Escribe *estado* en cualquier momento para consultar tus tickets.`;
+          response = getMsg(db, 'greeting');
         }
       } else {
         /* ── Dispatch por flujo ── */
@@ -116,7 +110,7 @@ export class Chatbot {
     } catch (err) {
       console.error('[Chatbot] Error:', err);
       setStep(db, phone, 'idle', null, '{}');
-      response = `❌ Ocurrió un error técnico. Por favor escribe *Hola* para reiniciar.`;
+      response = getMsg(db, 'error_fallback');
     }
 
     return response;

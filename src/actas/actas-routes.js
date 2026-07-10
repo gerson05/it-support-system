@@ -50,70 +50,70 @@ const upload = multer({
 const router = express.Router();
 
 router.get('/api/actas', ...canRead, wrap(async (req, res) => {
-  const { q, entity_type, status, page = 1, limit = 50 } = req.query;
+  const { q, status, page = 1, limit = 50 } = req.query;
   const offset = (Number(page) - 1) * Number(limit);
 
-  let where = '1=1';
+  const whereParts = ['d.requiere_acta = 1'];
   const params = [];
 
-  if (entity_type) { where += ' AND entity_type = ?'; params.push(entity_type); }
-  if (status === 'uploaded') { where += ' AND uploaded_at IS NOT NULL'; }
-  if (status === 'pending')  { where += ' AND uploaded_at IS NULL'; }
+  if (status === 'uploaded') { whereParts.push('a.uploaded_at IS NOT NULL'); }
+  if (status === 'pending')  { whereParts.push('a.uploaded_at IS NULL'); }
   if (q) {
-    where += ' AND (entity_ref LIKE ? OR token LIKE ? OR d.numero LIKE ? OR d.destinatario LIKE ? OR d.sede LIKE ?)';
-    params.push(`%${q}%`, `%${q}%`, `%${q}%`, `%${q}%`, `%${q}%`);
+    whereParts.push('(a.entity_ref LIKE ? OR a.token LIKE ? OR d.numero LIKE ? OR d.destinatario LIKE ? OR d.sede LIKE ? OR d.acta_numero LIKE ?)');
+    params.push(`%${q}%`, `%${q}%`, `%${q}%`, `%${q}%`, `%${q}%`, `%${q}%`);
   }
 
-  const joinedWhere = where
-    .replace(/\bentity_type\b/g, 'a.entity_type')
-    .replace(/\bentity_ref\b/g, 'a.entity_ref')
-    .replace(/\btoken\b/g, 'a.token')
-    .replace(/\buploaded_at\b/g, 'a.uploaded_at');
+  const joinedWhere = whereParts.join(' AND ');
 
   const total = db.prepare(`
     SELECT COUNT(*) as n
-    FROM acta_uploads a
-    LEFT JOIN despachos d ON a.entity_type = 'despacho' AND d.id = a.entity_id
+    FROM despachos d
+    LEFT JOIN acta_uploads a ON a.entity_type = 'despacho' AND a.entity_id = d.id
     WHERE ${joinedWhere}
   `).get(...params).n;
 
   const actas = db.prepare(`
-    SELECT a.*,
-           COALESCE(d.numero, a.entity_ref) AS despacho_numero,
-           COALESCE(d.destinatario, a.entity_ref, '—') AS despacho_destinatario,
-           COALESCE(d.sede, '—') AS despacho_sede,
-           d.fecha AS despacho_fecha,
-           d.acta_numero AS despacho_acta_numero,
-           d.acta_firmada AS despacho_acta_firmada,
-           CASE
-             WHEN a.uploaded_at IS NOT NULL
-               OR a.filename IS NOT NULL
-               OR a.filepath IS NOT NULL
-               OR COALESCE(a.signed_by, '') <> ''
-               OR COALESCE(a.signed_role, '') <> ''
-               OR COALESCE(d.acta_firmada, 0) = 1
-             THEN 1 ELSE 0
-           END AS acta_firmada_real,
-           CASE
-             WHEN a.uploaded_at IS NOT NULL
-               OR a.filename IS NOT NULL
-               OR a.filepath IS NOT NULL
-               OR COALESCE(a.signed_by, '') <> ''
-               OR COALESCE(a.signed_role, '') <> ''
-               OR COALESCE(d.acta_firmada, 0) = 1
-             THEN 'firmada'
-             WHEN a.token IS NOT NULL THEN 'pendiente'
-             ELSE 'sin_link'
-           END AS acta_estado,
-           CASE
-             WHEN COALESCE(a.signed_by, '') <> '' THEN a.signed_by
-             WHEN COALESCE(d.acta_firmada, 0) = 1 THEN 'Firmada'
-             ELSE NULL
-           END AS firmante_display
-    FROM acta_uploads a
-    LEFT JOIN despachos d ON a.entity_type = 'despacho' AND d.id = a.entity_id
+    SELECT
+      a.id, a.token,
+      'despacho' AS entity_type,
+      d.id AS entity_id,
+      COALESCE(a.entity_ref, d.acta_numero, d.numero) AS entity_ref,
+      a.filename, a.filepath, a.signed_by, a.signed_role, a.uploaded_at,
+      COALESCE(d.numero, a.entity_ref) AS despacho_numero,
+      COALESCE(d.destinatario, a.entity_ref, '—') AS despacho_destinatario,
+      COALESCE(d.sede, '—') AS despacho_sede,
+      d.fecha AS despacho_fecha,
+      d.acta_numero AS despacho_acta_numero,
+      d.acta_firmada AS despacho_acta_firmada,
+      CASE
+        WHEN a.uploaded_at IS NOT NULL
+          OR a.filename IS NOT NULL
+          OR a.filepath IS NOT NULL
+          OR COALESCE(a.signed_by, '') <> ''
+          OR COALESCE(a.signed_role, '') <> ''
+          OR COALESCE(d.acta_firmada, 0) = 1
+        THEN 1 ELSE 0
+      END AS acta_firmada_real,
+      CASE
+        WHEN a.uploaded_at IS NOT NULL
+          OR a.filename IS NOT NULL
+          OR a.filepath IS NOT NULL
+          OR COALESCE(a.signed_by, '') <> ''
+          OR COALESCE(a.signed_role, '') <> ''
+          OR COALESCE(d.acta_firmada, 0) = 1
+        THEN 'firmada'
+        WHEN a.token IS NOT NULL THEN 'pendiente'
+        ELSE 'sin_link'
+      END AS acta_estado,
+      CASE
+        WHEN COALESCE(a.signed_by, '') <> '' THEN a.signed_by
+        WHEN COALESCE(d.acta_firmada, 0) = 1 THEN 'Firmada'
+        ELSE NULL
+      END AS firmante_display
+    FROM despachos d
+    LEFT JOIN acta_uploads a ON a.entity_type = 'despacho' AND a.entity_id = d.id
     WHERE ${joinedWhere}
-    ORDER BY a.rowid DESC
+    ORDER BY d.id DESC
     LIMIT ? OFFSET ?
   `).all(...params, Number(limit), offset);
 

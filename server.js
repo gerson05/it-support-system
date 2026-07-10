@@ -29,6 +29,7 @@ import aiRouter from './src/ai/ai-routes.js';
 import reqRouter from './src/requerimientos/req-routes.js';
 import reunionesRouter from './src/reuniones/reuniones-routes.js';
 import employeesRouter from './src/employees/employees-routes.js';
+import wpConfigRouter from './src/config/wp-config-routes.js';
 import { initAdminUser } from './src/auth/auth-service.js';
 import Chatbot from './src/whatsapp/chatbot.js';
 import whatsappClient from './src/whatsapp/baileys-client.js';
@@ -72,6 +73,7 @@ app.use(aiRouter);
 app.use(reqRouter);
 app.use(reunionesRouter);
 app.use(employeesRouter);
+app.use(wpConfigRouter);
 
 // Página pública de subida de acta firmada
 app.get('/firmar/:token', (_req, res) => {

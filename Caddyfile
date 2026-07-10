@@ -1,12 +1,23 @@
-{
-  local_certs
-}
+# ═══════════════════════════════════════════════════════
+#  Caddyfile — Producción (VPS con dominio real)
+#  Requiere: DOMAIN=tudominio.com en .env o env del sistema
+# ═══════════════════════════════════════════════════════
 
-:443 {
-  tls internal
+{$DOMAIN} {
+  # TLS automático via Let's Encrypt (cert gratuito, auto-renovado)
   reverse_proxy it-support:3000
+
+  # Compresión y seguridad básica
+  encode gzip
+  header {
+    Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    X-Frame-Options "SAMEORIGIN"
+    X-Content-Type-Options "nosniff"
+  }
 }
 
-:80 {
-  redir https://{host}{uri} permanent
+# Redirige HTTP → HTTPS
+http://{$DOMAIN} {
+  redir https://{$DOMAIN}{uri} permanent
 }
+

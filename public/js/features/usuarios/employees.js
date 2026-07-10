@@ -388,6 +388,7 @@ function _renderTab() {
     : ['Cédula', 'Nombre', 'Cargo', 'Área', 'Usuario', 'Fecha completado', ''];
 
   el.innerHTML = `
+    <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
     <table style="width:100%;border-collapse:collapse;">
       <thead>
         <tr style="border-bottom:2px solid var(--border);">
@@ -400,7 +401,8 @@ function _renderTab() {
       <tbody>
         ${list.map(emp => _renderRow(emp, pending)).join('')}
       </tbody>
-    </table>`;
+    </table>
+    </div>`;
 }
 
 const _BTN = (onclick, bg, label) =>

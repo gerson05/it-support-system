@@ -147,6 +147,7 @@ async function appendRow(rowData) {
     await wb.xlsx.readFile(FILE_PATH);
     ws = wb.getWorksheet(SHEET_NAME);
     if (!ws) { ws = wb.addWorksheet(SHEET_NAME); setupSheet(ws); }
+    else { COLS.forEach((col, i) => { ws.getColumn(i + 1).key = col.key; }); }
   } else {
     ws = wb.addWorksheet(SHEET_NAME);
     setupSheet(ws);

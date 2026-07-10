@@ -20,6 +20,10 @@ router.get('/api/employees', ...canRead, wrap(async (req, res) => {
   res.json(getAllEmployees());
 }));
 
+router.get('/api/employees/pending-count', ...canRead, wrap(async (req, res) => {
+  res.json({ count: getPendingCount() });
+}));
+
 router.get('/api/employees/:id', ...canRead, wrap(async (req, res) => {
   const emp = getEmployeeById(req.params.id);
   if (!emp) return res.status(404).json({ error: 'Empleado no encontrado.' });
@@ -96,10 +100,6 @@ router.delete('/api/employees/:id', ...canDelete, wrap(async (req, res) => {
     if (err.code === 'NOT_FOUND') return res.status(404).json({ error: 'Empleado no encontrado.' });
     throw err;
   }
-}));
-
-router.get('/api/employees/pending-count', ...canRead, wrap(async (req, res) => {
-  res.json({ count: getPendingCount() });
 }));
 
 router.get('/api/employees-data/cargos', ...canRead, wrap(async (req, res) => {
