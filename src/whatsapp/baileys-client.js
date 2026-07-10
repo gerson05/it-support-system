@@ -9,6 +9,7 @@ const { Client, LocalAuth, MessageMedia } = wwebjs;
 import QRCode from 'qrcode';
 import path from 'path';
 import fs from 'fs';
+import { execFileSync } from 'child_process';
 import { fileURLToPath } from 'url';
 import Chatbot from './chatbot.js';
 import db from '../config/database.js';
@@ -23,13 +24,11 @@ const chatbot = new Chatbot();
 /** Elimina Chromium SingletonLock/Cookie/Socket para evitar bloqueo tras reinicio. */
 function clearChromiumLocks(authDir) {
   if (!fs.existsSync(authDir)) return;
-  for (const entry of fs.readdirSync(authDir)) {
-    const profileDir = path.join(authDir, entry);
-    for (const lock of ['SingletonLock', 'SingletonCookie', 'SingletonSocket']) {
-      const f = path.join(profileDir, lock);
-      try { if (fs.existsSync(f)) { fs.rmSync(f); console.log(`[WhatsApp] Lock eliminado: ${f}`); } }
-      catch {}
-    }
+  try {
+    execFileSync('find', [authDir, '-name', 'Singleton*', '-delete']);
+    console.log('[WhatsApp] Chromium locks limpiados.');
+  } catch (e) {
+    console.warn('[WhatsApp] No se pudieron limpiar locks:', e.message);
   }
 }
 
