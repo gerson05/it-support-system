@@ -272,7 +272,6 @@ export function renderDespachoActasPanel(container, { focusId = null } = {}) {
               <th style="${thStyle}">Sede</th>
               <th style="${thStyle}">Firmante</th>
               <th style="${thStyle}">Fecha</th>
-              <th style="${thStyle}text-align:right;padding-right:14px;"></th>
             </tr>
           </thead>
           <tbody>
@@ -308,12 +307,6 @@ export function renderDespachoActasPanel(container, { focusId = null } = {}) {
                   <td style="padding:11px 14px;vertical-align:middle;">
                     <div style="font-size:11px;color:var(--text-3);white-space:nowrap;">${escHtml(acta.despacho_fecha || '—')}</div>
                   </td>
-                  <td style="padding:11px 14px;vertical-align:middle;text-align:right;">
-                    <button class="btn btn-secondary btn-open-acta" data-acta-id="${acta.entity_id}"
-                      style="font-size:11px;padding:5px 11px;display:inline-flex;align-items:center;gap:4px;white-space:nowrap;">
-                      ${iconEye(11)} Ver
-                    </button>
-                  </td>
                 </tr>`;
             }).join('')}
           </tbody>
@@ -321,16 +314,8 @@ export function renderDespachoActasPanel(container, { focusId = null } = {}) {
       </div>`;
 
     listWrap.querySelectorAll('tr[data-acta-id]').forEach(row => {
-      row.addEventListener('click', e => {
-        if (e.target.closest('.btn-open-acta')) return;
+      row.addEventListener('click', () => {
         const acta = actas.find(a => Number(a.entity_id) === Number(row.dataset.actaId));
-        if (acta) openActaModal(acta);
-      });
-    });
-    listWrap.querySelectorAll('.btn-open-acta').forEach(btn => {
-      btn.addEventListener('click', e => {
-        e.stopPropagation();
-        const acta = actas.find(a => Number(a.entity_id) === Number(btn.dataset.actaId));
         if (acta) openActaModal(acta);
       });
     });
