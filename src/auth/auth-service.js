@@ -63,7 +63,7 @@ export async function initAdminUser() {
   const count = db.prepare('SELECT COUNT(*) AS n FROM users').get().n;
   if (count > 0) return;
 
-  const pass = crypto.randomBytes(6).toString('hex'); // 12 chars
+  const pass = process.env.INIT_ADMIN_PASS || crypto.randomBytes(6).toString('hex'); // 12 chars
   const hash = await hashPassword(pass);
   db.prepare(
     'INSERT INTO users (username, password_hash, role_id) VALUES (?, ?, ?)'
