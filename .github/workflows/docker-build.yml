@@ -3,11 +3,17 @@ name: Docker Build
 on:
   pull_request:
     branches: [stage, main]
+  workflow_dispatch:
+
+concurrency:
+  group: docker-build-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
     name: Build Docker Image
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - uses: actions/checkout@v4
@@ -19,6 +25,6 @@ jobs:
         with:
           context: .
           push: false
-          tags: it-support-system:pr-${{ github.event.number }}
+          tags: it-support-system:pr-${{ github.event.number || 'manual' }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

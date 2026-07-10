@@ -4,12 +4,18 @@ on:
   pull_request:
     branches: [develop, stage, main]
   push:
-    branches: [develop, main]
+    branches: [develop, main, stage]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
     name: API Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     env:
       PORT: 3001
@@ -43,4 +49,12 @@ jobs:
         run: rm -f database/tickets.db database/tickets.db-shm database/tickets.db-wal
 
       - name: Run smoke tests
-        run: node test-ci.mjs
+        run: node test-ci.mjs 2>&1 | tee test-output.log; exit ${PIPESTATUS[0]}
+
+      - name: Upload test log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-output-${{ github.run_number }}
+          path: test-output.log
+          retention-days: 7
