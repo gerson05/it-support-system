@@ -3,7 +3,7 @@
 #  Requiere: DOMAIN=tudominio.com en .env o env del sistema
 # ═══════════════════════════════════════════════════════
 
-{$DOMAIN} {
+{$DOMAIN:localhost} {
   # TLS automático via Let's Encrypt (cert gratuito, auto-renovado)
   reverse_proxy it-support:3000
 
@@ -17,7 +17,7 @@
 }
 
 # Redirige HTTP → HTTPS
-http://{$DOMAIN} {
-  redir https://{$DOMAIN}{uri} permanent
+http://{$DOMAIN:localhost} {
+  redir https://{$DOMAIN:localhost}{uri} permanent
 }
 
