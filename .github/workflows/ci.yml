@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [develop, stage, main]
+  push:
+    branches: [develop]
+
+jobs:
+  test:
+    name: API Tests
+    runs-on: ubuntu-latest
+
+    env:
+      PORT: 3001
+      NODE_ENV: test
+      DATABASE_PATH: database/tickets.db
+      LLM_PROVIDER: none
+      DISABLE_WHATSAPP: "true"
+      DISABLE_INACTIVITY_MONITOR: "true"
+      DISABLE_OFFLINE_CHECKER: "true"
+      DISABLE_TUNNEL: "true"
+      WHATSAPP_VERIFY_TOKEN: ci-test-token
+      IT_WHATSAPP_NUMBER: "573000000000"
+      IT_PHONE: "573000000000"
+      REQ_ADMIN_SECRET: ci-secret-32-chars-long-for-test
+      REQ_ADMIN_USER: admin
+      REQ_ADMIN_PASS: ci-test-pass
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run smoke tests
+        run: node test-ci.mjs
