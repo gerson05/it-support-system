@@ -98,6 +98,7 @@ export async function renderAudit(container) {
       const from = offset + 1;
       const to   = Math.min(offset + logs.length, total);
       auditContainer.innerHTML = `
+        <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
         <table style="width:100%;border-collapse:collapse;">
           <thead>
             <tr style="border-bottom:1px solid var(--border);">
@@ -128,6 +129,7 @@ export async function renderAudit(container) {
             }).join('')}
           </tbody>
         </table>
+        </div>
         <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-top:1px solid var(--border);flex-wrap:wrap;gap:8px;">
           <span style="font-size:12px;color:var(--text-3);">${total} eventos · mostrando ${from}–${to} · página ${currentPage + 1} de ${totalPages}</span>
           ${totalPages > 1 ? `

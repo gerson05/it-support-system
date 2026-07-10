@@ -37,7 +37,7 @@ export async function openDetalleModal(token) {
         sec('Asignación', [row('Área', d.area), row('Responsable', d.responsable)]);
     } else if (_meta.tabla === 'inventario_celulares') {
       fields =
-        sec('Identificación', [row('IMEI', d.imei), row('IMEI 2', d.imei2), row('Línea', d.linea), row('Operador', d.operador)]) +
+        sec('Identificación', [row('Placa', d.placa), row('IMEI', d.imei), row('IMEI 2', d.imei2), row('Serial', d.serial), row('Línea', d.linea), row('Operador', d.operador)]) +
         sec('Equipo', [row('Modelo', d.modelo), row('Equipo', d.equipo), row('Almacenamiento', d.almacenamiento),
           row('RAM', d.ram), row('Accesorio', d.accesorio), row('Estado', d.estado)]) +
         sec('Asignación', [row('Usuario', d.nombre_completo), row('Cédula', d.cedula),

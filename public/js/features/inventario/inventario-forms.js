@@ -7,7 +7,7 @@
  *  - openGenerarEnlaceModal()
  */
 
-import { showToast, copyToClipboard, attachBodegaSearch } from '../../ui/components.js';
+import { showToast, copyToClipboard, attachPuntoSearch } from '../../ui/components.js';
 import { iconMonitor, iconSmartphone } from '../../utils/icons.js';
 import { openScanner, openSmartScanner } from './inventario-scanner.js';
 import { AREA_MAPPINGS } from '../../core/constants.js';
@@ -34,7 +34,7 @@ export function openForm(row, activeTab, onSuccess, isDuplicate = false, default
 
   // Bodega autocomplete para campo ciudad en celulares
   const ciudadInput = modalWrap.querySelector('#inv-input-ciudad');
-  if (ciudadInput) attachBodegaSearch(ciudadInput);
+  if (ciudadInput) attachPuntoSearch(ciudadInput);
 
   const overlay = modalWrap.querySelector('.modal-overlay');
   const form    = modalWrap.querySelector('#inv-form');
@@ -131,6 +131,7 @@ export function openForm(row, activeTab, onSuccess, isDuplicate = false, default
 
 export function equipoFormHTML(r, isDuplicate = false) {
   const v = k => esc(r?.[k] ?? '');
+  const isEdit = !!r && !isDuplicate;
   return `
   <div class="modal-overlay" style="display:flex;">
     <div class="modal-content" style="max-width:580px;max-height:90vh;overflow-y:auto;">
@@ -153,7 +154,7 @@ export function equipoFormHTML(r, isDuplicate = false) {
       <div class="modal-body">
         <div id="inv-form-err" style="display:none;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:var(--danger);border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:14px;"></div>
         <form id="inv-form">
-          ${placaBlock(v('placa'), true)}
+          ${placaBlock(v('placa'), true, isEdit)}
           <div style="margin-bottom:12px;">
             ${selectField('Categoría *','categoria',v('categoria')||'computadores',['computadores','impresoras','escaner','televisores','monitores','tablets','perifericos'])}
           </div>
@@ -185,6 +186,7 @@ export function equipoFormHTML(r, isDuplicate = false) {
 
 export function celularFormHTML(r, isDuplicate = false) {
   const v = k => esc(r?.[k] ?? '');
+  const isEdit = !!r && !isDuplicate;
   return `
   <div class="modal-overlay" style="display:flex;">
     <div class="modal-content" style="max-width:580px;max-height:90vh;overflow-y:auto;">
@@ -207,10 +209,11 @@ export function celularFormHTML(r, isDuplicate = false) {
       <div class="modal-body">
         <div id="inv-form-err" style="display:none;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:var(--danger);border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:14px;"></div>
         <form id="inv-form">
-          ${placaBlock(v('placa'), false)}
+          ${placaBlock(v('placa'), false, isEdit)}
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
             ${scanField('IMEI *','imei',v('imei'),true,!r)}
             ${inputField('IMEI 2','imei2',v('imei2'))}
+            ${scanField('Serial','serial',v('serial'),false,!r)}
             ${selectField('Marca / Equipo','equipo',v('equipo'),['Samsung','Xiaomi Redmi','Honor','ZTE','Infinix','Motorola','iPhone','Otro'])}
             ${inputField('Modelo','modelo',v('modelo'))}
             ${selectField('Almacenamiento','almacenamiento',v('almacenamiento'),['32GB','64GB','128GB','256GB','512GB'])}
@@ -241,6 +244,7 @@ export function celularFormHTML(r, isDuplicate = false) {
 
 export function upsFormHTML(r, isDuplicate = false) {
   const v = k => esc(r?.[k] ?? '');
+  const isEdit = !!r && !isDuplicate;
   return `
   <div class="modal-overlay" style="display:flex;">
     <div class="modal-content" style="max-width:480px;max-height:90vh;overflow-y:auto;">
@@ -263,7 +267,7 @@ export function upsFormHTML(r, isDuplicate = false) {
       <div class="modal-body">
         <div id="inv-form-err" style="display:none;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:var(--danger);border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:14px;"></div>
         <form id="inv-form">
-          ${placaBlock(v('placa'), true)}
+          ${placaBlock(v('placa'), true, isEdit)}
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
             ${inputField('Marca','marca',v('marca'))}
             ${inputField('Nombre del equipo','nombre_equipo',v('nombre_equipo'))}
@@ -285,8 +289,16 @@ export function upsFormHTML(r, isDuplicate = false) {
   </div>`;
 }
 
-function placaBlock(currentPlaca = '', required = true) {
+function placaBlock(currentPlaca = '', required = true, isEdit = false) {
   const req = required ? 'required' : '';
+  if (isEdit) {
+    return `
+  <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:12px;">
+    <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Placa del dispositivo</div>
+    <input type="text" name="placa" id="inv-placa" class="form-control" value="${esc(currentPlaca)}" readonly
+      style="font-family:monospace;font-weight:700;color:var(--primary);letter-spacing:1px;background:var(--surface-3);cursor:default;">
+  </div>`;
+  }
   return `
   <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:12px;">
     <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Sede — genera la placa automáticamente</div>

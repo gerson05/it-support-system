@@ -1,6 +1,7 @@
 import { AREA_MAPPINGS } from '../../core/app.js';
 import { showToast, attachPuntoSearch } from '../../ui/components.js';
 import { fetchDespacho, updateDespacho } from './despacho-helpers.js';
+import { PICKER_TABS } from './despacho-form.js';
 
 const _tc = s => (s || '').toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
 const _sc = s => { const v = (s || '').trim(); return v ? v.charAt(0).toUpperCase() + v.slice(1) : v; };
@@ -78,9 +79,7 @@ export async function openEditDespachoModal(id, onSuccess) {
               <input id="inv-picker-search" type="text" placeholder="Buscar por placa, serial, marca, modelo…"
                 style="flex:1;padding:6px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;">
               <select id="inv-picker-tipo" style="padding:6px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;cursor:pointer;">
-                <option value="equipos">Equipos</option>
-                <option value="celulares">Celulares</option>
-                <option value="ups">UPS</option>
+                ${PICKER_TABS.map(t => `<option value="${t.id}">${t.label}</option>`).join('')}
               </select>
             </div>
             <div id="inv-picker-list" style="max-height:220px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;"></div>
@@ -187,15 +186,15 @@ export async function openEditDespachoModal(id, onSuccess) {
       invList.innerHTML = `<div style="text-align:center;padding:16px;font-size:12px;color:var(--text-3);">Sin resultados</div>`;
       return;
     }
-    const tipo = invTipo.value;
+    const pickerTab = PICKER_TABS.find(t => t.id === invTipo.value) || PICKER_TABS[0];
     invList.innerHTML = items.map(it => {
       const id    = it.id;
-      const label = tipo === 'celulares'
+      const label = pickerTab.apiTab === 'celulares'
         ? `<b>${it.equipo || it.modelo || '—'}</b> &nbsp;<span style="color:var(--text-3)">${it.marca || ''}</span>`
         : `<b>${it.nombre_equipo || '—'}</b> &nbsp;<span style="color:var(--text-3)">${it.marca || ''}</span>`;
-      const sub   = tipo === 'celulares'
-        ? `IMEI: ${it.imei || '—'}${it.serial ? ` · S/N: ${it.serial}` : ''}`
-        : `${it.placa ? `<span style="font-family:monospace;color:var(--primary);">${it.placa}</span> · ` : ''}Serial: ${it.serial || '—'}${tipo === 'ups' && it.voltaje ? ` · ${it.voltaje}` : ''}`;
+      const sub   = pickerTab.apiTab === 'celulares'
+        ? `${it.serial ? `Serial: ${it.serial}` : `IMEI: ${it.imei || '—'}`}`
+        : `${it.placa ? `<span style="font-family:monospace;color:var(--primary);">${it.placa}</span> · ` : ''}Serial: ${it.serial || '—'}${pickerTab.apiTab === 'ups' && it.voltaje ? ` · ${it.voltaje}` : ''}`;
       const checked = invSelected.has(id) ? 'checked' : '';
       return `<label data-id="${id}" style="display:flex;align-items:flex-start;gap:8px;padding:7px 8px;border-radius:6px;cursor:pointer;border:1px solid ${invSelected.has(id) ? 'var(--primary)' : 'transparent'};background:${invSelected.has(id) ? 'rgba(99,102,241,.08)' : 'var(--surface)'};transition:.1s;">
         <input type="checkbox" data-id="${id}" ${checked} style="margin-top:2px;cursor:pointer;flex-shrink:0;">
@@ -233,12 +232,14 @@ export async function openEditDespachoModal(id, onSuccess) {
   }
 
   async function loadInvItems() {
-    const tipo = invTipo.value;
+    const pickerTab = PICKER_TABS.find(t => t.id === invTipo.value) || PICKER_TABS[0];
     invList.innerHTML = `<div style="text-align:center;padding:16px;font-size:12px;color:var(--text-3);">Cargando…</div>`;
     invSelected.clear();
     updateInvCount();
     try {
-      const res  = await fetch(`/api/inventario/${tipo}?limit=50&page=1`);
+      const params = new URLSearchParams({ limit: 50, page: 1 });
+      if (pickerTab.categoria) params.set('categoria', pickerTab.categoria);
+      const res  = await fetch(`/api/inventario/${pickerTab.apiTab}?${params}`);
       const json = await res.json();
       invItems   = json.equipos || json.celulares || json.ups || [];
       renderInvList(filterInvItems());
@@ -258,19 +259,19 @@ export async function openEditDespachoModal(id, onSuccess) {
   invSearch.addEventListener('input', () => renderInvList(filterInvItems()));
 
   btnAddFromInv.onclick = () => {
-    const tipo     = invTipo.value;
+    const pickerTab = PICKER_TABS.find(t => t.id === invTipo.value) || PICKER_TABS[0];
     const selected = invItems.filter(it => invSelected.has(it.id));
     const firstRow = artsList.querySelector('.art-row-edit');
     const isFirstEmpty = firstRow && !firstRow.querySelector('[data-field="nombre"]').value.trim();
 
     selected.forEach((it, i) => {
-      const nombre = tipo === 'celulares' ? (it.equipo || it.modelo || '') : (it.nombre_equipo || '');
+      const nombre = pickerTab.apiTab === 'celulares' ? (it.equipo || it.modelo || '') : (it.nombre_equipo || '');
       const art = {
         nombre,
         marca:       it.marca  || '',
         modelo:      it.modelo || '',
-        serial:      tipo === 'celulares' ? (it.imei || '') : (it.serial || ''),
-        descripcion: tipo === 'ups' && it.voltaje ? `Voltaje: ${it.voltaje}` : '',
+        serial:      it.serial || it.imei || '',
+        descripcion: pickerTab.apiTab === 'ups' && it.voltaje ? `Voltaje: ${it.voltaje}` : '',
       };
       const fillRow = (row) => {
         ['nombre','marca','modelo','serial','descripcion'].forEach(f => {

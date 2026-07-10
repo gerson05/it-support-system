@@ -12,6 +12,7 @@
 
 import db from '../config/database.js';
 import { sendWhatsAppMessage } from './messenger.js';
+import { getMsg } from './chatbot-messages.js';
 
 const WARN_AFTER_MIN  = 8;    // minutos sin actividad → aviso
 const CLOSE_AFTER_MIN = 2;    // minutos adicionales sin respuesta → cierre (total ~10 min)
@@ -44,10 +45,7 @@ async function _check() {
 
     for (const conv of toClose) {
       try {
-        await sendWhatsAppMessage(conv.phone,
-          `⏱️ Tu sesión fue cerrada por inactividad.\n\n` +
-          `Si necesitas ayuda, escribe *Hola* para iniciar de nuevo.`
-        );
+        await sendWhatsAppMessage(conv.phone, getMsg(db, 'inactivity_close'));
       } catch { /* no bloquear si falla el envío */ }
 
       db.prepare(`
@@ -70,12 +68,7 @@ async function _check() {
 
     for (const conv of toWarn) {
       try {
-        await sendWhatsAppMessage(conv.phone,
-          `⏳ ¿Sigues ahí? Llevas un momento sin responder.\n\n` +
-          `Si deseas continuar, responde cualquier cosa.\n` +
-          `Si no, en *${CLOSE_AFTER_MIN} minutos* cerramos esta sesión.\n\n` +
-          `_(Escribe *menu* para volver al inicio)_`
-        );
+        await sendWhatsAppMessage(conv.phone, getMsg(db, 'inactivity_warn', { closeMin: CLOSE_AFTER_MIN }));
       } catch { /* no bloquear si falla el envío */ }
 
       db.prepare(`

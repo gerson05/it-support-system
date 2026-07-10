@@ -25,6 +25,8 @@ import { migrations as m019 } from './migrations/019-confirmacion-signed.js';
 import { migrations as m020 } from './migrations/020-puntos-unificados.js';
 import { migrations as m021 } from './migrations/021-puntos-dedup.js';
 import { migrations as m022 } from './migrations/022-puntos-merge-dup-bodegas.js';
+import { migrations as m023 } from './migrations/023-celulares-serial.js';
+import { migrations as m024 } from './migrations/024-wp-messages.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);
@@ -46,7 +48,7 @@ db.exec(fs.readFileSync(schemaPath, 'utf8'));
 const allMigrations = [
   ...m001, ...m002, ...m003, ...m004, ...m005,
   ...m006, ...m007, ...m008, ...m009, ...m010, ...m011, ...m012, ...m013, ...m014, ...m015, ...m016, ...m017,
-  ...m018, ...m019, ...m020, ...m021, ...m022,
+  ...m018, ...m019, ...m020, ...m021, ...m022, ...m023, ...m024,
 ];
 for (const sql of allMigrations) {
   try { db.exec(sql); } catch { /* columna/tabla ya existe */ }

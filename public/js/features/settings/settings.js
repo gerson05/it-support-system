@@ -45,6 +45,20 @@ export async function renderSettings(container) {
         </p>
       </div>
 
+      <!-- Mensajes automáticos WP -->
+      <div class="card" id="wp-messages-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-3);">Mensajes automáticos de WhatsApp</div>
+          <span id="wp-msg-status" style="font-size:11px;color:var(--text-3);"></span>
+        </div>
+        <p style="font-size:12px;color:var(--text-2);margin-bottom:14px;line-height:1.5;">
+          Edita los textos que el bot envía automáticamente. Usa <code style="background:var(--surface-3);padding:1px 5px;border-radius:3px;">{variable}</code> para insertar valores dinámicos (ver sugerencias en cada campo).
+        </p>
+        <div id="wp-messages-list" style="display:flex;flex-direction:column;gap:14px;">
+          <div style="text-align:center;padding:20px;font-size:13px;color:var(--text-3);">Cargando mensajes…</div>
+        </div>
+      </div>
+
       <!-- Herramientas externas -->
       <div class="card">
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-3);margin-bottom:14px;">Herramientas Externas</div>
@@ -62,7 +76,80 @@ export async function renderSettings(container) {
 
   loadNetworkUrl();
   loadWaStatus();
+  loadWpMessages();
   bindEvents();
+}
+
+async function loadWpMessages() {
+  const list   = document.getElementById('wp-messages-list');
+  const status = document.getElementById('wp-msg-status');
+  if (!list) return;
+  try {
+    const res  = await fetch('/api/admin/wp-messages');
+    if (!res.ok) throw new Error();
+    const msgs = await res.json();
+    const customCount = Object.values(msgs).filter(m => m.isCustom).length;
+    if (status) status.textContent = customCount ? `${customCount} personalizado${customCount !== 1 ? 's' : ''}` : '';
+
+    list.innerHTML = Object.values(msgs).map(m => `
+      <div style="border:1px solid var(--border);border-radius:8px;padding:12px;background:var(--surface-2);" data-msg-key="${m.key}">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;gap:8px;flex-wrap:wrap;">
+          <div style="font-size:12px;font-weight:600;color:var(--text);">${m.label}</div>
+          <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+            ${m.vars.length ? `<span style="font-size:10px;color:var(--text-3);">Variables: ${m.vars.map(v => `<code style="background:var(--surface-3);padding:1px 4px;border-radius:3px;">${v}</code>`).join(' ')}</span>` : ''}
+            ${m.isCustom ? `<span style="font-size:10px;font-weight:600;color:var(--primary);padding:2px 7px;border:1px solid var(--primary);border-radius:99px;">Personalizado</span>` : ''}
+          </div>
+        </div>
+        <textarea data-key="${m.key}" rows="4"
+          style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;resize:vertical;box-sizing:border-box;font-family:monospace;line-height:1.5;"
+        >${m.value.replace(/</g,'&lt;')}</textarea>
+        <div style="display:flex;gap:8px;margin-top:8px;justify-content:flex-end;">
+          ${m.isCustom ? `<button class="btn-wp-reset" data-key="${m.key}" style="font-size:11px;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface-3);color:var(--text-3);cursor:pointer;">Restaurar por defecto</button>` : ''}
+          <button class="btn-wp-save" data-key="${m.key}" style="font-size:11px;padding:4px 12px;border:none;border-radius:6px;background:var(--primary);color:#fff;cursor:pointer;font-weight:600;">Guardar</button>
+        </div>
+      </div>`).join('');
+
+    list.querySelectorAll('.btn-wp-save').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const key      = btn.dataset.key;
+        const textarea = list.querySelector(`textarea[data-key="${key}"]`);
+        const value    = textarea?.value?.trim();
+        if (!value) { showToast('El mensaje no puede estar vacío.', 'warning'); return; }
+        btn.disabled = true; btn.textContent = 'Guardando…';
+        try {
+          const r = await fetch(`/api/admin/wp-messages/${key}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ value }),
+          });
+          if (!r.ok) throw new Error();
+          showToast('Mensaje guardado ✓', 'success');
+          loadWpMessages();
+        } catch {
+          showToast('Error al guardar.', 'error');
+          btn.disabled = false; btn.textContent = 'Guardar';
+        }
+      });
+    });
+
+    list.querySelectorAll('.btn-wp-reset').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (!confirm('¿Restaurar el mensaje al texto original?')) return;
+        btn.disabled = true;
+        try {
+          await fetch(`/api/admin/wp-messages/${btn.dataset.key}`, { method: 'DELETE' });
+          showToast('Mensaje restaurado al original.', 'success');
+          loadWpMessages();
+        } catch {
+          showToast('Error al restaurar.', 'error');
+          btn.disabled = false;
+        }
+      });
+    });
+
+  } catch {
+    if (list) list.innerHTML = `<div style="font-size:12px;color:var(--text-3);padding:12px;">No disponible (servidor apagado).</div>`;
+  }
 }
 
 async function loadNetworkUrl() {

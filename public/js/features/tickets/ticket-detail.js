@@ -297,8 +297,9 @@ export async function renderTicketDetail(container, ticketId) {
       // Rellenar lista de agentes en la sección de asignación
       const assignSelect = document.getElementById('assign-agent');
       if (assignSelect) {
-        assignSelect.innerHTML = '<option value="">Sin Asignar</option>' + 
-          state.agents.map(a => 
+        const agents = await DataService.getAgents().catch(() => []);
+        assignSelect.innerHTML = '<option value="">Sin Asignar</option>' +
+          agents.map(a =>
             `<option value="${a.id}" ${ticket.assigned_to === a.id ? 'selected' : ''}>${a.name}</option>`
           ).join('');
       }
