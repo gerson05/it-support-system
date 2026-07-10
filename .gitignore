@@ -32,3 +32,17 @@ uploads/actas-firmadas/
 
 # Agent build artifacts
 agent/dist/
+
+# AI tool temporaries — never commit
+.claude/worktrees/
+.claude/settings.local.json
+.claude/skills/ui-ux-pro-max/scripts/__pycache__/
+.superpowers/brainstorm/
+docs/superpowers/
+*.json.bak
+__pycache__/
+
+# Local branch-protection snapshots and utility scripts
+_bp_develop.json
+_bp_stage_main.json
+_wal_checkpoint.mjs
