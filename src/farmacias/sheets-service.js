@@ -1,8 +1,6 @@
 const CSV_URL    = process.env.GOOGLE_SHEETS_CSV_URL;
 const SCRIPT_URL = process.env.GOOGLE_APPS_SCRIPT_URL;
 
-if (!CSV_URL) throw new Error('[FarmaciasService] GOOGLE_SHEETS_CSV_URL env var is required');
-
 function parseCSV(text) {
   const rows = [];
   let i = 0;
@@ -33,6 +31,7 @@ function parseCSV(text) {
 }
 
 export async function readSheet() {
+  if (!CSV_URL) throw new Error('[FarmaciasService] GOOGLE_SHEETS_CSV_URL env var is required');
   const res = await fetch(CSV_URL, { redirect: 'follow' });
   if (!res.ok) throw new Error(`CSV fetch error: ${res.status}`);
   const rows = parseCSV(await res.text());
