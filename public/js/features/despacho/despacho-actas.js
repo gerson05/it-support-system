@@ -5,6 +5,17 @@ import { openDetailModal } from './despacho-detail.js';
 
 const PER_PAGE = 25;
 
+let _publicUrlCache = null;
+async function getPublicBase() {
+  if (_publicUrlCache) return _publicUrlCache;
+  try {
+    const r = await fetch('/api/public-url');
+    const d = await r.json();
+    if (d.url) _publicUrlCache = d.url.replace(/\/$/, '');
+  } catch {}
+  return _publicUrlCache;
+}
+
 function escHtml(value) {
   return String(value ?? '')
     .replace(/&/g, '&amp;')
@@ -134,11 +145,14 @@ export function renderDespachoActasPanel(container, { focusId = null } = {}) {
     return params;
   }
 
-  function openActaModal(acta) {
+  async function openActaModal(acta) {
     const existing = document.getElementById('acta-detail-modal');
     if (existing) existing.remove();
 
-    const publicUrl = acta.url || (acta.token ? `${location.origin}/firmar/${acta.token}` : '');
+    const base = await getPublicBase();
+    const publicUrl = acta.token
+      ? `${base || location.origin}/firmar/${acta.token}`
+      : '';
     const overlay = document.createElement('div');
     overlay.id = 'acta-detail-modal';
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:2000;display:flex;align-items:flex-start;justify-content:center;padding:24px 16px;overflow-y:auto;';
