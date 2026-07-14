@@ -163,6 +163,12 @@ app.get('/api/events', (req, res) => {
   req.on('error',  () => removeSseClient(res));
 });
 
+// URL pública actual (tunnel o APP_URL configurado)
+app.get('/api/public-url', (_req, res) => {
+  const url = process.env.PUBLIC_TUNNEL_URL || process.env.APP_URL || null;
+  res.json({ url });
+});
+
 // Información de red para la página de configuración
 app.get('/api/network-info', (req, res) => {
   const nets = os.networkInterfaces();
