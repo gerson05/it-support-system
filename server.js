@@ -44,6 +44,9 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Trust Cloudflare/reverse-proxy headers so req.protocol reflects https
+app.set('trust proxy', 1);
+
 // Middlewares estándar
 app.use(express.json({ limit: '15mb' }));
 app.use(express.urlencoded({ extended: true, limit: '15mb' }));
