@@ -1,6 +1,7 @@
 import os from 'os';
 
 export function getBaseUrl(req) {
+  if (process.env.APP_URL) return process.env.APP_URL.replace(/\/$/, '');
   if (process.env.PUBLIC_TUNNEL_URL) return process.env.PUBLIC_TUNNEL_URL;
   const host = req.headers.host || '';
   const isLocal = /^(localhost|127\.|::1)/i.test(host);
