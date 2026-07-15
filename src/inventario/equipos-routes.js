@@ -24,9 +24,9 @@ router.get('/api/inventario/equipos', ...canRead, wrap(async (req, res) => {
   const where = [];
   const params = [];
   if (search) {
-    where.push('(placa LIKE ? OR marca LIKE ? OR nombre_equipo LIKE ? OR serial LIKE ? OR responsable LIKE ? OR area LIKE ?)');
+    where.push('(CAST(id AS TEXT) LIKE ? OR placa LIKE ? OR marca LIKE ? OR nombre_equipo LIKE ? OR serial LIKE ? OR responsable LIKE ? OR area LIKE ? OR modelo LIKE ?)');
     const s = `%${search}%`;
-    params.push(s, s, s, s, s, s);
+    params.push(s, s, s, s, s, s, s, s);
   }
   if (area)      { where.push('area LIKE ?');      params.push(`%${area}%`); }
   if (categoria) { where.push('categoria = ?');    params.push(categoria); }

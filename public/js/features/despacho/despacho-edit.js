@@ -215,14 +215,7 @@ export async function openEditDespachoModal(id, onSuccess) {
     });
   }
 
-  function filterInvItems() {
-    const q = invSearch.value.trim().toLowerCase();
-    if (!q) return invItems;
-    return invItems.filter(it => {
-      const txt = [it.placa, it.serial, it.marca, it.nombre_equipo, it.equipo, it.modelo, it.imei, it.responsable, it.voltaje].join(' ').toLowerCase();
-      return txt.includes(q);
-    });
-  }
+  let _invSearchTimer = null;
 
   function updateInvCount() {
     const n = invSelected.size;
@@ -231,18 +224,18 @@ export async function openEditDespachoModal(id, onSuccess) {
     btnAddFromInv.style.opacity = n > 0 ? '1' : '.4';
   }
 
-  async function loadInvItems() {
+  async function loadInvItems(searchQuery = '') {
     const pickerTab = PICKER_TABS.find(t => t.id === invTipo.value) || PICKER_TABS[0];
     invList.innerHTML = `<div style="text-align:center;padding:16px;font-size:12px;color:var(--text-3);">Cargando…</div>`;
-    invSelected.clear();
-    updateInvCount();
+    if (!searchQuery) { invSelected.clear(); updateInvCount(); }
     try {
       const params = new URLSearchParams({ limit: 50, page: 1 });
       if (pickerTab.categoria) params.set('categoria', pickerTab.categoria);
+      if (searchQuery)         params.set('search', searchQuery);
       const res  = await fetch(`/api/inventario/${pickerTab.apiTab}?${params}`);
       const json = await res.json();
       invItems   = json.equipos || json.celulares || json.ups || [];
-      renderInvList(filterInvItems());
+      renderInvList(invItems);
     } catch {
       invList.innerHTML = `<div style="text-align:center;padding:16px;font-size:12px;color:var(--danger);">Error al cargar inventario</div>`;
     }
@@ -255,8 +248,17 @@ export async function openEditDespachoModal(id, onSuccess) {
   };
   overlay.querySelector('#btn-close-inv-picker').onclick = () => { invPicker.style.display = 'none'; };
 
-  invTipo.onchange = loadInvItems;
-  invSearch.addEventListener('input', () => renderInvList(filterInvItems()));
+  invTipo.onchange = () => loadInvItems(invSearch.value.trim());
+  invSearch.addEventListener('input', () => {
+    clearTimeout(_invSearchTimer);
+    const q = invSearch.value.trim();
+    if (q.length === 0) { loadInvItems(); return; }
+    renderInvList(invItems.filter(it =>
+      [it.placa, it.serial, it.marca, it.nombre_equipo, it.equipo, it.modelo, it.imei, it.responsable, String(it.id||'')]
+        .join(' ').toLowerCase().includes(q.toLowerCase())
+    ));
+    _invSearchTimer = setTimeout(() => loadInvItems(q), 350);
+  });
 
   btnAddFromInv.onclick = () => {
     const pickerTab = PICKER_TABS.find(t => t.id === invTipo.value) || PICKER_TABS[0];
