@@ -568,7 +568,9 @@ function _openCompleteModal(id) {
   if (!emp) return;
 
   document.getElementById('emp-complete-name').textContent = emp.nombre_completo;
-  document.getElementById('emp-complete-fecha').value = new Date().toISOString().slice(0, 10);
+  const _t = new Date();
+  document.getElementById('emp-complete-fecha').value =
+    `${_t.getFullYear()}-${String(_t.getMonth()+1).padStart(2,'0')}-${String(_t.getDate()).padStart(2,'0')}`;
   document.getElementById('emp-complete-modal').style.display = 'flex';
 }
 
@@ -644,7 +646,10 @@ function _esc(t) {
 
 function _fmtDate(d) {
   if (!d) return '';
-  try { return new Date(d).toLocaleDateString('es-CO'); } catch { return d; }
+  try {
+    const iso = d.length === 10 ? d + 'T00:00:00' : d.replace(' ', 'T');
+    return new Date(iso).toLocaleDateString('es-CO');
+  } catch { return d; }
 }
 
 // ─── Modal: credenciales ─────────────────────────────────────────────────────
