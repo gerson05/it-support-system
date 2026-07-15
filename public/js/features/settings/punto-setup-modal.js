@@ -1,5 +1,5 @@
 import { state } from '../../core/app.js';
-import { showToast } from '../../ui/components.js';
+import { showToast, copyToClipboard } from '../../ui/components.js';
 import { buildArticuloRow } from '../despacho/despacho-form.js';
 
 const esc = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -230,7 +230,7 @@ export function openPuntoSetupModal(onSuccess, ciudadesExistentes = []) {
             overlay.remove();
             showToast(`Punto ${data.nombre_punto} creado · Despacho generado`, 'success');
             if (json.tracking_url) {
-              navigator.clipboard?.writeText(json.tracking_url).catch(() => {});
+              copyToClipboard(json.tracking_url);
               showToast('Link de trazabilidad copiado al portapapeles', 'info');
             }
           } else {
@@ -354,7 +354,7 @@ export async function openChecklistModal(sedeId) {
         </div>
       </div>`;
     actionsEl.querySelector('#cl-copy').addEventListener('click', () => {
-      navigator.clipboard?.writeText(cl.tracking_url).then(() => showToast('Link copiado', 'success'));
+      copyToClipboard(cl.tracking_url).then(ok => ok && showToast('Link copiado', 'success'));
     });
   }
 
