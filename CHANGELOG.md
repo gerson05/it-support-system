@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.1.0](https://github.com/gerson05/it-support-system/compare/v1.0.0...v1.1.0) (2026-07-15)
+
+
+### Features
+
+* add semantic embedding search to knowledge base ([742a646](https://github.com/gerson05/it-support-system/commit/742a64662f4889d7fe68270814edd352d66aee87))
+* enable automatic Cloudflare tunnel in Docker ([3ac7093](https://github.com/gerson05/it-support-system/commit/3ac7093af1d8642a523211a098e4cfdd0b72303b))
+
+
+### Bug Fixes
+
+* add X-Forwarded-Host support and APP_URL priority in getBaseUrl ([5a288f9](https://github.com/gerson05/it-support-system/commit/5a288f9617f74967a00ed3a722785abd5bbba43d))
+* clipboard copy and UI interaction fixes across multiple modules ([9f4e5a7](https://github.com/gerson05/it-support-system/commit/9f4e5a7687e2a750c264cdd8dbddd59bc328e5a2))
+* correct https URL generation behind Cloudflare proxy ([43a3d7e](https://github.com/gerson05/it-support-system/commit/43a3d7eecc91175219171afa39c7bba1df5b24ba))
+* signing URL always uses tunnel/public URL regardless of admin access origin ([cb0ec76](https://github.com/gerson05/it-support-system/commit/cb0ec7602f29967a6430b3e6b75079b35ceb8a4c))
+
 ## 1.0.0 (2026-07-10)
 
 
