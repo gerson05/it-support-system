@@ -18,15 +18,17 @@ services:
       # Servidor
       PORT: 3000
       NODE_ENV: production
+      APP_URL: ${APP_URL:-}
 
       # Base de datos SQLite (montada en volumen)
       DATABASE_PATH: /app/database/tickets.db
 
-      # ── IA / LLM ────────────────────────────────────────
-      LLM_PROVIDER: ${LLM_PROVIDER:-none}
+      # ── IA / LLM + Embeddings (Ollama) ─────────────────
+      LLM_PROVIDER: ${LLM_PROVIDER:-ollama}
       LLM_API_KEY: ${LLM_API_KEY:-}
-      LLM_MODEL: ${LLM_MODEL:-}
-      LLM_BASE_URL: ${LLM_BASE_URL:-http://localhost:11434}
+      LLM_MODEL: ${LLM_MODEL:-llama3.2}
+      LLM_BASE_URL: http://ollama:11434
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-nomic-embed-text}
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
 
       # ── Google Sheets ────────────────────────────────────
@@ -39,8 +41,7 @@ services:
       DISABLE_WHATSAPP: ${DISABLE_WHATSAPP:-false}
       DISABLE_INACTIVITY_MONITOR: ${DISABLE_INACTIVITY_MONITOR:-false}
       DISABLE_OFFLINE_CHECKER: ${DISABLE_OFFLINE_CHECKER:-false}
-      # Desactivar túnel en Docker (usar nginx/proxy externo)
-      DISABLE_TUNNEL: ${DISABLE_TUNNEL:-true}
+      DISABLE_TUNNEL: ${DISABLE_TUNNEL:-false}
 
     volumes:
       # Persistencia de datos (SQLite, uploads, exports)
@@ -67,6 +68,10 @@ services:
         max-size: "10m"
         max-file: "5"
 
+    depends_on:
+      ollama:
+        condition: service_started
+
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://localhost:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
       interval: 30s
@@ -91,6 +96,24 @@ services:
     depends_on:
       it-support:
         condition: service_healthy
+      ollama:
+        condition: service_started
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ── Ollama (LLM + embeddings local) ──────────────────────
+  ollama:
+    image: ollama/ollama:latest
+    container_name: it-ollama
+    restart: unless-stopped
+    volumes:
+      # Reusar modelos ya descargados en el host (evita re-descargar 2GB)
+      - ${USERPROFILE}/.ollama:/root/.ollama
+    ports:
+      - "11434:11434"
     logging:
       driver: json-file
       options:

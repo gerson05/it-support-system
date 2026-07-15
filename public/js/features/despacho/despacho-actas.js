@@ -1,9 +1,20 @@
-import { showToast, createEmptyState, createLoadingSpinner } from '../../ui/components.js';
+import { showToast, createEmptyState, createLoadingSpinner, copyToClipboard } from '../../ui/components.js';
 import { iconCopy, iconDownload, iconExternalLink, iconLink, iconRefresh, iconSearch, iconEye,
          iconClose, iconDocument, iconChevronLeft, iconChevronRight } from '../../utils/icons.js';
 import { openDetailModal } from './despacho-detail.js';
 
 const PER_PAGE = 25;
+
+let _publicUrlCache = null;
+async function getPublicBase() {
+  if (_publicUrlCache) return _publicUrlCache;
+  try {
+    const r = await fetch('/api/public-url');
+    const d = await r.json();
+    if (d.url) _publicUrlCache = d.url.replace(/\/$/, '');
+  } catch {}
+  return _publicUrlCache;
+}
 
 function escHtml(value) {
   return String(value ?? '')
@@ -71,18 +82,9 @@ async function createActaToken(acta) {
 }
 
 async function copyLink(value) {
-  try {
-    await navigator.clipboard.writeText(value);
-  } catch {
-    const ta = document.createElement('textarea');
-    ta.value = value;
-    ta.style.cssText = 'position:fixed;left:-9999px;top:-9999px;opacity:0;';
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand('copy');
-    ta.remove();
-  }
-  showToast('Enlace copiado', 'success');
+  const ok = await copyToClipboard(value);
+  if (ok) showToast('Enlace copiado', 'success');
+  else showToast('No se pudo copiar', 'error');
 }
 
 export function renderDespachoActasPanel(container, { focusId = null } = {}) {
@@ -134,11 +136,14 @@ export function renderDespachoActasPanel(container, { focusId = null } = {}) {
     return params;
   }
 
-  function openActaModal(acta) {
+  async function openActaModal(acta) {
     const existing = document.getElementById('acta-detail-modal');
     if (existing) existing.remove();
 
-    const publicUrl = acta.url || (acta.token ? `${location.origin}/firmar/${acta.token}` : '');
+    const base = await getPublicBase();
+    const publicUrl = acta.token
+      ? `${base || location.origin}/firmar/${acta.token}`
+      : '';
     const overlay = document.createElement('div');
     overlay.id = 'acta-detail-modal';
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:2000;display:flex;align-items:flex-start;justify-content:center;padding:24px 16px;overflow-y:auto;';

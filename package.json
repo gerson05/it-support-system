@@ -17,6 +17,7 @@
     "@whiskeysockets/baileys": "^7.0.0-rc13",
     "adm-zip": "^0.5.17",
     "bcryptjs": "^3.0.3",
+    "cloudflared": "^0.7.1",
     "docx": "^9.7.0",
     "dotenv": "^16.4.0",
     "exceljs": "^4.4.0",
