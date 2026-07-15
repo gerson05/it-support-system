@@ -2,6 +2,21 @@
 
 const esc = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
+async function copyToClipboard(text) {
+  if (navigator.clipboard && window.isSecureContext) {
+    try { await navigator.clipboard.writeText(text); return true; } catch {}
+  }
+  try {
+    const ta = Object.assign(document.createElement('textarea'), { value: text });
+    Object.assign(ta.style, { position:'fixed', top:'-9999px', left:'-9999px' });
+    document.body.appendChild(ta);
+    ta.focus(); ta.select(); ta.setSelectionRange(0, 99999);
+    const ok = document.execCommand('copy');
+    ta.remove();
+    return ok;
+  } catch { return false; }
+}
+
 const TIPO_LABELS = {
   interna: 'Interna',
   con_sede: 'Con Sede',
@@ -230,12 +245,12 @@ function renderStep4(container) {
       Copiar link de cancelación
     </button>`;
 
-  document.getElementById('p-copy-cancel')?.addEventListener('click', () => {
-    navigator.clipboard?.writeText(cancelUrl).catch(() => {});
+  document.getElementById('p-copy-cancel')?.addEventListener('click', async () => {
+    await copyToClipboard(cancelUrl);
     document.getElementById('p-copy-cancel').textContent = '✓ Copiado';
   });
-  document.getElementById('p-copy-meet')?.addEventListener('click', () => {
-    navigator.clipboard?.writeText(result.meet_link).catch(() => {});
+  document.getElementById('p-copy-meet')?.addEventListener('click', async () => {
+    await copyToClipboard(result.meet_link);
     document.getElementById('p-copy-meet').textContent = '✓ Copiado';
   });
 }
