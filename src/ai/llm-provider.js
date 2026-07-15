@@ -2,30 +2,105 @@
  * LLM Provider abstraction — swap the AI brain via env vars, never hardcoded.
  *
  * Config (.env):
- *   LLM_PROVIDER = claude | openai | gemini | ollama   (default: none / disabled)
- *   LLM_API_KEY  = sk-...                               (not needed for ollama)
- *   LLM_MODEL    = claude-sonnet-4-6 | gpt-4o | ...    (provider default if omitted)
- *   LLM_BASE_URL = http://localhost:11434              (ollama only)
+ *   LLM_PROVIDER    = claude | openai | gemini | ollama   (default: none / disabled)
+ *   LLM_API_KEY     = sk-...                               (not needed for ollama)
+ *   LLM_MODEL       = claude-sonnet-4-6 | gpt-4o | ...    (provider default if omitted)
+ *   LLM_BASE_URL    = http://localhost:11434               (ollama only)
+ *   EMBEDDING_MODEL = nomic-embed-text | ...               (embedding model override)
  */
 
 const DEFAULTS = {
   claude: 'claude-sonnet-4-6',
   openai: 'gpt-4o-mini',
   gemini: 'gemini-1.5-flash',
-  ollama: 'llama3',
+  ollama: 'llama3.2',
+};
+
+const EMBEDDING_DEFAULTS = {
+  ollama: 'nomic-embed-text',
+  openai: 'text-embedding-3-small',
+  gemini: 'text-embedding-004',
 };
 
 export function isEnabled() {
   return !!(process.env.LLM_PROVIDER && process.env.LLM_PROVIDER !== 'none');
 }
 
+export function isEmbeddingEnabled() {
+  const provider = process.env.LLM_PROVIDER;
+  return !!(provider && provider !== 'none' && provider !== 'claude' && EMBEDDING_DEFAULTS[provider]);
+}
+
+export function getEmbeddingModel() {
+  const provider = process.env.LLM_PROVIDER || 'ollama';
+  return process.env.EMBEDDING_MODEL || EMBEDDING_DEFAULTS[provider] || 'nomic-embed-text';
+}
+
 export function getProviderInfo() {
   return {
-    provider: process.env.LLM_PROVIDER || 'none',
-    model:    process.env.LLM_MODEL || DEFAULTS[process.env.LLM_PROVIDER] || '—',
-    enabled:  isEnabled(),
-    hasKey:   !!(process.env.LLM_API_KEY),
+    provider:       process.env.LLM_PROVIDER || 'none',
+    model:          process.env.LLM_MODEL || DEFAULTS[process.env.LLM_PROVIDER] || '—',
+    enabled:        isEnabled(),
+    hasKey:         !!(process.env.LLM_API_KEY),
+    embeddingModel: isEmbeddingEnabled() ? getEmbeddingModel() : null,
   };
+}
+
+/**
+ * Generate a text embedding vector.
+ * @param {string} text
+ * @returns {Promise<number[]>} float array
+ */
+export async function getEmbedding(text) {
+  if (!isEmbeddingEnabled()) throw new Error('Embeddings no disponibles con el proveedor actual.');
+
+  const provider = process.env.LLM_PROVIDER;
+  const model    = getEmbeddingModel();
+  const apiKey   = process.env.LLM_API_KEY;
+
+  switch (provider) {
+    case 'ollama': return _ollamaEmbed(text, model);
+    case 'openai': return _openaiEmbed(text, model, apiKey);
+    case 'gemini': return _geminiEmbed(text, model, apiKey);
+    default: throw new Error(`Embeddings no soportados para provider: ${provider}`);
+  }
+}
+
+async function _ollamaEmbed(text, model) {
+  const base = process.env.LLM_BASE_URL || 'http://localhost:11434';
+  const res = await fetch(`${base}/api/embed`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ model, input: text }),
+  });
+  if (!res.ok) throw new Error(`Ollama embed error ${res.status}`);
+  const data = await res.json();
+  return data.embeddings?.[0] ?? data.embedding ?? [];
+}
+
+async function _openaiEmbed(text, model, apiKey) {
+  if (!apiKey) throw new Error('LLM_API_KEY requerido para OpenAI embeddings.');
+  const res = await fetch('https://api.openai.com/v1/embeddings', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+    body: JSON.stringify({ model, input: text }),
+  });
+  if (!res.ok) throw new Error(`OpenAI embed error ${res.status}`);
+  const data = await res.json();
+  return data.data?.[0]?.embedding ?? [];
+}
+
+async function _geminiEmbed(text, model, apiKey) {
+  if (!apiKey) throw new Error('LLM_API_KEY requerido para Gemini embeddings.');
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:embedContent?key=${apiKey}`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ content: { parts: [{ text }] } }),
+  });
+  if (!res.ok) throw new Error(`Gemini embed error ${res.status}`);
+  const data = await res.json();
+  return data.embedding?.values ?? [];
 }
 
 /**

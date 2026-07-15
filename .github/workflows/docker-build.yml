@@ -2,7 +2,7 @@ name: Docker Build
 
 on:
   pull_request:
-    branches: [stage, main]
+    branches: [develop, stage, main]
   workflow_dispatch:
 
 concurrency:

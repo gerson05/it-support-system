@@ -44,6 +44,9 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Trust Cloudflare/reverse-proxy headers so req.protocol reflects https
+app.set('trust proxy', 1);
+
 // Middlewares estándar
 app.use(express.json({ limit: '15mb' }));
 app.use(express.urlencoded({ extended: true, limit: '15mb' }));
@@ -158,6 +161,12 @@ app.get('/api/events', (req, res) => {
   addSseClient(res);
   req.on('close',  () => removeSseClient(res));
   req.on('error',  () => removeSseClient(res));
+});
+
+// URL pública actual (tunnel o APP_URL configurado)
+app.get('/api/public-url', (_req, res) => {
+  const url = process.env.PUBLIC_TUNNEL_URL || process.env.APP_URL || null;
+  res.json({ url });
 });
 
 // Información de red para la página de configuración
@@ -320,7 +329,6 @@ function startCloudflaredTunnel(port) {
   try {
     cf = spawn('npx', ['cloudflared', 'tunnel', '--url', `http://localhost:${port}`], {
       stdio: ['ignore', 'pipe', 'pipe'],
-      shell: true,
       windowsHide: true,
     });
   } catch {
