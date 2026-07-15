@@ -7,8 +7,7 @@
  *  - renderConfirmacionSection(d, conf)
  *  - setupConfCopy(container)
  */
-import { showToast } from '../../ui/components.js';
-import { createLoadingSpinner } from '../../ui/components.js';
+import { showToast, createLoadingSpinner, copyToClipboard } from '../../ui/components.js';
 import { iconClose, iconDocument, iconEdit, iconLink, iconCopy } from '../../utils/icons.js';
 import { AREA_MAPPINGS } from '../../core/app.js';
 import {
@@ -253,10 +252,9 @@ export function setupConfCopy(container) {
   const input   = container?.querySelector('#conf-link-input');
   if (!copyBtn || !input) return;
   copyBtn.onclick = async () => {
-    try {
-      await navigator.clipboard.writeText(input.value);
-      showToast('Enlace copiado', 'success');
-    } catch { showToast('No se pudo copiar', 'error'); }
+    const ok = await copyToClipboard(input.value);
+    if (ok) showToast('Enlace copiado', 'success');
+    else showToast('No se pudo copiar', 'error');
   };
 }
 
