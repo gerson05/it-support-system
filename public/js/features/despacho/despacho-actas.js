@@ -1,4 +1,4 @@
-import { showToast, createEmptyState, createLoadingSpinner } from '../../ui/components.js';
+import { showToast, createEmptyState, createLoadingSpinner, copyToClipboard } from '../../ui/components.js';
 import { iconCopy, iconDownload, iconExternalLink, iconLink, iconRefresh, iconSearch, iconEye,
          iconClose, iconDocument, iconChevronLeft, iconChevronRight } from '../../utils/icons.js';
 import { openDetailModal } from './despacho-detail.js';
@@ -82,18 +82,9 @@ async function createActaToken(acta) {
 }
 
 async function copyLink(value) {
-  try {
-    await navigator.clipboard.writeText(value);
-  } catch {
-    const ta = document.createElement('textarea');
-    ta.value = value;
-    ta.style.cssText = 'position:fixed;left:-9999px;top:-9999px;opacity:0;';
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand('copy');
-    ta.remove();
-  }
-  showToast('Enlace copiado', 'success');
+  const ok = await copyToClipboard(value);
+  if (ok) showToast('Enlace copiado', 'success');
+  else showToast('No se pudo copiar', 'error');
 }
 
 export function renderDespachoActasPanel(container, { focusId = null } = {}) {

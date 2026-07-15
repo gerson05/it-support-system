@@ -1,4 +1,4 @@
-import { showToast } from '../../ui/components.js';
+import { showToast, copyToClipboard } from '../../ui/components.js';
 import { can } from '../../core/state.js';
 import { iconEye } from '../../utils/icons.js';
 
@@ -158,6 +158,20 @@ export async function renderEmployees(container) {
         <div style="display:grid;gap:12px;">
           <div>
             <label style="font-size:11px;font-weight:600;color:var(--text-2);
+                          text-transform:uppercase;letter-spacing:.5px;">Cédula</label>
+            <div style="display:flex;gap:8px;margin-top:4px;">
+              <input type="text" id="emp-creds-cedula" readonly class="form-control"
+                     style="font-family:monospace;font-size:15px;font-weight:600;
+                            background:var(--surface-2);">
+              <button id="emp-creds-copy-cedula"
+                style="padding:0 14px;background:var(--primary);color:#fff;border:none;
+                       border-radius:6px;font-size:12px;cursor:pointer;white-space:nowrap;">
+                Copiar
+              </button>
+            </div>
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:600;color:var(--text-2);
                           text-transform:uppercase;letter-spacing:.5px;">Usuario</label>
             <div style="display:flex;gap:8px;margin-top:4px;">
               <input type="text" id="emp-creds-user" readonly class="form-control"
@@ -232,6 +246,8 @@ export async function renderEmployees(container) {
   document.getElementById('emp-creds-modal').addEventListener('click', e => {
     if (e.target === e.currentTarget) _closeCredsModal();
   });
+  document.getElementById('emp-creds-copy-cedula').addEventListener('click', () =>
+    _copyField('emp-creds-cedula', 'emp-creds-copy-cedula'));
   document.getElementById('emp-creds-copy-user').addEventListener('click', () =>
     _copyField('emp-creds-user', 'emp-creds-copy-user'));
   document.getElementById('emp-creds-copy-pass').addEventListener('click', () =>
@@ -579,12 +595,14 @@ async function _confirmComplete() {
 
     if (!res.ok) { showToast(body.error || 'Error al completar.', 'error'); return; }
 
-    const empName = _employees.find(e => e.id === _completingId)?.nombre_completo || '';
+    const empRec  = _employees.find(e => e.id === _completingId);
+    const empName = empRec?.nombre_completo || '';
+    const empCedula = empRec?.cedula || '';
     _closeCompleteModal();
     await _loadEmployees();
 
     if (body.usuario && body.contraseña) {
-      _showCredsModal(empName, body.usuario, body.contraseña);
+      _showCredsModal(empName, empCedula, body.usuario, body.contraseña);
     } else {
       showToast('Gestión completada.', 'success');
     }
@@ -614,7 +632,7 @@ window._empDelete   = id => _delete(id);
 window._empComplete = id => _openCompleteModal(id);
 window._empCreds    = id => {
   const emp = _employees.find(e => e.id === id);
-  if (emp) _showCredsModal(emp.nombre_completo, emp.usuario, emp.contraseña);
+  if (emp) _showCredsModal(emp.nombre_completo, emp.cedula, emp.usuario, emp.contraseña);
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -630,10 +648,12 @@ function _fmtDate(d) {
 }
 
 // ─── Modal: credenciales ─────────────────────────────────────────────────────
-function _showCredsModal(nombre, usuario, contraseña) {
+function _showCredsModal(nombre, cedula, usuario, contraseña) {
   document.getElementById('emp-creds-name').textContent = nombre;
+  document.getElementById('emp-creds-cedula').value = cedula;
   document.getElementById('emp-creds-user').value = usuario;
   document.getElementById('emp-creds-pass').value = contraseña;
+  document.getElementById('emp-creds-copy-cedula').textContent = 'Copiar';
   document.getElementById('emp-creds-copy-user').textContent = 'Copiar';
   document.getElementById('emp-creds-copy-pass').textContent = 'Copiar';
   document.getElementById('emp-creds-modal').style.display = 'flex';
@@ -643,19 +663,22 @@ function _closeCredsModal() {
   document.getElementById('emp-creds-modal').style.display = 'none';
 }
 
-function _copyField(inputId, btnId) {
+async function _copyField(inputId, btnId) {
   const val = document.getElementById(inputId)?.value;
   if (!val) return;
-  navigator.clipboard.writeText(val).then(() => {
-    const btn = document.getElementById(btnId);
-    if (!btn) return;
+  const ok = await copyToClipboard(val);
+  const btn = document.getElementById(btnId);
+  if (!btn) return;
+  if (ok) {
     btn.textContent = '✓ Copiado';
     btn.style.background = 'var(--success)';
     setTimeout(() => {
       btn.textContent = 'Copiar';
       btn.style.background = '';
     }, 2000);
-  });
+  } else {
+    showToast('No se pudo copiar', 'error');
+  }
 }
 
 // ─── Combobox buscable ────────────────────────────────────────────────────────
