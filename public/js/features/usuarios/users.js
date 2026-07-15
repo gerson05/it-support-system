@@ -283,7 +283,8 @@ function escHtml(str) {
 
 function fmtDate(str) {
   if (!str) return '—';
-  const d = new Date(str);
+  const iso = str.length === 10 ? str + 'T00:00:00' : str.replace(' ', 'T');
+  const d = new Date(iso);
   if (isNaN(d)) return str;
   return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
 }
