@@ -329,7 +329,6 @@ function startCloudflaredTunnel(port) {
   try {
     cf = spawn('npx', ['cloudflared', 'tunnel', '--url', `http://localhost:${port}`], {
       stdio: ['ignore', 'pipe', 'pipe'],
-      shell: true,
       windowsHide: true,
     });
   } catch {

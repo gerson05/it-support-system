@@ -9,7 +9,7 @@ const { Client, LocalAuth, MessageMedia } = wwebjs;
 import QRCode from 'qrcode';
 import path from 'path';
 import fs from 'fs';
-import { execFileSync } from 'child_process';
+
 import { fileURLToPath } from 'url';
 import Chatbot from './chatbot.js';
 import db from '../config/database.js';
@@ -25,7 +25,11 @@ const chatbot = new Chatbot();
 function clearChromiumLocks(authDir) {
   if (!fs.existsSync(authDir)) return;
   try {
-    execFileSync('find', [authDir, '-name', 'Singleton*', '-delete']);
+    for (const entry of fs.readdirSync(authDir, { recursive: true })) {
+      if (/^Singleton/.test(path.basename(entry))) {
+        fs.rmSync(path.join(authDir, entry), { force: true });
+      }
+    }
     console.log('[WhatsApp] Chromium locks limpiados.');
   } catch (e) {
     console.warn('[WhatsApp] No se pudieron limpiar locks:', e.message);

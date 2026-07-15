@@ -7,9 +7,11 @@ services:
       context: .
       dockerfile: Dockerfile
       target: production
-    image: it-support-system:latest
+    image: ghcr.io/gerson05/it-support-system:latest
     container_name: it-support-system
     restart: unless-stopped
+    labels:
+      - "com.centurylinklabs.watchtower.scope=it-tickets"
 
     ports:
       - "${PORT:-3000}:3000"
@@ -118,6 +120,26 @@ services:
       driver: json-file
       options:
         max-size: "10m"
+        max-file: "3"
+
+  # ── Watchtower (auto-deploy on new GHCR image) ───────
+  watchtower:
+    image: containrrr/watchtower
+    container_name: it-watchtower
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /root/.docker/config.json:/config.json:ro
+    environment:
+      WATCHTOWER_POLL_INTERVAL: 300
+      WATCHTOWER_CLEANUP: "true"
+      WATCHTOWER_INCLUDE_STOPPED: "false"
+      WATCHTOWER_SCOPE: it-tickets
+    command: it-support-system
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
         max-file: "3"
 
 # ── Volúmenes persistentes ─────────────────────────────
