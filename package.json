@@ -1,6 +1,6 @@
 {
   "name": "it-tickets",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Sistema de Tickets IT con WhatsApp y Panel Web",
   "main": "server.js",
   "type": "module",
