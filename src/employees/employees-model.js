@@ -69,6 +69,15 @@ export function getCargos() {
   return db.prepare('SELECT id, nombre FROM employee_cargos ORDER BY nombre').all();
 }
 
+export function createCargo(nombre) {
+  const normalized = nombre.trim();
+  if (!normalized) throw Object.assign(new Error('Nombre requerido'), { code: 'MISSING_FIELDS' });
+  const existing = db.prepare('SELECT id, nombre FROM employee_cargos WHERE nombre = ? COLLATE NOCASE').get(normalized);
+  if (existing) return existing;
+  const result = db.prepare('INSERT INTO employee_cargos (nombre) VALUES (?)').run(normalized);
+  return { id: result.lastInsertRowid, nombre: normalized };
+}
+
 export function getAreas() {
   return db.prepare(
     `SELECT id, nombre, ciudad, tipo FROM puntos WHERE activo = 1 ORDER BY ciudad, nombre`
