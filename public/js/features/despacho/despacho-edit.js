@@ -78,7 +78,7 @@ export async function openEditDespachoModal(id, onSuccess) {
             <div style="display:flex;gap:6px;margin-bottom:8px;">
               <input id="inv-picker-search" type="text" placeholder="Buscar por placa, serial, marca, modelo…"
                 style="flex:1;padding:6px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;">
-              <select id="inv-picker-tipo" style="padding:6px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;cursor:pointer;">
+              <select id="inv-picker-tipo" style="width:auto;flex-shrink:0;padding:6px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;cursor:pointer;">
                 ${PICKER_TABS.map(t => `<option value="${t.id}">${t.label}</option>`).join('')}
               </select>
             </div>
@@ -180,6 +180,15 @@ export async function openEditDespachoModal(id, onSuccess) {
   const btnAddFromInv = overlay.querySelector('#btn-add-from-inv');
   let   invItems      = [];
   let   invSelected   = new Set();
+
+  function filterInvItems() {
+    const q = invSearch.value.trim().toLowerCase();
+    if (!q) return invItems;
+    return invItems.filter(it => {
+      const txt = [it.placa, it.serial, it.marca, it.nombre_equipo, it.equipo, it.modelo, it.imei, it.responsable, String(it.id||'')].join(' ').toLowerCase();
+      return txt.includes(q);
+    });
+  }
 
   function renderInvList(items) {
     if (!items.length) {
