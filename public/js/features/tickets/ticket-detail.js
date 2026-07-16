@@ -7,7 +7,7 @@ import {
   state
 } from '../../core/app.js';
 import { showToast, createLoadingSpinner } from '../../ui/components.js';
-import { iconChevronLeft, iconAlert, iconSend } from '../../utils/icons.js';
+import { iconChevronLeft, iconAlert, iconSend, iconMessage, iconSparkle } from '../../utils/icons.js';
 import DataService from '../../core/api.js';
 import { openFaqFromTicket } from '../herramientas/faqs.js';
 import { initAiTab } from './ticket-ai-panel.js';
@@ -76,12 +76,12 @@ export async function renderTicketDetail(container, ticketId) {
               <button id="tab-btn-conv" onclick="window.switchTab('conv')" style="
                 padding:8px 16px;font-size:13px;font-weight:600;border:none;background:transparent;cursor:pointer;
                 color:var(--primary,#60a5fa);border-bottom:2px solid var(--primary,#3b82f6);">
-                💬 Conversación
+                ${iconMessage(14)} Conversación
               </button>
               <button id="tab-btn-ai" onclick="window.switchTab('ai')" style="
                 padding:8px 16px;font-size:13px;font-weight:600;border:none;background:transparent;cursor:pointer;
                 color:var(--text-muted,#94a3b8);border-bottom:2px solid transparent;">
-                🤖 Asistente AI
+                ${iconSparkle(14)} Asistente AI
               </button>
             </div>
 
