@@ -56,15 +56,31 @@ export async function renderSettings(container) {
         </div>
       </div>
 
-      <!-- ERP Sync -->
+      <!-- ERP Import -->
       <div class="card">
-        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-3);margin-bottom:14px;">Sincronización ERP (Medivalle)</div>
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;">
-          <div style="flex:1;">
-            <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px;">Base de datos local de empleados y sedes</div>
-            <div id="erp-sync-status" style="font-size:12px;color:var(--text-3);line-height:1.6;margin-top:6px;">Cargando estado…</div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-3);margin-bottom:14px;">Importar datos ERP (Medivalle)</div>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div style="font-size:12px;color:var(--text-3);">Exporta desde el ERP a Excel y sube el archivo para actualizar la BD local.</div>
+
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+            <div style="flex:1;">
+              <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;">Empleados</div>
+              <div style="font-size:11px;color:var(--text-3);">Columnas: CEDULA, NOMBRE_COMPLETO, CARGO, AREA</div>
+            </div>
+            <input type="file" id="erp-import-empleados-file" accept=".xlsx,.xls" style="display:none;">
+            <button id="btn-erp-import-empleados" class="btn btn-secondary btn-small">📥 Subir Excel</button>
           </div>
-          <button id="btn-erp-sync" class="btn btn-secondary btn-small" style="white-space:nowrap;">⟳ Sincronizar ahora</button>
+          <div id="erp-import-empleados-status" style="font-size:12px;color:var(--text-3);display:none;"></div>
+
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+            <div style="flex:1;">
+              <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;">Puntos / Sedes</div>
+              <div style="font-size:11px;color:var(--text-3);">Columnas: NOMBRE, CIUDAD</div>
+            </div>
+            <input type="file" id="erp-import-puntos-file" accept=".xlsx,.xls" style="display:none;">
+            <button id="btn-erp-import-puntos" class="btn btn-secondary btn-small">📥 Subir Excel</button>
+          </div>
+          <div id="erp-import-puntos-status" style="font-size:12px;color:var(--text-3);display:none;"></div>
         </div>
       </div>
 
@@ -86,8 +102,33 @@ export async function renderSettings(container) {
   loadNetworkUrl();
   loadWaStatus();
   loadWpMessages();
-  loadErpSyncStatus();
   bindEvents();
+  wireErpImport('empleados');
+  wireErpImport('puntos');
+
+  function wireErpImport(type) {
+    const btn    = document.getElementById(`btn-erp-import-${type}`);
+    const input  = document.getElementById(`erp-import-${type}-file`);
+    const status = document.getElementById(`erp-import-${type}-status`);
+    if (!btn || !input) return;
+
+    btn.addEventListener('click', () => input.click());
+    input.addEventListener('change', async () => {
+      const file = input.files[0];
+      if (!file) return;
+      btn.disabled = true; btn.textContent = 'Importando…';
+      status.style.display = 'block'; status.textContent = 'Procesando archivo…'; status.style.color = 'var(--text-3)';
+      try {
+        const fd = new FormData();
+        fd.append('file', file);
+        const res = await fetch(`/api/erp/import/${type}`, { method: 'POST', body: fd });
+        const d = await res.json();
+        if (!res.ok) { status.textContent = '✗ ' + d.error; status.style.color = 'var(--danger)'; }
+        else { status.textContent = `✓ ${d.imported} importados, ${d.skipped} omitidos`; status.style.color = '#10b981'; }
+      } catch { status.textContent = '✗ Error al importar'; status.style.color = 'var(--danger)'; }
+      finally { btn.disabled = false; btn.textContent = '📥 Subir Excel'; input.value = ''; }
+    });
+  }
 
   async function loadErpSyncStatus() {
     try {

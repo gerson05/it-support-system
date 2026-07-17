@@ -122,4 +122,104 @@ router.get('/api/erp/empleado/:cedula/historial', requireAuth, wrap(async (req, 
   res.json({ empleado, tickets, despachos, tech_requests: techRequests });
 }));
 
+/**
+ * POST /api/erp/import/empleados — upload Excel with employee list
+ * Expected columns (any order): cedula, nombre_completo, cargo, area
+ * Aliases accepted: CEDULA/NIT, NOMBRE/NOMBRE_COMPLETO, CARGO, AREA
+ */
+router.post('/api/erp/import/empleados', requireAuth, requirePermission('settings:edit'), wrap(async (req, res) => {
+  const multer  = (await import('multer')).default;
+  const ExcelJS = (await import('exceljs')).default;
+  const upload  = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
+
+  await new Promise((resolve, reject) => upload.single('file')(req, res, e => e ? reject(e) : resolve()));
+
+  if (!req.file) return res.status(400).json({ error: 'No se recibió archivo.' });
+
+  const wb = new ExcelJS.Workbook();
+  await wb.xlsx.load(req.file.buffer);
+  const ws = wb.getWorksheet(1);
+
+  const header = [];
+  ws.getRow(1).eachCell(cell => header.push(String(cell.value || '').trim().toUpperCase()));
+
+  const col = name => header.findIndex(h => h.includes(name));
+  const iCedula = col('CEDULA') !== -1 ? col('CEDULA') : col('NIT');
+  const iNombre = col('NOMBRE') !== -1 ? col('NOMBRE') : -1;
+  const iCargo  = col('CARGO');
+  const iArea   = col('AREA');
+
+  if (iCedula === -1 || iNombre === -1) {
+    return res.status(400).json({ error: `Columnas requeridas no encontradas. Encabezados detectados: ${header.join(', ')}` });
+  }
+
+  const upsert = db.prepare(`
+    INSERT INTO employees (cedula, nombre_completo, cargo, area)
+    VALUES (?, ?, ?, ?)
+    ON CONFLICT(cedula) DO UPDATE SET
+      nombre_completo = excluded.nombre_completo,
+      cargo           = excluded.cargo,
+      area            = excluded.area,
+      updated_at      = datetime('now','localtime')
+  `);
+
+  let imported = 0; let skipped = 0;
+  ws.eachRow((row, idx) => {
+    if (idx === 1) return;
+    const cedula = String(row.getCell(iCedula + 1).value || '').trim();
+    const nombre = String(row.getCell(iNombre + 1).value || '').trim();
+    if (!cedula || !nombre) { skipped++; return; }
+    const cargo = iCargo !== -1 ? String(row.getCell(iCargo + 1).value || '').trim() : '';
+    const area  = iArea  !== -1 ? String(row.getCell(iArea  + 1).value || '').trim() : '';
+    try { upsert.run(cedula, nombre, cargo, area); imported++; }
+    catch { skipped++; }
+  });
+
+  res.json({ success: true, imported, skipped });
+}));
+
+/**
+ * POST /api/erp/import/puntos — upload Excel with pharmacy locations
+ * Expected columns: nombre, ciudad (or NOMBRE, CIUDAD)
+ */
+router.post('/api/erp/import/puntos', requireAuth, requirePermission('settings:edit'), wrap(async (req, res) => {
+  const multer  = (await import('multer')).default;
+  const ExcelJS = (await import('exceljs')).default;
+  const upload  = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
+
+  await new Promise((resolve, reject) => upload.single('file')(req, res, e => e ? reject(e) : resolve()));
+
+  if (!req.file) return res.status(400).json({ error: 'No se recibió archivo.' });
+
+  const wb = new ExcelJS.Workbook();
+  await wb.xlsx.load(req.file.buffer);
+  const ws = wb.getWorksheet(1);
+
+  const header = [];
+  ws.getRow(1).eachCell(cell => header.push(String(cell.value || '').trim().toUpperCase()));
+  const iNombre = header.findIndex(h => h.includes('NOMBRE') || h.includes('PUNTO') || h.includes('SEDE'));
+  const iCiudad = header.findIndex(h => h.includes('CIUDAD') || h.includes('MUNIC'));
+
+  if (iNombre === -1) {
+    return res.status(400).json({ error: `Columna NOMBRE no encontrada. Encabezados: ${header.join(', ')}` });
+  }
+
+  let imported = 0; let skipped = 0;
+  const insert = db.prepare(`INSERT OR IGNORE INTO puntos (nombre, ciudad, activo) VALUES (?, ?, 1)`);
+  const update = db.prepare(`UPDATE puntos SET ciudad=?, activo=1 WHERE nombre=?`);
+
+  ws.eachRow((row, idx) => {
+    if (idx === 1) return;
+    const nombre = String(row.getCell(iNombre + 1).value || '').trim();
+    if (!nombre) { skipped++; return; }
+    const ciudad = iCiudad !== -1 ? String(row.getCell(iCiudad + 1).value || '').trim() : '';
+    try {
+      const r = insert.run(nombre, ciudad);
+      if (r.changes) { imported++; } else { update.run(ciudad, nombre); }
+    } catch { skipped++; }
+  });
+
+  res.json({ success: true, imported, skipped });
+}));
+
 export default router;
