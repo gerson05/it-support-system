@@ -14,6 +14,56 @@ import {
 const _tc = s => (s || '').toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
 const _sc = s => { const v = (s || '').trim(); return v ? v.charAt(0).toUpperCase() + v.slice(1) : v; };
 
+function _attachEmpleadoSearch(inputEl, cedulaEl) {
+  if (!inputEl) return;
+  let _timer = null;
+  let _drop  = null;
+
+  function _closeDrop() { _drop?.remove(); _drop = null; }
+
+  function _openDrop(rows) {
+    _closeDrop();
+    if (!rows.length) return;
+    _drop = document.createElement('div');
+    _drop.style.cssText = 'position:absolute;z-index:2000;background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.15);max-height:200px;overflow-y:auto;min-width:100%;';
+    rows.forEach(r => {
+      const item = document.createElement('div');
+      item.style.cssText = 'padding:8px 12px;cursor:pointer;font-size:12px;border-bottom:1px solid var(--border);';
+      item.innerHTML = `<div style="font-weight:600;color:var(--text);">${r.nombre}</div><div style="color:var(--text-3);">${r.cedula}${r.cargo ? ' · ' + r.cargo : ''}</div>`;
+      item.addEventListener('mousedown', e => {
+        e.preventDefault();
+        inputEl.value = r.nombre;
+        if (cedulaEl) cedulaEl.value = r.cedula;
+        _closeDrop();
+      });
+      item.addEventListener('mouseenter', () => item.style.background = 'var(--surface-2)');
+      item.addEventListener('mouseleave', () => item.style.background = '');
+      _drop.appendChild(item);
+    });
+    // Position relative to input
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'position:relative;';
+    inputEl.parentNode.insertBefore(wrap, inputEl);
+    wrap.appendChild(inputEl);
+    wrap.appendChild(_drop);
+  }
+
+  inputEl.addEventListener('input', () => {
+    clearTimeout(_timer);
+    const q = inputEl.value.trim();
+    if (q.length < 2) { _closeDrop(); return; }
+    _timer = setTimeout(async () => {
+      try {
+        const res  = await fetch(`/api/erp/empleados?q=${encodeURIComponent(q)}`);
+        const rows = await res.json();
+        _openDrop(rows);
+      } catch {}
+    }, 250);
+  });
+
+  inputEl.addEventListener('blur', () => setTimeout(_closeDrop, 150));
+}
+
 export const PICKER_TABS = [
   { id:'computadores', label:'Computadores', apiTab:'equipos',   categoria:'computadores' },
   { id:'impresoras',   label:'Impresoras',   apiTab:'equipos',   categoria:'impresoras'   },
@@ -195,8 +245,13 @@ export async function openCreateModal(onSuccess) {
   overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
 
   // Formatting
-  overlay.querySelector('[name="destinatario"]').addEventListener('blur', e => { e.target.value = e.target.value.trim().toUpperCase(); });
   overlay.querySelector('[name="observaciones"]').addEventListener('blur', e => { e.target.value = _sc(e.target.value); });
+
+  // Destinatario autocomplete from local employee DB
+  _attachEmpleadoSearch(
+    overlay.querySelector('input[name="destinatario"]'),
+    overlay.querySelector('input[name="cedula"]'),
+  );
 
   // Sede autocomplete
   attachPuntoSearch(overlay.querySelector('input[name="sede"]'));
