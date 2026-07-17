@@ -14,6 +14,56 @@ import {
 const _tc = s => (s || '').toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
 const _sc = s => { const v = (s || '').trim(); return v ? v.charAt(0).toUpperCase() + v.slice(1) : v; };
 
+function _attachEmpleadoSearch(inputEl, cedulaEl) {
+  if (!inputEl) return;
+  let _timer = null;
+  let _drop  = null;
+
+  function _closeDrop() { _drop?.remove(); _drop = null; }
+
+  function _openDrop(rows) {
+    _closeDrop();
+    if (!rows.length) return;
+    _drop = document.createElement('div');
+    _drop.style.cssText = 'position:absolute;z-index:2000;background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.15);max-height:200px;overflow-y:auto;min-width:100%;';
+    rows.forEach(r => {
+      const item = document.createElement('div');
+      item.style.cssText = 'padding:8px 12px;cursor:pointer;font-size:12px;border-bottom:1px solid var(--border);';
+      item.innerHTML = `<div style="font-weight:600;color:var(--text);">${r.nombre}</div><div style="color:var(--text-3);">${r.cedula}${r.cargo ? ' · ' + r.cargo : ''}</div>`;
+      item.addEventListener('mousedown', e => {
+        e.preventDefault();
+        inputEl.value = r.nombre;
+        if (cedulaEl) cedulaEl.value = r.cedula;
+        _closeDrop();
+      });
+      item.addEventListener('mouseenter', () => item.style.background = 'var(--surface-2)');
+      item.addEventListener('mouseleave', () => item.style.background = '');
+      _drop.appendChild(item);
+    });
+    // Position relative to input
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'position:relative;';
+    inputEl.parentNode.insertBefore(wrap, inputEl);
+    wrap.appendChild(inputEl);
+    wrap.appendChild(_drop);
+  }
+
+  inputEl.addEventListener('input', () => {
+    clearTimeout(_timer);
+    const q = inputEl.value.trim();
+    if (q.length < 2) { _closeDrop(); return; }
+    _timer = setTimeout(async () => {
+      try {
+        const res  = await fetch(`/api/erp/empleados?q=${encodeURIComponent(q)}`);
+        const rows = await res.json();
+        _openDrop(rows);
+      } catch {}
+    }, 250);
+  });
+
+  inputEl.addEventListener('blur', () => setTimeout(_closeDrop, 150));
+}
+
 export const PICKER_TABS = [
   { id:'computadores', label:'Computadores', apiTab:'equipos',   categoria:'computadores' },
   { id:'impresoras',   label:'Impresoras',   apiTab:'equipos',   categoria:'impresoras'   },
@@ -135,7 +185,7 @@ export async function openCreateModal(onSuccess) {
             <div style="display:flex;gap:6px;margin-bottom:8px;">
               <input id="inv-picker-search" type="text" placeholder="Buscar por placa, serial, marca, modelo…"
                 style="flex:1;padding:6px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;">
-              <select id="inv-picker-tipo" style="padding:6px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;cursor:pointer;">
+              <select id="inv-picker-tipo" style="width:auto;flex-shrink:0;padding:6px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;cursor:pointer;">
                 ${PICKER_TABS.map(t => `<option value="${t.id}">${t.label}</option>`).join('')}
               </select>
             </div>
@@ -195,8 +245,13 @@ export async function openCreateModal(onSuccess) {
   overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
 
   // Formatting
-  overlay.querySelector('[name="destinatario"]').addEventListener('blur', e => { e.target.value = e.target.value.trim().toUpperCase(); });
   overlay.querySelector('[name="observaciones"]').addEventListener('blur', e => { e.target.value = _sc(e.target.value); });
+
+  // Destinatario autocomplete from local employee DB
+  _attachEmpleadoSearch(
+    overlay.querySelector('input[name="destinatario"]'),
+    overlay.querySelector('input[name="cedula"]'),
+  );
 
   // Sede autocomplete
   attachPuntoSearch(overlay.querySelector('input[name="sede"]'));
@@ -304,18 +359,20 @@ export async function openCreateModal(onSuccess) {
     btnAddFromInv.style.opacity = n > 0 ? '1' : '.4';
   }
 
-  async function loadInvItems() {
+  let _invSearchTimer = null;
+
+  async function loadInvItems(searchQuery = '') {
     const pickerTab = PICKER_TABS.find(t => t.id === invTipo.value) || PICKER_TABS[0];
     invList.innerHTML = `<div style="text-align:center;padding:16px;font-size:12px;color:var(--text-3);">Cargando…</div>`;
-    invSelected.clear();
-    updateInvCount();
+    if (!searchQuery) { invSelected.clear(); updateInvCount(); }
     try {
       const params = new URLSearchParams({ limit: 50, page: 1 });
       if (pickerTab.categoria) params.set('categoria', pickerTab.categoria);
+      if (searchQuery)         params.set('search', searchQuery);
       const res  = await fetch(`/api/inventario/${pickerTab.apiTab}?${params}`);
       const json = await res.json();
       invItems   = json.equipos || json.celulares || json.ups || [];
-      renderInvList(filterInvItems());
+      renderInvList(invItems);
     } catch {
       invList.innerHTML = `<div style="text-align:center;padding:16px;font-size:12px;color:var(--danger);">Error al cargar inventario</div>`;
     }
@@ -328,8 +385,18 @@ export async function openCreateModal(onSuccess) {
   };
   overlay.querySelector('#btn-close-inv-picker').onclick = () => { invPicker.style.display = 'none'; };
 
-  invTipo.onchange   = loadInvItems;
-  invSearch.addEventListener('input', () => renderInvList(filterInvItems()));
+  invTipo.onchange = () => loadInvItems(invSearch.value.trim());
+  invSearch.addEventListener('input', () => {
+    clearTimeout(_invSearchTimer);
+    const q = invSearch.value.trim();
+    if (q.length === 0) { loadInvItems(); return; }
+    // instant local filter for short queries, server search after 350ms
+    renderInvList(invItems.filter(it =>
+      [it.placa, it.serial, it.marca, it.nombre_equipo, it.equipo, it.modelo, it.imei, it.responsable, String(it.id||'')]
+        .join(' ').toLowerCase().includes(q.toLowerCase())
+    ));
+    _invSearchTimer = setTimeout(() => loadInvItems(q), 350);
+  });
 
   btnAddFromInv.onclick = () => {
     const pickerTab   = PICKER_TABS.find(t => t.id === invTipo.value) || PICKER_TABS[0];

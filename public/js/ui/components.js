@@ -5,6 +5,7 @@ import {
   getAreaEmoji,
   getAreaName
 } from '../core/app.js';
+import { iconDocument, iconMonitor, iconAlert, iconCheck, iconZap } from '../utils/icons.js';
 
 /* ── Iconos SVG inline (Lucide) ──────────────────────────────────────── */
 const AREA_ICONS = {
@@ -531,7 +532,7 @@ export function createAiKbCard(item, isBestMatch) {
       border: 1px solid ${isBestMatch ? 'var(--primary, #3b82f6)' : 'var(--border, #334155)'};
       border-radius: 8px; padding: 12px; margin-bottom: 10px;">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
-        <div style="color:var(--primary,#60a5fa);font-weight:600;font-size:13px;">📚 ${item.titulo}</div>
+        <div style="color:var(--primary,#60a5fa);font-weight:600;font-size:13px;display:flex;align-items:center;gap:5px;">${iconDocument(14)} ${item.titulo}</div>
         ${isBestMatch ? '<span style="background:#166534;color:#4ade80;font-size:9px;padding:2px 7px;border-radius:3px;white-space:nowrap;">MEJOR MATCH</span>' : ''}
       </div>
       <div style="color:var(--text-muted,#94a3b8);font-size:11px;margin-bottom:6px;text-transform:capitalize;">
@@ -539,7 +540,7 @@ export function createAiKbCard(item, isBestMatch) {
       </div>
       <div class="ai-kb-solucion" style="color:var(--text,#cbd5e1);font-size:12px;margin-bottom:10px;">${solucionCorta}</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        ${cmdCount > 0 ? `<button class="btn btn-primary btn-small ai-btn-exec" data-kb-id="${item.id}" style="font-size:12px;">▶ Ejecutar en equipo</button>` : ''}
+        ${cmdCount > 0 ? `<button class="btn btn-primary btn-small ai-btn-exec" data-kb-id="${item.id}" style="font-size:12px;display:inline-flex;align-items:center;gap:5px;">${iconZap(13)} Ejecutar en equipo</button>` : ''}
         <button class="btn btn-secondary btn-small ai-btn-ver" data-kb-id="${item.id}" style="font-size:12px;">Ver solución completa</button>
       </div>
     </div>
@@ -561,7 +562,7 @@ export function createExecutionModal(onlineAgents, commands, linkedAgentId, kbTi
   const agentSelectorHtml = linkedOnline
     ? `
       <div style="display:flex;align-items:center;gap:10px;background:rgba(22,101,52,.25);border:1px solid #166534;border-radius:6px;padding:10px;margin-bottom:10px;">
-        <span style="font-size:20px;">🖥️</span>
+        <span style="color:#4ade80;">${iconMonitor(20)}</span>
         <div>
           <div style="color:#4ade80;font-weight:600;font-size:13px;">${linkedOnline.name} <span style="background:#166534;color:#4ade80;font-size:9px;padding:1px 5px;border-radius:3px;">Online</span></div>
           <div style="color:#86efac;font-size:11px;">Equipo del solicitante</div>
@@ -570,7 +571,7 @@ export function createExecutionModal(onlineAgents, commands, linkedAgentId, kbTi
       <input type="hidden" id="exec-agent-id" value="${linkedOnline.id}">`
     : `
       <div style="color:#fbbf24;font-size:12px;margin-bottom:8px;">
-        ⚠️ ${linkedAgentId ? 'Equipo del solicitante offline.' : 'Sin equipo vinculado.'} Selecciona destino:
+        ${iconAlert(13)} ${linkedAgentId ? 'Equipo del solicitante offline.' : 'Sin equipo vinculado.'} Selecciona destino:
       </div>
       <select id="exec-agent-id" style="width:100%;margin-bottom:10px;font-size:12px;">
         ${onlineAgents.length === 0
@@ -592,7 +593,7 @@ export function createExecutionModal(onlineAgents, commands, linkedAgentId, kbTi
       <div style="
         background:var(--surface,#0f172a);border:2px solid var(--primary,#3b82f6);
         border-radius:10px;padding:20px;max-width:520px;width:100%;max-height:90vh;overflow-y:auto;">
-        <div style="font-weight:700;font-size:15px;margin-bottom:14px;">▶ Ejecutar: ${kbTitulo}</div>
+        <div style="font-weight:700;font-size:15px;margin-bottom:14px;display:flex;align-items:center;gap:6px;">${iconZap(15)} Ejecutar: ${kbTitulo}</div>
         ${agentSelectorHtml}
         <div style="font-size:11px;color:var(--text-muted,#94a3b8);margin-bottom:4px;">Comandos a ejecutar:</div>
         <div style="background:#0a0a0a;border-radius:4px;padding:10px;font-family:monospace;font-size:11px;color:#4ade80;margin-bottom:14px;white-space:pre-wrap;max-height:120px;overflow-y:auto;">${cmdHtml}</div>
@@ -609,8 +610,8 @@ export function createExecutionModal(onlineAgents, commands, linkedAgentId, kbTi
         </div>
         <div id="exec-post-actions" style="display:none;gap:8px;flex-wrap:wrap;margin-bottom:12px;"></div>
         <div style="display:flex;gap:8px;" id="exec-action-buttons">
-          <button id="btn-exec-confirm" class="btn btn-primary" style="flex:1;" ${canExec ? '' : 'disabled'}>
-            ✓ Confirmar y ejecutar
+          <button id="btn-exec-confirm" class="btn btn-primary" style="flex:1;display:inline-flex;align-items:center;justify-content:center;gap:5px;" ${canExec ? '' : 'disabled'}>
+            ${iconCheck(14)} Confirmar y ejecutar
           </button>
           <button id="btn-exec-cancel" class="btn btn-secondary">Cancelar</button>
         </div>

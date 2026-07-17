@@ -24,9 +24,9 @@ router.get('/api/inventario/celulares', ...canRead, wrap(async (req, res) => {
   const where = [];
   const params = [];
   if (search) {
-    where.push('(nombre_completo LIKE ? OR cedula LIKE ? OR imei LIKE ? OR modelo LIKE ? OR area LIKE ? OR ciudad LIKE ?)');
+    where.push('(CAST(id AS TEXT) LIKE ? OR nombre_completo LIKE ? OR cedula LIKE ? OR imei LIKE ? OR modelo LIKE ? OR equipo LIKE ? OR area LIKE ? OR ciudad LIKE ?)');
     const s = `%${search}%`;
-    params.push(s, s, s, s, s, s);
+    params.push(s, s, s, s, s, s, s, s);
   }
   if (area)   { where.push('area LIKE ?');   params.push(`%${area}%`); }
   if (estado) { where.push('estado = ?');    params.push(estado); }
@@ -38,7 +38,7 @@ router.get('/api/inventario/celulares', ...canRead, wrap(async (req, res) => {
 }));
 
 router.post('/api/inventario/celulares', ...canCreate, wrap(async (req, res) => {
-  const { placa, fecha_registro, area, ciudad, nombre_completo, cedula, linea, operador, equipo, almacenamiento, ram, modelo, imei, imei2, serial, estado, accesorio, fecha_entrega, entregado_por } = req.body;
+  const { placa, fecha_registro, area, ciudad, nombre_completo, cedula, linea, operador, equipo, almacenamiento, ram, modelo, imei, imei2, serial, estado, accesorio, fecha_entrega, entregado_por, numero_telefono } = req.body;
   if (!nombre_completo?.trim() || !imei?.trim()) {
     return res.status(400).json({ error: 'nombre_completo e imei son requeridos.' });
   }
@@ -46,13 +46,13 @@ router.post('/api/inventario/celulares', ...canCreate, wrap(async (req, res) => 
   try {
     const result = db.prepare(`
       INSERT INTO inventario_celulares
-        (placa,fecha_registro,area,ciudad,nombre_completo,cedula,linea,operador,equipo,almacenamiento,ram,modelo,imei,imei2,serial,estado,accesorio,fecha_entrega,entregado_por,qr_token)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        (placa,fecha_registro,area,ciudad,nombre_completo,cedula,linea,operador,equipo,almacenamiento,ram,modelo,imei,imei2,serial,estado,accesorio,fecha_entrega,entregado_por,numero_telefono,qr_token)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
     `).run(placa?.trim()||null, fecha_registro||null, area||null, ciudad||null, nombre_completo.trim(),
            cedula||null, linea||null, operador||null, equipo||null,
            almacenamiento||null, ram||null, modelo||null, imei.trim(),
            imei2||null, serial||null, estado||'nuevo', accesorio||null,
-           fecha_entrega||null, entregado_por||null, qr_token);
+           fecha_entrega||null, entregado_por||null, numero_telefono||null, qr_token);
     res.status(201).json({ ok: true, id: result.lastInsertRowid, qr_token });
   } catch (err) {
     if (err.message?.includes('UNIQUE')) return res.status(409).json({ error: 'Ya existe un celular con ese IMEI o placa.' });
@@ -65,20 +65,20 @@ router.put('/api/inventario/celulares/:id', ...canEdit, wrap(async (req, res) =>
   if (!db.prepare('SELECT id FROM inventario_celulares WHERE id = ?').get(id)) {
     return res.status(404).json({ error: 'Celular no encontrado.' });
   }
-  const { placa, fecha_registro, area, ciudad, nombre_completo, cedula, linea, operador, equipo, almacenamiento, ram, modelo, imei, imei2, serial, estado, accesorio, fecha_entrega, entregado_por } = req.body;
+  const { placa, fecha_registro, area, ciudad, nombre_completo, cedula, linea, operador, equipo, almacenamiento, ram, modelo, imei, imei2, serial, estado, accesorio, fecha_entrega, entregado_por, numero_telefono } = req.body;
   try {
     db.prepare(`
       UPDATE inventario_celulares SET
         placa=?,fecha_registro=?,area=?,ciudad=?,nombre_completo=?,cedula=?,linea=?,
         operador=?,equipo=?,almacenamiento=?,ram=?,modelo=?,imei=?,imei2=?,serial=?,
-        estado=?,accesorio=?,fecha_entrega=?,entregado_por=?,
+        estado=?,accesorio=?,fecha_entrega=?,entregado_por=?,numero_telefono=?,
         updated_at=datetime('now','localtime')
       WHERE id=?
     `).run(placa?.trim()||null, fecha_registro||null, area||null, ciudad||null, nombre_completo,
            cedula||null, linea||null, operador||null, equipo||null,
            almacenamiento||null, ram||null, modelo||null, imei,
            imei2||null, serial||null, estado||'nuevo', accesorio||null,
-           fecha_entrega||null, entregado_por||null, id);
+           fecha_entrega||null, entregado_por||null, numero_telefono||null, id);
     res.json({ ok: true });
   } catch (err) {
     if (err.message?.includes('UNIQUE')) return res.status(409).json({ error: 'IMEI o placa ya existe en otro celular.' });

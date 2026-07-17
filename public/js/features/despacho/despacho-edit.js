@@ -78,7 +78,7 @@ export async function openEditDespachoModal(id, onSuccess) {
             <div style="display:flex;gap:6px;margin-bottom:8px;">
               <input id="inv-picker-search" type="text" placeholder="Buscar por placa, serial, marca, modelo…"
                 style="flex:1;padding:6px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;">
-              <select id="inv-picker-tipo" style="padding:6px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;cursor:pointer;">
+              <select id="inv-picker-tipo" style="width:auto;flex-shrink:0;padding:6px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;cursor:pointer;">
                 ${PICKER_TABS.map(t => `<option value="${t.id}">${t.label}</option>`).join('')}
               </select>
             </div>
@@ -181,6 +181,15 @@ export async function openEditDespachoModal(id, onSuccess) {
   let   invItems      = [];
   let   invSelected   = new Set();
 
+  function filterInvItems() {
+    const q = invSearch.value.trim().toLowerCase();
+    if (!q) return invItems;
+    return invItems.filter(it => {
+      const txt = [it.placa, it.serial, it.marca, it.nombre_equipo, it.equipo, it.modelo, it.imei, it.responsable, String(it.id||'')].join(' ').toLowerCase();
+      return txt.includes(q);
+    });
+  }
+
   function renderInvList(items) {
     if (!items.length) {
       invList.innerHTML = `<div style="text-align:center;padding:16px;font-size:12px;color:var(--text-3);">Sin resultados</div>`;
@@ -215,14 +224,7 @@ export async function openEditDespachoModal(id, onSuccess) {
     });
   }
 
-  function filterInvItems() {
-    const q = invSearch.value.trim().toLowerCase();
-    if (!q) return invItems;
-    return invItems.filter(it => {
-      const txt = [it.placa, it.serial, it.marca, it.nombre_equipo, it.equipo, it.modelo, it.imei, it.responsable, it.voltaje].join(' ').toLowerCase();
-      return txt.includes(q);
-    });
-  }
+  let _invSearchTimer = null;
 
   function updateInvCount() {
     const n = invSelected.size;
@@ -231,18 +233,18 @@ export async function openEditDespachoModal(id, onSuccess) {
     btnAddFromInv.style.opacity = n > 0 ? '1' : '.4';
   }
 
-  async function loadInvItems() {
+  async function loadInvItems(searchQuery = '') {
     const pickerTab = PICKER_TABS.find(t => t.id === invTipo.value) || PICKER_TABS[0];
     invList.innerHTML = `<div style="text-align:center;padding:16px;font-size:12px;color:var(--text-3);">Cargando…</div>`;
-    invSelected.clear();
-    updateInvCount();
+    if (!searchQuery) { invSelected.clear(); updateInvCount(); }
     try {
       const params = new URLSearchParams({ limit: 50, page: 1 });
       if (pickerTab.categoria) params.set('categoria', pickerTab.categoria);
+      if (searchQuery)         params.set('search', searchQuery);
       const res  = await fetch(`/api/inventario/${pickerTab.apiTab}?${params}`);
       const json = await res.json();
       invItems   = json.equipos || json.celulares || json.ups || [];
-      renderInvList(filterInvItems());
+      renderInvList(invItems);
     } catch {
       invList.innerHTML = `<div style="text-align:center;padding:16px;font-size:12px;color:var(--danger);">Error al cargar inventario</div>`;
     }
@@ -255,8 +257,17 @@ export async function openEditDespachoModal(id, onSuccess) {
   };
   overlay.querySelector('#btn-close-inv-picker').onclick = () => { invPicker.style.display = 'none'; };
 
-  invTipo.onchange = loadInvItems;
-  invSearch.addEventListener('input', () => renderInvList(filterInvItems()));
+  invTipo.onchange = () => loadInvItems(invSearch.value.trim());
+  invSearch.addEventListener('input', () => {
+    clearTimeout(_invSearchTimer);
+    const q = invSearch.value.trim();
+    if (q.length === 0) { loadInvItems(); return; }
+    renderInvList(invItems.filter(it =>
+      [it.placa, it.serial, it.marca, it.nombre_equipo, it.equipo, it.modelo, it.imei, it.responsable, String(it.id||'')]
+        .join(' ').toLowerCase().includes(q.toLowerCase())
+    ));
+    _invSearchTimer = setTimeout(() => loadInvItems(q), 350);
+  });
 
   btnAddFromInv.onclick = () => {
     const pickerTab = PICKER_TABS.find(t => t.id === invTipo.value) || PICKER_TABS[0];

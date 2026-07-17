@@ -12,6 +12,8 @@ import {
   iconNote, iconPlus, iconClose, iconEdit,
   iconClipboard, iconWrench, iconCopy, iconSave,
 } from '../../utils/icons.js';
+import { createEmpleadoSearch } from '../../core/empleado-search.js';
+import { attachCedulaValidation } from '../../core/cedula-lookup.js';
 
 const toTitleCase    = s => (s || '').toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
 const toSentenceCase = s => { const v = (s || '').trim(); return v ? v.charAt(0).toUpperCase() + v.slice(1) : v; };
@@ -210,6 +212,14 @@ export function openModal(defaultType, onSuccess) {
     </div>`;
 
   const closeModal = wireModalCommon(overlay, modal, modalItems);
+  createEmpleadoSearch(
+    document.getElementById('tr-f-name'),
+    document.getElementById('tr-f-cedula')
+  );
+  attachCedulaValidation(
+    document.getElementById('tr-f-cedula'),
+    document.getElementById('tr-f-name')
+  );
 
   // Toggle tipo
   modal.querySelectorAll('input[name="tr-type"]').forEach(radio => {
@@ -316,6 +326,14 @@ export async function openEditModal(id, onSuccess) {
     </div>`;
 
   const closeModal = wireModalCommon(overlay, modal, modalItems);
+  createEmpleadoSearch(
+    document.getElementById('tr-f-name'),
+    document.getElementById('tr-f-cedula')
+  );
+  attachCedulaValidation(
+    document.getElementById('tr-f-cedula'),
+    document.getElementById('tr-f-name')
+  );
 
   document.getElementById('tr-modal-save').addEventListener('click', async () => {
     const name   = toTitleCase(document.getElementById('tr-f-name').value.trim());
