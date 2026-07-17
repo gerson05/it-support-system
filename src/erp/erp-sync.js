@@ -82,6 +82,18 @@ export async function syncPuntos(client) {
 
   try {
     const { html } = await client._loadPanel('com.version8.wwsucursales', { SUCEST: 'A' });
+
+    // Debug: extract all field names present in HTML to identify correct names
+    const allFields = new Set();
+    const re = /name="([A-Z][A-Z0-9_]+)_\d{4}"/gi;
+    let m;
+    while ((m = re.exec(html)) !== null) allFields.add(m[1]);
+    if (allFields.size > 0) {
+      console.log('[ERP Sync] sucursales fields found:', [...allFields].join(', '));
+    } else {
+      console.log('[ERP Sync] sucursales: no grid fields found in HTML (first 500 chars):', html.slice(0, 500));
+    }
+
     const rows = client._parseGridRows(html, [FIELD_SUC_COD, FIELD_SUC_NOM, FIELD_SUC_CIU]);
 
     const insert = db.prepare(`
