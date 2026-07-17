@@ -324,6 +324,11 @@ app.listen(PORT, async () => {
   } else {
     console.log('[Tunnel] Túnel Cloudflare desactivado por env var.');
   }
+
+  // ERP auto-sync schedule (cada 24h si ERP_USER/ERP_PASS configurados)
+  const { scheduleSync: _scheduleSync } = await import('./src/erp/erp-sync.js');
+  const { ERPClient: _ERPClient }       = await import('./src/erp/erp-client.js');
+  _scheduleSync(new _ERPClient(), parseInt(process.env.ERP_SYNC_INTERVAL_HOURS || '24'));
 });
 
 function startCloudflaredTunnel(port) {

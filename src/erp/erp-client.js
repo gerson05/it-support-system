@@ -220,6 +220,8 @@ class ERPClient {
   }
 }
 
+export { ERPClient };
+
 // Module-level singleton
 const client = new ERPClient();
 

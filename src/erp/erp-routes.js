@@ -1,7 +1,9 @@
 import express from 'express';
 import db from '../config/database.js';
-import { requireAuth } from '../auth/auth-middleware.js';
+import { requireAuth, requirePermission } from '../auth/auth-middleware.js';
 import { wrap } from '../utils/async-handler.js';
+import { ERPClient } from './erp-client.js';
+import { runFullSync, syncStatus } from './erp-sync.js';
 
 const router = express.Router();
 
@@ -55,6 +57,33 @@ router.get('/api/erp/sedes', requireAuth, wrap(async (req, res) => {
          WHERE activo = 1 ORDER BY nombre LIMIT 100`
       ).all();
   res.json(rows);
+}));
+
+/* GET /api/erp/sync/status */
+router.get('/api/erp/sync/status', requireAuth, (req, res) => {
+  res.json({
+    running:    syncStatus.running,
+    lastRun:    syncStatus.lastRun,
+    lastResult: syncStatus.lastResult,
+    configured: !!(process.env.ERP_USER && process.env.ERP_PASS),
+    empleados_servlet: process.env.ERP_EMPLEADOS_OBJ || null,
+  });
+});
+
+/* POST /api/erp/sync — manual trigger (admin only) */
+router.post('/api/erp/sync', requireAuth, requirePermission('settings:edit'), wrap(async (req, res) => {
+  if (syncStatus.running) {
+    return res.status(409).json({ error: 'Sync already in progress.' });
+  }
+  if (!process.env.ERP_USER || !process.env.ERP_PASS) {
+    return res.status(400).json({ error: 'ERP_USER / ERP_PASS not configured in environment.' });
+  }
+
+  // Run in background, respond immediately
+  const client = new ERPClient();
+  runFullSync(client).catch(e => console.error('[ERP Sync] background error:', e.message));
+
+  res.json({ started: true, message: 'Sync iniciado — usa GET /api/erp/sync/status para ver progreso.' });
 }));
 
 router.get('/api/erp/empleado/:cedula', requireAuth, wrap(async (req, res) => {

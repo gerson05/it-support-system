@@ -56,6 +56,18 @@ export async function renderSettings(container) {
         </div>
       </div>
 
+      <!-- ERP Sync -->
+      <div class="card">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-3);margin-bottom:14px;">Sincronización ERP (Medivalle)</div>
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+          <div style="flex:1;">
+            <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px;">Base de datos local de empleados y sedes</div>
+            <div id="erp-sync-status" style="font-size:12px;color:var(--text-3);line-height:1.6;margin-top:6px;">Cargando estado…</div>
+          </div>
+          <button id="btn-erp-sync" class="btn btn-secondary btn-small" style="white-space:nowrap;">⟳ Sincronizar ahora</button>
+        </div>
+      </div>
+
       <!-- Herramientas externas -->
       <div class="card">
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-3);margin-bottom:14px;">Herramientas Externas</div>
@@ -74,7 +86,55 @@ export async function renderSettings(container) {
   loadNetworkUrl();
   loadWaStatus();
   loadWpMessages();
+  loadErpSyncStatus();
   bindEvents();
+
+  async function loadErpSyncStatus() {
+    try {
+      const s = await fetch('/api/erp/sync/status').then(r => r.json());
+      const el = document.getElementById('erp-sync-status');
+      if (!el) return;
+      if (!s.configured) {
+        el.innerHTML = '<span style="color:var(--text-3);">ERP_USER / ERP_PASS no configurados en .env</span>';
+        return;
+      }
+      if (s.running) {
+        el.innerHTML = '<span style="color:#f59e0b;">⟳ Sincronizando…</span>';
+        setTimeout(loadErpSyncStatus, 3000);
+        return;
+      }
+      const r = s.lastResult;
+      if (!s.lastRun) {
+        el.innerHTML = '<span style="color:var(--text-3);">Sin sincronización previa — haz clic en "Sincronizar ahora"</span>';
+      } else {
+        const ok = !r?.errors?.length;
+        el.innerHTML = `
+          <span style="color:${ok ? '#10b981' : '#f59e0b'};">${ok ? '✓' : '⚠'} Última sync: ${new Date(s.lastRun).toLocaleString('es-CO')}</span><br>
+          <span style="font-size:11px;color:var(--text-3);">Empleados: ${r?.empleados ?? 0} · Puntos: ${r?.puntos ?? 0}${r?.errors?.length ? ' · ' + r.errors.length + ' errores' : ''}</span>
+          ${!s.empleados_servlet ? '<br><span style="font-size:11px;color:#f59e0b;">⚠ ERP_EMPLEADOS_OBJ no configurado — configura el servlet de empleados en .env</span>' : ''}
+        `;
+      }
+    } catch {
+      const el = document.getElementById('erp-sync-status');
+      if (el) el.innerHTML = '<span style="color:var(--danger);">Error cargando estado</span>';
+    }
+  }
+
+  document.getElementById('btn-erp-sync')?.addEventListener('click', async () => {
+    const btn = document.getElementById('btn-erp-sync');
+    btn.disabled = true; btn.textContent = 'Iniciando…';
+    try {
+      const res = await fetch('/api/erp/sync', { method: 'POST' });
+      const d = await res.json();
+      if (!res.ok) { showToast(d.error, 'error'); return; }
+      showToast('Sync ERP iniciado.', 'success');
+      setTimeout(loadErpSyncStatus, 2000);
+    } catch {
+      showToast('Error al iniciar sync.', 'error');
+    } finally {
+      btn.disabled = false; btn.textContent = '⟳ Sincronizar ahora';
+    }
+  });
 }
 
 async function loadWpMessages() {
