@@ -169,6 +169,50 @@ router.get('/api/agents', ...canRead, wrap(async (req, res) => {
   res.json(agents);
 }));
 
+router.put('/api/tickets/:id/requester', ...canEdit, wrap(async (req, res) => {
+  const ticketId = parseInt(req.params.id);
+  const { requester_name, cedula, agentName = 'Agente' } = req.body;
+
+  if (!requester_name?.trim()) {
+    return res.status(400).json({ error: 'El nombre del solicitante es requerido.' });
+  }
+
+  const ticket = db.prepare('SELECT id, ticket_number FROM tickets WHERE id = ?').get(ticketId);
+  if (!ticket) return res.status(404).json({ error: 'Ticket no encontrado.' });
+
+  db.prepare(`UPDATE tickets SET requester_name = ?, updated_at = datetime('now','localtime') WHERE id = ?`)
+    .run(requester_name.trim(), ticketId);
+
+  logAudit(agentName, 'Solicitante actualizado', 'ticket', ticketId, ticket.ticket_number, { requester_name, cedula });
+
+  res.json({ success: true });
+}));
+
+router.put('/api/tickets/:id/assign', ...canEdit, wrap(async (req, res) => {
+  const ticketId = parseInt(req.params.id);
+  const { nombre, cedula, agentName = 'Agente' } = req.body;
+
+  if (!nombre?.trim() || !cedula?.trim()) {
+    return res.status(400).json({ error: 'Nombre y cédula son requeridos.' });
+  }
+
+  const ticket = db.prepare('SELECT id, ticket_number FROM tickets WHERE id = ?').get(ticketId);
+  if (!ticket) return res.status(404).json({ error: 'Ticket no encontrado.' });
+
+  let agent = db.prepare('SELECT id FROM agents WHERE name = ?').get(nombre.trim());
+  if (!agent) {
+    const result = db.prepare('INSERT INTO agents (name) VALUES (?)').run(nombre.trim());
+    agent = { id: result.lastInsertRowid };
+  }
+
+  db.prepare(`UPDATE tickets SET assigned_to = ?, updated_at = datetime('now','localtime') WHERE id = ?`)
+    .run(agent.id, ticketId);
+
+  logAudit(agentName, 'Técnico asignado', 'ticket', ticketId, ticket.ticket_number, { nombre, cedula });
+
+  res.json({ success: true, agent_id: agent.id, agent_name: nombre.trim() });
+}));
+
 router.put('/api/agents/:id', ...canEdit, wrap(async (req, res) => {
   const agentId = parseInt(req.params.id);
   const { name } = req.body;

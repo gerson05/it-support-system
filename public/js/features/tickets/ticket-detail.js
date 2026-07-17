@@ -11,6 +11,7 @@ import { iconChevronLeft, iconAlert, iconSend, iconMessage, iconSparkle } from '
 import DataService from '../../core/api.js';
 import { openFaqFromTicket } from '../herramientas/faqs.js';
 import { initAiTab } from './ticket-ai-panel.js';
+import { createEmpleadoSearch } from '../../core/empleado-search.js';
 
 
 export async function renderTicketDetail(container, ticketId) {
@@ -136,9 +137,22 @@ export async function renderTicketDetail(container, ticketId) {
             <div class="card">
               <div class="section-title">Detalles del Caso</div>
               <div class="info-details-list" style="margin-top: 20px;">
-                <div class="info-details-item">
+                <div class="info-details-item" style="align-items:flex-start;">
                   <span class="info-details-label">Solicitante:</span>
-                  <span class="info-details-val">${ticket.requester_name || 'Sin registrar'}</span>
+                  <div style="display:flex;flex-direction:column;gap:6px;flex:1;">
+                    <div style="display:flex;align-items:center;gap:8px;">
+                      <span class="info-details-val" id="requester-display">${ticket.requester_name || 'Sin registrar'}</span>
+                      <button id="btn-edit-requester" style="background:none;border:none;cursor:pointer;color:var(--text-3);padding:2px 4px;border-radius:4px;font-size:11px;line-height:1;" title="Editar solicitante">✏️</button>
+                    </div>
+                    <div id="requester-edit-form" style="display:none;flex-direction:column;gap:6px;">
+                      <input type="text" id="requester-name-input" placeholder="Nombre del solicitante" style="padding:6px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;width:100%;box-sizing:border-box;" autocomplete="off">
+                      <input type="text" id="requester-cedula-input" placeholder="Cédula (auto)" readonly style="padding:6px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface-2);color:var(--text-3);font-size:12px;width:100%;box-sizing:border-box;">
+                      <div style="display:flex;gap:6px;">
+                        <button id="btn-save-requester" class="btn btn-primary" style="padding:5px 12px;font-size:12px;">Guardar</button>
+                        <button id="btn-cancel-requester" class="btn btn-secondary" style="padding:5px 12px;font-size:12px;">Cancelar</button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
                 <div class="info-details-item">
                   <span class="info-details-label">WhatsApp/Celular:</span>
@@ -194,11 +208,13 @@ export async function renderTicketDetail(container, ticketId) {
                 </div>
 
                 <div class="form-group" style="margin-bottom: 0;">
-                  <label for="assign-agent">Agente Asignado</label>
-                  <select id="assign-agent">
-                    <option value="">Sin Asignar</option>
-                    <!-- Agentes se cargan dinámicamente -->
-                  </select>
+                  <label>Técnico Asignado</label>
+                  <input type="text" id="assign-tecnico-name" placeholder="Buscar empleado…" autocomplete="off"
+                    style="padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:13px;width:100%;box-sizing:border-box;">
+                  <input type="text" id="assign-tecnico-cedula" readonly placeholder="Cédula (auto)"
+                    style="padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface-2);color:var(--text-3);font-size:12px;width:100%;box-sizing:border-box;margin-top:4px;">
+                  <button id="btn-assign-tecnico" class="btn btn-secondary" disabled
+                    style="width:100%;margin-top:6px;padding:7px;">Asignar técnico</button>
                 </div>
 
                 <button class="btn btn-primary" id="btn-save-actions" style="margin-top: 5px;">Guardar Cambios</button>
@@ -294,15 +310,83 @@ export async function renderTicketDetail(container, ticketId) {
         }
       }
 
-      // Rellenar lista de agentes en la sección de asignación
-      const assignSelect = document.getElementById('assign-agent');
-      if (assignSelect) {
-        const agents = await DataService.getAgents().catch(() => []);
-        assignSelect.innerHTML = '<option value="">Sin Asignar</option>' +
-          agents.map(a =>
-            `<option value="${a.id}" ${ticket.assigned_to === a.id ? 'selected' : ''}>${a.name}</option>`
-          ).join('');
+      // Technician assignment with employee autocomplete
+      const techNameInput   = document.getElementById('assign-tecnico-name');
+      const techCedulaInput = document.getElementById('assign-tecnico-cedula');
+      const btnAssign       = document.getElementById('btn-assign-tecnico');
+
+      if (techNameInput) {
+        if (ticket.assigned_to) {
+          const agents = await DataService.getAgents().catch(() => []);
+          const cur = agents.find(a => a.id === ticket.assigned_to);
+          if (cur) techNameInput.value = cur.name;
+        }
+
+        createEmpleadoSearch(techNameInput, techCedulaInput, {
+          onSelect: () => { if (btnAssign) btnAssign.disabled = false; }
+        });
+
+        btnAssign?.addEventListener('click', async () => {
+          const nombre = techNameInput.value.trim();
+          const cedula = techCedulaInput?.value.trim();
+          if (!nombre || !cedula) return;
+          btnAssign.disabled = true;
+          try {
+            const res = await fetch(`/api/tickets/${ticketId}/assign`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ nombre, cedula, agentName: state.currentUser?.username || 'Agente' }),
+            });
+            if (!res.ok) throw new Error((await res.json()).error);
+            showToast(`Ticket asignado a ${nombre}`, 'success');
+            await loadTicketData();
+          } catch (err) {
+            showToast(err.message || 'Error al asignar técnico', 'error');
+            btnAssign.disabled = false;
+          }
+        });
       }
+
+      // Requester edit mode
+      const btnEditReq   = document.getElementById('btn-edit-requester');
+      const editForm     = document.getElementById('requester-edit-form');
+      const reqNameInput = document.getElementById('requester-name-input');
+      const reqCedInput  = document.getElementById('requester-cedula-input');
+
+      btnEditReq?.addEventListener('click', () => {
+        editForm.style.display = 'flex';
+        reqNameInput.value = ticket.requester_name || '';
+        reqCedInput.value  = '';
+        btnEditReq.style.display = 'none';
+        createEmpleadoSearch(reqNameInput, reqCedInput);
+        reqNameInput.focus();
+      });
+
+      document.getElementById('btn-cancel-requester')?.addEventListener('click', () => {
+        editForm.style.display = 'none';
+        btnEditReq.style.display = '';
+      });
+
+      document.getElementById('btn-save-requester')?.addEventListener('click', async () => {
+        const newName = reqNameInput.value.trim();
+        if (!newName) { showToast('El nombre es requerido', 'error'); return; }
+        try {
+          const res = await fetch(`/api/tickets/${ticketId}/requester`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              requester_name: newName,
+              cedula: reqCedInput.value.trim() || undefined,
+              agentName: state.currentUser?.username || 'Agente',
+            }),
+          });
+          if (!res.ok) throw new Error((await res.json()).error);
+          showToast('Solicitante actualizado', 'success');
+          await loadTicketData();
+        } catch (err) {
+          showToast(err.message || 'Error al actualizar', 'error');
+        }
+      });
 
       // Banner de estado WhatsApp — actualiza al cargar y via SSE
       function updateWaBanner(connected) {
@@ -368,10 +452,9 @@ export async function renderTicketDetail(container, ticketId) {
       btnSave.addEventListener('click', async () => {
         const status = document.getElementById('change-status').value;
         const priority = document.getElementById('change-priority').value;
-        const assigned_to = document.getElementById('assign-agent').value;
 
         try {
-          await DataService.updateTicket(ticketId, { status, priority, assigned_to });
+          await DataService.updateTicket(ticketId, { status, priority });
           showToast('Cambios del ticket guardados exitosamente.', 'success');
           await loadTicketData();
         } catch (err) {

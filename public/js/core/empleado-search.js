@@ -11,6 +11,8 @@
  */
 export function createEmpleadoSearch(nameInput, cedulaInput, options = {}) {
   if (!nameInput) return;
+  if (nameInput.dataset.empSearchInit === '1') return;
+  nameInput.dataset.empSearchInit = '1';
 
   let _timer = null;
   let _drop  = null;
@@ -33,10 +35,14 @@ export function createEmpleadoSearch(nameInput, cedulaInput, options = {}) {
     rows.forEach(r => {
       const item = document.createElement('div');
       item.style.cssText = 'padding:8px 12px;cursor:pointer;font-size:12px;border-bottom:1px solid var(--border);';
-      item.innerHTML = `
-        <div style="font-weight:600;color:var(--text);">${r.nombre}</div>
-        <div style="color:var(--text-3);">${r.cedula}${r.cargo ? ' · ' + r.cargo : ''}${r.area ? ' · ' + r.area : ''}</div>
-      `;
+      const nameDiv = document.createElement('div');
+      nameDiv.style.cssText = 'font-weight:600;color:var(--text);';
+      nameDiv.textContent = r.nombre;
+      const metaDiv = document.createElement('div');
+      metaDiv.style.cssText = 'color:var(--text-3);';
+      metaDiv.textContent = [r.cedula, r.cargo, r.area].filter(Boolean).join(' · ');
+      item.appendChild(nameDiv);
+      item.appendChild(metaDiv);
       item.addEventListener('mouseenter', () => { item.style.background = 'var(--surface-2)'; });
       item.addEventListener('mouseleave', () => { item.style.background = ''; });
       item.addEventListener('mousedown', e => {

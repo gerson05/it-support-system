@@ -55,6 +55,151 @@ function slaCard({ count, label, sublabel, ok, color, icon }) {
     </div>`;
 }
 
+async function renderAnalyticsSection() {
+  const section = document.getElementById('analytics-section');
+  if (!section) return;
+
+  section.innerHTML = `
+    <div style="display:flex;align-items:center;gap:8px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text-3);margin-bottom:12px;">
+      ${IC.bar} Analítica Operacional
+    </div>
+
+    <details style="margin-bottom:12px;" open>
+      <summary style="cursor:pointer;font-size:13px;font-weight:600;color:var(--text-2);padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:10px;list-style:none;display:flex;align-items:center;gap:8px;">
+        ${IC.bar} Tickets por Área — Top 10
+      </summary>
+      <div class="card" style="border-radius:0 0 10px 10px;margin-top:-1px;" id="analytics-por-area">
+        <div style="color:var(--text-3);font-size:12px;text-align:center;padding:20px;">Cargando…</div>
+      </div>
+    </details>
+
+    <details style="margin-bottom:12px;">
+      <summary style="cursor:pointer;font-size:13px;font-weight:600;color:var(--text-2);padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:10px;list-style:none;display:flex;align-items:center;gap:8px;">
+        ${IC.ticket} Top Solicitantes
+      </summary>
+      <div class="card" style="border-radius:0 0 10px 10px;margin-top:-1px;" id="analytics-solicitantes">
+        <div style="color:var(--text-3);font-size:12px;text-align:center;padding:20px;">Cargando…</div>
+      </div>
+    </details>
+
+    <details>
+      <summary style="cursor:pointer;font-size:13px;font-weight:600;color:var(--text-2);padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:10px;list-style:none;display:flex;align-items:center;gap:8px;">
+        ${IC.inbox} Historial de Despachos
+      </summary>
+      <div class="card" style="border-radius:0 0 10px 10px;margin-top:-1px;">
+        <div style="display:flex;gap:8px;margin-bottom:14px;">
+          <input type="text" id="analytics-cedula-input" placeholder="Filtrar por cédula…"
+            style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;">
+          <button id="analytics-cedula-btn" class="btn btn-secondary" style="padding:7px 14px;font-size:12px;">Buscar</button>
+        </div>
+        <div id="analytics-despachos">
+          <div style="color:var(--text-3);font-size:12px;text-align:center;padding:20px;">Cargando…</div>
+        </div>
+      </div>
+    </details>
+  `;
+
+  async function loadAnalytics(cedula = '') {
+    try {
+      const url = '/api/analytics/dashboard' + (cedula ? `?cedula=${encodeURIComponent(cedula)}` : '');
+      const data = await fetch(url).then(r => r.json());
+
+      const areaEl = document.getElementById('analytics-por-area');
+      if (areaEl) {
+        if (!data.tickets_por_area?.length) {
+          areaEl.innerHTML = '<p style="color:var(--text-3);font-size:12px;text-align:center;padding:16px 0;">Sin datos</p>';
+        } else {
+          const max = Math.max(...data.tickets_por_area.map(a => a.total), 1);
+          areaEl.innerHTML = data.tickets_por_area.map(item => {
+            const pct = Math.round((item.total / max) * 100);
+            return `
+              <div style="margin-bottom:12px;">
+                <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                  <span style="font-size:12px;color:var(--text-2);">${item.area || 'General'}</span>
+                  <span style="font-size:12px;font-weight:700;color:var(--text);">${item.total} <span style="font-weight:400;color:var(--text-3);">(${item.abiertos} abiertos)</span></span>
+                </div>
+                <div style="height:5px;background:var(--surface-3);border-radius:99px;overflow:hidden;">
+                  <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#6366f1,#8b5cf6);border-radius:99px;"></div>
+                </div>
+              </div>`;
+          }).join('');
+        }
+      }
+
+      const solEl = document.getElementById('analytics-solicitantes');
+      if (solEl) {
+        if (!data.top_solicitantes?.length) {
+          solEl.innerHTML = '<p style="color:var(--text-3);font-size:12px;text-align:center;padding:16px 0;">Sin datos</p>';
+        } else {
+          solEl.innerHTML = `
+            <table style="width:100%;border-collapse:collapse;font-size:12px;">
+              <thead><tr style="border-bottom:1px solid var(--border);">
+                <th style="text-align:left;padding:6px 8px;color:var(--text-3);font-weight:600;">#</th>
+                <th style="text-align:left;padding:6px 8px;color:var(--text-3);font-weight:600;">Nombre</th>
+                <th style="text-align:right;padding:6px 8px;color:var(--text-3);font-weight:600;">Tickets</th>
+              </tr></thead>
+              <tbody>${data.top_solicitantes.map((s, i) => `
+                <tr style="border-bottom:1px solid var(--border);">
+                  <td style="padding:8px;color:var(--text-3);">${i + 1}</td>
+                  <td style="padding:8px;color:var(--text);">${s.requester_name}</td>
+                  <td style="padding:8px;text-align:right;font-weight:700;color:var(--text);">${s.total}</td>
+                </tr>`).join('')}
+              </tbody>
+            </table>`;
+        }
+      }
+
+      const despEl = document.getElementById('analytics-despachos');
+      if (despEl) {
+        if (!data.despachos?.length) {
+          despEl.innerHTML = '<p style="color:var(--text-3);font-size:12px;text-align:center;padding:16px 0;">Sin despachos encontrados</p>';
+        } else {
+          despEl.innerHTML = `
+            <table style="width:100%;border-collapse:collapse;font-size:12px;">
+              <thead><tr style="border-bottom:1px solid var(--border);">
+                <th style="text-align:left;padding:6px 8px;color:var(--text-3);font-weight:600;">Número</th>
+                <th style="text-align:left;padding:6px 8px;color:var(--text-3);font-weight:600;">Destinatario</th>
+                <th style="text-align:left;padding:6px 8px;color:var(--text-3);font-weight:600;">Cédula</th>
+                <th style="text-align:left;padding:6px 8px;color:var(--text-3);font-weight:600;">Sede</th>
+                <th style="text-align:left;padding:6px 8px;color:var(--text-3);font-weight:600;">Fecha</th>
+                <th style="text-align:right;padding:6px 8px;color:var(--text-3);font-weight:600;">Ítems</th>
+              </tr></thead>
+              <tbody>${data.despachos.map(d => {
+                let n = 0;
+                try { n = JSON.parse(d.articulos || '[]').length; } catch {}
+                return `
+                  <tr style="border-bottom:1px solid var(--border);">
+                    <td style="padding:8px;font-weight:600;color:var(--text);">${d.numero}</td>
+                    <td style="padding:8px;color:var(--text);">${d.destinatario || '—'}</td>
+                    <td style="padding:8px;color:var(--text-3);">${d.cedula || '—'}</td>
+                    <td style="padding:8px;color:var(--text-2);">${d.sede || '—'}</td>
+                    <td style="padding:8px;color:var(--text-3);">${d.fecha || '—'}</td>
+                    <td style="padding:8px;text-align:right;color:var(--text);">${n}</td>
+                  </tr>`;
+              }).join('')}
+              </tbody>
+            </table>`;
+        }
+      }
+    } catch {
+      ['analytics-por-area','analytics-solicitantes','analytics-despachos'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = '<p style="color:var(--danger);font-size:12px;text-align:center;padding:16px 0;">Error cargando datos — intenta de nuevo</p>';
+      });
+    }
+  }
+
+  await loadAnalytics();
+
+  document.getElementById('analytics-cedula-btn')?.addEventListener('click', () => {
+    const cedula = (document.getElementById('analytics-cedula-input')?.value || '').trim();
+    loadAnalytics(cedula);
+  });
+  document.getElementById('analytics-cedula-input')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('analytics-cedula-btn')?.click();
+  });
+}
+
 export async function renderDashboard(container) {
   if (refreshInterval) { clearInterval(refreshInterval); refreshInterval = null; }
   if (trendChart)      { trendChart.destroy(); trendChart = null; }
@@ -103,6 +248,9 @@ export async function renderDashboard(container) {
           <canvas id="trend-chart"></canvas>
         </div>
       </div>
+
+      <!-- Analytics -->
+      <div id="analytics-section" style="margin-top:16px;"></div>
 
       <!-- Tickets recientes -->
       <div class="card">
@@ -275,5 +423,6 @@ export async function renderDashboard(container) {
   }
 
   await fetchAndRenderData();
+  await renderAnalyticsSection();
   refreshInterval = setInterval(fetchAndRenderData, 30_000);
 }
