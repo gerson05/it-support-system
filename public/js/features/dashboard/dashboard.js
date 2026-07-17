@@ -75,6 +75,15 @@ async function renderAnalyticsSection() {
 
     <details style="margin-bottom:12px;">
       <summary style="cursor:pointer;font-size:13px;font-weight:600;color:var(--text-2);padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:10px;list-style:none;display:flex;align-items:center;gap:8px;">
+        ${IC.zap} Requerimientos e Incidencias por Sede — Top 10
+      </summary>
+      <div class="card" style="border-radius:0 0 10px 10px;margin-top:-1px;" id="analytics-tr-sede">
+        <div style="color:var(--text-3);font-size:12px;text-align:center;padding:20px;">Cargando…</div>
+      </div>
+    </details>
+
+    <details style="margin-bottom:12px;">
+      <summary style="cursor:pointer;font-size:13px;font-weight:600;color:var(--text-2);padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:10px;list-style:none;display:flex;align-items:center;gap:8px;">
         ${IC.ticket} Top Solicitantes
       </summary>
       <div class="card" style="border-radius:0 0 10px 10px;margin-top:-1px;" id="analytics-solicitantes">
@@ -120,6 +129,28 @@ async function renderAnalyticsSection() {
                 </div>
                 <div style="height:5px;background:var(--surface-3);border-radius:99px;overflow:hidden;">
                   <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#6366f1,#8b5cf6);border-radius:99px;"></div>
+                </div>
+              </div>`;
+          }).join('');
+        }
+      }
+
+      const trSedeEl = document.getElementById('analytics-tr-sede');
+      if (trSedeEl) {
+        if (!data.tech_requests_por_sede?.length) {
+          trSedeEl.innerHTML = '<p style="color:var(--text-3);font-size:12px;text-align:center;padding:16px 0;">Sin datos</p>';
+        } else {
+          const maxTR = Math.max(...data.tech_requests_por_sede.map(a => a.total), 1);
+          trSedeEl.innerHTML = data.tech_requests_por_sede.map(item => {
+            const pct = Math.round((item.total / maxTR) * 100);
+            return `
+              <div style="margin-bottom:12px;">
+                <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                  <span style="font-size:12px;color:var(--text-2);max-width:60%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${item.sede}</span>
+                  <span style="font-size:12px;font-weight:700;color:var(--text);">${item.total} <span style="font-weight:400;color:var(--text-3);">(${item.requerimientos}R · ${item.incidencias}I · ${item.pendientes} pend.)</span></span>
+                </div>
+                <div style="height:5px;background:var(--surface-3);border-radius:99px;overflow:hidden;">
+                  <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#f59e0b,#ef4444);border-radius:99px;"></div>
                 </div>
               </div>`;
           }).join('');

@@ -57,4 +57,40 @@ router.get('/api/erp/sedes', requireAuth, wrap(async (req, res) => {
   res.json(rows);
 }));
 
+router.get('/api/erp/empleado/:cedula', requireAuth, wrap(async (req, res) => {
+  const cedula = req.params.cedula.trim();
+  const row = db.prepare(
+    `SELECT cedula, nombre_completo, cargo, area FROM employees WHERE cedula = ?`
+  ).get(cedula);
+  if (!row) return res.status(404).json({ error: 'Cédula no encontrada en el sistema.' });
+  res.json({ cedula: row.cedula, nombre: row.nombre_completo, cargo: row.cargo, area: row.area });
+}));
+
+router.get('/api/erp/empleado/:cedula/historial', requireAuth, wrap(async (req, res) => {
+  const cedula = req.params.cedula.trim();
+
+  const empleado = db.prepare(
+    `SELECT cedula, nombre_completo, cargo, area FROM employees WHERE cedula = ?`
+  ).get(cedula);
+
+  const tickets = db.prepare(
+    `SELECT id, ticket_number, area, status, priority, description, created_at
+     FROM tickets
+     WHERE requester_name IN (SELECT nombre_completo FROM employees WHERE cedula = ?)
+     ORDER BY created_at DESC LIMIT 20`
+  ).all(cedula);
+
+  const despachos = db.prepare(
+    `SELECT numero, destinatario, sede, fecha, articulos, created_at
+     FROM despachos WHERE cedula = ? ORDER BY created_at DESC LIMIT 20`
+  ).all(cedula);
+
+  const techRequests = db.prepare(
+    `SELECT request_number, type, status, priority, description, sede, created_at
+     FROM tech_requests WHERE cedula = ? ORDER BY created_at DESC LIMIT 20`
+  ).all(cedula);
+
+  res.json({ empleado, tickets, despachos, tech_requests: techRequests });
+}));
+
 export default router;

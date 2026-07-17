@@ -12,6 +12,7 @@ import DataService from '../../core/api.js';
 import { openFaqFromTicket } from '../herramientas/faqs.js';
 import { initAiTab } from './ticket-ai-panel.js';
 import { createEmpleadoSearch } from '../../core/empleado-search.js';
+import { openEmpleadoPerfil } from '../../core/cedula-lookup.js';
 
 
 export async function renderTicketDetail(container, ticketId) {
@@ -143,6 +144,7 @@ export async function renderTicketDetail(container, ticketId) {
                     <div style="display:flex;align-items:center;gap:8px;">
                       <span class="info-details-val" id="requester-display">${ticket.requester_name || 'Sin registrar'}</span>
                       <button id="btn-edit-requester" style="background:none;border:none;cursor:pointer;color:var(--text-3);padding:2px 4px;border-radius:4px;font-size:11px;line-height:1;" title="Editar solicitante">✏️</button>
+                      <button id="btn-ver-perfil" style="background:none;border:none;cursor:pointer;color:var(--text-3);padding:2px 4px;border-radius:4px;font-size:11px;line-height:1;" title="Ver perfil del empleado">👤</button>
                     </div>
                     <div id="requester-edit-form" style="display:none;flex-direction:column;gap:6px;">
                       <input type="text" id="requester-name-input" placeholder="Nombre del solicitante" style="padding:6px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;width:100%;box-sizing:border-box;" autocomplete="off">
@@ -365,6 +367,12 @@ export async function renderTicketDetail(container, ticketId) {
       document.getElementById('btn-cancel-requester')?.addEventListener('click', () => {
         editForm.style.display = 'none';
         btnEditReq.style.display = '';
+      });
+
+      document.getElementById('btn-ver-perfil')?.addEventListener('click', async () => {
+        const res = await fetch(`/api/erp/empleados?q=${encodeURIComponent(ticket.requester_name || '')}`).then(r=>r.json()).catch(()=>[]);
+        const cedula = res[0]?.cedula;
+        if (cedula) openEmpleadoPerfil(cedula);
       });
 
       document.getElementById('btn-save-requester')?.addEventListener('click', async () => {

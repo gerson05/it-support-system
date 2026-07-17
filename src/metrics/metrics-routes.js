@@ -175,7 +175,20 @@ router.get('/api/analytics/dashboard', requireAuth, requirePermission('metrics:r
         LIMIT 50
       `).all();
 
-  res.json({ tickets_por_area: ticketsPorArea, top_solicitantes: topSolicitantes, despachos });
+  const techRequestsPorSede = db.prepare(`
+    SELECT sede,
+           COUNT(*) AS total,
+           SUM(CASE WHEN type = 'requerimiento' THEN 1 ELSE 0 END) AS requerimientos,
+           SUM(CASE WHEN type = 'incidencia'    THEN 1 ELSE 0 END) AS incidencias,
+           SUM(CASE WHEN status = 'pendiente'   THEN 1 ELSE 0 END) AS pendientes
+    FROM tech_requests
+    WHERE sede IS NOT NULL AND sede != ''
+    GROUP BY sede
+    ORDER BY total DESC
+    LIMIT 10
+  `).all();
+
+  res.json({ tickets_por_area: ticketsPorArea, top_solicitantes: topSolicitantes, despachos, tech_requests_por_sede: techRequestsPorSede });
 }));
 
 export default router;
