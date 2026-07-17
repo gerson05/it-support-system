@@ -137,4 +137,58 @@ router.get('/api/metrics/trend', requireAuth, requirePermission('metrics:read'),
   res.json({ trend, sla: { breached: sla_breached, warning: sla_warning, open: openTickets.length } });
 }));
 
+router.get('/api/analytics/dashboard', requireAuth, requirePermission('metrics:read'), wrap(async (req, res) => {
+  const { cedula } = req.query;
+
+  const ticketsPorArea = db.prepare(`
+    SELECT area,
+           COUNT(*) AS total,
+           SUM(CASE WHEN status = 'abierto' THEN 1 ELSE 0 END) AS abiertos,
+           SUM(CASE WHEN status NOT IN ('abierto','en_progreso','en_espera','siguiente_dia') THEN 1 ELSE 0 END) AS cerrados
+    FROM tickets
+    GROUP BY area
+    ORDER BY total DESC
+    LIMIT 10
+  `).all();
+
+  const topSolicitantes = db.prepare(`
+    SELECT requester_name, COUNT(*) AS total
+    FROM tickets
+    WHERE requester_name IS NOT NULL AND requester_name != 'Sin nombre'
+    GROUP BY requester_name
+    ORDER BY total DESC
+    LIMIT 10
+  `).all();
+
+  const despachos = cedula
+    ? db.prepare(`
+        SELECT numero, destinatario, cedula, sede, fecha, articulos
+        FROM despachos
+        WHERE cedula = ?
+        ORDER BY created_at DESC
+        LIMIT 50
+      `).all(cedula)
+    : db.prepare(`
+        SELECT numero, destinatario, cedula, sede, fecha, articulos
+        FROM despachos
+        ORDER BY created_at DESC
+        LIMIT 50
+      `).all();
+
+  const techRequestsPorSede = db.prepare(`
+    SELECT sede,
+           COUNT(*) AS total,
+           SUM(CASE WHEN type = 'requerimiento' THEN 1 ELSE 0 END) AS requerimientos,
+           SUM(CASE WHEN type = 'incidencia'    THEN 1 ELSE 0 END) AS incidencias,
+           SUM(CASE WHEN status = 'pendiente'   THEN 1 ELSE 0 END) AS pendientes
+    FROM tech_requests
+    WHERE sede IS NOT NULL AND sede != ''
+    GROUP BY sede
+    ORDER BY total DESC
+    LIMIT 10
+  `).all();
+
+  res.json({ tickets_por_area: ticketsPorArea, top_solicitantes: topSolicitantes, despachos, tech_requests_por_sede: techRequestsPorSede });
+}));
+
 export default router;

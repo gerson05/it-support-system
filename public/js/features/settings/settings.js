@@ -56,6 +56,34 @@ export async function renderSettings(container) {
         </div>
       </div>
 
+      <!-- ERP Import -->
+      <div class="card">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-3);margin-bottom:14px;">Importar datos ERP (Medivalle)</div>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div style="font-size:12px;color:var(--text-3);">Exporta desde el ERP a Excel y sube el archivo para actualizar la BD local.</div>
+
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+            <div style="flex:1;">
+              <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;">Empleados</div>
+              <div style="font-size:11px;color:var(--text-3);">Columnas: CEDULA, NOMBRE_COMPLETO, CARGO, AREA</div>
+            </div>
+            <input type="file" id="erp-import-empleados-file" accept=".xlsx,.xls" style="display:none;">
+            <button id="btn-erp-import-empleados" class="btn btn-secondary btn-small">📥 Subir Excel</button>
+          </div>
+          <div id="erp-import-empleados-status" style="font-size:12px;color:var(--text-3);display:none;"></div>
+
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+            <div style="flex:1;">
+              <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;">Puntos / Sedes</div>
+              <div style="font-size:11px;color:var(--text-3);">Columnas: NOMBRE, CIUDAD</div>
+            </div>
+            <input type="file" id="erp-import-puntos-file" accept=".xlsx,.xls" style="display:none;">
+            <button id="btn-erp-import-puntos" class="btn btn-secondary btn-small">📥 Subir Excel</button>
+          </div>
+          <div id="erp-import-puntos-status" style="font-size:12px;color:var(--text-3);display:none;"></div>
+        </div>
+      </div>
+
       <!-- Herramientas externas -->
       <div class="card">
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-3);margin-bottom:14px;">Herramientas Externas</div>
@@ -75,6 +103,79 @@ export async function renderSettings(container) {
   loadWaStatus();
   loadWpMessages();
   bindEvents();
+  wireErpImport('empleados');
+  wireErpImport('puntos');
+
+  function wireErpImport(type) {
+    const btn    = document.getElementById(`btn-erp-import-${type}`);
+    const input  = document.getElementById(`erp-import-${type}-file`);
+    const status = document.getElementById(`erp-import-${type}-status`);
+    if (!btn || !input) return;
+
+    btn.addEventListener('click', () => input.click());
+    input.addEventListener('change', async () => {
+      const file = input.files[0];
+      if (!file) return;
+      btn.disabled = true; btn.textContent = 'Importando…';
+      status.style.display = 'block'; status.textContent = 'Procesando archivo…'; status.style.color = 'var(--text-3)';
+      try {
+        const fd = new FormData();
+        fd.append('file', file);
+        const res = await fetch(`/api/erp/import/${type}`, { method: 'POST', body: fd });
+        const d = await res.json();
+        if (!res.ok) { status.textContent = '✗ ' + d.error; status.style.color = 'var(--danger)'; }
+        else { status.textContent = `✓ ${d.imported} importados, ${d.skipped} omitidos`; status.style.color = '#10b981'; }
+      } catch { status.textContent = '✗ Error al importar'; status.style.color = 'var(--danger)'; }
+      finally { btn.disabled = false; btn.textContent = '📥 Subir Excel'; input.value = ''; }
+    });
+  }
+
+  async function loadErpSyncStatus() {
+    try {
+      const s = await fetch('/api/erp/sync/status').then(r => r.json());
+      const el = document.getElementById('erp-sync-status');
+      if (!el) return;
+      if (!s.configured) {
+        el.innerHTML = '<span style="color:var(--text-3);">ERP_USER / ERP_PASS no configurados en .env</span>';
+        return;
+      }
+      if (s.running) {
+        el.innerHTML = '<span style="color:#f59e0b;">⟳ Sincronizando…</span>';
+        setTimeout(loadErpSyncStatus, 3000);
+        return;
+      }
+      const r = s.lastResult;
+      if (!s.lastRun) {
+        el.innerHTML = '<span style="color:var(--text-3);">Sin sincronización previa — haz clic en "Sincronizar ahora"</span>';
+      } else {
+        const ok = !r?.errors?.length;
+        el.innerHTML = `
+          <span style="color:${ok ? '#10b981' : '#f59e0b'};">${ok ? '✓' : '⚠'} Última sync: ${new Date(s.lastRun).toLocaleString('es-CO')}</span><br>
+          <span style="font-size:11px;color:var(--text-3);">Empleados: ${r?.empleados ?? 0} · Puntos: ${r?.puntos ?? 0}${r?.errors?.length ? ' · ' + r.errors.length + ' errores' : ''}</span>
+          ${!s.empleados_servlet ? '<br><span style="font-size:11px;color:#f59e0b;">⚠ ERP_EMPLEADOS_OBJ no configurado — configura el servlet de empleados en .env</span>' : ''}
+        `;
+      }
+    } catch {
+      const el = document.getElementById('erp-sync-status');
+      if (el) el.innerHTML = '<span style="color:var(--danger);">Error cargando estado</span>';
+    }
+  }
+
+  document.getElementById('btn-erp-sync')?.addEventListener('click', async () => {
+    const btn = document.getElementById('btn-erp-sync');
+    btn.disabled = true; btn.textContent = 'Iniciando…';
+    try {
+      const res = await fetch('/api/erp/sync', { method: 'POST' });
+      const d = await res.json();
+      if (!res.ok) { showToast(d.error, 'error'); return; }
+      showToast('Sync ERP iniciado.', 'success');
+      setTimeout(loadErpSyncStatus, 2000);
+    } catch {
+      showToast('Error al iniciar sync.', 'error');
+    } finally {
+      btn.disabled = false; btn.textContent = '⟳ Sincronizar ahora';
+    }
+  });
 }
 
 async function loadWpMessages() {

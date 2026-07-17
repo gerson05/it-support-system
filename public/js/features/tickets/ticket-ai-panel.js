@@ -10,8 +10,8 @@
  *  - Post-execution actions: resolve ticket + add internal note (wirePostExecutionActions)
  */
 
-import { showToast } from '../../ui/components.js';
-import { createAiKbCard, createExecutionModal } from '../../ui/components.js';
+import { showToast, createAiKbCard, createExecutionModal } from '../../ui/components.js';
+import { iconSparkle, iconRefresh, iconCheck, iconZap } from '../../utils/icons.js';
 import { state } from '../../core/app.js';
 import DataService from '../../core/api.js';
 
@@ -24,9 +24,27 @@ export async function initAiTab(ticket) {
   const problema = ticket.description || '';
 
   container.innerHTML = `
-    <div style="text-align:center;padding:40px 20px;color:var(--text-muted,#64748b);">
-      <div style="font-size:28px;margin-bottom:10px;">⏳</div>
-      <div style="font-size:13px;">Analizando problema del ticket...</div>
+    <style>
+      @keyframes ai-spin   { to { transform: rotate(360deg); } }
+      @keyframes ai-pulse  { 0%,100%{opacity:.25} 50%{opacity:1} }
+    </style>
+    <div style="text-align:center;padding:44px 20px;">
+      <div style="display:flex;justify-content:center;margin-bottom:18px;">
+        <div style="
+          width:44px;height:44px;border-radius:50%;
+          border:3px solid var(--border-2,rgba(255,255,255,.16));
+          border-top-color:var(--primary,#6366f1);
+          animation:ai-spin .75s linear infinite;">
+        </div>
+      </div>
+      <div style="font-size:13px;font-weight:500;color:var(--text-2,#94a3b8);margin-bottom:12px;">
+        Analizando problema del ticket…
+      </div>
+      <div style="display:flex;justify-content:center;gap:5px;">
+        <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--primary,#6366f1);animation:ai-pulse 1.2s ease-in-out infinite;animation-delay:0s;"></span>
+        <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--primary,#6366f1);animation:ai-pulse 1.2s ease-in-out infinite;animation-delay:.2s;"></span>
+        <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--primary,#6366f1);animation:ai-pulse 1.2s ease-in-out infinite;animation-delay:.4s;"></span>
+      </div>
     </div>`;
 
   try {
@@ -37,7 +55,7 @@ export async function initAiTab(ticket) {
     if (ai) {
       html += `
         <div style="background:rgba(22,101,52,.2);border:1px solid #166534;border-radius:8px;padding:12px;margin-bottom:14px;">
-          <div style="color:#4ade80;font-weight:600;font-size:12px;margin-bottom:6px;">🤖 Análisis IA</div>
+          <div style="color:#4ade80;font-weight:600;font-size:12px;margin-bottom:6px;display:flex;align-items:center;gap:5px;">${iconSparkle(13)} Análisis IA</div>
           <div id="ai-analysis-text" style="color:#bbf7d0;font-size:12px;line-height:1.6;white-space:pre-wrap;"></div>
         </div>`;
     }
@@ -53,7 +71,7 @@ export async function initAiTab(ticket) {
       <div style="margin-top:14px;display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap;">
         <textarea id="ai-reanalyze-input" style="flex:1;min-width:160px;font-size:12px;min-height:38px;resize:vertical;"
           placeholder="Ajusta la descripción del problema...">${problema}</textarea>
-        <button id="btn-ai-reanalyze" class="btn btn-secondary" style="font-size:12px;white-space:nowrap;">🔄 Re-analizar</button>
+        <button id="btn-ai-reanalyze" class="btn btn-secondary" style="font-size:12px;white-space:nowrap;display:inline-flex;align-items:center;gap:5px;">${iconRefresh(13)} Re-analizar</button>
       </div>`;
 
     container.innerHTML = html;
@@ -121,7 +139,7 @@ function wireKbCardEvents(ticket, kbItems) {
         showToast('Error al obtener agentes: ' + err.message, 'error');
       } finally {
         btn.disabled    = false;
-        btn.textContent = '▶ Ejecutar en equipo';
+        btn.innerHTML = `${iconZap(13)} Ejecutar en equipo`;
       }
     });
   });
@@ -160,7 +178,7 @@ function openExecutionModal(kbItem, commands, onlineAgents, linkedAgentId, ticke
     } catch (err) {
       showToast('Error al ejecutar: ' + err.message, 'error');
       btnConfirm.disabled    = false;
-      btnConfirm.textContent = '✓ Confirmar y ejecutar';
+      btnConfirm.innerHTML = `${iconCheck(13)} Confirmar y ejecutar`;
       btnCancel.disabled     = false;
     }
   });
@@ -222,8 +240,8 @@ async function pollCommandOutput(agentId, cmdId, ticket) {
         if (postActions) {
           postActions.style.display = 'flex';
           postActions.innerHTML = `
-            <button id="btn-post-resolve" class="btn btn-primary" style="font-size:12px;">
-              ✓ Marcar ticket como resuelto
+            <button id="btn-post-resolve" class="btn btn-primary" style="font-size:12px;display:inline-flex;align-items:center;gap:5px;">
+              ${iconCheck(13)} Marcar ticket como resuelto
             </button>
             <button id="btn-post-note" class="btn btn-secondary" style="font-size:12px;">
               Guardar en notas internas
