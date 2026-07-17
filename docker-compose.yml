@@ -39,6 +39,12 @@ services:
       REGISTROS_SCRIPT_URL: ${REGISTROS_SCRIPT_URL:-}
       REGISTROS_SHEET_URL: ${REGISTROS_SHEET_URL:-}
 
+      # ── ERP Medivalle (GeneXus scraper sync) ─────────────
+      ERP_USER: ${ERP_USER:-}
+      ERP_PASS: ${ERP_PASS:-}
+      ERP_EMPLEADOS_OBJ: ${ERP_EMPLEADOS_OBJ:-}
+      ERP_SYNC_INTERVAL_HOURS: ${ERP_SYNC_INTERVAL_HOURS:-24}
+
       # ── Toggles de workers ───────────────────────────────
       DISABLE_WHATSAPP: ${DISABLE_WHATSAPP:-false}
       DISABLE_INACTIVITY_MONITOR: ${DISABLE_INACTIVITY_MONITOR:-false}

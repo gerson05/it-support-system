@@ -65,6 +65,7 @@ export async function syncEmpleados(client) {
       }
     }
   } catch (e) {
+    console.error('[ERP Sync] empleados error:', e.message);
     errors.push(`Employee panel error: ${e.message}`);
   }
 
@@ -83,27 +84,31 @@ export async function syncPuntos(client) {
     const { html } = await client._loadPanel('com.version8.wwsucursales', { SUCEST: 'A' });
     const rows = client._parseGridRows(html, [FIELD_SUC_COD, FIELD_SUC_NOM, FIELD_SUC_CIU]);
 
-    const upsert = db.prepare(`
-      INSERT INTO puntos (codigo, nombre, ciudad, activo)
-      VALUES (?, ?, ?, 1)
-      ON CONFLICT(codigo) DO UPDATE SET
-        nombre  = excluded.nombre,
-        ciudad  = excluded.ciudad,
-        activo  = 1
+    const insert = db.prepare(`
+      INSERT OR IGNORE INTO puntos (nombre, ciudad, activo)
+      VALUES (?, ?, 1)
+    `);
+    const updateCiudad = db.prepare(`
+      UPDATE puntos SET ciudad=?, activo=1 WHERE nombre=? AND (ciudad='' OR ciudad IS NULL)
     `);
 
     for (const row of rows) {
-      const codigo = row[FIELD_SUC_COD]?.trim();
       const nombre = row[FIELD_SUC_NOM]?.trim();
-      if (!codigo || !nombre) continue;
+      const ciudad = row[FIELD_SUC_CIU]?.trim() || '';
+      if (!nombre) continue;
       try {
-        upsert.run(codigo, nombre, row[FIELD_SUC_CIU]?.trim() || '');
-        upserted++;
+        const result = insert.run(nombre, ciudad);
+        if (result.changes) {
+          upserted++;
+        } else {
+          updateCiudad.run(ciudad, nombre);
+        }
       } catch (e) {
-        errors.push(`Punto codigo=${codigo}: ${e.message}`);
+        errors.push(`Punto nombre=${nombre}: ${e.message}`);
       }
     }
   } catch (e) {
+    console.error('[ERP Sync] puntos error:', e.message);
     errors.push(`Sucursales panel error: ${e.message}`);
   }
 
