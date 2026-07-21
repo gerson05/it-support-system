@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "test": "node test-ci.mjs",
-    "test:unit": "node --test --experimental-test-module-mocks src/auth/auth-middleware.test.mjs src/utils/async-handler.test.mjs src/whatsapp/flows/flujo-soporte.test.mjs src/tickets/ticket-model.test.mjs src/whatsapp/chatbot-utils.test.mjs",
-    "test:coverage": "node --test --experimental-test-module-mocks --experimental-test-coverage src/auth/auth-middleware.test.mjs src/utils/async-handler.test.mjs src/whatsapp/flows/flujo-soporte.test.mjs src/tickets/ticket-model.test.mjs src/whatsapp/chatbot-utils.test.mjs",
+    "test:unit": "node --test --experimental-test-module-mocks src/auth/auth-middleware.test.mjs src/auth/auth-service.test.mjs src/utils/async-handler.test.mjs src/utils/get-base-url.test.mjs src/knowledge/faq-data.test.mjs src/knowledge/faq-service.test.mjs src/whatsapp/sedes.test.mjs src/whatsapp/flows/flujo-soporte.test.mjs src/whatsapp/flows/flujo-sede.test.mjs src/whatsapp/flows/flujo-incidencia.test.mjs src/whatsapp/flows/flujo-requerimiento.test.mjs src/whatsapp/flows/flujo-oos.test.mjs src/tickets/ticket-model.test.mjs src/whatsapp/chatbot-utils.test.mjs",
+    "test:coverage": "node --test --experimental-test-module-mocks --experimental-test-coverage src/auth/auth-middleware.test.mjs src/auth/auth-service.test.mjs src/utils/async-handler.test.mjs src/utils/get-base-url.test.mjs src/knowledge/faq-data.test.mjs src/knowledge/faq-service.test.mjs src/whatsapp/sedes.test.mjs src/whatsapp/flows/flujo-soporte.test.mjs src/whatsapp/flows/flujo-sede.test.mjs src/whatsapp/flows/flujo-incidencia.test.mjs src/whatsapp/flows/flujo-requerimiento.test.mjs src/whatsapp/flows/flujo-oos.test.mjs src/tickets/ticket-model.test.mjs src/whatsapp/chatbot-utils.test.mjs",
     "start": "node server.js",
     "dev": "node --watch server.js",
     "build:agent": "cd agent && npm install && npm run build",
