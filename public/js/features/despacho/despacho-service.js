@@ -45,12 +45,6 @@ const DespachoService = (() => {
       return API.delete(`${API_BASE}/${despachoId}/articulos/${articuloId}`);
     },
 
-    // Generate rotulo/label
-    async generateRotulo(trackingToken, params = {}) {
-      const query = new URLSearchParams(params);
-      return `${API_BASE}/${trackingToken}/rotulo?${query}`;
-    },
-
     // Get bodegas (warehouses)
     async getBodegas() {
       return API.get(`${API_BASE}/bodegas`);

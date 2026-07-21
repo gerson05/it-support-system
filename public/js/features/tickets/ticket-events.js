@@ -237,7 +237,8 @@ export function bindFaqButton(ticket) {
 
 export function bindTabs(ticket) {
   let _aiTabInitialized = false;
-  window.switchTab = function(tab) {
+
+  function switchTab(tab) {
     const conv    = document.getElementById('tab-panel-conv');
     const ai      = document.getElementById('tab-panel-ai');
     const btnConv = document.getElementById('tab-btn-conv');
@@ -263,7 +264,10 @@ export function bindTabs(ticket) {
         initAiTab(ticket);
       }
     }
-  };
+  }
+
+  document.getElementById('tab-btn-conv')?.addEventListener('click', () => switchTab('conv'));
+  document.getElementById('tab-btn-ai')?.addEventListener('click', () => switchTab('ai'));
 }
 
 export async function bindAllEvents({ ticketId, ticket, reload }) {

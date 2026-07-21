@@ -46,25 +46,8 @@ const DOM = {
     return el?.getAttribute(key);
   },
 
-  show(el) {
-    if (el) el.style.display = '';
-  },
-
-  hide(el) {
-    if (el) el.style.display = 'none';
-  },
-
   toggle(el) {
     if (el) el.style.display = el.style.display === 'none' ? '' : 'none';
-  },
-
-  // Content
-  html(el, content) {
-    if (el) el.innerHTML = content;
-  },
-
-  text(el, content) {
-    if (el) el.textContent = content;
   },
 
   append(parent, child) {

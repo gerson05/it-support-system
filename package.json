@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "node test-ci.mjs",
-    "test:unit": "node --test --experimental-test-module-mocks src/auth/auth-middleware.test.mjs",
+    "test:unit": "node --test --experimental-test-module-mocks src/auth/auth-middleware.test.mjs src/utils/async-handler.test.mjs",
     "start": "node server.js",
     "dev": "node --watch server.js",
     "build:agent": "cd agent && npm install && npm run build",

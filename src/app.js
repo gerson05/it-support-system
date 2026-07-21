@@ -29,6 +29,7 @@ import erpRouter from './erp/erp-routes.js';
 import Chatbot from './whatsapp/chatbot.js';
 import whatsappClient from './whatsapp/baileys-client.js';
 import { addSseClient, removeSseClient } from './events/broadcaster.js';
+import { requireAuth } from './auth/auth-middleware.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);
@@ -74,7 +75,7 @@ app.get('/rastrear/:token', (_req, res) => res.sendFile(path.join(PUBLIC_DIR, 'r
 // Chatbot simulator
 const chatbotSimulator = new Chatbot();
 
-app.post('/api/simulate', async (req, res) => {
+app.post('/api/simulate', requireAuth, async (req, res) => {
   try {
     const { phone, message } = req.body;
     if (!phone || !message) return res.status(400).json({ error: 'Teléfono y mensaje son obligatorios.' });
@@ -86,7 +87,7 @@ app.post('/api/simulate', async (req, res) => {
   }
 });
 
-app.post('/api/simulate/reset', (req, res) => {
+app.post('/api/simulate/reset', requireAuth, (req, res) => {
   try {
     const { phone } = req.body;
     if (!phone) return res.status(400).json({ error: 'Teléfono es requerido.' });

@@ -1,5 +1,6 @@
 import { formatDate, getPriorityBadge, getStatusBadge, getAreaEmoji, getAreaName } from '../../core/app.js';
 import { iconChevronLeft, iconAlert, iconSend, iconMessage, iconSparkle } from '../../utils/icons.js';
+import { escapeHtml } from '../../utils/sanitize.js';
 
 export function renderLayout(ticket) {
   const emoji = getAreaEmoji(ticket.area);
@@ -9,7 +10,7 @@ export function renderLayout(ticket) {
   try {
     const faqsTried = JSON.parse(ticket.faq_tried || '[]');
     if (faqsTried.length > 0) {
-      faqsTriedHtml = faqsTried.map(id => `<code>${id}</code>`).join(', ');
+      faqsTriedHtml = faqsTried.map(id => `<code>${escapeHtml(id)}</code>`).join(', ');
     }
   } catch (e) {
     console.error(e);
@@ -26,12 +27,12 @@ export function renderLayout(ticket) {
       <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
         <div>
           <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
-            <h2 style="font-size: 24px; font-weight: 700;">Ticket ${ticket.ticket_number}</h2>
+            <h2 style="font-size: 24px; font-weight: 700;">Ticket ${escapeHtml(ticket.ticket_number)}</h2>
             ${getStatusBadge(ticket.status)}
             ${getPriorityBadge(ticket.priority)}
           </div>
           <p style="color: var(--text-muted); font-size: 14px;">
-            Creado por <strong>${ticket.requester_name || 'Empleado'}</strong>
+            Creado por <strong>${escapeHtml(ticket.requester_name || 'Empleado')}</strong>
           </p>
         </div>
         <div style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); padding: 10px 20px; border-radius: 30px;">
@@ -44,12 +45,12 @@ export function renderLayout(ticket) {
     <div class="ticket-detail-grid">
       <div class="card timeline-card">
         <div style="display:flex;gap:0;border-bottom:1px solid var(--border,#334155);margin-bottom:16px;">
-          <button id="tab-btn-conv" onclick="window.switchTab('conv')" style="
+          <button id="tab-btn-conv" style="
             padding:8px 16px;font-size:13px;font-weight:600;border:none;background:transparent;cursor:pointer;
             color:var(--primary,#60a5fa);border-bottom:2px solid var(--primary,#3b82f6);">
             ${iconMessage(14)} Conversación
           </button>
-          <button id="tab-btn-ai" onclick="window.switchTab('ai')" style="
+          <button id="tab-btn-ai" style="
             padding:8px 16px;font-size:13px;font-weight:600;border:none;background:transparent;cursor:pointer;
             color:var(--text-muted,#94a3b8);border-bottom:2px solid transparent;">
             ${iconSparkle(14)} Asistente AI
@@ -100,7 +101,7 @@ export function renderLayout(ticket) {
               <span class="info-details-label">Solicitante:</span>
               <div style="display:flex;flex-direction:column;gap:6px;flex:1;">
                 <div style="display:flex;align-items:center;gap:8px;">
-                  <span class="info-details-val" id="requester-display">${ticket.requester_name || 'Sin registrar'}</span>
+                  <span class="info-details-val" id="requester-display">${escapeHtml(ticket.requester_name || 'Sin registrar')}</span>
                   <button id="btn-edit-requester" style="background:none;border:none;cursor:pointer;color:var(--text-3);padding:2px 4px;border-radius:4px;font-size:11px;line-height:1;" title="Editar solicitante">✏️</button>
                   <button id="btn-ver-perfil" style="background:none;border:none;cursor:pointer;color:var(--text-3);padding:2px 4px;border-radius:4px;font-size:11px;line-height:1;" title="Ver perfil del empleado">👤</button>
                 </div>
@@ -116,11 +117,11 @@ export function renderLayout(ticket) {
             </div>
             <div class="info-details-item">
               <span class="info-details-label">WhatsApp/Celular:</span>
-              <span class="info-details-val">${ticket.phone}</span>
+              <span class="info-details-val">${escapeHtml(ticket.phone)}</span>
             </div>
             <div class="info-details-item">
               <span class="info-details-label">Categoría:</span>
-              <span class="info-details-val" style="text-transform: capitalize;">${ticket.category || 'General'}</span>
+              <span class="info-details-val" style="text-transform: capitalize;">${escapeHtml(ticket.category || 'General')}</span>
             </div>
             <div class="info-details-item">
               <span class="info-details-label">FAQs Intentadas:</span>
@@ -219,14 +220,14 @@ export function renderMessages(messages, requesterName) {
         bodyHtml = `<div style="font-size:12px;color:var(--text-3);font-style:italic;">📎 Imagen recibida del empleado</div>`;
       }
     } else if (isOutgoingImage) {
-      bodyHtml = `<div style="font-size:12px;color:var(--text-3);font-style:italic;">📤 Imagen enviada al empleado${attachment.caption ? ': ' + attachment.caption : ''}</div>`;
+      bodyHtml = `<div style="font-size:12px;color:var(--text-3);font-style:italic;">📤 Imagen enviada al empleado${attachment.caption ? ': ' + escapeHtml(attachment.caption) : ''}</div>`;
     } else {
-      bodyHtml = `<div style="word-break:break-word;white-space:pre-wrap;">${msg.content}</div>`;
+      bodyHtml = `<div style="word-break:break-word;white-space:pre-wrap;">${escapeHtml(msg.content)}</div>`;
     }
 
     return `
       <div class="message-bubble ${msg.sender_type}">
-        <div style="font-weight:600;font-size:11px;margin-bottom:5px;opacity:.75;text-transform:uppercase;letter-spacing:.3px;">${senderName}</div>
+        <div style="font-weight:600;font-size:11px;margin-bottom:5px;opacity:.75;text-transform:uppercase;letter-spacing:.3px;">${escapeHtml(senderName)}</div>
         ${bodyHtml}
         <div class="message-meta">
           <span></span>
@@ -244,9 +245,9 @@ export function renderNotes(notes) {
 
   return notes.map(note => `
     <div class="note-item">
-      <div style="word-break: break-word;">${note.content}</div>
+      <div style="word-break: break-word;">${escapeHtml(note.content)}</div>
       <div class="note-meta">
-        <span>📌 por ${note.agent_name || 'Agente'}</span>
+        <span>📌 por ${escapeHtml(note.agent_name || 'Agente')}</span>
         <span>${formatDate(note.created_at)}</span>
       </div>
     </div>
