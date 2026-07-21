@@ -25,8 +25,8 @@ router.get('/api/inventario/equipos', ...canRead, wrap(async (req, res) => {
   const params = [];
   if (search) {
     where.push('(CAST(id AS TEXT) LIKE ? OR placa LIKE ? OR marca LIKE ? OR nombre_equipo LIKE ? OR serial LIKE ? OR responsable LIKE ? OR area LIKE ?)');
-    const s = `%${search}%`;
-    params.push(s, s, s, s, s, s, s);
+    const searchPattern = `%${search}%`;
+    params.push(searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern);
   }
   if (area)      { where.push('area LIKE ?');      params.push(`%${area}%`); }
   if (categoria) { where.push('categoria = ?');    params.push(categoria); }
@@ -133,7 +133,7 @@ router.get('/api/inventario/reporte', ...canRead, wrap(async (req, res) => {
   }
 
   const cats = {};
-  result.equipos.forEach(e => { const k = e.categoria || 'otros'; cats[k] = (cats[k] || 0) + 1; });
+  result.equipos.forEach(equipo => { const category = equipo.categoria || 'otros'; cats[category] = (cats[category] || 0) + 1; });
   if (result.celulares.length) cats['celulares'] = result.celulares.length;
   if (result.ups.length)       cats['ups']       = result.ups.length;
   result.resumen = Object.entries(cats).map(([categoria, count]) => ({ categoria, count }));

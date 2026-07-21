@@ -40,7 +40,6 @@ function _attachEmpleadoSearch(inputEl, cedulaEl) {
       item.addEventListener('mouseleave', () => item.style.background = '');
       _drop.appendChild(item);
     });
-    // Position relative to input
     const wrap = document.createElement('div');
     wrap.style.cssText = 'position:relative;';
     inputEl.parentNode.insertBefore(wrap, inputEl);
@@ -107,24 +106,88 @@ export function buildArticuloRow(idx, isFirst) {
     </div>`;
 }
 
-/* ── Create Modal ─────────────────────────────────────────────────────── */
+/* ── Row wiring ───────────────────────────────────────────────────────── */
 
-export async function openCreateModal(onSuccess) {
-  const areaOptions = Object.entries(AREA_MAPPINGS)
-    .map(([val, { label }]) => `<option value="${val}">${label}</option>`)
-    .join('');
+function wireRow(row, rowCountRef) {
+  row.querySelector('.btn-remove-row')?.addEventListener('click', function () {
+    this.closest('.articulo-row').remove();
+  });
+  row.querySelector('.btn-dup-row')?.addEventListener('click', function () {
+    const curr  = this.closest('.articulo-row');
+    const div   = document.createElement('div');
+    div.innerHTML = buildArticuloRow(rowCountRef.value++, false);
+    const newRow  = div.firstElementChild;
+    ['nombre','descripcion','marca','modelo'].forEach(f => {
+      newRow.querySelector(`[data-field="${f}"]`).value = curr.querySelector(`[data-field="${f}"]`).value;
+    });
+    curr.insertAdjacentElement('afterend', newRow);
+    wireRow(newRow, rowCountRef);
+    newRow.querySelector('[data-field="nombre"]')?.focus();
+  });
+  ['nombre','marca','modelo'].forEach(field => {
+    row.querySelector(`[data-field="${field}"]`)?.addEventListener('blur', e => {
+      e.target.value = _tc(e.target.value.trim());
+    });
+  });
+}
 
-  const overlay = document.createElement('div');
-  overlay.className = 'modal-overlay';
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;';
+/* ── Form data helpers ────────────────────────────────────────────────── */
 
-  overlay.innerHTML = `
+function serializarFormulario(overlay, checkAcata) {
+  const rows = overlay.querySelectorAll('.articulo-row');
+  const articulos = [];
+  for (const row of rows) {
+    const nombre = row.querySelector('[data-field="nombre"]').value.trim();
+    if (nombre) articulos.push({
+      nombre,
+      cantidad:    parseInt(row.querySelector('[data-field="cantidad"]').value) || 1,
+      descripcion: row.querySelector('[data-field="descripcion"]').value.trim(),
+      marca:       row.querySelector('[data-field="marca"]').value.trim(),
+      modelo:      row.querySelector('[data-field="modelo"]').value.trim(),
+      serial:      row.querySelector('[data-field="serial"]').value.trim(),
+    });
+  }
+  const fd = new FormData(overlay.querySelector('#form-despacho'));
+  return {
+    agente:        state.currentUser?.username || 'IT',
+    destinatario:  fd.get('destinatario')  || '',
+    sede:          fd.get('sede')           || '',
+    area:          fd.get('area')           || '',
+    fecha:         fd.get('fecha')          || null,
+    articulos,
+    observaciones: fd.get('observaciones') || '',
+    requiere_acta: checkAcata.checked ? 1 : 0,
+    ticket_id:     fd.get('ticket_id') ? parseInt(fd.get('ticket_id')) : null,
+  };
+}
+
+function restaurarArticulos(overlay, rowCountRef, articulos) {
+  const list = overlay.querySelector('#articulos-list');
+  list.innerHTML = '';
+  rowCountRef.value = 0;
+  const items = articulos.length ? articulos : [{ nombre:'', cantidad:1, descripcion:'', marca:'', modelo:'', serial:'' }];
+  items.forEach((art, idx) => {
+    const div = document.createElement('div');
+    div.innerHTML = buildArticuloRow(rowCountRef.value++, idx === 0);
+    const row = div.firstElementChild;
+    list.appendChild(row);
+    ['nombre','cantidad','descripcion','marca','modelo','serial'].forEach(f => {
+      const el = row.querySelector(`[data-field="${f}"]`);
+      if (el) el.value = art[f] ?? '';
+    });
+    wireRow(row, rowCountRef);
+  });
+}
+
+/* ── Modal HTML ───────────────────────────────────────────────────────── */
+
+function renderCreateModalHTML(areaOptions) {
+  return `
     <div style="background:var(--surface);border-radius:12px;padding:28px;width:100%;max-width:640px;margin:auto 0;box-shadow:0 20px 60px rgba(0,0,0,.4);position:relative;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;">
         <h2 style="margin:0;font-size:17px;font-weight:700;color:var(--text);">Nuevo Despacho</h2>
         <button id="create-modal-close" style="background:none;border:none;cursor:pointer;color:var(--text-3);font-size:20px;line-height:1;">✕</button>
       </div>
-
       <form id="form-despacho" autocomplete="off">
         <div id="borrador-banner" style="display:none;margin-bottom:16px;padding:10px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface-2);">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
@@ -135,7 +198,6 @@ export async function openCreateModal(onSuccess) {
             </div>
           </div>
         </div>
-
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
           <div>
             <label style="display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:4px;">Destinatario *</label>
@@ -168,7 +230,6 @@ export async function openCreateModal(onSuccess) {
               style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:13px;box-sizing:border-box;">
           </div>
         </div>
-
         <div style="margin-bottom:14px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
             <label style="font-size:12px;font-weight:600;color:var(--text-2);">Artículos *</label>
@@ -200,13 +261,11 @@ export async function openCreateModal(onSuccess) {
             ${buildArticuloRow(0, true)}
           </div>
         </div>
-
         <div style="margin-bottom:14px;">
           <label style="display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:4px;">Accesorios</label>
           <textarea name="observaciones" rows="2" placeholder="Notas adicionales…"
             style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:13px;resize:vertical;box-sizing:border-box;"></textarea>
         </div>
-
         <div style="margin-bottom:8px;display:flex;align-items:center;gap:10px;">
           <input type="checkbox" id="check-requiere-acta" name="requiere_acta" style="width:16px;height:16px;cursor:pointer;">
           <label for="check-requiere-acta" style="font-size:13px;font-weight:500;color:var(--text);cursor:pointer;">¿Requiere acta de entrega?</label>
@@ -214,7 +273,6 @@ export async function openCreateModal(onSuccess) {
         <div id="acta-info" style="margin-bottom:14px;display:none;padding:9px 12px;background:var(--surface-2);border-radius:7px;border:1px solid var(--border);">
           <span style="font-size:12px;color:var(--text-2);">✔ Se generará un número de acta automáticamente al crear el despacho. La firma y el archivo se gestionan en la pestaña de Actas de entrega.</span>
         </div>
-
         <div style="margin-bottom:20px;">
           <label style="display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:4px;">
             Ticket vinculado <span style="font-weight:400;color:var(--text-3);">(opcional)</span>
@@ -228,7 +286,6 @@ export async function openCreateModal(onSuccess) {
             <button type="button" id="btn-clear-ticket" style="background:none;border:none;cursor:pointer;color:var(--text-3);font-size:14px;line-height:1;padding:0;">✕</button>
           </div>
         </div>
-
         <div style="display:flex;gap:10px;justify-content:flex-end;padding-top:16px;border-top:1px solid var(--border);">
           <button type="button" id="btn-cancel-create" class="btn btn-secondary">Cancelar</button>
           <button type="button" id="btn-guardar-borrador" class="btn btn-secondary">💾 Guardar borrador</button>
@@ -236,78 +293,35 @@ export async function openCreateModal(onSuccess) {
         </div>
       </form>
     </div>`;
+}
 
-  document.body.appendChild(overlay);
+/* ── Inventory picker ─────────────────────────────────────────────────── */
 
-  const closeModal = () => overlay.remove();
-  overlay.querySelector('#create-modal-close').onclick = closeModal;
-  overlay.querySelector('#btn-cancel-create').onclick  = closeModal;
-  overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+function attachInventoryPicker(overlay, rowCountRef) {
+  const invPicker     = overlay.querySelector('#inv-picker');
+  const invList       = overlay.querySelector('#inv-picker-list');
+  const invSearch     = overlay.querySelector('#inv-picker-search');
+  const invTipo       = overlay.querySelector('#inv-picker-tipo');
+  const invCount      = overlay.querySelector('#inv-picker-count');
+  const btnAddFromInv = overlay.querySelector('#btn-add-from-inv');
+  let invItems        = [];
+  let invSelected     = new Set();
 
-  // Formatting
-  overlay.querySelector('[name="observaciones"]').addEventListener('blur', e => { e.target.value = _sc(e.target.value); });
-
-  // Destinatario autocomplete from local employee DB
-  _attachEmpleadoSearch(
-    overlay.querySelector('input[name="destinatario"]'),
-    overlay.querySelector('input[name="cedula"]'),
-  );
-
-  // Sede autocomplete
-  attachPuntoSearch(overlay.querySelector('input[name="sede"]'));
-
-  // Acta toggle
-  const checkAcata = overlay.querySelector('#check-requiere-acta');
-  const actaInfoEl = overlay.querySelector('#acta-info');
-  checkAcata.onchange = () => { actaInfoEl.style.display = checkAcata.checked ? 'block' : 'none'; };
-
-  // Article rows
-  let rowCount = 1;
-
-  function wireRow(row) {
-    row.querySelector('.btn-remove-row')?.addEventListener('click', function () {
-      this.closest('.articulo-row').remove();
-    });
-    row.querySelector('.btn-dup-row')?.addEventListener('click', function () {
-      const curr  = this.closest('.articulo-row');
-      const div   = document.createElement('div');
-      div.innerHTML = buildArticuloRow(rowCount++, false);
-      const newRow  = div.firstElementChild;
-      ['nombre','descripcion','marca','modelo'].forEach(f => {
-        newRow.querySelector(`[data-field="${f}"]`).value = curr.querySelector(`[data-field="${f}"]`).value;
-      });
-      curr.insertAdjacentElement('afterend', newRow);
-      wireRow(newRow);
-      newRow.querySelector('[data-field="nombre"]')?.focus();
-    });
-    ['nombre','marca','modelo'].forEach(field => {
-      row.querySelector(`[data-field="${field}"]`)?.addEventListener('blur', e => {
-        e.target.value = _tc(e.target.value.trim());
-      });
-    });
+  function updateInvCount() {
+    const n = invSelected.size;
+    invCount.textContent = `${n} seleccionado${n !== 1 ? 's' : ''}`;
+    btnAddFromInv.disabled = n === 0;
+    btnAddFromInv.style.opacity = n > 0 ? '1' : '.4';
   }
 
-  overlay.querySelector('#btn-add-articulo').onclick = () => {
-    const list = overlay.querySelector('#articulos-list');
-    const div  = document.createElement('div');
-    div.innerHTML = buildArticuloRow(rowCount++, false);
-    const row = div.firstElementChild;
-    list.appendChild(row);
-    wireRow(row);
-    row.querySelector('[data-field="nombre"]')?.focus();
-  };
-
-  overlay.querySelectorAll('.articulo-row').forEach(r => wireRow(r));
-
-  // ── Inventory picker ─────────────────────────────────────────────────────
-  const invPicker    = overlay.querySelector('#inv-picker');
-  const invList      = overlay.querySelector('#inv-picker-list');
-  const invSearch    = overlay.querySelector('#inv-picker-search');
-  const invTipo      = overlay.querySelector('#inv-picker-tipo');
-  const invCount     = overlay.querySelector('#inv-picker-count');
-  const btnAddFromInv = overlay.querySelector('#btn-add-from-inv');
-  let   invItems     = [];   // full fetched list
-  let   invSelected  = new Set(); // set of item IDs
+  function filterInvItems() {
+    const q = invSearch.value.trim().toLowerCase();
+    if (!q) return invItems;
+    return invItems.filter(it =>
+      [it.placa, it.serial, it.marca, it.nombre_equipo, it.equipo, it.modelo, it.imei, it.responsable, it.voltaje]
+        .join(' ').toLowerCase().includes(q)
+    );
+  }
 
   function renderInvList(items) {
     if (!items.length) {
@@ -332,7 +346,6 @@ export async function openCreateModal(onSuccess) {
         </div>
       </label>`;
     }).join('');
-
     invList.querySelectorAll('input[type="checkbox"]').forEach(cb => {
       cb.onchange = () => {
         const id = parseInt(cb.dataset.id);
@@ -341,22 +354,6 @@ export async function openCreateModal(onSuccess) {
         renderInvList(filterInvItems());
       };
     });
-  }
-
-  function filterInvItems() {
-    const q = invSearch.value.trim().toLowerCase();
-    if (!q) return invItems;
-    return invItems.filter(it => {
-      const txt = [it.placa, it.serial, it.marca, it.nombre_equipo, it.equipo, it.modelo, it.imei, it.responsable, it.voltaje].join(' ').toLowerCase();
-      return txt.includes(q);
-    });
-  }
-
-  function updateInvCount() {
-    const n = invSelected.size;
-    invCount.textContent = `${n} seleccionado${n !== 1 ? 's' : ''}`;
-    btnAddFromInv.disabled = n === 0;
-    btnAddFromInv.style.opacity = n > 0 ? '1' : '.4';
   }
 
   let _invSearchTimer = null;
@@ -384,13 +381,11 @@ export async function openCreateModal(onSuccess) {
     if (!open && !invItems.length) loadInvItems();
   };
   overlay.querySelector('#btn-close-inv-picker').onclick = () => { invPicker.style.display = 'none'; };
-
   invTipo.onchange = () => loadInvItems(invSearch.value.trim());
   invSearch.addEventListener('input', () => {
     clearTimeout(_invSearchTimer);
     const q = invSearch.value.trim();
     if (q.length === 0) { loadInvItems(); return; }
-    // instant local filter for short queries, server search after 350ms
     renderInvList(invItems.filter(it =>
       [it.placa, it.serial, it.marca, it.nombre_equipo, it.equipo, it.modelo, it.imei, it.responsable, String(it.id||'')]
         .join(' ').toLowerCase().includes(q.toLowerCase())
@@ -399,21 +394,16 @@ export async function openCreateModal(onSuccess) {
   });
 
   btnAddFromInv.onclick = () => {
-    const pickerTab   = PICKER_TABS.find(t => t.id === invTipo.value) || PICKER_TABS[0];
-    const artList     = overlay.querySelector('#articulos-list');
-    const selected    = invItems.filter(it => invSelected.has(it.id));
-    const firstRow    = artList.querySelector('.articulo-row');
+    const pickerTab    = PICKER_TABS.find(t => t.id === invTipo.value) || PICKER_TABS[0];
+    const artList      = overlay.querySelector('#articulos-list');
+    const selected     = invItems.filter(it => invSelected.has(it.id));
+    const firstRow     = artList.querySelector('.articulo-row');
     const isFirstEmpty = firstRow && !firstRow.querySelector('[data-field="nombre"]').value.trim();
-
     selected.forEach((it, i) => {
       const nombre = pickerTab.apiTab === 'celulares' ? (it.equipo || it.modelo || '') : (it.nombre_equipo || '');
-      const art = {
-        nombre,
-        marca:  it.marca  || '',
-        modelo: it.modelo || '',
+      const art    = { nombre, marca: it.marca || '', modelo: it.modelo || '',
         serial: it.serial || it.imei || '',
-        descripcion: pickerTab.apiTab === 'ups' && it.voltaje ? `Voltaje: ${it.voltaje}` : '',
-      };
+        descripcion: pickerTab.apiTab === 'ups' && it.voltaje ? `Voltaje: ${it.voltaje}` : '' };
       const fillRow = (row) => {
         ['nombre','marca','modelo','serial','descripcion'].forEach(f => {
           const el = row.querySelector(`[data-field="${f}"]`);
@@ -424,93 +414,23 @@ export async function openCreateModal(onSuccess) {
         fillRow(firstRow);
       } else {
         const div = document.createElement('div');
-        div.innerHTML = buildArticuloRow(rowCount++, false);
+        div.innerHTML = buildArticuloRow(rowCountRef.value++, false);
         const row = div.firstElementChild;
         fillRow(row);
         artList.appendChild(row);
-        wireRow(row);
+        wireRow(row, rowCountRef);
       }
     });
-
     invPicker.style.display = 'none';
     invSelected.clear();
     invItems = [];
     showToast(`${selected.length} artículo(s) agregado(s)`, 'success');
   };
-  // ── End inventory picker ──────────────────────────────────────────────────
+}
 
-  // Borrador helpers
-  function serializarFormulario() {
-    const rows     = overlay.querySelectorAll('.articulo-row');
-    const articulos = [];
-    for (const row of rows) {
-      const nombre = row.querySelector('[data-field="nombre"]').value.trim();
-      if (nombre) articulos.push({
-        nombre,
-        cantidad:    parseInt(row.querySelector('[data-field="cantidad"]').value) || 1,
-        descripcion: row.querySelector('[data-field="descripcion"]').value.trim(),
-        marca:       row.querySelector('[data-field="marca"]').value.trim(),
-        modelo:      row.querySelector('[data-field="modelo"]').value.trim(),
-        serial:      row.querySelector('[data-field="serial"]').value.trim(),
-      });
-    }
-    const fd = new FormData(overlay.querySelector('#form-despacho'));
-    return {
-      agente:        state.currentUser?.username || 'IT',
-      destinatario:  fd.get('destinatario')  || '',
-      sede:          fd.get('sede')           || '',
-      area:          fd.get('area')           || '',
-      fecha:         fd.get('fecha')          || null,
-      articulos,
-      observaciones: fd.get('observaciones') || '',
-      requiere_acta: checkAcata.checked ? 1 : 0,
-      ticket_id:     fd.get('ticket_id') ? parseInt(fd.get('ticket_id')) : null,
-    };
-  }
+/* ── Ticket search ────────────────────────────────────────────────────── */
 
-  function restaurarArticulos(articulos) {
-    const list  = overlay.querySelector('#articulos-list');
-    list.innerHTML = '';
-    rowCount = 0;
-    const items = articulos.length ? articulos : [{ nombre:'',cantidad:1,descripcion:'',marca:'',modelo:'',serial:'' }];
-    items.forEach((art, idx) => {
-      const div = document.createElement('div');
-      div.innerHTML = buildArticuloRow(rowCount++, idx === 0);
-      const row = div.firstElementChild;
-      list.appendChild(row);
-      Object.entries({ nombre:'', cantidad:1, descripcion:'', marca:'', modelo:'', serial:'' }).forEach(([f]) => {
-        const el = row.querySelector(`[data-field="${f}"]`);
-        if (el) el.value = art[f] ?? '';
-      });
-      wireRow(row);
-    });
-  }
-
-  async function guardarBorrador() {
-    try {
-      await fetch('/api/despachos/borrador', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(serializarFormulario()),
-      });
-      showToast('Borrador guardado ✓', 'success');
-      document.dispatchEvent(new CustomEvent('despacho-borrador-saved'));
-    } catch { showToast('No se pudo guardar el borrador', 'error'); }
-  }
-
-  async function eliminarBorrador() {
-    const agente = encodeURIComponent(state.currentUser?.username || 'IT');
-    await fetch(`/api/despachos/borrador?agente=${agente}`, { method: 'DELETE' }).catch(() => {});
-  }
-
-  overlay.querySelector('#btn-guardar-borrador').onclick = guardarBorrador;
-
-  overlay.querySelector('#btn-descartar-borrador').onclick = async () => {
-    await eliminarBorrador();
-    overlay.querySelector('#borrador-banner').style.display = 'none';
-  };
-
-  // Ticket search
+function attachTicketSearch(overlay) {
   const ticketSearchInput   = overlay.querySelector('#ticket-search-input');
   const ticketResults       = overlay.querySelector('#ticket-search-results');
   const ticketIdHidden      = overlay.querySelector('#ticket-id-hidden');
@@ -582,55 +502,121 @@ export async function openCreateModal(onSuccess) {
       ticketResults.style.display = 'none';
     }
   });
+}
 
-  // Load borrador
+/* ── Borrador ─────────────────────────────────────────────────────────── */
+
+async function attachBorrador(overlay, { checkAcata, actaInfoEl }, restaurarFn) {
+  async function guardarBorrador() {
+    try {
+      await fetch('/api/despachos/borrador', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(serializarFormulario(overlay, checkAcata)),
+      });
+      showToast('Borrador guardado ✓', 'success');
+      document.dispatchEvent(new CustomEvent('despacho-borrador-saved'));
+    } catch { showToast('No se pudo guardar el borrador', 'error'); }
+  }
+
+  async function eliminarBorrador() {
+    const agente = encodeURIComponent(state.currentUser?.username || 'IT');
+    await fetch(`/api/despachos/borrador?agente=${agente}`, { method: 'DELETE' }).catch(() => {});
+  }
+
+  overlay.querySelector('#btn-guardar-borrador').onclick = guardarBorrador;
+  overlay.querySelector('#btn-descartar-borrador').onclick = async () => {
+    await eliminarBorrador();
+    overlay.querySelector('#borrador-banner').style.display = 'none';
+  };
+
   try {
     const agente = encodeURIComponent(state.currentUser?.username || 'IT');
     const data   = await fetch(`/api/despachos/borrador?agente=${agente}`)
       .then(r => r.ok ? r.json() : { borrador: null });
-    if (data.borrador) {
-      const banner    = overlay.querySelector('#borrador-banner');
-      const bannerTxt = overlay.querySelector('#borrador-banner-text');
-      const diff = Date.now() - new Date(data.borrador.updated_at).getTime();
-      const h    = Math.floor(diff / 3_600_000);
-      const m    = Math.floor((diff % 3_600_000) / 60_000);
-      const label = h > 0 ? `hace ${h}h ${m}m` : `hace ${m}m`;
-      bannerTxt.textContent = `📝 Tienes un borrador guardado (${label})`;
-      banner.style.display  = 'block';
-      if (h >= 8) {
-        banner.style.background  = 'rgba(245,158,11,0.08)';
-        banner.style.borderColor = '#f59e0b';
-        bannerTxt.style.color    = '#f59e0b';
-      }
-      overlay.querySelector('#btn-restaurar-borrador').onclick = () => {
-        const b = data.borrador;
-        overlay.querySelector('[name="destinatario"]').value  = b.destinatario  || '';
-        overlay.querySelector('[name="sede"]').value          = b.sede          || '';
-        overlay.querySelector('[name="observaciones"]').value = b.observaciones || '';
-        const areaSelect = overlay.querySelector('[name="area"]');
-        if (areaSelect) areaSelect.value = b.area || '';
-        checkAcata.checked = !!b.requiere_acta;
-        actaInfoEl.style.display = checkAcata.checked ? 'block' : 'none';
-        restaurarArticulos(b.articulos || []);
-        if (b.ticket_id) {
-          ticketIdHidden.value = b.ticket_id;
-          ticketSearchInput.style.display = 'none';
-          ticketSelectedInfo.style.display = 'flex';
-          ticketSelectedLabel.textContent  = `#${b.ticket_id} (restaurado del borrador)`;
-        }
-        banner.style.display = 'none';
-        showToast('Borrador restaurado', 'success');
-      };
+    if (!data.borrador) return;
+    const banner    = overlay.querySelector('#borrador-banner');
+    const bannerTxt = overlay.querySelector('#borrador-banner-text');
+    const diff = Date.now() - new Date(data.borrador.updated_at).getTime();
+    const h    = Math.floor(diff / 3_600_000);
+    const m    = Math.floor((diff % 3_600_000) / 60_000);
+    bannerTxt.textContent = `📝 Tienes un borrador guardado (${h > 0 ? `hace ${h}h ${m}m` : `hace ${m}m`})`;
+    banner.style.display  = 'block';
+    if (h >= 8) {
+      banner.style.background  = 'rgba(245,158,11,0.08)';
+      banner.style.borderColor = '#f59e0b';
+      bannerTxt.style.color    = '#f59e0b';
     }
+    overlay.querySelector('#btn-restaurar-borrador').onclick = () => {
+      const b = data.borrador;
+      overlay.querySelector('[name="destinatario"]').value  = b.destinatario  || '';
+      overlay.querySelector('[name="sede"]').value          = b.sede          || '';
+      overlay.querySelector('[name="observaciones"]').value = b.observaciones || '';
+      const areaSelect = overlay.querySelector('[name="area"]');
+      if (areaSelect) areaSelect.value = b.area || '';
+      checkAcata.checked = !!b.requiere_acta;
+      actaInfoEl.style.display = checkAcata.checked ? 'block' : 'none';
+      restaurarFn(b.articulos || []);
+      if (b.ticket_id) {
+        overlay.querySelector('#ticket-id-hidden').value           = b.ticket_id;
+        overlay.querySelector('#ticket-search-input').style.display = 'none';
+        overlay.querySelector('#ticket-selected-info').style.display = 'flex';
+        overlay.querySelector('#ticket-selected-label').textContent  = `#${b.ticket_id} (restaurado del borrador)`;
+      }
+      banner.style.display = 'none';
+      showToast('Borrador restaurado', 'success');
+    };
   } catch {}
+}
 
-  // Form submit
+/* ── Create Modal ─────────────────────────────────────────────────────── */
+
+export async function openCreateModal(onSuccess) {
+  const areaOptions = Object.entries(AREA_MAPPINGS)
+    .map(([val, { label }]) => `<option value="${val}">${label}</option>`)
+    .join('');
+
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;';
+  overlay.innerHTML = renderCreateModalHTML(areaOptions);
+  document.body.appendChild(overlay);
+
+  const closeModal = () => overlay.remove();
+  overlay.querySelector('#create-modal-close').onclick = closeModal;
+  overlay.querySelector('#btn-cancel-create').onclick  = closeModal;
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+
+  overlay.querySelector('[name="observaciones"]').addEventListener('blur', e => { e.target.value = _sc(e.target.value); });
+  _attachEmpleadoSearch(overlay.querySelector('input[name="destinatario"]'), overlay.querySelector('input[name="cedula"]'));
+  attachPuntoSearch(overlay.querySelector('input[name="sede"]'));
+
+  const checkAcata = overlay.querySelector('#check-requiere-acta');
+  const actaInfoEl = overlay.querySelector('#acta-info');
+  checkAcata.onchange = () => { actaInfoEl.style.display = checkAcata.checked ? 'block' : 'none'; };
+
+  const rowCountRef = { value: 1 };
+  overlay.querySelectorAll('.articulo-row').forEach(r => wireRow(r, rowCountRef));
+  overlay.querySelector('#btn-add-articulo').onclick = () => {
+    const list = overlay.querySelector('#articulos-list');
+    const div  = document.createElement('div');
+    div.innerHTML = buildArticuloRow(rowCountRef.value++, false);
+    const row = div.firstElementChild;
+    list.appendChild(row);
+    wireRow(row, rowCountRef);
+    row.querySelector('[data-field="nombre"]')?.focus();
+  };
+
+  attachInventoryPicker(overlay, rowCountRef);
+  attachTicketSearch(overlay);
+  await attachBorrador(overlay, { checkAcata, actaInfoEl },
+    (articulos) => restaurarArticulos(overlay, rowCountRef, articulos));
+
   overlay.querySelector('#form-despacho').onsubmit = async (e) => {
     e.preventDefault();
     const fd = new FormData(e.target);
-    const rows = overlay.querySelectorAll('.articulo-row');
     const articulos = [];
-    for (const row of rows) {
+    for (const row of overlay.querySelectorAll('.articulo-row')) {
       const nombre = row.querySelector('[data-field="nombre"]').value.trim();
       if (nombre) articulos.push({
         nombre,
@@ -642,7 +628,6 @@ export async function openCreateModal(onSuccess) {
       });
     }
     if (!articulos.length) { showToast('Agrega al menos un artículo con nombre.', 'warning'); return; }
-
     const payload = {
       destinatario: fd.get('destinatario'),
       cedula:       fd.get('cedula')       || null,
@@ -654,13 +639,12 @@ export async function openCreateModal(onSuccess) {
       ticket_id:     fd.get('ticket_id') ? parseInt(fd.get('ticket_id')) : null,
       agente: state.currentUser?.username || 'IT',
     };
-
     const btn = e.target.querySelector('#btn-submit-despacho');
     btn.disabled = true; btn.textContent = 'Creando…';
-
     try {
       const result = await createDespacho(payload);
-      eliminarBorrador();
+      const agente = encodeURIComponent(state.currentUser?.username || 'IT');
+      await fetch(`/api/despachos/borrador?agente=${agente}`, { method: 'DELETE' }).catch(() => {});
       showToast(`Despacho ${result.numero} creado correctamente`, 'success');
       closeModal();
       if (onSuccess) onSuccess();
@@ -670,4 +654,3 @@ export async function openCreateModal(onSuccess) {
     }
   };
 }
-

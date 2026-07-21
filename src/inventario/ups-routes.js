@@ -24,8 +24,8 @@ router.get('/api/inventario/ups', ...canRead, wrap(async (req, res) => {
   const where = [], params = [];
   if (search) {
     where.push('(CAST(id AS TEXT) LIKE ? OR placa LIKE ? OR marca LIKE ? OR nombre_equipo LIKE ? OR serial LIKE ? OR area LIKE ? OR voltaje LIKE ?)');
-    const s = `%${search}%`;
-    params.push(s, s, s, s, s, s, s);
+    const searchPattern = `%${search}%`;
+    params.push(searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern);
   }
   if (area) { where.push('area LIKE ?'); params.push(`%${area}%`); }
   const wc = where.length ? 'WHERE ' + where.join(' AND ') : '';
