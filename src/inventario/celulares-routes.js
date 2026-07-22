@@ -25,8 +25,8 @@ router.get('/api/inventario/celulares', ...canRead, wrap(async (req, res) => {
   const params = [];
   if (search) {
     where.push('(CAST(id AS TEXT) LIKE ? OR nombre_completo LIKE ? OR cedula LIKE ? OR imei LIKE ? OR modelo LIKE ? OR equipo LIKE ? OR area LIKE ? OR ciudad LIKE ?)');
-    const searchPattern = `%${search}%`;
-    params.push(searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern);
+    const s = `%${search}%`;
+    params.push(s, s, s, s, s, s, s, s);
   }
   if (area)   { where.push('area LIKE ?');   params.push(`%${area}%`); }
   if (estado) { where.push('estado = ?');    params.push(estado); }

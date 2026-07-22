@@ -13,23 +13,23 @@ const router = express.Router();
  * ?q=<cedula or partial name>
  */
 router.get('/api/erp/empleados', requireAuth, wrap(async (req, res) => {
-  const query = (req.query.q || '').trim();
-  if (!query) return res.json([]);
+  const q = (req.query.q || '').trim();
+  if (!q) return res.json([]);
 
-  const byId  = /^\d{6,}$/.test(query);
+  const byId  = /^\d{6,}$/.test(q);
   let rows;
   if (byId) {
     rows = db.prepare(
       `SELECT cedula, nombre_completo, cargo, area
        FROM employees
        WHERE cedula LIKE ? LIMIT 20`
-    ).all(`${query}%`);
+    ).all(`${q}%`);
   } else {
     rows = db.prepare(
       `SELECT cedula, nombre_completo, cargo, area
        FROM employees
        WHERE nombre_completo LIKE ? LIMIT 20`
-    ).all(`%${query}%`);
+    ).all(`%${q}%`);
   }
 
   res.json(rows.map(r => ({
@@ -45,13 +45,13 @@ router.get('/api/erp/empleados', requireAuth, wrap(async (req, res) => {
  * Returns active puntos from local DB.
  */
 router.get('/api/erp/sedes', requireAuth, wrap(async (req, res) => {
-  const query = (req.query.q || '').trim();
-  const rows = query
+  const q = (req.query.q || '').trim();
+  const rows = q
     ? db.prepare(
         `SELECT nombre, ciudad FROM puntos
          WHERE activo = 1 AND (nombre LIKE ? OR ciudad LIKE ?)
          ORDER BY nombre LIMIT 30`
-      ).all(`%${query}%`, `%${query}%`)
+      ).all(`%${q}%`, `%${q}%`)
     : db.prepare(
         `SELECT nombre, ciudad FROM puntos
          WHERE activo = 1 ORDER BY nombre LIMIT 100`
@@ -214,8 +214,8 @@ router.post('/api/erp/import/puntos', requireAuth, requirePermission('settings:e
     if (!nombre) { skipped++; return; }
     const ciudad = iCiudad !== -1 ? String(row.getCell(iCiudad + 1).value || '').trim() : '';
     try {
-      const result = insert.run(nombre, ciudad);
-      if (result.changes) { imported++; } else { update.run(ciudad, nombre); }
+      const r = insert.run(nombre, ciudad);
+      if (r.changes) { imported++; } else { update.run(ciudad, nombre); }
     } catch { skipped++; }
   });
 
