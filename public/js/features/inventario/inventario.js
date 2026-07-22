@@ -18,6 +18,8 @@ import { openImportModal } from './inventario-import.js';
 import { openExportPanel, closeExportPanel, doExport } from './inventario-export.js';
 import { openDetalleModal, openEtiquetaModal, confirmDelete } from './inventario-modals.js';
 
+const _esc = s => String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
 /* Each tab: { id, label, apiTab, categoria, icon } */
 const TABS = [
   { id:'computadores', label:'Computadores', apiTab:'equipos', categoria:'computadores', icon: s => iconCpu(s)        },
@@ -341,7 +343,7 @@ async function loadTable() {
 
     renderPagination(data.total, data.total_pages);
   } catch (err) {
-    wrap.innerHTML = `<div style="padding:40px;text-align:center;color:var(--danger);">Error: ${err.message}</div>`;
+    wrap.innerHTML = `<div style="padding:40px;text-align:center;color:var(--danger);">Error: ${_esc(err.message)}</div>`;
   }
 }
 
