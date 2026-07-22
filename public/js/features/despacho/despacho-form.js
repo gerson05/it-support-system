@@ -102,7 +102,7 @@ export function buildArticuloRow(idx, isFirst) {
           style="padding:7px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;min-width:0;">
         <input data-field="serial"      type="text" placeholder="Serial (opcional)"
           style="padding:7px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;min-width:0;">
-        <input data-field="descripcion" type="text" placeholder="Descripción (opcional)"
+        <input data-field="descripcion" type="text" placeholder="Accesorios (opcional)"
           style="padding:7px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;min-width:0;">
       </div>
     </div>`;
