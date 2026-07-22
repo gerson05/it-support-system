@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@whiskeysockets/baileys": "^7.0.0-rc13",
-    "adm-zip": "^0.5.17",
+    "adm-zip": "^0.6.0",
     "bcryptjs": "^3.0.3",
     "cloudflared": "^0.7.1",
     "docx": "^9.7.0",
