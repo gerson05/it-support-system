@@ -132,7 +132,7 @@ router.post('/api/despachos/:id/acta-word', ...canRead, wrap(async (req, res) =>
     : [{ equipment_name: 'Ver observaciones', quantity: 1, serial: '' }];
 
   const eqItems = articulos.length
-    ? articulos.map(a => ({ marca: a.marca || '', modelo: a.modelo || '', serial: a.serial || '', accesorios: '', observaciones: despacho.observaciones || '' }))
+    ? articulos.map(a => ({ marca: a.marca || '', modelo: a.modelo || '', serial: a.serial || '', accesorios: a.descripcion || '', observaciones: despacho.observaciones || '' }))
     : [{ marca: '', modelo: '', serial: '', accesorios: '', observaciones: despacho.observaciones || '' }];
 
   const buffer   = await generateActa({ request_number: despacho.acta_numero || despacho.numero, requester_name: despacho.destinatario || '', cedula: despacho.cedula || '', cargo: despacho.area || '', sede: despacho.sede || '', fecha: despacho.fecha || null, items }, eqItems, despacho.agente || 'Soporte IT');
