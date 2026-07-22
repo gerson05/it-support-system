@@ -4,25 +4,25 @@ import assert from 'node:assert/strict';
 const mockSetStep = mock.fn();
 const mockGetCtx  = mock.fn(() => ({}));
 
-await mock.module('../chatbot-session.js', {
+await mock.module('../../../src/whatsapp/chatbot-session.js', {
   exports: { setStep: mockSetStep, getCtx: mockGetCtx },
 });
 
-await mock.module('../chatbot-utils.js', {
+await mock.module('../../../src/whatsapp/chatbot-utils.js', {
   exports: { detectPriority: () => 'media' },
 });
 
 const mockCreateTechRequest = mock.fn(() => ({ id: 1, request_number: 'REQ-20260721-001' }));
-await mock.module('../../tech-requests/tech-request-model.js', {
+await mock.module('../../../src/tech-requests/tech-request-model.js', {
   exports: { createTechRequest: mockCreateTechRequest },
 });
 
 const mockEmit = mock.fn();
-await mock.module('../../events/broadcaster.js', {
+await mock.module('../../../src/events/broadcaster.js', {
   exports: { appEvents: { emit: mockEmit } },
 });
 
-const { handleIncidencia } = await import('./flujo-incidencia.js');
+const { handleIncidencia } = await import('../../../src/whatsapp/flows/flujo-incidencia.js');
 
 function makeDb() {
   return { prepare: () => ({ run: () => {}, get: () => null, all: () => [] }) };

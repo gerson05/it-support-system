@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 const mockSetStep = mock.fn();
 const mockGetCtx  = mock.fn(() => ({}));
 
-await mock.module('../chatbot-session.js', {
+await mock.module('../../../src/whatsapp/chatbot-session.js', {
   exports: { setStep: mockSetStep, getCtx: mockGetCtx },
 });
 
@@ -12,7 +12,7 @@ const mockMatchCiudad    = mock.fn(() => []);
 const mockGetPuntosCiudad = mock.fn(() => []);
 const mockDisplaySede    = mock.fn(s => (s || '').replace('MI FARMACIA - ', ''));
 
-await mock.module('../sedes.js', {
+await mock.module('../../../src/whatsapp/sedes.js', {
   exports: {
     matchCiudad:     mockMatchCiudad,
     getPuntosCiudad: mockGetPuntosCiudad,
@@ -20,7 +20,7 @@ await mock.module('../sedes.js', {
   },
 });
 
-await mock.module('../chatbot-config.js', {
+await mock.module('../../../src/whatsapp/chatbot-config.js', {
   exports: {
     AREA_MAP_FULL:   { '1': 'cartera', '2': 'compra', '3': 'gestion_humana',
                        '4': 'pqrs',    '5': 'contabilidad', '6': 'farmacia', '7': 'cuentas_medicas' },
@@ -28,7 +28,7 @@ await mock.module('../chatbot-config.js', {
   },
 });
 
-const { isSedeCompleta, routeAfterSede, handleSede } = await import('./flujo-sede.js');
+const { isSedeCompleta, routeAfterSede, handleSede } = await import('../../../src/whatsapp/flows/flujo-sede.js');
 
 function makeDb() {
   return { prepare: () => ({ run: () => {}, get: () => null, all: () => [] }) };
@@ -186,5 +186,16 @@ test('handleSede: ask_punto valid index sets step', () => {
   const ctx = { flowType: '2', punto_options: ['MI FARMACIA - CALI SUR', 'MI FARMACIA - CALI NORTE'] };
   handleSede('ask_punto', makeArgs('ask_punto', '1', '1', ctx));
   assert.equal(mockSetStep.mock.calls[0].arguments[2], 'req_name');
+  reset();
+});
+
+test('handleSede: ask_ciudad_confirm single punto routes directly without asking punto', () => {
+  mockGetPuntosCiudad.mock.mockImplementation(() => ['MI FARMACIA - MANIZALES']);
+  const result = handleSede('ask_ciudad_confirm', makeArgs('ask_ciudad_confirm', '1', '1', {
+    flowType: '2',
+    ciudad_candidates: ['MANIZALES'],
+  }));
+  assert.equal(mockSetStep.mock.calls[0].arguments[2], 'req_name');
+  assert.ok(result.includes('MANIZALES'));
   reset();
 });

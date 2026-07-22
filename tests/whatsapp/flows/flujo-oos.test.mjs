@@ -4,25 +4,25 @@ import assert from 'node:assert/strict';
 const mockSetStep = mock.fn();
 const mockGetCtx  = mock.fn(() => ({}));
 
-await mock.module('../chatbot-session.js', {
+await mock.module('../../../src/whatsapp/chatbot-session.js', {
   exports: { setStep: mockSetStep, getCtx: mockGetCtx },
 });
 
-await mock.module('../chatbot-utils.js', {
+await mock.module('../../../src/whatsapp/chatbot-utils.js', {
   exports: { nextBusinessDay: () => '2026-07-22' },
 });
 
 const mockEmit = mock.fn();
-await mock.module('../../events/broadcaster.js', {
+await mock.module('../../../src/events/broadcaster.js', {
   exports: { appEvents: { emit: mockEmit } },
 });
 
 const mockGenerateTicketTitle = mock.fn(async () => 'Consulta técnica general');
-await mock.module('../gemini-service.js', {
+await mock.module('../../../src/whatsapp/gemini-service.js', {
   exports: { generateTicketTitle: mockGenerateTicketTitle },
 });
 
-const { handleOOS } = await import('./flujo-oos.js');
+const { handleOOS } = await import('../../../src/whatsapp/flows/flujo-oos.js');
 
 const TODAY_STR = new Date().toISOString().slice(0, 10).replace(/-/g, '');
 

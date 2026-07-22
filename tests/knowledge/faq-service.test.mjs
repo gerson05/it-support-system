@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { searchFaqsAll, getAllFaqsForArea } from './faq-service.js';
+import { searchFaqsAll, getAllFaqsForArea } from '../../src/knowledge/faq-service.js';
 
 function makeDb(customRows = []) {
   return { prepare: () => ({ all: () => customRows }) };
@@ -98,4 +98,22 @@ test('getAllFaqsForArea: keywords parsed from JSON string', () => {
   const faq = { id: 1, area: 'cartera', title: 'T', keywords: '["uno","dos"]', solution: 'S', active: 1 };
   const result = getAllFaqsForArea(makeDb([faq]), 'cartera');
   assert.deepEqual(result.custom[0].keywords, ['uno', 'dos']);
+});
+
+// ── word-level keyword matching (line 49) ─────────────────────────────────────
+
+test('searchFaqsAll: word-level keyword scoring when keyword contains a query word', () => {
+  // keyword 'impresora laser' — cleanQuery 'laser falla'
+  // cleanQuery.includes('impresora laser') = false
+  // 'impresora laser'.includes('laser falla') = false  → hits line 49
+  // queryWord 'laser': 'impresora laser'.includes('laser') = true → score += 2
+  const faq = {
+    id: 77, area: 'general', title: 'Irrelevante xyz',
+    keywords: JSON.stringify(['impresora laser']),
+    solution: 'S', active: 1,
+  };
+  const result = searchFaqsAll(makeDb([faq]), 'general', 'laser falla');
+  const found = result.find(f => f.id === 77);
+  assert.ok(found, 'faq should appear in results');
+  assert.ok(found.score >= 2, `score should be >= 2, got ${found?.score}`);
 });

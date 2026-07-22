@@ -7,11 +7,11 @@ const mockGetSession = mock.fn((token) => {
   return null;
 });
 
-await mock.module('./auth-service.js', {
+await mock.module('../../src/auth/auth-service.js', {
   exports: { getSession: mockGetSession },
 });
 
-const { requireAuth, requirePermission } = await import('./auth-middleware.js');
+const { requireAuth, requirePermission } = await import('../../src/auth/auth-middleware.js');
 
 function makeReq(cookie = '') {
   return { headers: { cookie }, user: undefined, permissions: undefined };

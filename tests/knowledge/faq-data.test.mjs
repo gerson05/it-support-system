@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { getFaqsByArea, searchFaqs } from './faq-data.js';
+import { getFaqsByArea, searchFaqs } from '../../src/knowledge/faq-data.js';
 
 // ── getFaqsByArea ─────────────────────────────────────────────────────────────
 

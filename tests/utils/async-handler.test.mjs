@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { wrap } from './async-handler.js';
+import { wrap } from '../../src/utils/async-handler.js';
 
 function makeReq() { return {}; }
 function makeRes() {

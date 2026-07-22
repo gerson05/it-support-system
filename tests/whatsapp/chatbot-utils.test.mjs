@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { detectPriority, checkRateLimit, getBusinessStatus, nextBusinessDay } from './chatbot-utils.js';
+import { detectPriority, checkRateLimit, getBusinessStatus, nextBusinessDay } from '../../src/whatsapp/chatbot-utils.js';
 
 // ── detectPriority ────────────────────────────────────────────────────────────
 

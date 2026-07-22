@@ -7,13 +7,13 @@ const mockSetStep     = mock.fn();
 const mockGetCtx      = mock.fn(() => ({}));
 const mockCrearTicket = mock.fn(async () => 42);
 
-await mock.module('../chatbot-session.js', {
+await mock.module('../../../src/whatsapp/chatbot-session.js', {
   exports: { setStep: mockSetStep, getCtx: mockGetCtx, crearTicket: mockCrearTicket },
 });
-await mock.module('../chatbot-utils.js', {
+await mock.module('../../../src/whatsapp/chatbot-utils.js', {
   exports: { detectPriority: () => 'media' },
 });
-await mock.module('../chatbot-config.js', {
+await mock.module('../../../src/whatsapp/chatbot-config.js', {
   exports: {
     AREA_MAP_FULL:   { '1': 'cartera', '2': 'compra' },
     AREA_MAP_SIMPLE: { '1': 'general' },
@@ -24,21 +24,21 @@ await mock.module('../chatbot-config.js', {
 
 const mockGetAISolution          = mock.fn(async () => null);
 const mockGetAISolutionFromImage = mock.fn(async () => null);
-await mock.module('../gemini-service.js', {
+await mock.module('../../../src/whatsapp/gemini-service.js', {
   exports: { getAISolution: mockGetAISolution, getAISolutionFromImage: mockGetAISolutionFromImage },
 });
 
 const mockSearchFaqsAll = mock.fn(() => []);
-await mock.module('../../knowledge/faq-service.js', {
+await mock.module('../../../src/knowledge/faq-service.js', {
   exports: { searchFaqsAll: mockSearchFaqsAll },
 });
 
 const mockEmit = mock.fn();
-await mock.module('../../events/broadcaster.js', {
+await mock.module('../../../src/events/broadcaster.js', {
   exports: { appEvents: { emit: mockEmit } },
 });
 
-const { handleSoporte } = await import('./flujo-soporte.js');
+const { handleSoporte } = await import('../../../src/whatsapp/flows/flujo-soporte.js');
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 

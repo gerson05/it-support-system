@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   getAllTickets, getTicketById, updateTicket, addMessage, addInternalNote,
-} from './ticket-model.js';
+} from '../../src/tickets/ticket-model.js';
 
 // ── Mock DB factory ───────────────────────────────────────────────────────────
 
@@ -206,4 +206,58 @@ test('addInternalNote: inserts note and updates ticket timestamp', () => {
   const update = db._calls.find(c => c.op === 'run' && c.sql.includes('UPDATE tickets'));
   assert.ok(insert, 'should insert note');
   assert.ok(update, 'should update ticket timestamp');
+});
+
+// ── getAllTickets: area filter (lines 68-72) ───────────────────────────────────
+
+test('getAllTickets: area filter adds WHERE clause', () => {
+  const db = makeMockDb({ get: () => ({ total: 0 }), all: () => [] });
+  getAllTickets(db, { area: 'farmacia' });
+  const call = db._calls.find(c => c.op === 'get' && c.sql.includes('COUNT(*)'));
+  assert.ok(call.sql.includes('t.area = ?'));
+});
+
+// ── updateTicket: requester_name and category (lines 193-201) ────────────────
+
+test('updateTicket: requester_name field included in update', () => {
+  const db = makeMockDb();
+  updateTicket(db, 1, { requester_name: 'Ana García' });
+  const call = db._calls.find(c => c.op === 'run');
+  assert.ok(call.sql.includes('requester_name = ?'));
+  assert.ok(call.args.includes('Ana García'));
+});
+
+test('updateTicket: category field included in update', () => {
+  const db = makeMockDb();
+  updateTicket(db, 1, { category: 'hardware' });
+  const call = db._calls.find(c => c.op === 'run');
+  assert.ok(call.sql.includes('category = ?'));
+  assert.ok(call.args.includes('hardware'));
+});
+
+// ── error propagation (catch blocks) ─────────────────────────────────────────
+
+test('getAllTickets: db error propagates', () => {
+  const db = { prepare: () => ({ get: () => { throw new Error('DB fail'); }, all: () => [] }) };
+  assert.throws(() => getAllTickets(db), /DB fail/);
+});
+
+test('getTicketById: db error propagates', () => {
+  const db = { prepare: () => ({ get: () => { throw new Error('DB fail'); }, all: () => [] }) };
+  assert.throws(() => getTicketById(db, 1), /DB fail/);
+});
+
+test('updateTicket: db error propagates', () => {
+  const db = { prepare: () => ({ run: () => { throw new Error('DB fail'); } }) };
+  assert.throws(() => updateTicket(db, 1, { status: 'abierto' }), /DB fail/);
+});
+
+test('addMessage: db error propagates', () => {
+  const db = { prepare: () => ({ run: () => { throw new Error('DB fail'); } }) };
+  assert.throws(() => addMessage(db, 1, 'agent', 'IT', 'msg'), /DB fail/);
+});
+
+test('addInternalNote: db error propagates', () => {
+  const db = { prepare: () => ({ run: () => { throw new Error('DB fail'); } }) };
+  assert.throws(() => addInternalNote(db, 1, 1, 'Admin', 'note'), /DB fail/);
 });

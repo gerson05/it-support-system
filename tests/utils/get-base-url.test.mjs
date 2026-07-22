@@ -1,6 +1,6 @@
 import { test, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { getBaseUrl } from './get-base-url.js';
+import { getBaseUrl } from '../../src/utils/get-base-url.js';
 
 function makeReq(headers = {}, protocol = 'https') {
   return { protocol, headers };
@@ -61,4 +61,20 @@ test('getBaseUrl: falls back to host header for production domain', () => {
 test('getBaseUrl: empty headers produces protocol+empty-host', () => {
   const req = makeReq({}, 'http');
   assert.equal(getBaseUrl(req), 'http://');
+});
+
+// ── localhost → networkInterfaces branch (lines 15-21) ───────────────────────
+
+test('getBaseUrl: localhost host enters network interface resolution', () => {
+  const req = makeReq({ host: 'localhost:3000' }, 'http');
+  const result = getBaseUrl(req);
+  assert.ok(result.startsWith('http://'));
+  assert.ok(result.includes(':3000'));
+});
+
+test('getBaseUrl: 127.0.0.1 host triggers local resolution path', () => {
+  const req = makeReq({ host: '127.0.0.1:8080' }, 'http');
+  const result = getBaseUrl(req);
+  assert.ok(result.startsWith('http://'));
+  assert.ok(result.includes(':8080'));
 });
