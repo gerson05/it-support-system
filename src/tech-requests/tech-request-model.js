@@ -91,8 +91,8 @@ export function getAllTechRequests(db, filters = {}) {
       r.cedula LIKE ?        OR r.sede LIKE ?          OR
       r.description LIKE ?   OR r.equipment_name LIKE ?
     )`);
-    const s = `%${search}%`;
-    params.push(s, s, s, s, s, s);
+    const searchPattern = `%${search}%`;
+    params.push(searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern);
   }
 
   const whereClause = where.length ? 'WHERE ' + where.join(' AND ') : '';

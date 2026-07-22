@@ -5,7 +5,7 @@
 [![Node.js](https://img.shields.io/badge/Node.js-22-green)](https://nodejs.org)
 [![Docker](https://img.shields.io/badge/Docker-ready-blue)](https://ghcr.io/gerson05/it-support-system)
 
-Sistema de soporte técnico con **chatbot de WhatsApp**, panel web de gestión, inventario de activos y generación de documentos. Diseñado para equipos de IT de empresas con múltiples sedes.
+Sistema de soporte técnico con **chatbot de WhatsApp**, panel web de gestión, inventario de activos, integración con ERP GeneXus y generación de documentos. Diseñado para equipos de IT de empresas con múltiples sedes.
 
 ---
 
@@ -14,14 +14,16 @@ Sistema de soporte técnico con **chatbot de WhatsApp**, panel web de gestión, 
 | Módulo | Descripción |
 |--------|-------------|
 | **Chatbot WhatsApp** | Flujos conversacionales para reportar problemas, solicitar equipos y registrar incidencias |
-| **Panel de Tickets** | Dashboard en tiempo real con SSE, filtros por área y agente |
-| **Inventario** | Equipos, celulares y UPS con códigos QR, autoregistro móvil y numeración automática |
+| **Panel de Tickets** | Dashboard en tiempo real con SSE, filtros por área y agente; perfil de empleado con cédula desde ticket |
+| **Inventario** | Equipos, celulares y UPS con códigos QR, autoregistro móvil, numeración automática y búsqueda server-side |
 | **Requerimientos** | Solicitudes de equipos con flujo de aprobación y generación de actas DOCX |
 | **Base de Conocimiento** | FAQ por área con seguimiento de resoluciones y opción de IA |
-| **Despacho** | Trazabilidad de pedidos y tracking de entregas |
+| **Despacho** | Trazabilidad de pedidos, tracking de entregas y selector de inventario con búsqueda por servidor |
 | **Monitoreo** | Estado de dispositivos, comandos remotos y alertas offline |
 | **Reuniones** | Integración con Google Calendar y Google Meet |
-| **Empleados** | Provisionamiento en dos fases con flujo de aprobación |
+| **Empleados** | Provisionamiento en dos fases, autocomplete por nombre/cédula, importación masiva por Excel |
+| **Analítica** | Requerimientos técnicos por sede, asignación de técnicos y métricas de resolución |
+| **Integración ERP** | Sincronización con GeneXus (empleados, sucursales, puntos de venta); importación Excel como fallback |
 | **Farmacias FOMAG** | Gestión de red de puntos farmacéuticos |
 | **Auditoría** | Registro completo de accesos y acciones del sistema |
 
@@ -34,7 +36,8 @@ Sistema de soporte técnico con **chatbot de WhatsApp**, panel web de gestión, 
 - **Base de datos:** SQLite (nativo `node:sqlite`, sin dependencias externas)
 - **WhatsApp:** whatsapp-web.js + Baileys
 - **Frontend:** Vanilla JavaScript (sin framework, sin build tool)
-- **Documentos:** ExcelJS, docx
+- **Documentos:** ExcelJS, docx (generación + importación Excel)
+- **ERP:** GeneXus scraper (node-fetch + HTML parsing)
 - **Google APIs:** Sheets, Calendar, Drive
 - **IA opcional:** Claude, OpenAI, Gemini, Ollama
 - **Proxy:** Caddy (HTTPS automático)
@@ -114,19 +117,20 @@ Ver [docs/CHATBOT.md](docs/CHATBOT.md) para detalle de flujos y configuración d
 
 ## API
 
-El servidor expone 22 routers REST en `/api/*`:
+El servidor expone routers REST en `/api/*`:
 
 | Prefijo | Recurso |
 |---------|---------|
 | `/api/tickets` | Tickets de soporte (CRUD + mensajes) |
 | `/api/tech-requests` | Requerimientos e incidencias |
 | `/api/faqs` | Base de conocimiento |
-| `/api/inventario` | Equipos, celulares, UPS |
+| `/api/inventario` | Equipos, celulares, UPS (búsqueda server-side) |
 | `/api/despachos` | Despachos y tracking |
 | `/api/monitoring` | Estado de dispositivos |
 | `/api/reuniones` | Reuniones y calendario |
-| `/api/employees` | Empleados y provisionamiento |
-| `/api/metrics` | Métricas del dashboard |
+| `/api/employees` | Empleados, autocomplete por cédula/nombre, importación Excel |
+| `/api/metrics` | Métricas del dashboard y analítica por sede/técnico |
+| `/api/erp` | Sincronización con ERP GeneXus (empleados, sucursales, puntos) |
 | `/api/audit` | Logs de auditoría |
 | `/api/auth` | Autenticación (sesiones con cookie) |
 | `/api/users` | Gestión de usuarios y roles |
@@ -188,16 +192,18 @@ it-tickets/
 ├── server.js              # Entrada principal, registro de routers
 ├── src/
 │   ├── config/
-│   │   └── database.js    # Inicialización SQLite + 24 migraciones
+│   │   └── database.js    # Inicialización SQLite + migraciones
 │   ├── auth/              # Login, sesiones, RBAC
 │   ├── whatsapp/          # Chatbot, flujos, cliente WA
 │   │   └── flows/         # flujo-sede, flujo-soporte, etc.
 │   ├── knowledge/         # FAQ search + hit tracking
 │   ├── tech-requests/     # Requerimientos e incidencias
-│   ├── inventario/        # Activos, QR, autoregistro
+│   ├── inventario/        # Activos, QR, autoregistro, búsqueda server-side
 │   ├── despacho/          # Despachos y tracking
 │   ├── monitoring/        # Estado offline, comandos remotos
-│   ├── employees/         # Provisionamiento de empleados
+│   ├── employees/         # Provisionamiento, autocomplete, importación Excel
+│   ├── erp/               # Cliente GeneXus, sync de empleados/sucursales/puntos
+│   ├── metrics/           # Analítica por sede y técnico
 │   ├── reuniones/         # Calendario y Meet
 │   └── farmacias/         # Red de puntos FOMAG
 ├── public/                # Frontend estático (HTML + Vanilla JS)

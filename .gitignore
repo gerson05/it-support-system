@@ -46,3 +46,11 @@ __pycache__/
 _bp_develop.json
 _bp_stage_main.json
 _wal_checkpoint.mjs
+
+# CodeGraph index (generated)
+.codegraph/
+
+# DB recovery artifacts
+database/recovered_tables.json
+database/tickets_rebuilt.db
+database/dump.json

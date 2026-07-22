@@ -123,20 +123,20 @@ router.delete('/api/despachos/:id', ...canDelete, wrap(async (req, res) => {
 }));
 
 router.post('/api/despachos/:id/acta-word', ...canRead, wrap(async (req, res) => {
-  const d = getDespachoById(db, parseInt(req.params.id));
-  if (!d) return res.status(404).json({ error: 'Despacho no encontrado.' });
+  const despacho = getDespachoById(db, parseInt(req.params.id));
+  if (!despacho) return res.status(404).json({ error: 'Despacho no encontrado.' });
 
-  const articulos = JSON.parse(d.articulos || '[]');
+  const articulos = JSON.parse(despacho.articulos || '[]');
   const items     = articulos.length
     ? articulos.map(a => ({ equipment_name: a.nombre || a.descripcion || a.articulo || 'Artículo', quantity: a.cantidad || a.qty || 1, serial: a.serial || '' }))
     : [{ equipment_name: 'Ver observaciones', quantity: 1, serial: '' }];
 
   const eqItems = articulos.length
-    ? articulos.map(a => ({ marca: a.marca || '', modelo: a.modelo || '', serial: a.serial || '', accesorios: '', observaciones: d.observaciones || '' }))
-    : [{ marca: '', modelo: '', serial: '', accesorios: '', observaciones: d.observaciones || '' }];
+    ? articulos.map(a => ({ marca: a.marca || '', modelo: a.modelo || '', serial: a.serial || '', accesorios: '', observaciones: despacho.observaciones || '' }))
+    : [{ marca: '', modelo: '', serial: '', accesorios: '', observaciones: despacho.observaciones || '' }];
 
-  const buffer   = await generateActa({ request_number: d.acta_numero || d.numero, requester_name: d.destinatario || '', cedula: d.cedula || '', cargo: d.area || '', sede: d.sede || '', fecha: d.fecha || null, items }, eqItems, d.agente || 'Soporte IT');
-  const filename = `Acta_${(d.acta_numero || d.numero).replace(/\//g, '-')}_${(d.destinatario || '').replace(/\s+/g, '_')}.docx`;
+  const buffer   = await generateActa({ request_number: despacho.acta_numero || despacho.numero, requester_name: despacho.destinatario || '', cedula: despacho.cedula || '', cargo: despacho.area || '', sede: despacho.sede || '', fecha: despacho.fecha || null, items }, eqItems, despacho.agente || 'Soporte IT');
+  const filename = `Acta_${(despacho.acta_numero || despacho.numero).replace(/\//g, '-')}_${(despacho.destinatario || '').replace(/\s+/g, '_')}.docx`;
   res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
   res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(filename)}"`);
   res.send(buffer);
@@ -170,9 +170,9 @@ router.get('/api/despachos/:id/confirmacion', ...canRead, wrap(async (req, res) 
 
 router.post('/api/despachos/:id/confirmacion', ...canEdit, wrap(async (req, res) => {
   const despachoId = parseInt(req.params.id);
-  const d = getDespachoById(db, despachoId);
-  if (!d) return res.status(404).json({ error: 'Despacho no encontrado.' });
-  if (d.requiere_acta) return res.status(400).json({ error: 'Este despacho requiere acta firmada.' });
+  const despacho = getDespachoById(db, despachoId);
+  if (!despacho) return res.status(404).json({ error: 'Despacho no encontrado.' });
+  if (despacho.requiere_acta) return res.status(400).json({ error: 'Este despacho requiere acta firmada.' });
 
   const existing = getConfirmacion(db, despachoId);
   if (existing) return res.json({ token: existing.token });

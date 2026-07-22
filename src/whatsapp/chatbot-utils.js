@@ -36,17 +36,17 @@ export function nextBusinessDay() {
 const _rateMap = new Map();
 export function checkRateLimit(phone) {
   const now = Date.now();
-  let e = _rateMap.get(phone);
-  if (!e || now > e.resetAt) e = { count: 0, resetAt: now + 60_000 };
-  e.count++;
-  _rateMap.set(phone, e);
-  return e.count <= 20;
+  let entry = _rateMap.get(phone);
+  if (!entry || now > entry.resetAt) entry = { count: 0, resetAt: now + 60_000 };
+  entry.count++;
+  _rateMap.set(phone, entry);
+  return entry.count <= 20;
 }
 
 /** Detección automática de prioridad por palabras clave */
 export function detectPriority(text) {
-  const t = (text || '').toLowerCase();
-  if (/toda.{0,15}(sede|oficina)|sin internet.{0,10}todos|sistema.{0,10}cai[dó]|produccion.{0,10}parad|no podemos trabajar|perdida.{0,10}datos|todos los equipos|todos.{0,10}afectad/.test(t)) return 'critica';
-  if (/urgente|bloqueado completamente|no funciona nada|desde ayer|toda la mañana|no puedo entrar|borro|eliminó/.test(t)) return 'alta';
+  const normalized = (text || '').toLowerCase();
+  if (/toda.{0,15}(sede|oficina)|sin internet.{0,10}todos|sistema.{0,10}cai[dó]|produccion.{0,10}parad|no podemos trabajar|perdida.{0,10}datos|todos los equipos|todos.{0,10}afectad/.test(normalized)) return 'critica';
+  if (/urgente|bloqueado completamente|no funciona nada|desde ayer|toda la mañana|no puedo entrar|borro|eliminó/.test(normalized)) return 'alta';
   return 'media';
 }

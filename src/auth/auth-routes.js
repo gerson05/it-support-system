@@ -8,7 +8,24 @@ const router = express.Router();
 const COOKIE = 'it_session';
 const COOKIE_OPTS = { httpOnly: true, sameSite: 'lax', path: '/', maxAge: 8 * 60 * 60 * 1000 };
 
+// Simple in-memory rate limiter: max 10 attempts per IP per 15 min
+const _loginAttempts = new Map();
+function _checkLoginRate(ip) {
+  const now = Date.now();
+  const entry = _loginAttempts.get(ip);
+  if (!entry || now > entry.resetAt) {
+    _loginAttempts.set(ip, { count: 1, resetAt: now + 15 * 60_000 });
+    return false;
+  }
+  if (entry.count >= 10) return true;
+  entry.count++;
+  return false;
+}
+
 router.post('/api/auth/login', async (req, res) => {
+  if (_checkLoginRate(req.ip || req.socket.remoteAddress)) {
+    return res.status(429).json({ error: 'Demasiados intentos. Espera 15 minutos.' });
+  }
   const { username, password } = req.body;
   if (!username || !password) {
     return res.status(400).json({ error: 'Usuario y contraseña son requeridos.' });

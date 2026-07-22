@@ -206,8 +206,8 @@ export async function renderAudit(container) {
                   ? `<span style="padding:2px 8px;border-radius:99px;font-size:11px;font-weight:500;background:rgba(99,102,241,.15);color:var(--primary);border:1px solid rgba(99,102,241,.3);">Despacho</span>`
                   : `<span style="padding:2px 8px;border-radius:99px;font-size:11px;font-weight:500;background:rgba(16,185,129,.12);color:#10b981;border:1px solid rgba(16,185,129,.25);">Requerimiento</span>`;
                 const estadoBadge = a.uploaded_at
-                  ? `<span style="padding:2px 9px;border-radius:99px;font-size:11px;font-weight:500;background:#d1fae5;color:#065f46;border:1px solid #6ee7b7;">Recibida ✓</span>`
-                  : `<span style="padding:2px 9px;border-radius:99px;font-size:11px;font-weight:500;background:#fef3c7;color:#92400e;border:1px solid #fcd34d;">Pendiente</span>`;
+                  ? `<span style="padding:2px 9px;border-radius:99px;font-size:11px;font-weight:500;background:rgba(16,185,129,.12);color:var(--success);border:1px solid rgba(16,185,129,.3);">Recibida ✓</span>`
+                  : `<span style="padding:2px 9px;border-radius:99px;font-size:11px;font-weight:500;background:rgba(245,158,11,.12);color:var(--warning);border:1px solid rgba(245,158,11,.3);">Pendiente</span>`;
                 const accionBtn = a.uploaded_at
                   ? `<a href="/api/actas/download/${a.token}" style="padding:5px 11px;background:var(--primary);color:#fff;border-radius:6px;font-size:11px;font-weight:500;text-decoration:none;white-space:nowrap;">↓ Descargar</a>`
                   : `<span style="padding:5px 11px;border-radius:6px;font-size:11px;color:var(--text-3);border:1px solid var(--border);">—</span>`;

@@ -4,17 +4,23 @@ import QRCode    from 'qrcode';
 import { fileURLToPath } from 'url';
 
 const __dirname  = path.dirname(fileURLToPath(import.meta.url));
-const LOGO_PATH  = path.resolve(__dirname, '../../uploads/rotulo-imgs/unique_0_id10.png');
-const LOGO_B64   = fs.existsSync(LOGO_PATH)
-  ? 'data:image/png;base64,' + fs.readFileSync(LOGO_PATH).toString('base64')
-  : '';
+const LOGO_PATH  = path.resolve(__dirname, '../assets/medivalle-logo.png');
+let _logoB64Cache = null;
+function getLogoB64() {
+  if (!_logoB64Cache) {
+    _logoB64Cache = fs.existsSync(LOGO_PATH)
+      ? 'data:image/png;base64,' + fs.readFileSync(LOGO_PATH).toString('base64')
+      : '';
+  }
+  return _logoB64Cache;
+}
 
 function labelHtml(destino, qrB64, numero, emite, tipo, cajasN, dd, mm, aaaa, responsable) {
   return `
   <div class="label">
     <div class="lbl-top">
       <div class="lbl-logo">
-        ${LOGO_B64 ? `<img src="${LOGO_B64}" alt="MedivalleSF">` : '<span style="font-size:11px;font-weight:700;color:#1e3a5f;">MedivalleSF S.A.S</span>'}
+        ${getLogoB64() ? `<img src="${getLogoB64()}" alt="MedivalleSF">` : '<span style="font-size:11px;font-weight:700;color:#1e3a5f;">MedivalleSF S.A.S</span>'}
       </div>
       <div class="lbl-title"><div>FORMATO PARA DESPACHO</div><div style="font-size:13px;font-weight:500;letter-spacing:2px;opacity:.85;margin-top:4px;">POR FAVOR ESCANEE EL QR</div></div>
       <div class="lbl-qr-top">
@@ -59,7 +65,7 @@ function labelHtmlCompact(destino, qrB64, numero, emite, tipo, cajasN, dd, mm, a
   <div class="label-c">
     <div class="lc-head">
       <div class="lc-logo">
-        ${LOGO_B64 ? `<img src="${LOGO_B64}" alt="logo">` : '<span class="lc-brand">MedivalleSF S.A.S</span>'}
+        ${getLogoB64() ? `<img src="${getLogoB64()}" alt="logo">` : '<span class="lc-brand">MedivalleSF S.A.S</span>'}
       </div>
       <div class="lc-title"><div>FORMATO PARA DESPACHO</div><div style="font-size:${Math.max(6, Math.round(hMM * 0.07))}px;font-weight:500;opacity:.85;margin-top:1mm;">POR FAVOR ESCANEE EL QR</div></div>
       <div class="lc-qr">
@@ -103,42 +109,46 @@ body{font-family:Arial,Helvetica,sans-serif;background:#f0f4f8}
 .topbar span{opacity:.8;font-size:13px;flex:1}
 .topbar button{background:#fff;color:#1e3a5f;border:none;padding:7px 18px;font-size:13px;font-weight:700;cursor:pointer;border-radius:4px}
 .topbar button:hover{background:#dde8f8}
-.page{padding:10mm;background:#fff;max-width:210mm;margin:14px auto;box-shadow:0 2px 10px rgba(0,0,0,.18)}
-.grid{display:flex;flex-direction:column;gap:10mm}
+.page{padding:10mm;background:#fff;max-width:216mm;margin:14px auto;box-shadow:0 2px 10px rgba(0,0,0,.18)}
+.label-pair{display:flex;flex-direction:column;gap:8mm}
+.label-pair+.label-pair{margin-top:14px}
 .label{border:2.5px solid #1e3a5f;page-break-inside:avoid;break-inside:avoid;width:100%}
-.lbl-top{display:flex;align-items:stretch;border-bottom:2px solid #1e3a5f;min-height:90px}
-.lbl-logo{width:140px;min-width:140px;display:flex;align-items:center;justify-content:center;padding:8px 12px;background:#fff;border-right:2px solid #1e3a5f}
-.lbl-logo img{max-width:120px;max-height:72px;object-fit:contain}
-.lbl-title{flex:1;background:#fff;color:#1e3a5f;display:flex;align-items:center;justify-content:center;text-align:center;font-size:20px;font-weight:700;letter-spacing:5px;text-transform:uppercase;padding:10px 8px;line-height:1.3}
-.lbl-qr-top{width:120px;min-width:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 8px;background:#fff;border-left:2px solid #1e3a5f;gap:4px}
-.lbl-qr-top img{width:80px;height:80px}
+.lbl-top{display:flex;align-items:stretch;border-bottom:2px solid #1e3a5f;min-height:72px}
+.lbl-logo{width:130px;min-width:130px;display:flex;align-items:center;justify-content:center;padding:6px 10px;background:#fff;border-right:2px solid #1e3a5f}
+.lbl-logo img{max-width:110px;max-height:60px;object-fit:contain}
+.lbl-title{flex:1;background:#fff;color:#1e3a5f;display:flex;align-items:center;justify-content:center;text-align:center;font-size:18px;font-weight:700;letter-spacing:4px;text-transform:uppercase;padding:8px;line-height:1.3}
+.lbl-qr-top{width:100px;min-width:100px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:5px 7px;background:#fff;border-left:2px solid #1e3a5f;gap:3px}
+.lbl-qr-top img{width:68px;height:68px}
 .qr-num{font-size:7px;color:#666;text-align:center;word-break:break-all;font-family:monospace}
 .lbl-data{width:100%}
 .lbl-row{border-bottom:1.5px solid #888;display:flex;align-items:stretch}
 .lbl-row.no-border{border-bottom:none}
-.lk{font-weight:700;background:#fff;border-right:1.5px solid #888;width:90px;min-width:90px;font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:#000;display:flex;align-items:center;justify-content:center;text-align:center;padding:4px 6px;line-height:1.3}
-.lv{font-weight:700;color:#000;flex:1;padding:6px 12px;display:flex;align-items:center;text-transform:uppercase}
-.fecha-row{min-height:80px}
+.lk{font-weight:700;background:#fff;border-right:1.5px solid #888;width:80px;min-width:80px;font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:#000;display:flex;align-items:center;justify-content:center;text-align:center;padding:3px 5px;line-height:1.3}
+.lv{font-weight:700;color:#000;flex:1;padding:5px 10px;display:flex;align-items:center;text-transform:uppercase}
+.fecha-row{min-height:62px}
 .fecha-wrap{display:flex;padding:0;flex:1}
-.fecha-col{flex:1;text-align:center;border-right:1.5px solid #888;padding:6px 4px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.fecha-col{flex:1;text-align:center;border-right:1.5px solid #888;padding:5px 3px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
 .fecha-col.last{border-right:none}
-.f-sub{font-size:10px;color:#444;font-weight:600;text-transform:uppercase;letter-spacing:.6px}
-.f-val{font-size:44px;font-weight:900;color:#000;line-height:1}
-.dest-row{min-height:90px}
-.dest{font-size:22px!important;color:#000!important;font-weight:900!important;text-transform:uppercase!important;line-height:1.25;word-break:break-word}
-.remite-row{min-height:55px}
-.remite{font-size:14px!important;color:#000!important;font-weight:600!important;text-transform:uppercase!important}
-.recibe-row{min-height:55px}
-.recibe{font-size:14px!important;color:#000!important;font-weight:700!important;text-transform:uppercase!important}
-.cajas-row{min-height:55px}
-.cajas-num{flex:0 0 70px!important;min-width:70px!important;max-width:70px;border-right:1.5px solid #888;justify-content:center;font-size:32px!important;color:#000!important;padding:4px 0!important}
-.lk-desc{border-left:none;width:110px;min-width:110px}
-.tipo{font-size:17px!important;color:#000!important;font-weight:700!important;text-transform:uppercase!important}
+.f-sub{font-size:9px;color:#444;font-weight:600;text-transform:uppercase;letter-spacing:.6px}
+.f-val{font-size:36px;font-weight:900;color:#000;line-height:1}
+.dest-row{min-height:72px}
+.dest{font-size:20px!important;color:#000!important;font-weight:900!important;text-transform:uppercase!important;line-height:1.25;word-break:break-word}
+.remite-row{min-height:44px}
+.remite{font-size:13px!important;color:#000!important;font-weight:600!important;text-transform:uppercase!important}
+.recibe-row{min-height:44px}
+.recibe{font-size:13px!important;color:#000!important;font-weight:700!important;text-transform:uppercase!important}
+.cajas-row{min-height:44px}
+.cajas-num{flex:0 0 62px!important;min-width:62px!important;max-width:62px;border-right:1.5px solid #888;justify-content:center;font-size:28px!important;color:#000!important;padding:3px 0!important}
+.lk-desc{border-left:none;width:100px;min-width:100px}
+.tipo{font-size:15px!important;color:#000!important;font-weight:700!important;text-transform:uppercase!important}
 @media print{
-  @page{size:A4 portrait;margin:8mm}
+  @page{size:letter portrait;margin:8mm}
   body{background:#fff}
   .topbar{display:none}
   .page{box-shadow:none;margin:0;padding:0;max-width:none}
+  .label-pair{page-break-after:always;break-after:page;gap:6mm}
+  .label-pair:last-child{page-break-after:auto;break-after:auto}
+  .label{max-height:125mm;overflow:hidden}
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
 }`;
 
@@ -242,11 +252,30 @@ export async function generateRotuloHtml(row, options = {}, trackingUrl, sedesAc
     }
   }
 
-  const labelsHtml = destinations.map(d =>
-    isLabel
-      ? labelHtmlCompact(d, qrB64, numero, emite, tipo, cajasN, dd, mm, aaaa, wMM, hMM, responsable)
-      : labelHtml(d, qrB64, numero, emite, tipo, cajasN, dd, mm, aaaa, responsable)
-  ).join('\n');
+  let bodyHtml;
+  if (isLabel) {
+    const labelsHtml = destinations.map(d =>
+      labelHtmlCompact(d, qrB64, numero, emite, tipo, cajasN, dd, mm, aaaa, wMM, hMM, responsable)
+    ).join('\n');
+    bodyHtml = `<div class="print-area">\n${labelsHtml}\n</div>`;
+  } else {
+    // Normal printer: 2 labels per page on carta/letter.
+    // Single destination → print 2 copies. Multiple → pair them up.
+    const list = destinations.length === 1
+      ? [destinations[0], destinations[0]]
+      : destinations;
+    const pairs = [];
+    for (let i = 0; i < list.length; i += 2) {
+      pairs.push(list.slice(i, i + 2));
+    }
+    const pairsHtml = pairs.map(pair => {
+      const inner = pair.map(d =>
+        labelHtml(d, qrB64, numero, emite, tipo, cajasN, dd, mm, aaaa, responsable)
+      ).join('\n');
+      return `  <div class="label-pair">\n${inner}\n  </div>`;
+    }).join('\n');
+    bodyHtml = `<div class="page">\n${pairsHtml}\n</div>`;
+  }
 
   const css = isLabel ? buildLabelCss(wMM, hMM) : NORMAL_CSS;
 
@@ -264,9 +293,7 @@ export async function generateRotuloHtml(row, options = {}, trackingUrl, sedesAc
   <button onclick="window.print()">🖨&nbsp; Imprimir</button>
   <button onclick="window.close()" style="background:#c0ccdd">Cerrar</button>
 </div>
-${isLabel
-  ? `<div class="print-area">\n${labelsHtml}\n</div>`
-  : `<div class="page">\n  <div class="grid">\n${labelsHtml}\n  </div>\n</div>`}
+${bodyHtml}
 </body>
 </html>`;
 }

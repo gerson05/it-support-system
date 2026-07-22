@@ -18,7 +18,7 @@ router.get('/api/audit/actas', requireAuth, requirePermission('audit:read'), wra
   const offset = parseInt(req.query.offset) || 0;
   const type   = req.query.type   || '';
   const status = req.query.status || '';
-  const q      = req.query.q      ? `%${req.query.q}%` : '';
+  const searchPattern = req.query.q ? `%${req.query.q}%` : '';
 
   const conditions = [];
   const params     = [];
@@ -26,9 +26,9 @@ router.get('/api/audit/actas', requireAuth, requirePermission('audit:read'), wra
   if (type)   { conditions.push('entity_type = ?');        params.push(type); }
   if (status === 'uploaded') { conditions.push('uploaded_at IS NOT NULL'); }
   if (status === 'pending')  { conditions.push('uploaded_at IS NULL');     }
-  if (q) {
+  if (searchPattern) {
     conditions.push('(entity_ref LIKE ? OR filename LIKE ? OR persona LIKE ? OR agente LIKE ?)');
-    params.push(q, q, q, q);
+    params.push(searchPattern, searchPattern, searchPattern, searchPattern);
   }
 
   const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';

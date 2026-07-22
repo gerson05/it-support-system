@@ -61,13 +61,13 @@ class WhatsAppClient {
   /** Fuerza reconexión limpia ignorando el flag _connecting */
   forceConnect(clearAuth = false) {
     if (this._readyTimeout) { clearTimeout(this._readyTimeout); this._readyTimeout = null; }
-    const c = this.client;
+    const client = this.client;
     this.client      = null;
     this.status      = 'disconnected';
     this.qrCode      = null;
     this.qrImageDataUrl = null;
     this._connecting = false;
-    if (c) c.destroy().catch(() => {});
+    if (client) client.destroy().catch(() => {});
     if (clearAuth) clearAuthData();
     this.connect().catch(err => console.error('[WhatsApp] Error en forceConnect:', err));
   }
@@ -232,14 +232,14 @@ class WhatsAppClient {
   /** Limpia estado interno y reconecta. Si clearAuth=true borra datos de sesión. */
   _forceReconnect(clearAuth = false, delay = 5000) {
     if (this._readyTimeout) { clearTimeout(this._readyTimeout); this._readyTimeout = null; }
-    const c = this.client;
+    const client = this.client;
     this.client      = null;
     this.status      = 'disconnected';
     this.qrCode      = null;
     this.qrImageDataUrl = null;
     this._connecting = false;
 
-    if (c) c.destroy().catch(() => {});
+    if (client) client.destroy().catch(() => {});
     if (clearAuth) clearAuthData();
 
     console.log(`[WhatsApp] Reconectando en ${delay / 1000}s...`);
@@ -288,7 +288,7 @@ class WhatsAppClient {
   }
 
   async logout() {
-    const c = this.client;
+    const client = this.client;
     this.client      = null;
     this.status      = 'disconnected';
     this.qrCode      = null;
@@ -296,9 +296,9 @@ class WhatsAppClient {
     this._connecting = false;
     if (this._readyTimeout) { clearTimeout(this._readyTimeout); this._readyTimeout = null; }
 
-    if (c) {
-      try { await c.logout();  } catch {}
-      try { await c.destroy(); } catch {}
+    if (client) {
+      try { await client.logout();  } catch {}
+      try { await client.destroy(); } catch {}
     }
 
     clearAuthData();

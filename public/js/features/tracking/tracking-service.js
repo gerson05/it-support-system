@@ -28,16 +28,5 @@ const TrackingService = (() => {
       return API.post(`${API_BASE}/${token}/events`, event);
     },
 
-    // Generate label/rotulo
-    async generateLabel(token, params = {}) {
-      const query = new URLSearchParams(params);
-      return `${API_BASE}/${token}/rotulo?${query}`;
-    },
-
-    // Generate multiple labels
-    async generateLabels(tokens, params = {}) {
-      const query = new URLSearchParams(params);
-      return `${API_BASE}/labels/batch?${query}`;
-    }
   };
 })();

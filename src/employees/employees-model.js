@@ -12,15 +12,15 @@ export function generateUsername(fullName) {
 }
 
 export function generatePassword(cedula) {
-  const s = String(cedula).replace(/\D/g, '');
-  return s.length >= 4 ? s.slice(-4) : s.padStart(4, '0');
+  const cleaned = String(cedula).replace(/\D/g, '');
+  return cleaned.length >= 4 ? cleaned.slice(-4) : cleaned.padStart(4, '0');
 }
 
 export function ensureUniqueUsername(base) {
   let name = base;
-  let n = 2;
+  let retries = 2;
   while (db.prepare('SELECT id FROM employees WHERE usuario = ?').get(name)) {
-    name = base + n++;
+    name = base + retries++;
   }
   return name;
 }

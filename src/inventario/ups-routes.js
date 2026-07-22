@@ -24,8 +24,8 @@ router.get('/api/inventario/ups', ...canRead, wrap(async (req, res) => {
   const where = [], params = [];
   if (search) {
     where.push('(CAST(id AS TEXT) LIKE ? OR placa LIKE ? OR marca LIKE ? OR nombre_equipo LIKE ? OR serial LIKE ? OR area LIKE ? OR voltaje LIKE ?)');
-    const s = `%${search}%`;
-    params.push(s, s, s, s, s, s, s);
+    const searchPattern = `%${search}%`;
+    params.push(searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern);
   }
   if (area) { where.push('area LIKE ?'); params.push(`%${area}%`); }
   const wc = where.length ? 'WHERE ' + where.join(' AND ') : '';
@@ -36,13 +36,13 @@ router.get('/api/inventario/ups', ...canRead, wrap(async (req, res) => {
 }));
 
 router.post('/api/inventario/ups', ...canCreate, wrap(async (req, res) => {
-  const { placa, marca, nombre_equipo, serial, area, voltaje, fecha_compra, fecha_despacho } = req.body;
+  const { placa, marca, nombre_equipo, serial, area, voltaje, fecha_compra, fecha_despacho, ciudad } = req.body;
   if (!placa?.trim()) return res.status(400).json({ error: 'placa es requerida.' });
   const qr_token = randomUUID();
   try {
     const result = db.prepare(
-      `INSERT INTO inventario_ups (placa,marca,nombre_equipo,serial,area,voltaje,fecha_compra,fecha_despacho,qr_token) VALUES (?,?,?,?,?,?,?,?,?)`
-    ).run(placa.trim(), marca||null, nombre_equipo||null, serial||null, area||null, voltaje||null, fecha_compra||null, fecha_despacho||null, qr_token);
+      `INSERT INTO inventario_ups (placa,marca,nombre_equipo,serial,area,voltaje,fecha_compra,fecha_despacho,qr_token,ciudad) VALUES (?,?,?,?,?,?,?,?,?,?)`
+    ).run(placa.trim(), marca||null, nombre_equipo||null, serial||null, area||null, voltaje||null, fecha_compra||null, fecha_despacho||null, qr_token, ciudad||null);
     res.status(201).json({ ok: true, id: result.lastInsertRowid, qr_token });
   } catch (err) {
     if (err.message?.includes('UNIQUE')) return res.status(409).json({ error: 'Ya existe una UPS con esa placa.' });
@@ -53,11 +53,11 @@ router.post('/api/inventario/ups', ...canCreate, wrap(async (req, res) => {
 router.put('/api/inventario/ups/:id', ...canEdit, wrap(async (req, res) => {
   const id = parseInt(req.params.id);
   if (!db.prepare('SELECT id FROM inventario_ups WHERE id=?').get(id)) return res.status(404).json({ error: 'UPS no encontrada.' });
-  const { placa, marca, nombre_equipo, serial, area, voltaje, fecha_compra, fecha_despacho } = req.body;
+  const { placa, marca, nombre_equipo, serial, area, voltaje, fecha_compra, fecha_despacho, ciudad } = req.body;
   try {
     db.prepare(
-      `UPDATE inventario_ups SET placa=?,marca=?,nombre_equipo=?,serial=?,area=?,voltaje=?,fecha_compra=?,fecha_despacho=?,updated_at=datetime('now','localtime') WHERE id=?`
-    ).run(placa, marca||null, nombre_equipo||null, serial||null, area||null, voltaje||null, fecha_compra||null, fecha_despacho||null, id);
+      `UPDATE inventario_ups SET placa=?,marca=?,nombre_equipo=?,serial=?,area=?,voltaje=?,fecha_compra=?,fecha_despacho=?,ciudad=?,updated_at=datetime('now','localtime') WHERE id=?`
+    ).run(placa, marca||null, nombre_equipo||null, serial||null, area||null, voltaje||null, fecha_compra||null, fecha_despacho||null, ciudad||null, id);
     res.json({ ok: true });
   } catch (err) {
     if (err.message?.includes('UNIQUE')) return res.status(409).json({ error: 'Placa ya existe en otra UPS.' });
