@@ -71,7 +71,7 @@ export async function openDetalleModal(token) {
     overlay.querySelector('#det-close').onclick = () => overlay.remove();
     overlay.querySelector('#det-print-qr').onclick = () => { overlay.remove(); openEtiquetaModal(token); };
   } catch (e) {
-    overlay.querySelector('div').innerHTML = `<div style="padding:30px;text-align:center;color:var(--danger);">${e.message}</div>`;
+    overlay.querySelector('div').innerHTML = `<div style="padding:30px;text-align:center;color:var(--danger);">${esc(e.message)}</div>`;
   }
 }
 

@@ -11,6 +11,8 @@ import { state } from '../../core/state.js';
 import { showToast } from '../../ui/components.js';
 import { articulosList } from './despacho-helpers.js';
 
+function escHtml(s) { return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
 let _tiposArticulo = [];
 
 export async function loadTiposArticulo() {
@@ -97,7 +99,7 @@ const LABEL_SIZES_ROTULO = [
 export async function openRotuloModal(token, numero, destinatario = '') {
   const tipos     = await loadTiposArticulo();
   const tiposOpts = tipos.length
-    ? tipos.map(t => `<option value="${t.nombre}">${t.nombre}</option>`).join('')
+    ? tipos.map(t => `<option value="${escHtml(t.nombre)}">${escHtml(t.nombre)}</option>`).join('')
     : `<option value="ARTÍCULO">ARTÍCULO</option>`;
 
   const overlay = document.createElement('div');
@@ -187,7 +189,7 @@ export async function openRotuloModal(token, numero, destinatario = '') {
           const sel = overlay.querySelector('#rotulo-tipo');
           if (!sel || !tipos.length) return;
           const cur = sel.value;
-          sel.innerHTML = tipos.map(t => `<option value="${t.nombre}"${t.nombre === cur ? ' selected' : ''}>${t.nombre}</option>`).join('');
+          sel.innerHTML = tipos.map(t => `<option value="${escHtml(t.nombre)}"${t.nombre === cur ? ' selected' : ''}>${escHtml(t.nombre)}</option>`).join('');
         });
       }
     });
@@ -222,7 +224,7 @@ export async function openRotuloModal(token, numero, destinatario = '') {
     sedes.forEach(s => {
       const row = document.createElement('label');
       row.style.cssText = 'display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;padding:3px 0;';
-      row.innerHTML = `<input type="checkbox" class="rotulo-sede-cb" value="${s.nombre_punto}" /> ${s.nombre_punto}`;
+      row.innerHTML = `<input type="checkbox" class="rotulo-sede-cb" value="${escHtml(s.nombre_punto)}" /> ${escHtml(s.nombre_punto)}`;
       container.appendChild(row);
     });
     overlay.querySelector('#rotulo-sel-all').addEventListener('change', e => {
