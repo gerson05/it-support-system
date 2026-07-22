@@ -23,8 +23,8 @@ export function getDespachos(db, { search, requiere_acta, acta_firmada, limit = 
   const params = [];
   if (search) {
     query += ' AND (numero LIKE ? OR destinatario LIKE ? OR sede LIKE ?)';
-    const s = `%${search}%`;
-    params.push(s, s, s);
+    const searchPattern = `%${search}%`;
+    params.push(searchPattern, searchPattern, searchPattern);
   }
   if (requiere_acta !== undefined && requiere_acta !== '') {
     query += ' AND requiere_acta = ?';
@@ -115,8 +115,8 @@ export function upsertTipoArticulo(db, nombre) {
     db.prepare("UPDATE tipos_articulo SET activo = 1 WHERE id = ?").run(existing.id);
     return { id: existing.id, nombre };
   }
-  const r = db.prepare("INSERT INTO tipos_articulo (nombre) VALUES (?)").run(nombre);
-  return { id: r.lastInsertRowid, nombre };
+  const result = db.prepare("INSERT INTO tipos_articulo (nombre) VALUES (?)").run(nombre);
+  return { id: result.lastInsertRowid, nombre };
 }
 
 export function deactivateTipoArticulo(db, id) {

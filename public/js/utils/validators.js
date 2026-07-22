@@ -12,14 +12,6 @@ const Validators = {
     return value !== null && value !== undefined && value.toString().trim() !== '';
   },
 
-  minLength(value, min) {
-    return value && value.length >= min;
-  },
-
-  maxLength(value, max) {
-    return !value || value.length <= max;
-  },
-
   pattern(value, regex) {
     return regex.test(value);
   },
@@ -32,12 +24,4 @@ const Validators = {
     return Number.isInteger(parseInt(value));
   },
 
-  url(value) {
-    try {
-      new URL(value);
-      return true;
-    } catch {
-      return false;
-    }
-  }
 };

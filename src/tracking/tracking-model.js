@@ -52,8 +52,8 @@ export function getAllTrackings(db, { estado, search, limit = 50, offset = 0 } =
   if (estado) { where += ' AND t.estado = ?'; params.push(estado); }
   if (search) {
     where += ' AND (d.numero LIKE ? OR d.destinatario LIKE ? OR d.sede LIKE ?)';
-    const s = `%${search}%`;
-    params.push(s, s, s);
+    const searchPattern = `%${search}%`;
+    params.push(searchPattern, searchPattern, searchPattern);
   }
 
   const total = db.prepare(`

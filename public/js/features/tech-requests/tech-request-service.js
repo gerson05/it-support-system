@@ -29,12 +29,6 @@ const TechRequestService = (() => {
       return API.delete(`${API_BASE}/${id}`);
     },
 
-    // Generate acta (official document)
-    async generateActa(id, params = {}) {
-      const query = new URLSearchParams(params);
-      return `${API_BASE}/${id}/acta?${query}`;
-    },
-
     // Get acta document
     async getActa(id) {
       return API.get(`${API_BASE}/${id}/acta`);
@@ -45,9 +39,5 @@ const TechRequestService = (() => {
       return API.post(`${API_BASE}/${id}/acta/sign`, signatureData);
     },
 
-    // Get acta PDF
-    async getActaPDF(id) {
-      return `${API_BASE}/${id}/acta/pdf`;
-    }
   };
 })();

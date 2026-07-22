@@ -32,13 +32,4 @@ const Modal = {
     }
   },
 
-  show(modal) {
-    modal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-  },
-
-  hide(modal) {
-    modal.style.display = 'none';
-    document.body.style.overflow = '';
-  }
 };

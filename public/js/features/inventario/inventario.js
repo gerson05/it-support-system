@@ -59,9 +59,8 @@ function esc(str) {
   return String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-export function renderInventario(container) {
-  _page = 1; _search = ''; _filterArea = '';
-  container.innerHTML = `
+function renderInventarioShell() {
+  return `
     <div style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
       <div>
         <h2 style="font-size:20px;font-weight:700;letter-spacing:-.4px;margin-bottom:4px;">Inventario TI</h2>
@@ -173,7 +172,9 @@ export function renderInventario(container) {
       </div>
     </div>
   `;
+}
 
+function bindInventarioEvents(loadTable, loadCounts) {
   document.querySelectorAll('.inv-cat-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       if (_activeTabId === btn.dataset.tabid) {
@@ -239,7 +240,12 @@ export function renderInventario(container) {
   document.querySelectorAll('.inv-export-fmt-btn').forEach(btn => {
     btn.addEventListener('click', () => doExport(btn.dataset.fmt, btn));
   });
+}
 
+export function renderInventario(container) {
+  _page = 1; _search = ''; _filterArea = '';
+  container.innerHTML = renderInventarioShell();
+  bindInventarioEvents(loadTable, loadCounts);
   loadTable();
   loadCounts();
 }

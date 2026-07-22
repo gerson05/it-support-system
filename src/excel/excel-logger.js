@@ -61,7 +61,7 @@ function setupSheet(ws) {
 }
 
 function styleRow(row, tipo) {
-  const s = TIPO_STYLE[tipo] ?? { bg: 'FFE2E8F0', font: 'FF0F172A' };
+  const style = TIPO_STYLE[tipo] ?? { bg: 'FFE2E8F0', font: 'FF0F172A' };
 
   row.eachCell({ includeEmpty: true }, cell => {
     cell.border = {
@@ -74,8 +74,8 @@ function styleRow(row, tipo) {
   });
 
   const tipoCell = row.getCell('tipo');
-  tipoCell.fill      = { type: 'pattern', pattern: 'solid', fgColor: { argb: s.bg } };
-  tipoCell.font      = { bold: true, color: { argb: s.font }, size: 10 };
+  tipoCell.fill      = { type: 'pattern', pattern: 'solid', fgColor: { argb: style.bg } };
+  tipoCell.font      = { bold: true, color: { argb: style.font }, size: 10 };
   tipoCell.alignment = { horizontal: 'center', vertical: 'middle' };
 
   row.height = 18;
@@ -122,9 +122,9 @@ export async function updateTechRequestRow(request_number, newStatus) {
 
       const estadoCell = row.getCell(estadoCol);
       estadoCell.value = newStatus;
-      const s = ESTADO_STYLE[newStatus] ?? { bg: 'FFE2E8F0', font: 'FF0F172A' };
-      estadoCell.fill      = { type: 'pattern', pattern: 'solid', fgColor: { argb: s.bg } };
-      estadoCell.font      = { bold: true, color: { argb: s.font }, size: 10 };
+      const style = ESTADO_STYLE[newStatus] ?? { bg: 'FFE2E8F0', font: 'FF0F172A' };
+      estadoCell.fill      = { type: 'pattern', pattern: 'solid', fgColor: { argb: style.bg } };
+      estadoCell.font      = { bold: true, color: { argb: style.font }, size: 10 };
       estadoCell.alignment = { horizontal: 'center', vertical: 'middle' };
 
       if (ultimaCol) row.getCell(ultimaCol).value = timestamp();

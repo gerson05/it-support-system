@@ -169,6 +169,7 @@ export function equipoFormHTML(r, isDuplicate = false) {
             ${selectField('Tipo de Disco','tipo_disco',v('tipo_disco'),['SSD','HDD','M2','SATA','NVMe'])}
             ${inputField('Serial Cargador','serial_cargador',v('serial_cargador'))}
             ${areaSelectField(v('area'))}
+            ${bodegaInputField(v('ciudad'))}
             ${inputField('Responsable','responsable',v('responsable'))}
           </div>
           <div style="margin-top:12px;">
@@ -274,6 +275,7 @@ export function upsFormHTML(r, isDuplicate = false) {
             ${inputField('Nombre del equipo','nombre_equipo',v('nombre_equipo'))}
             ${scanField('Serial','serial',v('serial'),false,!r)}
             ${areaSelectField(v('area'))}
+            ${bodegaInputField(v('ciudad'))}
             ${inputField('Voltaje','voltaje',v('voltaje'))}
           </div>
           <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:12px;">
