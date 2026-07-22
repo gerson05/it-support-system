@@ -255,7 +255,7 @@ export async function renderDashboard(container) {
       <div class="grid-2" id="sla-grid" style="margin-bottom:20px;"></div>
 
       <!-- Área + Prioridades -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+      <div class="grid-2" style="margin-bottom:16px;">
         <div class="card">
           <div style="display:flex;align-items:center;gap:7px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text-3);margin-bottom:18px;">
             ${IC.bar} Tickets por Área

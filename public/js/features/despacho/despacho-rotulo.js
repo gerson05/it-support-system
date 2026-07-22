@@ -145,7 +145,7 @@ export async function openRotuloModal(token, numero, destinatario = '') {
           <div style="display:flex;gap:10px;">
             <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;flex:1;padding:8px 10px;border:1.5px solid var(--border);border-radius:6px;">
               <input type="radio" name="rotulo-printer" value="normal" checked />
-              <span><span style="display:block;font-weight:600;">Impresora normal</span><span style="font-size:11px;color:var(--text-3);">Hoja A4</span></span>
+              <span><span style="display:block;font-weight:600;">Impresora normal</span><span style="font-size:11px;color:var(--text-3);">Hoja carta · 2 por página</span></span>
             </label>
             <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;flex:1;padding:8px 10px;border:1.5px solid var(--border);border-radius:6px;">
               <input type="radio" name="rotulo-printer" value="etiqueta" />

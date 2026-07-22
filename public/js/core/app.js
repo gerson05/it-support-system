@@ -5,6 +5,7 @@ import { state, can }               from './state.js';
 import { router }                   from './router.js';
 import { startRealTimeUpdates, setEmployeeBadge } from './sse.js';
 import { startWhatsAppMonitor }     from './whatsapp.js';
+import { initResponsiveTables }     from '../utils/responsive-tables.js';
 
 // ── Re-exports para backward compat (otros módulos importan de app.js) ──
 export { state }                                            from './state.js';
@@ -99,6 +100,7 @@ async function init() {
     router();
   });
   router();
+  initResponsiveTables(document.getElementById('app'));
 }
 
 document.addEventListener('DOMContentLoaded', () => {

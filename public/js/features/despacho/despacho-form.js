@@ -93,7 +93,7 @@ export function buildArticuloRow(idx, isFirst) {
           style="padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface-3);color:var(--danger);cursor:pointer;font-size:14px;line-height:1;${isFirst ? 'visibility:hidden;' : ''}"
           title="Eliminar fila">✕</button>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;">
         <input data-field="marca"       type="text" placeholder="Marca (opcional)"
           style="padding:7px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;min-width:0;">
         <input data-field="modelo"      type="text" placeholder="Modelo (opcional)"

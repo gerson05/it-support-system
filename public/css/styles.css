@@ -1049,10 +1049,117 @@ body.modal-open { overflow: hidden; }
 
 @media (max-width: 600px) {
   .grid-4 { grid-template-columns: 1fr 1fr; }
+
+  /* ── Tables → status cards ──────────────────────────────────────────
+     Roles (rt-id/badge/title/chip/wide/actions/hide) + the --stripe
+     color are computed per row by responsive-tables.js: id + badge sit
+     on a header line, title below, remaining short fields become
+     wrapped chips, long fields get their own line, actions sit in a
+     footer — and the left stripe reflects the row's status badge color. */
   table thead { display: none; }
-  table tbody tr { display: flex; flex-direction: column; padding: 12px 0; }
-  table tbody td { padding: 4px 14px; border: none; }
-  table tbody td:first-child { font-weight: 700; color: var(--primary); }
+  table, table tbody { display: block; width: 100%; }
+
+  table tbody tr {
+    display: block;
+    background: var(--surface-2);
+    border-radius: var(--radius-lg);
+    border-left: 4px solid var(--stripe, var(--border-2));
+    padding: 13px 14px;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.16);
+    transition: background .15s ease;
+  }
+  table tbody tr:active { background: var(--surface-3); }
+  table tbody tr:last-child { margin-bottom: 0; }
+
+  table tbody td {
+    display: block;
+    border: none;
+    padding: 0;
+    min-width: 0;
+    /* neutralize desktop-column truncation styles set inline per cell */
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    max-width: none !important;
+  }
+
+  table tbody td.rt-hide { display: none; }
+
+  /* header line: id floats left, status badge floats right */
+  table tbody td.rt-id {
+    float: left;
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--primary);
+    margin: 0 10px 8px 0;
+  }
+  table tbody td.rt-badge {
+    float: right;
+    margin-bottom: 8px;
+  }
+
+  /* everything below the header line clears both floats (clear only
+     affects position relative to floats, so chips still wrap together
+     normally on the same line as each other afterwards) */
+  table tbody td.rt-title,
+  table tbody td.rt-chip,
+  table tbody td.rt-wide,
+  table tbody td.rt-actions {
+    clear: both;
+  }
+
+  table tbody td.rt-title {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  table tbody td.rt-wide {
+    font-size: 12.5px;
+    color: var(--text-2);
+    margin-bottom: 8px;
+    line-height: 1.5;
+  }
+
+  table tbody td.rt-chip {
+    display: inline-flex;
+    align-items: center;
+    font-size: 11px;
+    color: var(--text-2);
+    background: var(--surface-3);
+    padding: 4px 9px;
+    border-radius: 7px;
+    margin: 0 6px 6px 0;
+  }
+
+  table tbody td.rt-actions,
+  .data-table .td-actions,
+  table tbody td[data-label="Acciones"],
+  table tbody td[data-label="Acción"] {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    text-align: left !important;
+    padding-top: 10px !important;
+    margin-top: 4px;
+    border-top: 1px solid var(--border) !important;
+  }
+  /* icon-only square buttons — safe to force to a fixed touch-target size */
+  table tbody td.rt-actions .tbl-btn,
+  .data-table .td-actions .tbl-btn,
+  table tbody td[data-label="Acciones"] .tbl-btn,
+  table tbody td[data-label="Acción"] .tbl-btn {
+    width: 36px;
+    height: 36px;
+  }
+  /* labeled buttons (e.g. "Ver", "✏️ Editar") — keep their own width, just
+     make sure they clear the touch-target minimum height */
+  table tbody td.rt-actions button:not(.tbl-btn) {
+    min-height: 36px;
+  }
 }
 
 /* ==========================================================================

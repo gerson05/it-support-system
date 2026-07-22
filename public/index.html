@@ -191,17 +191,7 @@
   <!-- 6. INIT APP -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // Sidebar toggle
-      const toggle = document.getElementById('sidebar-toggle');
-      const overlay = document.getElementById('sidebar-overlay');
-      const close = () => document.body.classList.remove('sidebar-open');
-
-      if (toggle) {
-        toggle.addEventListener('click', () => document.body.classList.toggle('sidebar-open'));
-      }
-      if (overlay) {
-        overlay.addEventListener('click', close);
-      }
+      // Sidebar toggle: handled in core/app.js (initSidebarToggle) — do not duplicate here.
 
       // Theme toggle
       document.getElementById('btn-theme-toggle')?.addEventListener('click', function () {

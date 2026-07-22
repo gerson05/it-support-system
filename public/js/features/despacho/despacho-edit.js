@@ -15,7 +15,7 @@ function buildArtRow(art = {}, rowCountRef, isFirst = false) {
       <button type="button" class="btn-dup-art" style="padding:6px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface-3);color:var(--text-2);cursor:pointer;" title="Duplicar">📋</button>
       <button type="button" class="btn-rem-art" style="padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface-3);color:var(--danger);cursor:pointer;${isFirst?'visibility:hidden;':''}" title="Eliminar">✕</button>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;">
       <input data-field="marca"       type="text" value="${art.marca||''}"       placeholder="Marca"        style="padding:7px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;">
       <input data-field="modelo"      type="text" value="${art.modelo||''}"      placeholder="Modelo"       style="padding:7px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;">
       <input data-field="serial"      type="text" value="${art.serial||''}"      placeholder="Serial"       style="padding:7px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;">
