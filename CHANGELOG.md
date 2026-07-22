@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/gerson05/it-support-system/compare/v1.2.0...v1.3.0) (2026-07-22)
+
+
+### Features
+
+* inventory ciudad field, server-side sede search, test suite migration ([#19](https://github.com/gerson05/it-support-system/issues/19)) ([c5ba2af](https://github.com/gerson05/it-support-system/commit/c5ba2af3e24f5e6b6716a1626bcc8ee71bee211f))
+
 ## [1.2.0](https://github.com/gerson05/it-support-system/compare/v1.1.0...v1.2.0) (2026-07-17)
 
 
