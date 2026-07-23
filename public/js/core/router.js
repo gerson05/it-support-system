@@ -16,6 +16,7 @@ import { renderMonitoreo }          from '../features/monitoreo/monitoreo.js';
 import { renderUsers }              from '../features/usuarios/users.js';
 import { renderEmployees }          from '../features/usuarios/employees.js';
 import { state, can, firstAccessibleHash } from './state.js';
+const _esc = s => String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
 function guard(permission) {
   if (state.currentUser && !can(permission)) {
@@ -84,12 +85,12 @@ export function router() {
       if (result && typeof result.catch === 'function') {
         result.catch(err => {
           console.error(`[Router] Error rendering ${hash}:`, err);
-          if (app) app.innerHTML = `<div style="padding:24px;color:red;"><h3>Error rendering ${hash}</h3><pre>${err.message}</pre></div>`;
+          if (app) app.innerHTML = `<div style="padding:24px;color:red;"><h3>Error rendering ${hash}</h3><pre>${_esc(err.message)}</pre></div>`;
         });
       }
     } catch (err) {
       console.error(`[Router] Sync error rendering ${hash}:`, err);
-      if (app) app.innerHTML = `<div style="padding:24px;color:red;"><h3>Error</h3><pre>${err.message}</pre></div>`;
+      if (app) app.innerHTML = `<div style="padding:24px;color:red;"><h3>Error</h3><pre>${_esc(err.message)}</pre></div>`;
     }
   }
 }

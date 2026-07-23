@@ -13,6 +13,18 @@ import { getBaseUrl } from '../utils/get-base-url.js';
 const canRead = [requireAuth, requirePermission('despacho:read')];
 const canEdit = [requireAuth, requirePermission('despacho:edit')];
 
+// Simple in-memory rate limiter for public upload endpoint (no npm dep needed)
+const _uploadHits = new Map();
+function uploadRateLimit(req, res, next) {
+  const key = req.params.token + '|' + (req.ip || '');
+  const now = Date.now();
+  const hits = (_uploadHits.get(key) || []).filter(t => now - t < 10 * 60 * 1000);
+  if (hits.length >= 5) return res.status(429).json({ error: 'Demasiados intentos. Espera unos minutos.' });
+  hits.push(now);
+  _uploadHits.set(key, hits);
+  next();
+}
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);
@@ -178,11 +190,17 @@ router.get('/api/actas/status/:token', wrap(async (req, res) => {
 }));
 
 router.post('/api/actas/upload/:token',
+  uploadRateLimit,
   (req, res, next) => {
     const row = db.prepare('SELECT * FROM acta_uploads WHERE token = ?').get(req.params.token);
     if (!row) return res.status(404).json({ error: 'Token no encontrado.' });
-    if (row.filepath && fs.existsSync(row.filepath)) {
-      try { fs.unlinkSync(row.filepath); } catch (e) { console.error('Error al eliminar acta previa:', e); }
+    const prevPaths = [row.filepath];
+    if (row.filepath) {
+      const ext = path.extname(row.filepath) || path.extname(row.filename || '');
+      prevPaths.push(path.join(UPLOAD_DIR, `${req.params.token}${ext}`));
+    }
+    for (const p of prevPaths) {
+      if (p && fs.existsSync(p)) { try { fs.unlinkSync(p); } catch (e) { console.error('Error al eliminar acta previa:', e); } break; }
     }
     next();
   },
@@ -220,11 +238,19 @@ router.post('/api/actas/upload/:token',
 router.get('/api/actas/download/:token', wrap(async (req, res) => {
   const row = db.prepare('SELECT * FROM acta_uploads WHERE token = ?').get(req.params.token);
   if (!row || !row.filepath) return res.status(404).json({ error: 'Archivo no encontrado.' });
-  if (!fs.existsSync(row.filepath)) return res.status(404).json({ error: 'Archivo no encontrado en disco.' });
 
-  const filename = row.filename || path.basename(row.filepath);
+  // Stored path may be a Windows host path when uploads were done outside Docker.
+  // Fall back to reconstructing the path using UPLOAD_DIR + token + extension.
+  let resolvedPath = row.filepath;
+  if (!fs.existsSync(resolvedPath)) {
+    const ext = path.extname(row.filepath) || path.extname(row.filename || '');
+    resolvedPath = path.join(UPLOAD_DIR, `${req.params.token}${ext}`);
+  }
+  if (!fs.existsSync(resolvedPath)) return res.status(404).json({ error: 'Archivo no encontrado en disco.' });
+
+  const filename = row.filename || path.basename(resolvedPath);
   res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(filename)}"`);
-  res.sendFile(row.filepath);
+  res.sendFile(resolvedPath);
 }));
 
 router.get('/api/actas/qr/:token', wrap(async (req, res) => {

@@ -19,7 +19,7 @@ function buildArtRow(art = {}, rowCountRef, isFirst = false) {
       <input data-field="marca"       type="text" value="${art.marca||''}"       placeholder="Marca"        style="padding:7px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;">
       <input data-field="modelo"      type="text" value="${art.modelo||''}"      placeholder="Modelo"       style="padding:7px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;">
       <input data-field="serial"      type="text" value="${art.serial||''}"      placeholder="Serial"       style="padding:7px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;">
-      <input data-field="descripcion" type="text" value="${art.descripcion||''}" placeholder="Descripción"  style="padding:7px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;">
+      <input data-field="descripcion" type="text" value="${art.descripcion||''}" placeholder="Accesorios"   style="padding:7px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;">
     </div>
   </div>`;
 }

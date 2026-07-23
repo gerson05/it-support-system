@@ -13,6 +13,7 @@ import {
 
 const _tc = s => (s || '').toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
 const _sc = s => { const v = (s || '').trim(); return v ? v.charAt(0).toUpperCase() + v.slice(1) : v; };
+const escHtml = s => String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
 function _attachEmpleadoSearch(inputEl, cedulaEl) {
   if (!inputEl) return;
@@ -29,7 +30,7 @@ function _attachEmpleadoSearch(inputEl, cedulaEl) {
     rows.forEach(r => {
       const item = document.createElement('div');
       item.style.cssText = 'padding:8px 12px;cursor:pointer;font-size:12px;border-bottom:1px solid var(--border);';
-      item.innerHTML = `<div style="font-weight:600;color:var(--text);">${r.nombre}</div><div style="color:var(--text-3);">${r.cedula}${r.cargo ? ' · ' + r.cargo : ''}</div>`;
+      item.innerHTML = `<div style="font-weight:600;color:var(--text);">${escHtml(r.nombre)}</div><div style="color:var(--text-3);">${escHtml(r.cedula)}${r.cargo ? ' · ' + escHtml(r.cargo) : ''}</div>`;
       item.addEventListener('mousedown', e => {
         e.preventDefault();
         inputEl.value = r.nombre;
@@ -101,7 +102,7 @@ export function buildArticuloRow(idx, isFirst) {
           style="padding:7px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;min-width:0;">
         <input data-field="serial"      type="text" placeholder="Serial (opcional)"
           style="padding:7px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;min-width:0;">
-        <input data-field="descripcion" type="text" placeholder="Descripción (opcional)"
+        <input data-field="descripcion" type="text" placeholder="Accesorios (opcional)"
           style="padding:7px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;min-width:0;">
       </div>
     </div>`;
