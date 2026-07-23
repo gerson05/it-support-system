@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.1](https://github.com/gerson05/it-support-system/compare/v1.3.0...v1.3.1) (2026-07-23)
+
+
+### Bug Fixes
+
+* security hardening, CI improvements, and bug fixes ([#21](https://github.com/gerson05/it-support-system/issues/21)) ([d92e516](https://github.com/gerson05/it-support-system/commit/d92e516c93a9b8701499c43fbe80c701cea92631))
+
 ## [1.3.0](https://github.com/gerson05/it-support-system/compare/v1.2.0...v1.3.0) (2026-07-22)
 
 
