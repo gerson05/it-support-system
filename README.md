@@ -75,6 +75,8 @@ docker compose up -d
 
 Ver [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) para guía completa de producción.
 
+Para contribuir al proyecto ver [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ---
 
 ## Variables de Entorno
@@ -272,6 +274,19 @@ El frontend no tiene build step — edita los archivos en `/public` y recarga el
 | `utils/` | async-handler, get-base-url |
 
 Umbrales CI: **líneas ≥ 90% · ramas ≥ 75% · funciones ≥ 85%**
+
+---
+
+## Documentación Adicional
+
+| Doc | Contenido |
+|-----|-----------|
+| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Guía completa de despliegue en VPS con Docker |
+| [docs/ENVIRONMENT.md](docs/ENVIRONMENT.md) | Referencia completa de variables de entorno |
+| [docs/CHATBOT.md](docs/CHATBOT.md) | Flujos del chatbot de WhatsApp |
+| [docs/TECH-DEBT.md](docs/TECH-DEBT.md) | Deuda técnica conocida y prioridades |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Guía para contribuidores: branches, commits, tests |
+| [CHANGELOG.md](CHANGELOG.md) | Historial de versiones |
 
 ---
 
