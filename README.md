@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/gerson05/it-support-system/actions/workflows/ci.yml/badge.svg)](https://github.com/gerson05/it-support-system/actions/workflows/ci.yml)
 [![Release](https://github.com/gerson05/it-support-system/actions/workflows/release.yml/badge.svg)](https://github.com/gerson05/it-support-system/releases)
-[![Node.js](https://img.shields.io/badge/Node.js-22-green)](https://nodejs.org)
+[![Node.js](https://img.shields.io/badge/Node.js-24-green)](https://nodejs.org)
 [![Docker](https://img.shields.io/badge/Docker-ready-blue)](https://ghcr.io/gerson05/it-support-system)
 
 Sistema de soporte técnico con **chatbot de WhatsApp**, panel web de gestión, inventario de activos, integración con ERP GeneXus y generación de documentos. Diseñado para equipos de IT de empresas con múltiples sedes.
@@ -23,7 +23,7 @@ Sistema de soporte técnico con **chatbot de WhatsApp**, panel web de gestión, 
 | **Reuniones** | Integración con Google Calendar y Google Meet |
 | **Empleados** | Provisionamiento en dos fases, autocomplete por nombre/cédula, importación masiva por Excel |
 | **Analítica** | Requerimientos técnicos por sede, asignación de técnicos y métricas de resolución |
-| **Integración ERP** | Sincronización con GeneXus (empleados, sucursales, puntos de venta); importación Excel como fallback |
+| **Integración ERP** | Sync automático con GeneXus Medivalle (empleados, sucursales) cada 24h; búsqueda por cédula/nombre; perfil unificado por cédula con historial de tickets, despachos y requerimientos; importación Excel como fallback |
 | **Farmacias FOMAG** | Gestión de red de puntos farmacéuticos |
 | **Auditoría** | Registro completo de accesos y acciones del sistema |
 
@@ -31,7 +31,7 @@ Sistema de soporte técnico con **chatbot de WhatsApp**, panel web de gestión, 
 
 ## Stack Tecnológico
 
-- **Runtime:** Node.js 22 (ES Modules)
+- **Runtime:** Node.js 24 (ES Modules)
 - **Servidor:** Express 4
 - **Base de datos:** SQLite (nativo `node:sqlite`, sin dependencias externas)
 - **WhatsApp:** whatsapp-web.js + Baileys
@@ -49,7 +49,7 @@ Sistema de soporte técnico con **chatbot de WhatsApp**, panel web de gestión, 
 
 ### Requisitos
 
-- Node.js 22+
+- Node.js 24+
 - npm 10+
 
 ### Instalación local
@@ -89,6 +89,10 @@ Variables mínimas para funcionar:
 | `INIT_ADMIN_PASS` | Contraseña del admin inicial |
 | `IT_WHATSAPP_NUMBER` | Número de WhatsApp IT (ej. `573001234567`) |
 | `WHATSAPP_VERIFY_TOKEN` | Token para verificar el webhook |
+| `ERP_USER` | Usuario GeneXus para sync automático (opcional) |
+| `ERP_PASS` | Contraseña GeneXus |
+| `ERP_SYNC_INTERVAL_HOURS` | Intervalo de sync en horas (default: `24`) |
+| `ERP_EMPLEADOS_OBJ` | Servlet de empleados GeneXus (ej. `com.version8.wwempleados`); requerido para sync de empleados |
 
 ---
 
@@ -130,7 +134,7 @@ El servidor expone routers REST en `/api/*`:
 | `/api/reuniones` | Reuniones y calendario |
 | `/api/employees` | Empleados, autocomplete por cédula/nombre, importación Excel |
 | `/api/metrics` | Métricas del dashboard y analítica por sede/técnico |
-| `/api/erp` | Sincronización con ERP GeneXus (empleados, sucursales, puntos) |
+| `/api/erp` | ERP GeneXus: autocomplete empleados/sedes, perfil+historial por cédula, sync manual/automático, importación Excel de empleados y puntos |
 | `/api/audit` | Logs de auditoría |
 | `/api/auth` | Autenticación (sesiones con cookie) |
 | `/api/users` | Gestión de usuarios y roles |
@@ -145,15 +149,22 @@ Endpoints especiales:
 ## CI/CD
 
 ```
-Push a develop/main
+Push a develop/main/stage  (o PR)
       ↓
-  CI (test-ci.mjs)
-  ├── Health check
-  ├── Login admin
-  ├── Tickets API
-  ├── Metrics API
-  └── Flujo chatbot completo
-      ↓ (si pasa)
+  CI — 3 jobs en paralelo (Node 24)
+  ├── Unit Tests + Coverage
+  │    └── 30 suites · umbrales: líneas ≥90%, ramas ≥75%, funciones ≥85%
+  │    └── Publica resumen de cobertura como comentario en el PR
+  ├── Smoke Tests (test-ci.mjs contra servidor real)
+  │    ├── Health check
+  │    ├── Login admin
+  │    ├── Tickets API
+  │    ├── Metrics API
+  │    └── Flujo chatbot completo
+  └── Security Audit
+       ├── npm audit --audit-level=critical
+       └── Trivy filesystem (HIGH + CRITICAL, solo vulnerabilidades con fix)
+      ↓ (gate "API Tests" — falla si cualquier job falla)
   Release Please
   └── Crea PR con versión bump + CHANGELOG
         ↓ (merge manual)
@@ -164,9 +175,9 @@ Push a develop/main
 
 | Workflow | Trigger | Propósito |
 |----------|---------|-----------|
-| `ci.yml` | Push develop/main/stage, PR, manual | Tests de integración |
-| `release.yml` | Push main, manual | Release Please (versionado) |
-| `docker-build.yml` | PR a stage/main | Valida que Docker construye |
+| `ci.yml` | Push develop/main/stage, PR, manual | Unit tests + smoke tests + security audit |
+| `release.yml` | Push main, manual | Release Please (versionado automático) |
+| `docker-build.yml` | PR a stage/main | Valida que la imagen Docker construye |
 | `deploy-stage.yml` | CI pasa en stage | Push imagen `:stage` a GHCR |
 | `deploy-prod.yml` | CI pasa en main o release publicado | Push imagen `:latest :vX.Y.Z` a GHCR |
 
@@ -225,14 +236,42 @@ it-tickets/
 # Modo watch (reinicia en cambios)
 node --watch server.js
 
-# Tests de integración
+# Unit tests (Node test runner nativo)
 npm test
+
+# Unit tests + cobertura + umbrales (igual que CI)
+npm run test:ci
+
+# Smoke tests E2E contra servidor real
+node test-ci.mjs
 
 # Ver logs del chatbot
 DISABLE_WHATSAPP=false node server.js
 ```
 
 El frontend no tiene build step — edita los archivos en `/public` y recarga el navegador.
+
+### Suite de Tests
+
+30 archivos en `tests/` agrupados por módulo:
+
+| Módulo | Archivos |
+|--------|---------|
+| `auth/` | middleware, rutas, servicio, usuarios |
+| `tickets/` | modelo, rutas |
+| `inventario/` | equipos, celulares, UPS |
+| `whatsapp/` | chatbot utils, sedes, flujos (soporte, requerimiento, incidencia, OOS, sede) |
+| `knowledge/` | FAQ data, rutas, servicio |
+| `despacho/` | rutas |
+| `employees/` | rutas |
+| `tech-requests/` | rutas |
+| `metrics/` | rutas |
+| `reuniones/` | rutas |
+| `sedes/` | rutas |
+| `tracking/` | rutas |
+| `utils/` | async-handler, get-base-url |
+
+Umbrales CI: **líneas ≥ 90% · ramas ≥ 75% · funciones ≥ 85%**
 
 ---
 
