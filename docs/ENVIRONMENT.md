@@ -80,6 +80,35 @@ El bot puede sugerir soluciones automáticamente antes de crear un ticket.
 
 ---
 
+## ERP GeneXus (opcional)
+
+Sincronización automática con el ERP Medivalle (GeneXus Java 15). Si no se configura, el sistema funciona normalmente usando importación Excel como fuente de empleados y puntos.
+
+| Variable | Default | Descripción |
+|----------|---------|-------------|
+| `ERP_USER` | — | Usuario de login en GeneXus (ej. `GJHURTADO`) |
+| `ERP_PASS` | — | Contraseña del usuario GeneXus |
+| `ERP_SYNC_INTERVAL_HOURS` | `24` | Intervalo de sincronización automática en horas |
+| `ERP_EMPLEADOS_OBJ` | — | Nombre del servlet del panel de empleados (ej. `com.version8.wwempleados`). **Requerido para sync de empleados.** |
+
+### Mapeo de campos (solo si el GeneXus usa nombres distintos)
+
+Defaults corresponden a la instancia Medivalle. Cambiar solo si los campos del grid tienen nombres diferentes.
+
+| Variable | Default | Campo que mapea |
+|----------|---------|-----------------|
+| `ERP_FIELD_CEDULA` | `EMPCEDULA` | Cédula del empleado |
+| `ERP_FIELD_NOMBRE` | `EMPNOMBRE` | Nombre completo |
+| `ERP_FIELD_CARGO` | `EMPCARGO` | Cargo / posición |
+| `ERP_FIELD_AREA` | `EMPAREA` | Área o departamento |
+| `ERP_FIELD_SUC_COD` | `SUCCOD` | Código de sucursal |
+| `ERP_FIELD_SUC_NOM` | `SUCNOM` | Nombre de sucursal |
+| `ERP_FIELD_SUC_CIU` | `SUCCIU` | Ciudad de sucursal |
+
+> **Sin ERP configurado:** usa `POST /api/erp/import/empleados` y `POST /api/erp/import/puntos` para importar desde Excel.
+
+---
+
 ## CI / Testing
 
 Estas variables son solo para el entorno de CI y no deben usarse en producción:

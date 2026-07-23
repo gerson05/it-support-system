@@ -21,20 +21,14 @@ Funciones que mezclan fetch, DOM, eventos y lógica en una sola unidad. Imposibl
 
 ---
 
-### 2. Cero tests unitarios
+### 2. ~~Cero tests unitarios~~ — RESUELTO ✅
 
-Solo existe `test-ci.mjs` (integración end-to-end). Los hotspots más críticos del sistema no tienen cobertura:
+30 suites con Node test runner nativo cubren los módulos críticos del backend:
+`auth` (middleware + rutas + servicio + usuarios), `tickets`, `inventario` (equipos/celulares/UPS), `whatsapp` (chatbot utils + 5 flujos), `knowledge`, `despacho`, `employees`, `tech-requests`, `metrics`, `reuniones`, `sedes`, `tracking`, `utils`.
 
-| Función | Usos | Riesgo |
-|--------|------|--------|
-| `showToast` (`public/js/ui/components.js`) | 190 | UI rompe silenciosamente |
-| `wrap` (`src/utils/async-handler.js`) | 160 | Errors swallowed without notice |
-| `loadTicketData` (`ticket-detail.js`) | 144 | Ticket view blind to regressions |
-| `openCreateModal` (`despacho-form.js`) | 136 | Despacho flow untestable |
-| `requireAuth` (`src/auth/auth-middleware.js`) | 95 | Auth bypass goes undetected |
-| `requirePermission` (`src/auth/auth-middleware.js`) | 82 | RBAC bypass goes undetected |
+Umbrales CI: **líneas ≥ 90% · ramas ≥ 75% · funciones ≥ 85%** (falla el pipeline si bajan).
 
-**Fix:** Agregar Vitest o Node test runner. Prioridad: `requireAuth`, `wrap`, lógica de negocio de modelos.
+**Pendiente aún:** tests de frontend (`showToast`, `openCreateModal`, `loadTicketData`) — el Vanilla JS sin build tool requiere jsdom o Playwright component tests.
 
 ---
 
@@ -93,9 +87,10 @@ Módulos con 3–4 nodos que podrían fusionarse o expandirse para justificar su
 ## Prioridad de ataque recomendada
 
 ```
-1. Tests unitarios para requireAuth + requirePermission  (seguridad)
-2. Romper god functions: ticket-detail.js primero        (mayor dolor diario)
-3. Separar server.js en capas                            (mantenibilidad)
-4. Service layer en src/tickets/ como piloto             (patrón replicable)
-5. Renombrar variables de una letra al tocar archivos    (oportunista)
+1. ✅ Tests unitarios para requireAuth + requirePermission  (hecho — 30 suites)
+2. Romper god functions: ticket-detail.js primero          (mayor dolor diario)
+3. Separar server.js en capas                              (mantenibilidad)
+4. Service layer en src/tickets/ como piloto               (patrón replicable)
+5. Tests de frontend con jsdom/Playwright                  (cobertura UI)
+6. Renombrar variables de una letra al tocar archivos      (oportunista)
 ```
