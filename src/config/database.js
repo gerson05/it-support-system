@@ -58,14 +58,17 @@ if (useMariaDB) {
   const mysql = (await import('mysql2/promise')).default;
 
   const pool = mysql.createPool({
-    host:             process.env.DB_HOST     || 'localhost',
-    port:             parseInt(process.env.DB_PORT || '3306'),
-    user:             process.env.DB_USER     || 'root',
-    password:         process.env.DB_PASS     || '',
-    database:         process.env.DB_NAME     || 'it_tickets',
+    host:               process.env.DB_HOST     || 'localhost',
+    port:               parseInt(process.env.DB_PORT || '3306'),
+    user:               process.env.DB_USER     || 'root',
+    password:           process.env.DB_PASS     || '',
+    database:           process.env.DB_NAME     || 'it_tickets',
+    charset:            'utf8mb4',
+    timezone:           'local',
     waitForConnections: true,
-    connectionLimit:  10,
+    connectionLimit:    10,
     multipleStatements: true,
+    decimalNumbers:     true,
   });
 
   db = {
