@@ -31,7 +31,7 @@ await mock.module('../../../src/whatsapp/chatbot-config.js', {
 const { isSedeCompleta, routeAfterSede, handleSede } = await import('../../../src/whatsapp/flows/flujo-sede.js');
 
 function makeDb() {
-  return { prepare: () => ({ run: () => {}, get: () => null, all: () => [] }) };
+  return { prepare: () => ({ run: async () => {}, get: async () => null, all: async () => [] }) };
 }
 
 function makeArgs(step, text, cleanText, ctxOverride = {}) {

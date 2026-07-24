@@ -105,7 +105,7 @@ test('matchCiudad: returns at most 6 results', () => {
 
 test('matchCiudad: uses db when provided', () => {
   const mockDb = {
-    prepare: () => ({ all: () => [{ ciudad: 'CALI' }, { ciudad: 'PALMIRA' }] }),
+    prepare: () => ({ all: async () => [{ ciudad: 'CALI' }, { ciudad: 'PALMIRA' }] }),
   };
   const result = matchCiudad('Cali', mockDb);
   assert.ok(result.includes('CALI'));
@@ -113,7 +113,7 @@ test('matchCiudad: uses db when provided', () => {
 
 test('matchCiudad: falls back to static map on db error', () => {
   const badDb = {
-    prepare: () => ({ all: () => { throw new Error('db fail'); } }),
+    prepare: () => ({ all: async () => { throw new Error('db fail'); } }),
   };
   const result = matchCiudad('Cali', badDb);
   assert.ok(result.includes('CALI'));
@@ -138,7 +138,7 @@ test('getPuntosCiudad: unknown city returns empty array', () => {
 test('getPuntosCiudad: uses db rows when provided', () => {
   const mockDb = {
     prepare: () => ({
-      all: () => [{ nombre_punto: 'MI FARMACIA - TEST' }],
+      all: async () => [{ nombre_punto: 'MI FARMACIA - TEST' }],
     }),
   };
   const result = getPuntosCiudad('CALI', mockDb);
