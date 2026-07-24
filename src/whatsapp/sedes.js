@@ -144,7 +144,7 @@ export const CIUDADES = {
 };
 
 /** Normaliza a minúsculas sin tildes */
-function normC(str) {
+async function normC(str) {
   return str.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, ' ').trim();
 }
 

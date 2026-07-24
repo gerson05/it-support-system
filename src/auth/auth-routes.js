@@ -10,7 +10,7 @@ const COOKIE_OPTS = { httpOnly: true, sameSite: 'lax', path: '/', maxAge: 8 * 60
 
 // Simple in-memory rate limiter: max 10 attempts per IP per 15 min
 const _loginAttempts = new Map();
-function _checkLoginRate(ip) {
+async function _checkLoginRate(ip) {
   const now = Date.now();
   const entry = _loginAttempts.get(ip);
   if (!entry || now > entry.resetAt) {

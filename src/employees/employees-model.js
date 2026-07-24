@@ -37,7 +37,7 @@ export async function ensureUniquePassword(base) {
 
 // ─── Audit ───────────────────────────────────────────────────────────────────
 
-function _log(employeeId, userId, accion, campo = null) {
+async function _log(employeeId, userId, accion, campo = null) {
   try {
     await db.prepare(`
       INSERT INTO employee_logs (employee_id, usuario_id, accion, campo_cambio, timestamp)

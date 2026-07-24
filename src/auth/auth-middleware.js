@@ -1,6 +1,6 @@
 import { getSession } from './auth-service.js';
 
-function extractToken(cookieHeader) {
+async function extractToken(cookieHeader) {
   if (!cookieHeader) return null;
   const part = cookieHeader.split(';').map(c => c.trim()).find(c => c.startsWith('it_session='));
   return part ? decodeURIComponent(part.slice('it_session='.length)) : null;

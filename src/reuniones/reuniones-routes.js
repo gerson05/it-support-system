@@ -10,7 +10,7 @@ const router = express.Router();
 
 const TIPOS = ['interna', 'con_sede', 'con_proveedor', 'formacion'];
 
-function conflicto(sala_id, inicio, fin, excludeId = null) {
+async function conflicto(sala_id, inicio, fin, excludeId = null) {
   let sql = `SELECT id FROM reuniones
     WHERE sala_id = ? AND estado = 'activa'
       AND fecha_inicio < ? AND fecha_fin > ?`;

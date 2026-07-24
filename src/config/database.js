@@ -35,7 +35,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);
 
 // Converts SQLite-specific SQL to MariaDB-compatible SQL
-function fixSql(sql) {
+async function fixSql(sql) {
   return sql
     .replace(/INSERT\s+OR\s+IGNORE\s+INTO/gi, 'INSERT IGNORE INTO')
     .replace(/INSERT\s+OR\s+REPLACE\s+INTO/gi, 'REPLACE INTO')
