@@ -3,11 +3,11 @@ import assert from 'node:assert/strict';
 import { searchFaqsAll, getAllFaqsForArea } from '../../src/knowledge/faq-service.js';
 
 function makeDb(customRows = []) {
-  return { prepare: () => ({ all: () => customRows }) };
+  return { prepare: () => ({ all: async () => customRows }) };
 }
 
 function makeFailingDb() {
-  return { prepare: () => ({ all: () => { throw new Error('DB unavailable'); } }) };
+  return { prepare: () => ({ all: async () => { throw new Error('DB unavailable'); } }) };
 }
 
 const CUSTOM_FAQ = {
