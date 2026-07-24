@@ -31,7 +31,7 @@ router.post('/api/auth/login', async (req, res) => {
     return res.status(400).json({ error: 'Usuario y contraseña son requeridos.' });
   }
 
-  const user = db.prepare(
+  const user = await db.prepare(
     'SELECT id, password_hash, active, role_id FROM users WHERE username = ?'
   ).get(username);
 
@@ -42,7 +42,7 @@ router.post('/api/auth/login', async (req, res) => {
   const { token } = createSession(user.id);
   res.cookie(COOKIE, token, COOKIE_OPTS);
 
-  const role = db.prepare('SELECT name FROM roles WHERE id = ?').get(user.role_id);
+  const role = await db.prepare('SELECT name FROM roles WHERE id = ?').get(user.role_id);
   res.json({ ok: true, role: role.name });
 });
 

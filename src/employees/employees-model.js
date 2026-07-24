@@ -19,7 +19,7 @@ export function generatePassword(cedula) {
 export function ensureUniqueUsername(base) {
   let name = base;
   let retries = 2;
-  while (db.prepare('SELECT id FROM employees WHERE usuario = ?').get(name)) {
+  while (await db.prepare('SELECT id FROM employees WHERE usuario = ?').get(name)) {
     name = base + retries++;
   }
   return name;
@@ -28,7 +28,7 @@ export function ensureUniqueUsername(base) {
 export function ensureUniquePassword(base) {
   let pw = base;
   let attempts = 0;
-  while (db.prepare('SELECT id FROM employees WHERE contraseña = ?').get(pw) && attempts < 50) {
+  while (await db.prepare('SELECT id FROM employees WHERE contraseña = ?').get(pw) && attempts < 50) {
     pw = String(Math.floor(1000 + Math.random() * 9000));
     attempts++;
   }
@@ -39,7 +39,7 @@ export function ensureUniquePassword(base) {
 
 function _log(employeeId, userId, accion, campo = null) {
   try {
-    db.prepare(`
+    await db.prepare(`
       INSERT INTO employee_logs (employee_id, usuario_id, accion, campo_cambio, timestamp)
       VALUES (?, ?, ?, ?, datetime('now','localtime'))
     `).run(employeeId, userId ?? null, accion, campo);
@@ -49,7 +49,7 @@ function _log(employeeId, userId, accion, campo = null) {
 // ─── Queries ─────────────────────────────────────────────────────────────────
 
 export function getAllEmployees() {
-  return db.prepare(`
+  return await db.prepare(`
     SELECT e.*, u.username AS created_by_name
     FROM employees e
     LEFT JOIN users u ON u.id = e.created_by
@@ -58,28 +58,28 @@ export function getAllEmployees() {
 }
 
 export function getEmployeeById(id) {
-  return db.prepare('SELECT * FROM employees WHERE id = ?').get(Number(id)) ?? null;
+  return await db.prepare('SELECT * FROM employees WHERE id = ?').get(Number(id)) ?? null;
 }
 
 export function getPendingCount() {
-  return db.prepare('SELECT COUNT(*) AS n FROM employees WHERE usuario IS NULL').get().n;
+  return (await db.prepare('SELECT COUNT(*) AS n FROM employees WHERE usuario IS NULL').get()).n;
 }
 
 export function getCargos() {
-  return db.prepare('SELECT id, nombre FROM employee_cargos ORDER BY nombre').all();
+  return await db.prepare('SELECT id, nombre FROM employee_cargos ORDER BY nombre').all();
 }
 
 export function createCargo(nombre) {
   const normalized = nombre.trim();
   if (!normalized) throw Object.assign(new Error('Nombre requerido'), { code: 'MISSING_FIELDS' });
-  const existing = db.prepare('SELECT id, nombre FROM employee_cargos WHERE nombre = ? COLLATE NOCASE').get(normalized);
+  const existing = await db.prepare('SELECT id, nombre FROM employee_cargos WHERE nombre = ? COLLATE NOCASE').get(normalized);
   if (existing) return existing;
-  const result = db.prepare('INSERT INTO employee_cargos (nombre) VALUES (?)').run(normalized);
+  const result = await db.prepare('INSERT INTO employee_cargos (nombre) VALUES (?)').run(normalized);
   return { id: result.lastInsertRowid, nombre: normalized };
 }
 
 export function getAreas() {
-  return db.prepare(
+  return await db.prepare(
     `SELECT id, nombre, ciudad, tipo FROM puntos WHERE activo = 1 ORDER BY ciudad, nombre`
   ).all();
 }
@@ -90,10 +90,10 @@ export function createEmployee({ cedula, nombre_completo, cargo, area, created_b
   if (!cedula || !nombre_completo || !cargo || !area) {
     throw Object.assign(new Error('Campos requeridos faltantes'), { code: 'MISSING_FIELDS' });
   }
-  if (db.prepare('SELECT id FROM employees WHERE cedula = ?').get(cedula)) {
+  if (await db.prepare('SELECT id FROM employees WHERE cedula = ?').get(cedula)) {
     throw Object.assign(new Error('Cédula ya registrada'), { code: 'CEDULA_EXISTS' });
   }
-  const result = db.prepare(`
+  const result = await db.prepare(`
     INSERT INTO employees (cedula, nombre_completo, cargo, area, created_by)
     VALUES (?, ?, ?, ?, ?)
   `).run(cedula, nombre_completo, cargo, area, created_by ?? null);
@@ -110,7 +110,7 @@ export function completeEmployee(id, fecha, userId) {
   const usuario   = ensureUniqueUsername(generateUsername(emp.nombre_completo));
   const contraseña = ensureUniquePassword(generatePassword(emp.cedula));
 
-  db.prepare(`
+  await db.prepare(`
     UPDATE employees
     SET usuario = ?, contraseña = ?, fecha_respuesta_soporte = ?,
         updated_by = ?, updated_at = datetime('now','localtime')
@@ -130,7 +130,7 @@ export function updateEmployee(id, data, userId) {
   if (!fields.length) return;
 
   vals.push(userId ?? null, Number(id));
-  db.prepare(`
+  await db.prepare(`
     UPDATE employees SET ${fields.join(', ')},
     updated_by = ?, updated_at = datetime('now','localtime')
     WHERE id = ?
@@ -142,6 +142,6 @@ export function updateEmployee(id, data, userId) {
 export function deleteEmployee(id, userId) {
   if (!getEmployeeById(id)) throw Object.assign(new Error('No encontrado'), { code: 'NOT_FOUND' });
   _log(id, userId, 'delete');
-  db.prepare('DELETE FROM employee_logs WHERE employee_id = ?').run(Number(id));
-  db.prepare('DELETE FROM employees WHERE id = ?').run(Number(id));
+  await db.prepare('DELETE FROM employee_logs WHERE employee_id = ?').run(Number(id));
+  await db.prepare('DELETE FROM employees WHERE id = ?').run(Number(id));
 }

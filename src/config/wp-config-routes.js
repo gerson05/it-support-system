@@ -11,7 +11,7 @@ router.get('/api/admin/wp-messages', (req, res) => {
   for (const key of Object.keys(DEFAULTS)) {
     let value = DEFAULTS[key];
     try {
-      const row = db.prepare('SELECT value FROM app_config WHERE key = ?').get(`wp_msg_${key}`);
+      const row = await db.prepare('SELECT value FROM app_config WHERE key = ?').get(`wp_msg_${key}`);
       if (row?.value) value = row.value;
     } catch {}
     result[key] = {
@@ -35,7 +35,7 @@ router.put('/api/admin/wp-messages/:key', (req, res) => {
   if (!DEFAULTS.hasOwnProperty(key)) return res.status(404).json({ error: 'Mensaje no existe' });
   if (typeof value !== 'string' || !value.trim()) return res.status(400).json({ error: 'Valor inválido' });
 
-  db.prepare(`
+  await db.prepare(`
     INSERT INTO app_config (key, value, updated_at)
     VALUES (?, ?, datetime('now','localtime'))
     ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at
@@ -49,7 +49,7 @@ router.put('/api/admin/wp-messages/:key', (req, res) => {
 router.delete('/api/admin/wp-messages/:key', (req, res) => {
   const { key } = req.params;
   if (!DEFAULTS.hasOwnProperty(key)) return res.status(404).json({ error: 'Mensaje no existe' });
-  db.prepare('DELETE FROM app_config WHERE key = ?').run(`wp_msg_${key}`);
+  await db.prepare('DELETE FROM app_config WHERE key = ?').run(`wp_msg_${key}`);
   res.json({ ok: true, key, value: DEFAULTS[key] });
 });
 

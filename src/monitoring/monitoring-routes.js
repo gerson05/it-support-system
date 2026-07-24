@@ -20,13 +20,13 @@ export function broadcast(data) {
 
 export function startOfflineChecker() {
   setInterval(() => {
-    const r = db.prepare(`
+    const r = await db.prepare(`
       UPDATE agentes SET estado = 'offline'
       WHERE estado = 'online' AND datetime(last_seen) < datetime('now', '-90 minutes')
     `).run();
     if (r.changes > 0) broadcast({ type: 'offline_sweep' });
-    db.prepare(`DELETE FROM metricas_agentes WHERE timestamp < datetime('now', '-24 hours')`).run();
-    db.prepare(`
+    await db.prepare(`DELETE FROM metricas_agentes WHERE timestamp < datetime('now', '-24 hours')`).run();
+    await db.prepare(`
       UPDATE comandos_agente
       SET estado = 'error',
           output = output || '\n[Error: tiempo de espera agotado]',
@@ -52,13 +52,13 @@ function isValidSerial(s) {
 // ── Vinculación agente ↔ inventario ─────────────────────────────────────────
 function linkInventory(agentId, hw) {
   try {
-    const row = db.prepare('SELECT inventario_equipo_id FROM agentes WHERE id=?').get(agentId);
+    const row = await db.prepare('SELECT inventario_equipo_id FROM agentes WHERE id=?').get(agentId);
     if (row?.inventario_equipo_id) return;
 
     const serial = hw.serial?.trim() || '';
     if (!isValidSerial(serial)) return;
 
-    let equipo = db.prepare('SELECT id FROM inventario_equipos WHERE serial=?').get(serial);
+    let equipo = await db.prepare('SELECT id FROM inventario_equipos WHERE serial=?').get(serial);
 
     if (!equipo) {
       const qr_token = crypto.randomUUID();
@@ -71,7 +71,7 @@ function linkInventory(agentId, hw) {
       const disco    = hw.disk_total ? String(hw.disk_total) : null;
 
       try {
-        const r = db.prepare(`
+        const r = await db.prepare(`
           INSERT INTO inventario_equipos
             (placa, marca, nombre_equipo, serial, procesador, ram, cap_disco, tipo_disco, qr_token)
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -79,12 +79,12 @@ function linkInventory(agentId, hw) {
         equipo = { id: r.lastInsertRowid };
         console.log(`[Inventario] Auto-registrado: ${hw.hostname} → ${placa} serial=${serial}`);
       } catch {
-        equipo = db.prepare('SELECT id FROM inventario_equipos WHERE serial=?').get(serial);
+        equipo = await db.prepare('SELECT id FROM inventario_equipos WHERE serial=?').get(serial);
         if (!equipo) return;
       }
     }
 
-    db.prepare('UPDATE agentes SET serial=?, inventario_equipo_id=? WHERE id=?')
+    await db.prepare('UPDATE agentes SET serial=?, inventario_equipo_id=? WHERE id=?')
       .run(serial, equipo.id, agentId);
   } catch (e) {
     console.error(`[Inventario] linkInventory error agente ${agentId}:`, e.message);
@@ -95,7 +95,7 @@ function agentAuth(req, res, next) {
   const agentId = parseInt(req.headers['x-agent-id'], 10);
   const apiKey  = req.headers['x-api-key'];
   if (!agentId || !apiKey) return res.status(401).json({ error: 'Missing credentials.' });
-  const agent = db.prepare('SELECT id FROM agentes WHERE id = ? AND api_key = ?').get(agentId, apiKey);
+  const agent = await db.prepare('SELECT id FROM agentes WHERE id = ? AND api_key = ?').get(agentId, apiKey);
   if (!agent) return res.status(403).json({ error: 'Invalid credentials.' });
   req.agentId = agent.id;
   next();
@@ -114,9 +114,9 @@ router.post('/api/monitoring/register', (req, res) => {
                     disk_model, disk_total, gpu, serial, manufacturer, model, sede };
   const sedeVal = sede?.trim() || null;
 
-  const existing = db.prepare('SELECT id, api_key FROM agentes WHERE mac_address = ?').get(mac_address);
+  const existing = await db.prepare('SELECT id, api_key FROM agentes WHERE mac_address = ?').get(mac_address);
   if (existing) {
-    db.prepare(`
+    await db.prepare(`
       UPDATE agentes
       SET hostname=?,ip=?,os_name=?,os_version=?,cpu_model=?,cpu_cores=?,cpu_ghz=?,
           ram_total=?,disk_model=?,disk_total=?,gpu=?,
@@ -131,7 +131,7 @@ router.post('/api/monitoring/register', (req, res) => {
   }
 
   const api_key = crypto.randomBytes(32).toString('hex');
-  const result  = db.prepare(`
+  const result  = await db.prepare(`
     INSERT INTO agentes
       (hostname,mac_address,ip,os_name,os_version,cpu_model,cpu_cores,cpu_ghz,
        ram_total,disk_model,disk_total,gpu,sede,api_key,estado,last_seen)
@@ -150,19 +150,19 @@ router.post('/api/monitoring/heartbeat', agentAuth, wrap(async (req, res) => {
   const { cpu_percent, ram_used, disk_used, uptime } = req.body;
   let pending = [];
 
-  db.prepare('BEGIN').run();
+  await db.prepare('BEGIN').run();
   try {
-    db.prepare(`UPDATE agentes SET estado='online', last_seen=datetime('now') WHERE id=?`)
+    await db.prepare(`UPDATE agentes SET estado='online', last_seen=datetime('now') WHERE id=?`)
       .run(req.agentId);
 
-    db.prepare(`
+    await db.prepare(`
       INSERT INTO metricas_agentes (agente_id, cpu_percent, ram_used, disk_used, uptime)
       VALUES (?,?,?,?,?)
     `).run(req.agentId, cpu_percent, ram_used, disk_used, uptime);
 
-    const agent = db.prepare('SELECT ram_total, disk_total FROM agentes WHERE id=?').get(req.agentId);
+    const agent = await db.prepare('SELECT ram_total, disk_total FROM agentes WHERE id=?').get(req.agentId);
 
-    const cmds = db.prepare(`
+    const cmds = await db.prepare(`
       SELECT id, tipo, parametro FROM comandos_agente
       WHERE agente_id = ? AND estado = 'pendiente'
       ORDER BY id ASC LIMIT 5
@@ -170,13 +170,13 @@ router.post('/api/monitoring/heartbeat', agentAuth, wrap(async (req, res) => {
 
     if (cmds.length) {
       const ids = cmds.map(c => c.id);
-      db.prepare(
+      await db.prepare(
         `UPDATE comandos_agente SET estado = 'ejecutando', updated_at = datetime('now')
          WHERE id IN (${ids.map(() => '?').join(',')})`
       ).run(...ids);
     }
 
-    db.prepare('COMMIT').run();
+    await db.prepare('COMMIT').run();
     pending = cmds;
 
     broadcast({
@@ -187,14 +187,14 @@ router.post('/api/monitoring/heartbeat', agentAuth, wrap(async (req, res) => {
 
     res.json({ ok: true, commands: pending });
   } catch (te) {
-    try { db.prepare('ROLLBACK').run(); } catch {}
+    try { await db.prepare('ROLLBACK').run(); } catch {}
     throw te;
   }
 }));
 
 /* GET /api/monitoring/agents */
 router.get('/api/monitoring/agents', ...canRead, (req, res) => {
-  const agents = db.prepare(`
+  const agents = await db.prepare(`
     SELECT a.*,
            m.cpu_percent, m.ram_used, m.disk_used, m.uptime,
            m.timestamp AS metric_ts
@@ -209,9 +209,9 @@ router.get('/api/monitoring/agents', ...canRead, (req, res) => {
 
 /* GET /api/monitoring/agents/:id */
 router.get('/api/monitoring/agents/:id', ...canRead, (req, res) => {
-  const agent = db.prepare('SELECT * FROM agentes WHERE id = ?').get(req.params.id);
+  const agent = await db.prepare('SELECT * FROM agentes WHERE id = ?').get(req.params.id);
   if (!agent) return res.status(404).json({ error: 'Not found.' });
-  const metrics = db.prepare(`
+  const metrics = await db.prepare(`
     SELECT * FROM metricas_agentes
     WHERE agente_id = ? AND timestamp > datetime('now', '-24 hours')
     ORDER BY id DESC LIMIT 144
@@ -247,11 +247,11 @@ router.post('/api/monitoring/agents/:id/command', ...canCommand, (req, res) => {
   if ((tipo === 'kill_process' || tipo === 'shell' || tipo === 'set_default_printer') && !parametro?.trim())
     return res.status(400).json({ error: 'parametro requerido para este tipo.' });
 
-  const agent = db.prepare('SELECT id FROM agentes WHERE id = ?').get(req.params.id);
+  const agent = await db.prepare('SELECT id FROM agentes WHERE id = ?').get(req.params.id);
   if (!agent) return res.status(404).json({ error: 'Agente no encontrado.' });
 
   const creado_por = req.user?.username || req.user?.name || 'admin';
-  const result = db.prepare(`
+  const result = await db.prepare(`
     INSERT INTO comandos_agente (agente_id, tipo, parametro, creado_por)
     VALUES (?, ?, ?, ?)
   `).run(req.params.id, tipo, parametro || null, creado_por);
@@ -263,19 +263,19 @@ router.post('/api/monitoring/agents/:id/command', ...canCommand, (req, res) => {
 /* POST /api/monitoring/command/:id/output */
 router.post('/api/monitoring/command/:id/output', agentAuth, (req, res) => {
   const { chunk, done, exit_code } = req.body;
-  const cmd = db.prepare('SELECT agente_id FROM comandos_agente WHERE id = ?').get(req.params.id);
+  const cmd = await db.prepare('SELECT agente_id FROM comandos_agente WHERE id = ?').get(req.params.id);
   if (!cmd) return res.status(404).json({ error: 'Comando no encontrado.' });
   if (cmd.agente_id !== req.agentId) return res.status(403).json({ error: 'Acceso denegado.' });
 
   if (chunk) {
-    db.prepare(`UPDATE comandos_agente SET output = output || ?, updated_at = datetime('now') WHERE id = ?`)
+    await db.prepare(`UPDATE comandos_agente SET output = output || ?, updated_at = datetime('now') WHERE id = ?`)
       .run(chunk, req.params.id);
     broadcast({ type: 'command_output', cmd_id: parseInt(req.params.id), agent_id: req.agentId, chunk });
   }
 
   if (done) {
     const estado = (exit_code === 0) ? 'completado' : 'error';
-    db.prepare(`UPDATE comandos_agente SET estado = ?, exit_code = ?, updated_at = datetime('now') WHERE id = ? AND estado = 'ejecutando'`)
+    await db.prepare(`UPDATE comandos_agente SET estado = ?, exit_code = ?, updated_at = datetime('now') WHERE id = ? AND estado = 'ejecutando'`)
       .run(estado, exit_code ?? 1, req.params.id);
     broadcast({ type: 'command_done', cmd_id: parseInt(req.params.id), agent_id: req.agentId, exit_code: exit_code ?? 1 });
   }
@@ -285,7 +285,7 @@ router.post('/api/monitoring/command/:id/output', agentAuth, (req, res) => {
 
 /* GET /api/monitoring/agents/:id/commands */
 router.get('/api/monitoring/agents/:id/commands', ...canCommand, (req, res) => {
-  const commands = db.prepare(`
+  const commands = await db.prepare(`
     SELECT * FROM comandos_agente
     WHERE agente_id = ?
     ORDER BY id DESC LIMIT 50

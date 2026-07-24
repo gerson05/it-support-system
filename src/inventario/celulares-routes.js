@@ -32,8 +32,8 @@ router.get('/api/inventario/celulares', ...canRead, wrap(async (req, res) => {
   if (estado) { where.push('estado = ?');    params.push(estado); }
   const wc = where.length ? 'WHERE ' + where.join(' AND ') : '';
   const offset = (parseInt(page) - 1) * parseInt(limit);
-  const rows  = db.prepare(`SELECT * FROM inventario_celulares ${wc} ORDER BY created_at DESC LIMIT ? OFFSET ?`).all(...params, parseInt(limit), offset);
-  const { total } = db.prepare(`SELECT COUNT(*) AS total FROM inventario_celulares ${wc}`).get(...params);
+  const rows  = await db.prepare(`SELECT * FROM inventario_celulares ${wc} ORDER BY created_at DESC LIMIT ? OFFSET ?`).all(...params, parseInt(limit), offset);
+  const { total } = await db.prepare(`SELECT COUNT(*) AS total FROM inventario_celulares ${wc}`).get(...params);
   res.json({ celulares: rows, total, page: parseInt(page), limit: parseInt(limit), total_pages: Math.ceil(total / parseInt(limit)) });
 }));
 
@@ -44,7 +44,7 @@ router.post('/api/inventario/celulares', ...canCreate, wrap(async (req, res) => 
   }
   const qr_token = randomUUID();
   try {
-    const result = db.prepare(`
+    const result = await db.prepare(`
       INSERT INTO inventario_celulares
         (placa,fecha_registro,area,ciudad,nombre_completo,cedula,linea,operador,equipo,almacenamiento,ram,modelo,imei,imei2,serial,estado,accesorio,fecha_entrega,entregado_por,numero_telefono,qr_token)
       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
@@ -62,12 +62,12 @@ router.post('/api/inventario/celulares', ...canCreate, wrap(async (req, res) => 
 
 router.put('/api/inventario/celulares/:id', ...canEdit, wrap(async (req, res) => {
   const id = parseInt(req.params.id);
-  if (!db.prepare('SELECT id FROM inventario_celulares WHERE id = ?').get(id)) {
+  if (!await db.prepare('SELECT id FROM inventario_celulares WHERE id = ?').get(id)) {
     return res.status(404).json({ error: 'Celular no encontrado.' });
   }
   const { placa, fecha_registro, area, ciudad, nombre_completo, cedula, linea, operador, equipo, almacenamiento, ram, modelo, imei, imei2, serial, estado, accesorio, fecha_entrega, entregado_por, numero_telefono } = req.body;
   try {
-    db.prepare(`
+    await db.prepare(`
       UPDATE inventario_celulares SET
         placa=?,fecha_registro=?,area=?,ciudad=?,nombre_completo=?,cedula=?,linea=?,
         operador=?,equipo=?,almacenamiento=?,ram=?,modelo=?,imei=?,imei2=?,serial=?,
@@ -87,7 +87,7 @@ router.put('/api/inventario/celulares/:id', ...canEdit, wrap(async (req, res) =>
 }));
 
 router.delete('/api/inventario/celulares/:id', ...canDelete, wrap(async (req, res) => {
-  const result = db.prepare('DELETE FROM inventario_celulares WHERE id = ?').run(parseInt(req.params.id));
+  const result = await db.prepare('DELETE FROM inventario_celulares WHERE id = ?').run(parseInt(req.params.id));
   if (!result.changes) return res.status(404).json({ error: 'Celular no encontrado.' });
   res.json({ ok: true });
 }));

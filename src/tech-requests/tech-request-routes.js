@@ -94,7 +94,7 @@ router.put('/api/tech-requests/:id', ...canEdit, wrap(async (req, res) => {
   }
 
   if (req.body.status) {
-    const row = db.prepare('SELECT request_number FROM tech_requests WHERE id = ?').get(id);
+    const row = await db.prepare('SELECT request_number FROM tech_requests WHERE id = ?').get(id);
     if (row) {
       updateTechRequestRow(row.request_number, req.body.status)
         .catch(err => console.error('[excel-logger] update status:', err.message));

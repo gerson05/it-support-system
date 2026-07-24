@@ -38,12 +38,12 @@ export async function importEmployeeDataFromExcel(filePath, db) {
       });
 
       // Insertar cargos nuevos
-      const stmtCargo = db.prepare(`
+      const stmtCargo = await db.prepare(`
         INSERT OR IGNORE INTO employee_cargos (nombre) VALUES (?)
       `);
       cargos.forEach(cargo => {
         try {
-          const result = stmtCargo.run(cargo);
+          const result = await stmtCargo.run(cargo);
           if (result.changes > 0) cargosNuevos++;
         } catch (e) {
           // Ya existe
@@ -61,12 +61,12 @@ export async function importEmployeeDataFromExcel(filePath, db) {
       });
 
       // Insertar áreas nuevas
-      const stmtArea = db.prepare(`
+      const stmtArea = await db.prepare(`
         INSERT OR IGNORE INTO employee_areas (nombre) VALUES (?)
       `);
       farmacias.forEach(area => {
         try {
-          const result = stmtArea.run(area);
+          const result = await stmtArea.run(area);
           if (result.changes > 0) areasNuevas++;
         } catch (e) {
           // Ya existe
@@ -88,7 +88,7 @@ export async function importEmployeeDataFromExcel(filePath, db) {
       // Obtener admin user si existe
       let adminUserId = null;
       try {
-        const adminUser = db.prepare(`SELECT id FROM users WHERE role = 'admin' LIMIT 1`).get();
+        const adminUser = await db.prepare(`SELECT id FROM users WHERE role = 'admin' LIMIT 1`).get();
         adminUserId = adminUser ? adminUser.id : null;
       } catch (e) {
         // Tabla users no existe o error
@@ -98,7 +98,7 @@ export async function importEmployeeDataFromExcel(filePath, db) {
       const createdBy = adminUserId || 1;
 
       // Preparar statement de inserción
-      const stmtInsert = db.prepare(`
+      const stmtInsert = await db.prepare(`
         INSERT INTO employees (
           cedula,
           nombre_completo,
@@ -113,7 +113,7 @@ export async function importEmployeeDataFromExcel(filePath, db) {
       `);
 
       // Preparar statement para verificar cédula
-      const stmtCheckCedula = db.prepare(`
+      const stmtCheckCedula = await db.prepare(`
         SELECT COUNT(*) as cnt FROM employees WHERE cedula = ?
       `);
 
@@ -138,7 +138,7 @@ export async function importEmployeeDataFromExcel(filePath, db) {
         }
 
         // Verificar que cédula no existe
-        const cedulaExists = stmtCheckCedula.get(cedula);
+        const cedulaExists = await stmtCheckCedula.get(cedula);
         if (cedulaExists.cnt > 0) {
           console.warn(`⚠️  Cédula ${cedula} ya existe, omitiendo`);
           empleadosSkipped++;
@@ -147,7 +147,7 @@ export async function importEmployeeDataFromExcel(filePath, db) {
 
         // Insertar empleado
         try {
-          const result = stmtInsert.run(
+          const result = await stmtInsert.run(
             cedula,
             nombre,
             cargo,

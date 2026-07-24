@@ -27,7 +27,7 @@ function findByToken(token) {
     { tabla: 'inventario_ups',       tipo: 'UPS',      idField: 'placa',       nameField: 'nombre_equipo' },
   ];
   for (const meta of lookups) {
-    const row = db.prepare(`SELECT * FROM ${meta.tabla} WHERE qr_token=?`).get(token);
+    const row = await db.prepare(`SELECT * FROM ${meta.tabla} WHERE qr_token=?`).get(token);
     if (row) return { ...row, _meta: meta };
   }
   return null;

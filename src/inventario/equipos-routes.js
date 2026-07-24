@@ -32,8 +32,8 @@ router.get('/api/inventario/equipos', ...canRead, wrap(async (req, res) => {
   if (categoria) { where.push('categoria = ?');    params.push(categoria); }
   const wc = where.length ? 'WHERE ' + where.join(' AND ') : '';
   const offset = (parseInt(page) - 1) * parseInt(limit);
-  const rows  = db.prepare(`SELECT * FROM inventario_equipos ${wc} ORDER BY created_at DESC LIMIT ? OFFSET ?`).all(...params, parseInt(limit), offset);
-  const { total } = db.prepare(`SELECT COUNT(*) AS total FROM inventario_equipos ${wc}`).get(...params);
+  const rows  = await db.prepare(`SELECT * FROM inventario_equipos ${wc} ORDER BY created_at DESC LIMIT ? OFFSET ?`).all(...params, parseInt(limit), offset);
+  const { total } = await db.prepare(`SELECT COUNT(*) AS total FROM inventario_equipos ${wc}`).get(...params);
   res.json({ equipos: rows, total, page: parseInt(page), limit: parseInt(limit), total_pages: Math.ceil(total / parseInt(limit)) });
 }));
 
@@ -44,7 +44,7 @@ router.post('/api/inventario/equipos', ...canCreate, wrap(async (req, res) => {
   }
   const qr_token = randomUUID();
   try {
-    const result = db.prepare(`
+    const result = await db.prepare(`
       INSERT INTO inventario_equipos
         (placa,marca,nombre_equipo,serial,procesador,ram,tipo_ram,cap_disco,tipo_disco,serial_cargador,area,responsable,fecha_compra,qr_token,categoria,ciudad)
       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
@@ -61,12 +61,12 @@ router.post('/api/inventario/equipos', ...canCreate, wrap(async (req, res) => {
 
 router.put('/api/inventario/equipos/:id', ...canEdit, wrap(async (req, res) => {
   const id = parseInt(req.params.id);
-  if (!db.prepare('SELECT id FROM inventario_equipos WHERE id = ?').get(id)) {
+  if (!await db.prepare('SELECT id FROM inventario_equipos WHERE id = ?').get(id)) {
     return res.status(404).json({ error: 'Equipo no encontrado.' });
   }
   const { placa, marca, nombre_equipo, serial, procesador, ram, tipo_ram, cap_disco, tipo_disco, serial_cargador, area, responsable, fecha_compra, categoria, ciudad } = req.body;
   try {
-    db.prepare(`
+    await db.prepare(`
       UPDATE inventario_equipos SET
         placa=?,marca=?,nombre_equipo=?,serial=?,procesador=?,ram=?,tipo_ram=?,
         cap_disco=?,tipo_disco=?,serial_cargador=?,area=?,responsable=?,
@@ -85,13 +85,13 @@ router.put('/api/inventario/equipos/:id', ...canEdit, wrap(async (req, res) => {
 }));
 
 router.delete('/api/inventario/equipos/:id', ...canDelete, wrap(async (req, res) => {
-  const result = db.prepare('DELETE FROM inventario_equipos WHERE id = ?').run(parseInt(req.params.id));
+  const result = await db.prepare('DELETE FROM inventario_equipos WHERE id = ?').run(parseInt(req.params.id));
   if (!result.changes) return res.status(404).json({ error: 'Equipo no encontrado.' });
   res.json({ ok: true });
 }));
 
 router.get('/api/inventario/puntos', ...canRead, wrap(async (req, res) => {
-  const rows = db.prepare(`
+  const rows = await db.prepare(`
     SELECT area FROM inventario_equipos   WHERE area IS NOT NULL AND area != ''
     UNION
     SELECT area FROM inventario_celulares WHERE area IS NOT NULL AND area != ''
@@ -113,21 +113,21 @@ router.get('/api/inventario/reporte', ...canRead, wrap(async (req, res) => {
     const params     = [...areaParam];
     if (categoria) { conditions.push('categoria = ?'); params.push(categoria); }
     const wc = conditions.length ? 'WHERE ' + conditions.join(' AND ') : '';
-    result.equipos = db.prepare(
+    result.equipos = await db.prepare(
       `SELECT * FROM inventario_equipos ${wc} ORDER BY categoria, placa`
     ).all(...params);
   }
 
   if (!apiTab || apiTab === 'celulares') {
     const wc = areaWhere ? `WHERE ${areaWhere}` : '';
-    result.celulares = db.prepare(
+    result.celulares = await db.prepare(
       `SELECT * FROM inventario_celulares ${wc} ORDER BY modelo`
     ).all(...areaParam);
   }
 
   if (!apiTab || apiTab === 'ups') {
     const wc = areaWhere ? `WHERE ${areaWhere}` : '';
-    result.ups = db.prepare(
+    result.ups = await db.prepare(
       `SELECT * FROM inventario_ups ${wc} ORDER BY placa`
     ).all(...areaParam);
   }

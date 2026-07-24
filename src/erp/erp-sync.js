@@ -43,7 +43,7 @@ export async function syncEmpleados(client) {
     const { html } = await client._loadPanel(servletObj, {});
     const rows = client._parseGridRows(html, [FIELD_CEDULA, FIELD_NOMBRE, FIELD_CARGO, FIELD_AREA]);
 
-    const upsert = db.prepare(`
+    const upsert = await db.prepare(`
       INSERT INTO employees (cedula, nombre_completo, cargo, area)
       VALUES (?, ?, ?, ?)
       ON CONFLICT(cedula) DO UPDATE SET
@@ -58,7 +58,7 @@ export async function syncEmpleados(client) {
       const nombre = row[FIELD_NOMBRE]?.trim();
       if (!cedula || !nombre) continue;
       try {
-        upsert.run(cedula, nombre, row[FIELD_CARGO]?.trim() || '', row[FIELD_AREA]?.trim() || '');
+        await upsert.run(cedula, nombre, row[FIELD_CARGO]?.trim() || '', row[FIELD_AREA]?.trim() || '');
         upserted++;
       } catch (e) {
         errors.push(`Row cedula=${cedula}: ${e.message}`);
@@ -96,11 +96,11 @@ export async function syncPuntos(client) {
 
     const rows = client._parseGridRows(html, [FIELD_SUC_COD, FIELD_SUC_NOM, FIELD_SUC_CIU]);
 
-    const insert = db.prepare(`
+    const insert = await db.prepare(`
       INSERT OR IGNORE INTO puntos (nombre, ciudad, activo)
       VALUES (?, ?, 1)
     `);
-    const updateCiudad = db.prepare(`
+    const updateCiudad = await db.prepare(`
       UPDATE puntos SET ciudad=?, activo=1 WHERE nombre=? AND (ciudad='' OR ciudad IS NULL)
     `);
 
@@ -109,11 +109,11 @@ export async function syncPuntos(client) {
       const ciudad = row[FIELD_SUC_CIU]?.trim() || '';
       if (!nombre) continue;
       try {
-        const result = insert.run(nombre, ciudad);
+        const result = await insert.run(nombre, ciudad);
         if (result.changes) {
           upserted++;
         } else {
-          updateCiudad.run(ciudad, nombre);
+          await updateCiudad.run(ciudad, nombre);
         }
       } catch (e) {
         errors.push(`Punto nombre=${nombre}: ${e.message}`);

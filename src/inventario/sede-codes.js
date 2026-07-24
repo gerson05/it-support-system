@@ -219,7 +219,7 @@ export function nextConsecutivo(db, code) {
   let max = 0;
   for (const table of ['inventario_equipos', 'inventario_celulares', 'inventario_ups']) {
     try {
-      const rows = db.prepare(`SELECT placa FROM ${table} WHERE placa LIKE ?`).all(`AF-${code}%`);
+      const rows = await db.prepare(`SELECT placa FROM ${table} WHERE placa LIKE ?`).all(`AF-${code}%`);
       for (const row of rows) {
         if (!row.placa) continue;
         const m = row.placa.match(re);

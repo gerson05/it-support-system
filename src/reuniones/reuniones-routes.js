@@ -16,20 +16,20 @@ function conflicto(sala_id, inicio, fin, excludeId = null) {
       AND fecha_inicio < ? AND fecha_fin > ?`;
   const params = [sala_id, fin, inicio];
   if (excludeId) { sql += ' AND id != ?'; params.push(excludeId); }
-  return db.prepare(sql).get(...params);
+  return await db.prepare(sql).get(...params);
 }
 
 // ── Salas ────────────────────────────────────────────────────────────────────
 
 router.get('/api/reuniones/salas', requireAuth, requirePermission('reuniones:read'), wrap(async (req, res) => {
-  const salas = db.prepare('SELECT * FROM salas WHERE activo = 1 ORDER BY nombre').all();
+  const salas = await db.prepare('SELECT * FROM salas WHERE activo = 1 ORDER BY nombre').all();
   res.json({ salas });
 }));
 
 router.post('/api/reuniones/salas', requireAuth, requirePermission('reuniones:create'), wrap(async (req, res) => {
   const { nombre, descripcion = '' } = req.body;
   if (!nombre?.trim()) return res.status(400).json({ error: 'Nombre requerido.' });
-  const r = db.prepare('INSERT INTO salas (nombre, descripcion) VALUES (?, ?)').run(nombre.trim(), descripcion.trim());
+  const r = await db.prepare('INSERT INTO salas (nombre, descripcion) VALUES (?, ?)').run(nombre.trim(), descripcion.trim());
   res.status(201).json({ id: r.lastInsertRowid });
 }));
 
@@ -41,12 +41,12 @@ router.put('/api/reuniones/salas/:id', requireAuth, requirePermission('reuniones
   if (activo      !== undefined) { fields.push('activo=?');      vals.push(activo ? 1 : 0); }
   if (!fields.length) return res.status(400).json({ error: 'Nada que actualizar.' });
   vals.push(parseInt(req.params.id));
-  db.prepare(`UPDATE salas SET ${fields.join(',')} WHERE id=?`).run(...vals);
+  await db.prepare(`UPDATE salas SET ${fields.join(',')} WHERE id=?`).run(...vals);
   res.json({ ok: true });
 }));
 
 router.delete('/api/reuniones/salas/:id', requireAuth, requirePermission('reuniones:delete'), wrap(async (req, res) => {
-  db.prepare('UPDATE salas SET activo=0 WHERE id=?').run(parseInt(req.params.id));
+  await db.prepare('UPDATE salas SET activo=0 WHERE id=?').run(parseInt(req.params.id));
   res.json({ ok: true });
 }));
 
@@ -63,7 +63,7 @@ router.get('/api/reuniones', requireAuth, requirePermission('reuniones:read'), w
     params.push(fecha, fecha);
   }
   const W = where.length ? `WHERE ${where.join(' AND ')}` : '';
-  const rows = db.prepare(`SELECT * FROM reuniones ${W} ORDER BY fecha_inicio`).all(...params);
+  const rows = await db.prepare(`SELECT * FROM reuniones ${W} ORDER BY fecha_inicio`).all(...params);
   res.json({ reuniones: rows });
 }));
 
@@ -94,7 +94,7 @@ router.post('/api/reuniones', requireAuth, requirePermission('reuniones:create')
   });
 
   const token = crypto.randomUUID();
-  const r = db.prepare(`
+  const r = await db.prepare(`
     INSERT INTO reuniones
       (sala_id, titulo, tipo, fecha_inicio, fecha_fin, organizador_nombre, organizador_correo,
        participantes, descripcion, sede_id, meet_link, google_event_id, token_externo)
@@ -106,13 +106,13 @@ router.post('/api/reuniones', requireAuth, requirePermission('reuniones:create')
     descripcion.trim(), sede_id || null, meetLink, eventId, token,
   );
 
-  const reunion = db.prepare('SELECT * FROM reuniones WHERE id=?').get(r.lastInsertRowid);
+  const reunion = await db.prepare('SELECT * FROM reuniones WHERE id=?').get(r.lastInsertRowid);
   res.status(201).json({ reunion, meet_link_generado: !!meetLink });
 }));
 
 router.put('/api/reuniones/:id', requireAuth, requirePermission('reuniones:edit'), wrap(async (req, res) => {
   const id = parseInt(req.params.id);
-  const existing = db.prepare('SELECT * FROM reuniones WHERE id=?').get(id);
+  const existing = await db.prepare('SELECT * FROM reuniones WHERE id=?').get(id);
   if (!existing) return res.status(404).json({ error: 'Reunión no encontrada.' });
   if (existing.estado === 'cancelada') return res.status(400).json({ error: 'No se puede editar una reunión cancelada.' });
 
@@ -156,15 +156,15 @@ router.put('/api/reuniones/:id', requireAuth, requirePermission('reuniones:edit'
 
   if (!fields.length) return res.status(400).json({ error: 'Nada que actualizar.' });
   vals.push(id);
-  db.prepare(`UPDATE reuniones SET ${fields.join(',')} WHERE id=?`).run(...vals);
+  await db.prepare(`UPDATE reuniones SET ${fields.join(',')} WHERE id=?`).run(...vals);
   res.json({ ok: true });
 }));
 
 router.delete('/api/reuniones/:id', requireAuth, requirePermission('reuniones:delete'), wrap(async (req, res) => {
   const id = parseInt(req.params.id);
-  const r = db.prepare('SELECT google_event_id FROM reuniones WHERE id=?').get(id);
+  const r = await db.prepare('SELECT google_event_id FROM reuniones WHERE id=?').get(id);
   if (!r) return res.status(404).json({ error: 'Reunión no encontrada.' });
-  db.prepare("UPDATE reuniones SET estado='cancelada' WHERE id=?").run(id);
+  await db.prepare("UPDATE reuniones SET estado='cancelada' WHERE id=?").run(id);
   if (r.google_event_id) await cancelarEvento(r.google_event_id);
   res.json({ ok: true });
 }));
@@ -172,14 +172,14 @@ router.delete('/api/reuniones/:id', requireAuth, requirePermission('reuniones:de
 // ── Rutas públicas ───────────────────────────────────────────────────────────
 
 router.get('/api/reuniones/public/salas', wrap(async (req, res) => {
-  const salas = db.prepare('SELECT id, nombre, descripcion FROM salas WHERE activo=1 ORDER BY nombre').all();
+  const salas = await db.prepare('SELECT id, nombre, descripcion FROM salas WHERE activo=1 ORDER BY nombre').all();
   res.json({ salas });
 }));
 
 router.get('/api/reuniones/public/disponibilidad', wrap(async (req, res) => {
   const { sala_id, fecha } = req.query;
   if (!sala_id || !fecha) return res.status(400).json({ error: 'sala_id y fecha requeridos.' });
-  const slots = db.prepare(`
+  const slots = await db.prepare(`
     SELECT id, titulo, fecha_inicio, fecha_fin
     FROM reuniones
     WHERE sala_id = ? AND estado = 'activa' AND date(fecha_inicio) = ?
@@ -215,7 +215,7 @@ router.post('/api/reuniones/public', wrap(async (req, res) => {
   });
 
   const token = crypto.randomUUID();
-  const r = db.prepare(`
+  const r = await db.prepare(`
     INSERT INTO reuniones
       (sala_id, titulo, tipo, fecha_inicio, fecha_fin, organizador_nombre, organizador_correo,
        participantes, descripcion, sede_id, meet_link, google_event_id, token_externo)
@@ -227,12 +227,12 @@ router.post('/api/reuniones/public', wrap(async (req, res) => {
     descripcion.trim(), sede_id || null, meetLink, eventId, token,
   );
 
-  const reunion = db.prepare('SELECT * FROM reuniones WHERE id=?').get(r.lastInsertRowid);
+  const reunion = await db.prepare('SELECT * FROM reuniones WHERE id=?').get(r.lastInsertRowid);
   res.status(201).json({ ok: true, token_externo: token, meet_link: meetLink, reunion });
 }));
 
 router.get('/api/reuniones/public/:token', wrap(async (req, res) => {
-  const r = db.prepare(`
+  const r = await db.prepare(`
     SELECT r.*, s.nombre as sala_nombre
     FROM reuniones r JOIN salas s ON s.id = r.sala_id
     WHERE r.token_externo = ?
@@ -242,10 +242,10 @@ router.get('/api/reuniones/public/:token', wrap(async (req, res) => {
 }));
 
 router.delete('/api/reuniones/public/:token', wrap(async (req, res) => {
-  const r = db.prepare('SELECT id, google_event_id, estado FROM reuniones WHERE token_externo=?').get(req.params.token);
+  const r = await db.prepare('SELECT id, google_event_id, estado FROM reuniones WHERE token_externo=?').get(req.params.token);
   if (!r) return res.status(404).json({ error: 'Reunión no encontrada.' });
   if (r.estado === 'cancelada') return res.status(400).json({ error: 'Ya estaba cancelada.' });
-  db.prepare("UPDATE reuniones SET estado='cancelada' WHERE id=?").run(r.id);
+  await db.prepare("UPDATE reuniones SET estado='cancelada' WHERE id=?").run(r.id);
   if (r.google_event_id) await cancelarEvento(r.google_event_id);
   res.json({ ok: true });
 }));

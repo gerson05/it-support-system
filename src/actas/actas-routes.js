@@ -77,14 +77,14 @@ router.get('/api/actas', ...canRead, wrap(async (req, res) => {
 
   const joinedWhere = whereParts.join(' AND ');
 
-  const total = db.prepare(`
+  const total = await db.prepare(`
     SELECT COUNT(*) as n
     FROM despachos d
     LEFT JOIN acta_uploads a ON a.entity_type = 'despacho' AND a.entity_id = d.id
     WHERE ${joinedWhere}
   `).get(...params).n;
 
-  const actas = db.prepare(`
+  const actas = await db.prepare(`
     SELECT
       a.id, a.token,
       'despacho' AS entity_type,
@@ -143,7 +143,7 @@ router.post('/api/actas/token', ...canEdit, wrap(async (req, res) => {
     return res.status(400).json({ error: 'entity_type, entity_id y entity_ref son obligatorios.' });
   }
 
-  const existing = db.prepare(
+  const existing = await db.prepare(
     'SELECT * FROM acta_uploads WHERE entity_type = ? AND entity_id = ?'
   ).get(entity_type, Number(entity_id));
 
@@ -153,13 +153,13 @@ router.post('/api/actas/token', ...canEdit, wrap(async (req, res) => {
     if (existing.filepath && fs.existsSync(existing.filepath)) {
       fs.unlinkSync(existing.filepath);
     }
-    db.prepare(`
+    await db.prepare(`
       UPDATE acta_uploads
       SET token = ?, entity_ref = ?, filename = NULL, filepath = NULL, signed_by = NULL, signed_role = NULL, uploaded_at = NULL
       WHERE entity_type = ? AND entity_id = ?
     `).run(token, entity_ref, entity_type, Number(entity_id));
   } else {
-    db.prepare(`
+    await db.prepare(`
       INSERT INTO acta_uploads (token, entity_type, entity_id, entity_ref)
       VALUES (?, ?, ?, ?)
     `).run(token, entity_type, Number(entity_id), entity_ref);
@@ -170,7 +170,7 @@ router.post('/api/actas/token', ...canEdit, wrap(async (req, res) => {
 }));
 
 router.get('/api/actas/status/:token', wrap(async (req, res) => {
-  const row = db.prepare('SELECT * FROM acta_uploads WHERE token = ?').get(req.params.token);
+  const row = await db.prepare('SELECT * FROM acta_uploads WHERE token = ?').get(req.params.token);
   if (!row) return res.json({ valid: false });
   const uploaded = !!(
     row.uploaded_at || row.filename || row.filepath || row.signed_by || row.signed_role
@@ -192,7 +192,7 @@ router.get('/api/actas/status/:token', wrap(async (req, res) => {
 router.post('/api/actas/upload/:token',
   uploadRateLimit,
   (req, res, next) => {
-    const row = db.prepare('SELECT * FROM acta_uploads WHERE token = ?').get(req.params.token);
+    const row = await db.prepare('SELECT * FROM acta_uploads WHERE token = ?').get(req.params.token);
     if (!row) return res.status(404).json({ error: 'Token no encontrado.' });
     const prevPaths = [row.filepath];
     if (row.filepath) {
@@ -208,7 +208,7 @@ router.post('/api/actas/upload/:token',
   wrap(async (req, res) => {
     if (!req.file) return res.status(400).json({ error: 'No se recibió ningún archivo.' });
 
-    db.prepare(`
+    await db.prepare(`
       UPDATE acta_uploads
       SET filename = ?, filepath = ?, signed_by = ?, signed_role = ?, uploaded_at = datetime('now','localtime')
       WHERE token = ?
@@ -220,9 +220,9 @@ router.post('/api/actas/upload/:token',
       req.params.token,
     );
 
-    const row = db.prepare('SELECT * FROM acta_uploads WHERE token = ?').get(req.params.token);
+    const row = await db.prepare('SELECT * FROM acta_uploads WHERE token = ?').get(req.params.token);
     if (row && row.entity_type === 'despacho') {
-      db.prepare('UPDATE despachos SET acta_firmada = 1 WHERE id = ?').run(row.entity_id);
+      await db.prepare('UPDATE despachos SET acta_firmada = 1 WHERE id = ?').run(row.entity_id);
     }
 
     res.json({ ok: true });
@@ -236,7 +236,7 @@ router.post('/api/actas/upload/:token',
 );
 
 router.get('/api/actas/download/:token', wrap(async (req, res) => {
-  const row = db.prepare('SELECT * FROM acta_uploads WHERE token = ?').get(req.params.token);
+  const row = await db.prepare('SELECT * FROM acta_uploads WHERE token = ?').get(req.params.token);
   if (!row || !row.filepath) return res.status(404).json({ error: 'Archivo no encontrado.' });
 
   // Stored path may be a Windows host path when uploads were done outside Docker.
@@ -254,7 +254,7 @@ router.get('/api/actas/download/:token', wrap(async (req, res) => {
 }));
 
 router.get('/api/actas/qr/:token', wrap(async (req, res) => {
-  const row = db.prepare('SELECT token FROM acta_uploads WHERE token = ?').get(req.params.token);
+  const row = await db.prepare('SELECT token FROM acta_uploads WHERE token = ?').get(req.params.token);
   if (!row) return res.status(404).json({ error: 'Token no encontrado.' });
 
   const url = `${getBaseUrl(req)}/firmar/${req.params.token}`;
@@ -265,7 +265,7 @@ router.get('/api/actas/qr/:token', wrap(async (req, res) => {
 
 router.get('/api/actas/info/:entityType/:entityId', ...canRead, wrap(async (req, res) => {
   const { entityType, entityId } = req.params;
-  const row = db.prepare(
+  const row = await db.prepare(
     'SELECT * FROM acta_uploads WHERE entity_type = ? AND entity_id = ?'
   ).get(entityType, Number(entityId));
 

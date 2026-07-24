@@ -149,7 +149,7 @@ router.post('/api/tracking/public/:token/entrega-final',
     if (itemsParsed.length > 0) addEntregaItems(db, eventoId, itemsParsed);
 
     const tracking = getTrackingByToken(db, req.params.token);
-    const despacho = db.prepare('SELECT * FROM despachos WHERE id = ?').get(req._tracking.despacho_id);
+    const despacho = await db.prepare('SELECT * FROM despachos WHERE id = ?').get(req._tracking.despacho_id);
     const evento   = tracking.eventos.find(e => e.id === eventoId);
 
     const actaItems = itemsParsed.length > 0
@@ -193,7 +193,7 @@ router.get('/api/tracking', ...canRead, wrap(async (req, res) => {
 }));
 
 router.get('/api/tracking/:token/rotulo', ...canRead, wrap(async (req, res) => {
-  const row = db.prepare(`
+  const row = await db.prepare(`
     SELECT t.token, d.numero, d.destinatario, d.sede as sede_destino, d.fecha
     FROM paquete_tracking t JOIN despachos d ON d.id = t.despacho_id
     WHERE t.token = ?

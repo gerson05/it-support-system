@@ -13,7 +13,7 @@ export async function verifyPassword(plain, hash) {
 export function createSession(userId) {
   const token = crypto.randomBytes(32).toString('hex');
   const expiresAt = new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString();
-  db.prepare(
+  await db.prepare(
     'INSERT INTO sessions (token, user_id, expires_at) VALUES (?, ?, ?)'
   ).run(token, userId, expiresAt);
   return { token, expiresAt };
@@ -22,7 +22,7 @@ export function createSession(userId) {
 export function getSession(token) {
   if (!token) return null;
 
-  const session = db.prepare(
+  const session = await db.prepare(
     `SELECT s.user_id, s.expires_at, u.username, u.active, u.role_id,
             r.name AS role_name
      FROM sessions s
@@ -33,15 +33,15 @@ export function getSession(token) {
 
   if (!session || !session.active) return null;
 
-  const permissions = db.prepare(
+  const permissions = (await db.prepare(
     `SELECT p.name FROM permissions p
      JOIN role_permissions rp ON rp.permission_id = p.id
      WHERE rp.role_id = ?`
-  ).all(session.role_id).map(p => p.name);
+  ).all(session.role_id)).map(p => p.name);
 
   // Sliding window — extender sesión 8h más en cada uso
   const newExpiry = new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString();
-  db.prepare('UPDATE sessions SET expires_at = ? WHERE token = ?').run(newExpiry, token);
+  await db.prepare('UPDATE sessions SET expires_at = ? WHERE token = ?').run(newExpiry, token);
 
   return {
     id:          session.user_id,
@@ -52,20 +52,20 @@ export function getSession(token) {
 }
 
 export function deleteSession(token) {
-  db.prepare('DELETE FROM sessions WHERE token = ?').run(token);
+  await db.prepare('DELETE FROM sessions WHERE token = ?').run(token);
 }
 
 export function deleteUserSessions(userId) {
-  db.prepare('DELETE FROM sessions WHERE user_id = ?').run(userId);
+  await db.prepare('DELETE FROM sessions WHERE user_id = ?').run(userId);
 }
 
 export async function initAdminUser() {
-  const count = db.prepare('SELECT COUNT(*) AS n FROM users').get().n;
+  const count = (await db.prepare('SELECT COUNT(*) AS n FROM users').get()).n;
   if (count > 0) return;
 
   const pass = process.env.INIT_ADMIN_PASS || crypto.randomBytes(6).toString('hex'); // 12 chars
   const hash = await hashPassword(pass);
-  db.prepare(
+  await db.prepare(
     'INSERT INTO users (username, password_hash, role_id) VALUES (?, ?, ?)'
   ).run('admin', hash, 1);
 

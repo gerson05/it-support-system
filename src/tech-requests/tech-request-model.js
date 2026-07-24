@@ -7,7 +7,7 @@ function generateNumber(db, type) {
   const prefix  = type === 'requerimiento' ? 'RQ' : 'IN';
   const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
   const like    = `${prefix}-${dateStr}-%`;
-  const last    = db.prepare(
+  const last    = await db.prepare(
     'SELECT request_number FROM tech_requests WHERE request_number LIKE ? ORDER BY id DESC LIMIT 1'
   ).get(like);
   const next = last ? parseInt(last.request_number.split('-')[2]) + 1 : 1;
@@ -31,7 +31,7 @@ export function createTechRequest(db, data) {
     ? items.reduce((s, i) => s + (parseInt(i.quantity) || 1), 0)
     : quantity;
 
-  db.prepare(`
+  await db.prepare(`
     INSERT INTO tech_requests
       (request_number, type, requester_name, cedula, cargo, sede,
        description, quantity, equipment_name, equipment_serial,
@@ -43,16 +43,16 @@ export function createTechRequest(db, data) {
     priority, assigned_to ?? null,
   );
 
-  const { id } = db.prepare('SELECT last_insert_rowid() as id').get();
+  const { id } = await db.prepare('SELECT last_insert_rowid() as id').get();
 
   // Insertar ítems para requerimientos
   if (type === 'requerimiento' && Array.isArray(items) && items.length > 0) {
-    const stmt = db.prepare(
+    const stmt = await db.prepare(
       'INSERT INTO tech_request_items (request_id, equipment_name, quantity, serial) VALUES (?,?,?,?)'
     );
     for (const item of items) {
       if (item.equipment_name?.trim()) {
-        stmt.run(id, item.equipment_name.trim(), parseInt(item.quantity) || 1, item.serial?.trim() || null);
+        await stmt.run(id, item.equipment_name.trim(), parseInt(item.quantity) || 1, item.serial?.trim() || null);
       }
     }
   }
@@ -62,7 +62,7 @@ export function createTechRequest(db, data) {
     ? ` — ${items.length} equipo(s): ${items.slice(0, 3).map(i => i.equipment_name).join(', ')}${items.length > 3 ? '…' : ''}`
     : '';
 
-  db.prepare(`
+  await db.prepare(`
     INSERT INTO tech_request_history (request_id, agent_name, action)
     VALUES (?, 'Sistema', ?)
   `).run(id, `Solicitud creada — Tipo: ${type}, Sede: ${sede}${itemsSummary}`);
@@ -98,7 +98,7 @@ export function getAllTechRequests(db, filters = {}) {
   const whereClause = where.length ? 'WHERE ' + where.join(' AND ') : '';
   const offset      = (page - 1) * limit;
 
-  const rows = db.prepare(`
+  const rows = await db.prepare(`
     SELECT r.*,
            a.name AS agent_name
     FROM   tech_requests r
@@ -108,7 +108,7 @@ export function getAllTechRequests(db, filters = {}) {
     LIMIT ? OFFSET ?
   `).all(...params, limit, offset);
 
-  const { total } = db.prepare(`
+  const { total } = await db.prepare(`
     SELECT COUNT(*) AS total FROM tech_requests r ${whereClause}
   `).get(...params);
 
@@ -123,7 +123,7 @@ export function getAllTechRequests(db, filters = {}) {
 
 /** Devuelve el detalle completo de una solicitud (con historial e ítems). */
 export function getTechRequestById(db, id) {
-  const req = db.prepare(`
+  const req = await db.prepare(`
     SELECT r.*, a.name AS agent_name
     FROM   tech_requests r
     LEFT JOIN agents a ON r.assigned_to = a.id
@@ -132,14 +132,14 @@ export function getTechRequestById(db, id) {
 
   if (!req) return null;
 
-  req.history = db.prepare(`
+  req.history = await db.prepare(`
     SELECT * FROM tech_request_history
     WHERE request_id = ?
     ORDER BY created_at ASC
   `).all(id);
 
   // Ítems de equipos (requerimientos con múltiples equipos)
-  req.items = db.prepare(
+  req.items = await db.prepare(
     'SELECT * FROM tech_request_items WHERE request_id = ? ORDER BY id ASC'
   ).all(id);
 
@@ -191,12 +191,12 @@ export function updateTechRequest(db, id, data, agentName = 'IT') {
     fields.push(`completed_at = datetime('now','localtime')`);
   }
 
-  const result = db.prepare(`
+  const result = await db.prepare(`
     UPDATE tech_requests SET ${fields.join(', ')} WHERE id = ?
   `).run(...params, id);
 
   if (result.changes && changes.length) {
-    db.prepare(`
+    await db.prepare(`
       INSERT INTO tech_request_history (request_id, agent_name, action)
       VALUES (?, ?, ?)
     `).run(id, agentName, changes.join(' | '));
@@ -210,66 +210,66 @@ export function updateTechRequest(db, id, data, agentName = 'IT') {
  * Borra los existentes e inserta los nuevos en una transacción.
  */
 export function replaceRequestItems(db, requestId, items = []) {
-  db.exec('BEGIN');
+  await db.exec('BEGIN');
   try {
-    db.prepare('DELETE FROM tech_request_items WHERE request_id = ?').run(requestId);
-    const stmt = db.prepare(
+    await db.prepare('DELETE FROM tech_request_items WHERE request_id = ?').run(requestId);
+    const stmt = await db.prepare(
       'INSERT INTO tech_request_items (request_id, equipment_name, quantity, serial) VALUES (?,?,?,?)'
     );
     let totalQty = 0;
     for (const item of items) {
       if (item.equipment_name?.trim()) {
         const qty = parseInt(item.quantity) || 1;
-        stmt.run(requestId, item.equipment_name.trim(), qty, item.serial?.trim() || null);
+        await stmt.run(requestId, item.equipment_name.trim(), qty, item.serial?.trim() || null);
         totalQty += qty;
       }
     }
     if (totalQty > 0) {
-      db.prepare('UPDATE tech_requests SET quantity = ? WHERE id = ?').run(totalQty, requestId);
+      await db.prepare('UPDATE tech_requests SET quantity = ? WHERE id = ?').run(totalQty, requestId);
     }
-    db.exec('COMMIT');
+    await db.exec('COMMIT');
   } catch (err) {
-    db.exec('ROLLBACK');
+    await db.exec('ROLLBACK');
     throw err;
   }
 }
 
 /** Agrega una nota interna al historial. */
 export function addTechRequestNote(db, id, agentName, note) {
-  db.prepare(`
+  await db.prepare(`
     INSERT INTO tech_request_history (request_id, agent_name, action)
     VALUES (?, ?, ?)
   `).run(id, agentName, `📝 Nota: ${note}`);
-  db.prepare(`UPDATE tech_requests SET updated_at = datetime('now','localtime') WHERE id = ?`).run(id);
+  await db.prepare(`UPDATE tech_requests SET updated_at = datetime('now','localtime') WHERE id = ?`).run(id);
   return true;
 }
 
 /** Elimina una solicitud y todos sus datos relacionados. */
 export function deleteTechRequest(db, id) {
-  db.exec('BEGIN');
+  await db.exec('BEGIN');
   try {
-    db.prepare('DELETE FROM tech_request_history WHERE request_id = ?').run(id);
-    db.prepare('DELETE FROM tech_request_items WHERE request_id = ?').run(id);
-    const result = db.prepare('DELETE FROM tech_requests WHERE id = ?').run(id);
-    db.exec('COMMIT');
+    await db.prepare('DELETE FROM tech_request_history WHERE request_id = ?').run(id);
+    await db.prepare('DELETE FROM tech_request_items WHERE request_id = ?').run(id);
+    const result = await db.prepare('DELETE FROM tech_requests WHERE id = ?').run(id);
+    await db.exec('COMMIT');
     return result.changes > 0;
   } catch (err) {
-    db.exec('ROLLBACK');
+    await db.exec('ROLLBACK');
     throw err;
   }
 }
 
 /** Estadísticas básicas para el dashboard del módulo. */
 export function getTechRequestStats(db) {
-  const byStatus = db.prepare(`
+  const byStatus = await db.prepare(`
     SELECT status, COUNT(*) as count FROM tech_requests GROUP BY status
   `).all();
 
-  const byType = db.prepare(`
+  const byType = await db.prepare(`
     SELECT type, COUNT(*) as count FROM tech_requests GROUP BY type
   `).all();
 
-  const bySede = db.prepare(`
+  const bySede = await db.prepare(`
     SELECT sede, COUNT(*) as count FROM tech_requests GROUP BY sede ORDER BY count DESC LIMIT 10
   `).all();
 

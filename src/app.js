@@ -91,7 +91,7 @@ app.post('/api/simulate/reset', requireAuth, (req, res) => {
   try {
     const { phone } = req.body;
     if (!phone) return res.status(400).json({ error: 'Teléfono es requerido.' });
-    db.prepare('DELETE FROM conversations WHERE phone = ?').run(phone);
+    await db.prepare('DELETE FROM conversations WHERE phone = ?').run(phone);
     res.json({ success: true, message: 'Sesión del bot reiniciada exitosamente.' });
   } catch (error) {
     console.error('Error en /api/simulate/reset:', error);
@@ -173,7 +173,7 @@ app.post('/api/whatsapp/reset', (_req, res) => {
 // Health
 app.get('/api/health', (_req, res) => {
   try {
-    db.prepare('SELECT 1').get();
+    await db.prepare('SELECT 1').get();
     res.json({ status: 'ok', uptime: process.uptime(), memory: process.memoryUsage(), timestamp: new Date().toISOString() });
   } catch (err) {
     res.status(503).json({ status: 'error', message: err.message });

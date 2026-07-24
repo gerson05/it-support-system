@@ -8,8 +8,8 @@ const router = express.Router();
 router.get('/api/audit', requireAuth, requirePermission('audit:read'), wrap(async (req, res) => {
   const limit = parseInt(req.query.limit) || 50;
   const offset = parseInt(req.query.offset) || 0;
-  const logs = db.prepare(`SELECT * FROM audit_log ORDER BY id DESC LIMIT ? OFFSET ?`).all(limit, offset);
-  const total = db.prepare(`SELECT COUNT(*) as n FROM audit_log`).get().n;
+  const logs = await db.prepare(`SELECT * FROM audit_log ORDER BY id DESC LIMIT ? OFFSET ?`).all(limit, offset);
+  const total = (await db.prepare(`SELECT COUNT(*) as n FROM audit_log`).get()).n;
   res.json({ logs, total });
 }));
 
@@ -54,10 +54,10 @@ router.get('/api/audit/actas', requireAuth, requirePermission('audit:read'), wra
     )
   `;
 
-  const actas = db.prepare(`${cte} SELECT * FROM actas_full ${where} ORDER BY created_at DESC LIMIT ? OFFSET ?`)
+  const actas = await db.prepare(`${cte} SELECT * FROM actas_full ${where} ORDER BY created_at DESC LIMIT ? OFFSET ?`)
     .all(...params, limit, offset);
 
-  const total = db.prepare(`${cte} SELECT COUNT(*) AS n FROM actas_full ${where}`)
+  const total = await db.prepare(`${cte} SELECT COUNT(*) AS n FROM actas_full ${where}`)
     .get(...params).n;
 
   res.json({ actas, total });

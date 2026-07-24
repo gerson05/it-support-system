@@ -18,8 +18,8 @@ router.get('/api/faqs', requireAuth, requirePermission('faqs:read'), wrap(async 
     ? `SELECT * FROM custom_faqs WHERE area IN (?,?) ORDER BY id DESC`
     : `SELECT * FROM custom_faqs ORDER BY id DESC`;
   const customRows = area
-    ? db.prepare(customQuery).all(area, 'general')
-    : db.prepare(customQuery).all();
+    ? await db.prepare(customQuery).all(area, 'general')
+    : await db.prepare(customQuery).all();
 
   const custom = customRows.map(r => ({
     ...r,
@@ -27,7 +27,7 @@ router.get('/api/faqs', requireAuth, requirePermission('faqs:read'), wrap(async 
     source: 'custom',
   }));
 
-  const hitsRows = db.prepare(`
+  const hitsRows = await db.prepare(`
     SELECT faq_id, COUNT(*) as total, SUM(resolved) as resolved
     FROM faq_hits GROUP BY faq_id
   `).all();
@@ -50,7 +50,7 @@ router.post('/api/faqs', requireAuth, requirePermission('faqs:create'), wrap(asy
     return res.status(400).json({ error: 'Título y solución son requeridos.' });
   }
 
-  const result = db.prepare(`
+  const result = await db.prepare(`
     INSERT INTO custom_faqs (area, title, keywords, category, solution)
     VALUES (?, ?, ?, ?, ?)
   `).run(
@@ -61,7 +61,7 @@ router.post('/api/faqs', requireAuth, requirePermission('faqs:create'), wrap(asy
     solution.trim(),
   );
 
-  const created = db.prepare('SELECT * FROM custom_faqs WHERE id=?').get(result.lastInsertRowid);
+  const created = await db.prepare('SELECT * FROM custom_faqs WHERE id=?').get(result.lastInsertRowid);
   res.status(201).json({ ...created, keywords: JSON.parse(created.keywords) });
 }));
 
@@ -69,10 +69,10 @@ router.put('/api/faqs/:id', requireAuth, requirePermission('faqs:edit'), wrap(as
   const id = parseInt(req.params.id);
   const { area, title, keywords, category, solution, active } = req.body;
 
-  const existing = db.prepare('SELECT * FROM custom_faqs WHERE id=?').get(id);
+  const existing = await db.prepare('SELECT * FROM custom_faqs WHERE id=?').get(id);
   if (!existing) return res.status(404).json({ error: 'FAQ personalizada no encontrada.' });
 
-  db.prepare(`
+  await db.prepare(`
     UPDATE custom_faqs SET
       area      = ?,
       title     = ?,
@@ -92,13 +92,13 @@ router.put('/api/faqs/:id', requireAuth, requirePermission('faqs:edit'), wrap(as
     id,
   );
 
-  const updated = db.prepare('SELECT * FROM custom_faqs WHERE id=?').get(id);
+  const updated = await db.prepare('SELECT * FROM custom_faqs WHERE id=?').get(id);
   res.json({ ...updated, keywords: JSON.parse(updated.keywords) });
 }));
 
 router.delete('/api/faqs/:id', requireAuth, requirePermission('faqs:delete'), wrap(async (req, res) => {
   const id = parseInt(req.params.id);
-  const result = db.prepare('DELETE FROM custom_faqs WHERE id=?').run(id);
+  const result = await db.prepare('DELETE FROM custom_faqs WHERE id=?').run(id);
   if (result.changes === 0) return res.status(404).json({ error: 'FAQ no encontrada.' });
   res.json({ success: true });
 }));

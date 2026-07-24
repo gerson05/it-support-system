@@ -165,7 +165,7 @@ export function matchCiudad(input, db = null) {
   let ciudadList;
   if (db) {
     try {
-      ciudadList = db.prepare(`SELECT DISTINCT ciudad FROM sedes WHERE activo=1 ORDER BY ciudad`).all().map(r => r.ciudad);
+      ciudadList = (await db.prepare(`SELECT DISTINCT ciudad FROM sedes WHERE activo=1 ORDER BY ciudad`).all()).map(r => r.ciudad);
     } catch { ciudadList = Object.keys(CIUDADES); }
   } else {
     ciudadList = Object.keys(CIUDADES);
@@ -198,7 +198,7 @@ export function matchCiudad(input, db = null) {
 export function getPuntosCiudad(ciudad, db = null) {
   if (db) {
     try {
-      const rows = db.prepare(`SELECT nombre_punto FROM sedes WHERE ciudad=? AND activo=1 ORDER BY id`).all(ciudad);
+      const rows = await db.prepare(`SELECT nombre_punto FROM sedes WHERE ciudad=? AND activo=1 ORDER BY id`).all(ciudad);
       if (rows.length) return rows.map(r => r.nombre_punto);
     } catch {}
   }

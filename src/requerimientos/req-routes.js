@@ -60,7 +60,7 @@ let puntosTs    = 0;
 function nextTicket() {
   const now = new Date();
   const ym  = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}`;
-  const last = db.prepare(
+  const last = await db.prepare(
     "SELECT ticket_num FROM requerimientos WHERE ticket_num LIKE ? ORDER BY id DESC LIMIT 1"
   ).get(`REQ-${ym}-%`);
   let seq = 1;
@@ -123,7 +123,7 @@ router.post('/api/req', wrap(async (req, res) => {
 
   const ticket_num = nextTicket();
 
-  db.prepare(`INSERT INTO requerimientos
+  await db.prepare(`INSERT INTO requerimientos
     (ticket_num,area,nombre,correo,punto,tipo,descripcion,fecha_requerida,ticket_relacionado,observaciones,prioridad,fotos)
     VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`)
     .run(ticket_num, area.trim(), nombre.trim(), (correo||'').trim(), punto.trim(),
@@ -153,15 +153,15 @@ router.get('/api/req', (req, res) => {
   if (prioridad) { where.push('prioridad = ?'); params.push(prioridad); }
 
   const W     = where.length ? `WHERE ${where.join(' AND ')}` : '';
-  const rows  = db.prepare(`SELECT * FROM requerimientos ${W} ORDER BY id DESC LIMIT ? OFFSET ?`).all(...params, limit, offset);
-  const total = db.prepare(`SELECT COUNT(*) as c FROM requerimientos ${W}`).get(...params).c;
+  const rows  = await db.prepare(`SELECT * FROM requerimientos ${W} ORDER BY id DESC LIMIT ? OFFSET ?`).all(...params, limit, offset);
+  const total = (await db.prepare(`SELECT COUNT(*) as c FROM requerimientos ${W}`).get(...params)).c;
 
   res.json({ rows, total, page: safePage, pages: Math.ceil(total / limit) });
 });
 
 // ── GET /api/req/:id ────────────────────────────────────────────────────
 router.get('/api/req/:id', (req, res) => {
-  const row = db.prepare('SELECT * FROM requerimientos WHERE id = ?').get(req.params.id);
+  const row = await db.prepare('SELECT * FROM requerimientos WHERE id = ?').get(req.params.id);
   if (!row) return res.status(404).json({ error: 'No encontrado.' });
   res.json(row);
 });
@@ -172,7 +172,7 @@ router.put('/api/req/:id/estado', (req, res) => {
   const ESTADOS = ['Recibido','Asignado','En proceso','Pendiente info','Resuelto','Cancelado'];
   const { estado } = req.body || {};
   if (!ESTADOS.includes(estado)) return res.status(400).json({ error: 'Estado inválido.' });
-  const info = db.prepare(`UPDATE requerimientos SET estado=?, updated_at=datetime('now','localtime') WHERE id=?`)
+  const info = await db.prepare(`UPDATE requerimientos SET estado=?, updated_at=datetime('now','localtime') WHERE id=?`)
                  .run(estado, req.params.id);
   if (!info.changes) return res.status(404).json({ error: 'No encontrado.' });
   res.json({ ok: true });

@@ -19,13 +19,13 @@ router.get('/api/erp/empleados', requireAuth, wrap(async (req, res) => {
   const byId  = /^\d{6,}$/.test(q);
   let rows;
   if (byId) {
-    rows = db.prepare(
+    rows = await db.prepare(
       `SELECT cedula, nombre_completo, cargo, area
        FROM employees
        WHERE cedula LIKE ? LIMIT 20`
     ).all(`${q}%`);
   } else {
-    rows = db.prepare(
+    rows = await db.prepare(
       `SELECT cedula, nombre_completo, cargo, area
        FROM employees
        WHERE nombre_completo LIKE ? LIMIT 20`
@@ -47,12 +47,12 @@ router.get('/api/erp/empleados', requireAuth, wrap(async (req, res) => {
 router.get('/api/erp/sedes', requireAuth, wrap(async (req, res) => {
   const q = (req.query.q || '').trim();
   const rows = q
-    ? db.prepare(
+    ? await db.prepare(
         `SELECT nombre, ciudad FROM puntos
          WHERE activo = 1 AND (nombre LIKE ? OR ciudad LIKE ?)
          ORDER BY nombre LIMIT 30`
       ).all(`%${q}%`, `%${q}%`)
-    : db.prepare(
+    : await db.prepare(
         `SELECT nombre, ciudad FROM puntos
          WHERE activo = 1 ORDER BY nombre LIMIT 100`
       ).all();
@@ -88,7 +88,7 @@ router.post('/api/erp/sync', requireAuth, requirePermission('settings:edit'), wr
 
 router.get('/api/erp/empleado/:cedula', requireAuth, wrap(async (req, res) => {
   const cedula = req.params.cedula.trim();
-  const row = db.prepare(
+  const row = await db.prepare(
     `SELECT cedula, nombre_completo, cargo, area FROM employees WHERE cedula = ?`
   ).get(cedula);
   if (!row) return res.status(404).json({ error: 'Cédula no encontrada en el sistema.' });
@@ -98,23 +98,23 @@ router.get('/api/erp/empleado/:cedula', requireAuth, wrap(async (req, res) => {
 router.get('/api/erp/empleado/:cedula/historial', requireAuth, wrap(async (req, res) => {
   const cedula = req.params.cedula.trim();
 
-  const empleado = db.prepare(
+  const empleado = await db.prepare(
     `SELECT cedula, nombre_completo, cargo, area FROM employees WHERE cedula = ?`
   ).get(cedula);
 
-  const tickets = db.prepare(
+  const tickets = await db.prepare(
     `SELECT id, ticket_number, area, status, priority, description, created_at
      FROM tickets
      WHERE requester_name IN (SELECT nombre_completo FROM employees WHERE cedula = ?)
      ORDER BY created_at DESC LIMIT 20`
   ).all(cedula);
 
-  const despachos = db.prepare(
+  const despachos = await db.prepare(
     `SELECT numero, destinatario, sede, fecha, articulos, created_at
      FROM despachos WHERE cedula = ? ORDER BY created_at DESC LIMIT 20`
   ).all(cedula);
 
-  const techRequests = db.prepare(
+  const techRequests = await db.prepare(
     `SELECT request_number, type, status, priority, description, sede, created_at
      FROM tech_requests WHERE cedula = ? ORDER BY created_at DESC LIMIT 20`
   ).all(cedula);
@@ -153,7 +153,7 @@ router.post('/api/erp/import/empleados', requireAuth, requirePermission('setting
     return res.status(400).json({ error: `Columnas requeridas no encontradas. Encabezados detectados: ${header.join(', ')}` });
   }
 
-  const upsert = db.prepare(`
+  const upsert = await db.prepare(`
     INSERT INTO employees (cedula, nombre_completo, cargo, area)
     VALUES (?, ?, ?, ?)
     ON CONFLICT(cedula) DO UPDATE SET
@@ -171,7 +171,7 @@ router.post('/api/erp/import/empleados', requireAuth, requirePermission('setting
     if (!cedula || !nombre) { skipped++; return; }
     const cargo = iCargo !== -1 ? String(row.getCell(iCargo + 1).value || '').trim() : '';
     const area  = iArea  !== -1 ? String(row.getCell(iArea  + 1).value || '').trim() : '';
-    try { upsert.run(cedula, nombre, cargo, area); imported++; }
+    try { await upsert.run(cedula, nombre, cargo, area); imported++; }
     catch { skipped++; }
   });
 
@@ -205,8 +205,8 @@ router.post('/api/erp/import/puntos', requireAuth, requirePermission('settings:e
   }
 
   let imported = 0; let skipped = 0;
-  const insert = db.prepare(`INSERT OR IGNORE INTO puntos (nombre, ciudad, activo) VALUES (?, ?, 1)`);
-  const update = db.prepare(`UPDATE puntos SET ciudad=?, activo=1 WHERE nombre=?`);
+  const insert = await db.prepare(`INSERT OR IGNORE INTO puntos (nombre, ciudad, activo) VALUES (?, ?, 1)`);
+  const update = await db.prepare(`UPDATE puntos SET ciudad=?, activo=1 WHERE nombre=?`);
 
   ws.eachRow((row, idx) => {
     if (idx === 1) return;
@@ -214,8 +214,8 @@ router.post('/api/erp/import/puntos', requireAuth, requirePermission('settings:e
     if (!nombre) { skipped++; return; }
     const ciudad = iCiudad !== -1 ? String(row.getCell(iCiudad + 1).value || '').trim() : '';
     try {
-      const r = insert.run(nombre, ciudad);
-      if (r.changes) { imported++; } else { update.run(ciudad, nombre); }
+      const r = await insert.run(nombre, ciudad);
+      if (r.changes) { imported++; } else { await update.run(ciudad, nombre); }
     } catch { skipped++; }
   });
 

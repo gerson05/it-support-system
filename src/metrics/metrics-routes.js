@@ -6,47 +6,47 @@ import { wrap } from '../utils/async-handler.js';
 const router = express.Router();
 
 router.get('/api/metrics', requireAuth, requirePermission('metrics:read'), wrap(async (req, res) => {
-  const totalOpen = db.prepare("SELECT COUNT(*) as count FROM tickets WHERE status = 'abierto'").get().count;
-  const totalInProgress = db.prepare("SELECT COUNT(*) as count FROM tickets WHERE status = 'en_progreso'").get().count;
+  const totalOpen = (await db.prepare("SELECT COUNT(*) as count FROM tickets WHERE status = 'abierto'").get()).count;
+  const totalInProgress = (await db.prepare("SELECT COUNT(*) as count FROM tickets WHERE status = 'en_progreso'").get()).count;
 
-  const totalResolvedToday = db.prepare(`
+  const totalResolvedToday = await db.prepare(`
     SELECT COUNT(*) as count
     FROM tickets
     WHERE status = 'resuelto'
     AND date(resolved_at) = date('now', 'localtime')
   `).get().count;
 
-  const totalThisWeek = db.prepare(`
+  const totalThisWeek = await db.prepare(`
     SELECT COUNT(*) as count
     FROM tickets
     WHERE date(created_at) >= date('now', '-7 days', 'localtime')
   `).get().count;
 
-  const byArea = db.prepare(`
+  const byArea = await db.prepare(`
     SELECT area, COUNT(*) as count
     FROM tickets
     GROUP BY area
     ORDER BY count DESC
   `).all();
 
-  const byPriority = db.prepare(`
+  const byPriority = await db.prepare(`
     SELECT priority, COUNT(*) as count
     FROM tickets
     GROUP BY priority
   `).all();
 
-  const byStatus = db.prepare(`
+  const byStatus = await db.prepare(`
     SELECT status, COUNT(*) as count
     FROM tickets
     GROUP BY status
   `).all();
 
-  const faqHits = db.prepare("SELECT COUNT(*) as count FROM faq_hits").get().count;
-  const faqResolved = db.prepare("SELECT COUNT(*) as count FROM faq_hits WHERE resolved = 1").get().count;
+  const faqHits = (await db.prepare("SELECT COUNT(*) as count FROM faq_hits").get()).count;
+  const faqResolved = (await db.prepare("SELECT COUNT(*) as count FROM faq_hits WHERE resolved = 1").get()).count;
 
   const autoserviceRate = faqHits > 0 ? Math.round((faqResolved / faqHits) * 100) : 0;
 
-  const avgResolutionRow = db.prepare(`
+  const avgResolutionRow = await db.prepare(`
     SELECT AVG((strftime('%s', resolved_at) - strftime('%s', created_at)) / 3600.0) as avg_hours
     FROM tickets
     WHERE status = 'resuelto' AND resolved_at IS NOT NULL
@@ -54,7 +54,7 @@ router.get('/api/metrics', requireAuth, requirePermission('metrics:read'), wrap(
 
   const avgResolutionHours = avgResolutionRow?.avg_hours ? parseFloat(avgResolutionRow.avg_hours.toFixed(1)) : 0;
 
-  const recentTickets = db.prepare(`
+  const recentTickets = await db.prepare(`
     SELECT t.*, a.name as agent_name
     FROM tickets t
     LEFT JOIN agents a ON t.assigned_to = a.id
@@ -101,7 +101,7 @@ router.get('/api/metrics', requireAuth, requirePermission('metrics:read'), wrap(
 }));
 
 router.get('/api/metrics/trend', requireAuth, requirePermission('metrics:read'), wrap(async (req, res) => {
-  const trendRows = db.prepare(`
+  const trendRows = await db.prepare(`
     SELECT date(created_at, 'localtime') as day, COUNT(*) as count
     FROM tickets
     WHERE created_at >= datetime('now', '-6 days', 'localtime')
@@ -120,7 +120,7 @@ router.get('/api/metrics/trend', requireAuth, requirePermission('metrics:read'),
   }
 
   const SLA_HOURS = { critica: 2, alta: 8, media: 48, baja: 168 };
-  const openTickets = db.prepare(
+  const openTickets = await db.prepare(
     `SELECT priority, created_at FROM tickets WHERE status IN ('abierto','en_progreso','en_espera')`
   ).all();
 
@@ -140,7 +140,7 @@ router.get('/api/metrics/trend', requireAuth, requirePermission('metrics:read'),
 router.get('/api/analytics/dashboard', requireAuth, requirePermission('metrics:read'), wrap(async (req, res) => {
   const { cedula } = req.query;
 
-  const ticketsPorArea = db.prepare(`
+  const ticketsPorArea = await db.prepare(`
     SELECT area,
            COUNT(*) AS total,
            SUM(CASE WHEN status = 'abierto' THEN 1 ELSE 0 END) AS abiertos,
@@ -151,7 +151,7 @@ router.get('/api/analytics/dashboard', requireAuth, requirePermission('metrics:r
     LIMIT 10
   `).all();
 
-  const topSolicitantes = db.prepare(`
+  const topSolicitantes = await db.prepare(`
     SELECT requester_name, COUNT(*) AS total
     FROM tickets
     WHERE requester_name IS NOT NULL AND requester_name != 'Sin nombre'
@@ -161,21 +161,21 @@ router.get('/api/analytics/dashboard', requireAuth, requirePermission('metrics:r
   `).all();
 
   const despachos = cedula
-    ? db.prepare(`
+    ? await db.prepare(`
         SELECT numero, destinatario, cedula, sede, fecha, articulos
         FROM despachos
         WHERE cedula = ?
         ORDER BY created_at DESC
         LIMIT 50
       `).all(cedula)
-    : db.prepare(`
+    : await db.prepare(`
         SELECT numero, destinatario, cedula, sede, fecha, articulos
         FROM despachos
         ORDER BY created_at DESC
         LIMIT 50
       `).all();
 
-  const techRequestsPorSede = db.prepare(`
+  const techRequestsPorSede = await db.prepare(`
     SELECT sede,
            COUNT(*) AS total,
            SUM(CASE WHEN type = 'requerimiento' THEN 1 ELSE 0 END) AS requerimientos,

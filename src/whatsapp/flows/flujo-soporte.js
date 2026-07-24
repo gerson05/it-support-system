@@ -67,7 +67,7 @@ export async function handleSoporte(step, { text, cleanText, session, phone, db,
           aiSolution = topFaq.solution;
           msgHeader  = `📋 *${topFaq.title}*\n\n`;
           faqId      = topFaq.id;
-          try { db.prepare(`INSERT INTO faq_hits (faq_id, area, resolved, phone) VALUES (?,?,0,?)`).run(String(faqId), area, phone); } catch {}
+          try { await db.prepare(`INSERT INTO faq_hits (faq_id, area, resolved, phone) VALUES (?,?,0,?)`).run(String(faqId), area, phone); } catch {}
         }
       }
       if (!aiSolution) {
@@ -97,7 +97,7 @@ export async function handleSoporte(step, { text, cleanText, session, phone, db,
     if (cleanText === '1' || /^s[íi]\b/i.test(cleanText)) {
       if (ctx.faq_shown_id) {
         try {
-          db.prepare(`UPDATE faq_hits SET resolved=1 WHERE id=(SELECT id FROM faq_hits WHERE phone=? AND faq_id=? AND resolved=0 ORDER BY id DESC LIMIT 1)`)
+          await db.prepare(`UPDATE faq_hits SET resolved=1 WHERE id=(SELECT id FROM faq_hits WHERE phone=? AND faq_id=? AND resolved=0 ORDER BY id DESC LIMIT 1)`)
             .run(phone, String(ctx.faq_shown_id));
         } catch {}
       }
@@ -106,7 +106,7 @@ export async function handleSoporte(step, { text, cleanText, session, phone, db,
     }
 
     if (cleanText === '2' || /^no\b/i.test(cleanText)) {
-      const existing = db.prepare(`SELECT ticket_number FROM tickets WHERE phone=? AND status IN ('abierto','en_progreso','en_espera') ORDER BY id DESC LIMIT 1`).get(phone);
+      const existing = await db.prepare(`SELECT ticket_number FROM tickets WHERE phone=? AND status IN ('abierto','en_progreso','en_espera') ORDER BY id DESC LIMIT 1`).get(phone);
       if (existing) {
         setStep(db, phone, 'confirm_dup_ticket', area, JSON.stringify(ctx));
         return (
@@ -120,7 +120,7 @@ export async function handleSoporte(step, { text, cleanText, session, phone, db,
       const imageCtx = ctx._imageBase64 ? { base64: ctx._imageBase64, mimetype: ctx._imageMimetype } : null;
       const ticketId = await crearTicket(db, phone, area, ctx.description || '(sin descripción)', { priority, requesterName: ctx.requester_name, imageCtx, chatId });
       setStep(db, phone, 'idle', null, '{}');
-      const { ticket_number } = db.prepare('SELECT ticket_number FROM tickets WHERE id=?').get(ticketId);
+      const { ticket_number } = await db.prepare('SELECT ticket_number FROM tickets WHERE id=?').get(ticketId);
       return (
         `😔 Entendido. El equipo de IT tomará el caso directamente.\n\n` +
         `🎟️ *Ticket creado: ${ticket_number}*\n📍 Área: ${AREA_NAMES[area] || area}\n` +
@@ -144,14 +144,14 @@ export async function handleSoporte(step, { text, cleanText, session, phone, db,
       const imageCtx = ctx._imageBase64 ? { base64: ctx._imageBase64, mimetype: ctx._imageMimetype } : null;
       const ticketId = await crearTicket(db, phone, area, ctx.description || '(sin descripción)', { priority, requesterName: ctx.requester_name, imageCtx, chatId });
       setStep(db, phone, 'idle', null, '{}');
-      const { ticket_number } = db.prepare('SELECT ticket_number FROM tickets WHERE id=?').get(ticketId);
+      const { ticket_number } = await db.prepare('SELECT ticket_number FROM tickets WHERE id=?').get(ticketId);
       return `✅ Nuevo ticket creado: *${ticket_number}*\n📍 Área: ${AREA_NAMES[area] || area}\n\nUn técnico se comunicará contigo a la brevedad.`;
     }
     if (cleanText === '2') {
-      const existing = db.prepare(`SELECT * FROM tickets WHERE phone=? AND status IN ('abierto','en_progreso','en_espera') ORDER BY id DESC LIMIT 1`).get(phone);
+      const existing = await db.prepare(`SELECT * FROM tickets WHERE phone=? AND status IN ('abierto','en_progreso','en_espera') ORDER BY id DESC LIMIT 1`).get(phone);
       if (existing) {
-        db.prepare(`INSERT INTO messages (ticket_id, sender_type, content) VALUES (?, 'user', ?)`).run(existing.id, ctx.description || '(sin descripción)');
-        db.prepare(`UPDATE tickets SET updated_at=datetime('now','localtime') WHERE id=?`).run(existing.id);
+        await db.prepare(`INSERT INTO messages (ticket_id, sender_type, content) VALUES (?, 'user', ?)`).run(existing.id, ctx.description || '(sin descripción)');
+        await db.prepare(`UPDATE tickets SET updated_at=datetime('now','localtime') WHERE id=?`).run(existing.id);
         appEvents.emit('ticket:message', { ticketId: existing.id });
       }
       setStep(db, phone, 'idle', null, '{}');
@@ -166,6 +166,6 @@ export async function handleSoporte(step, { text, cleanText, session, phone, db,
   const imageCtx = ctx._imageBase64 ? { base64: ctx._imageBase64, mimetype: ctx._imageMimetype } : null;
   const ticketId = await crearTicket(db, phone, area, detail, { priority, requesterName: ctx.requester_name, imageCtx, chatId });
   setStep(db, phone, 'idle', null, '{}');
-  const { ticket_number } = db.prepare('SELECT ticket_number FROM tickets WHERE id=?').get(ticketId);
+  const { ticket_number } = await db.prepare('SELECT ticket_number FROM tickets WHERE id=?').get(ticketId);
   return `🎟️ *¡Ticket creado exitosamente!*\nNúmero de caso: *${ticket_number}*\n\nEl equipo de IT fue notificado. ¡Gracias por tu paciencia!`;
 }
