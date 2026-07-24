@@ -4,11 +4,11 @@ import { AREA_MAP_FULL, AREA_MAP_SIMPLE } from '../chatbot-config.js';
 
 const SEDE_STEPS = new Set(['ask_ciudad', 'ask_ciudad_confirm', 'ask_punto', 'select_type']);
 
-export function isSedeCompleta(sede) {
+export async function isSedeCompleta(sede) {
   return (sede || '').toUpperCase().includes('SEDE PRINCIPAL');
 }
 
-export function routeAfterSede(flowType, sedeLabel, sedeRaw = '') {
+export async function routeAfterSede(flowType, sedeLabel, sedeRaw = '') {
   const confirma = `✅ Punto: *${sedeLabel}*\n\n`;
   const completa = isSedeCompleta(sedeRaw || sedeLabel);
 
@@ -52,7 +52,7 @@ export function routeAfterSede(flowType, sedeLabel, sedeRaw = '') {
   };
 }
 
-export function handleSede(step, { text, cleanText, session, phone, db }) {
+export async function handleSede(step, { text, cleanText, session, phone, db }) {
   if (!SEDE_STEPS.has(step)) return null;
 
   const ctx = getCtx(session);

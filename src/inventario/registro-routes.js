@@ -23,7 +23,7 @@ router.post('/api/inventario/registro-token', ...canCreate, wrap(async (req, res
   const maxUses   = max_uses ? Number(max_uses) : null;
   const createdBy = req.session?.username || req.user?.username || null;
 
-  db.prepare(`INSERT INTO registro_tokens (token,tipo,label,created_by,expires_at,max_uses)
+  await db.prepare(`INSERT INTO registro_tokens (token,tipo,label,created_by,expires_at,max_uses)
               VALUES (?,?,?,?,?,?)`)
     .run(token, tipo, label||null, createdBy, expiresAt, maxUses);
 
@@ -32,7 +32,7 @@ router.post('/api/inventario/registro-token', ...canCreate, wrap(async (req, res
 }));
 
 router.get('/api/inventario/registro-tokens', ...canRead, wrap(async (req, res) => {
-  const rows = db.prepare(`
+  const rows = await db.prepare(`
     SELECT id,token,tipo,label,created_by,expires_at,max_uses,use_count,active,created_at
     FROM registro_tokens ORDER BY created_at DESC LIMIT 50
   `).all();
@@ -40,12 +40,12 @@ router.get('/api/inventario/registro-tokens', ...canRead, wrap(async (req, res) 
 }));
 
 router.delete('/api/inventario/registro-tokens/:id', ...canCreate, wrap(async (req, res) => {
-  db.prepare('UPDATE registro_tokens SET active=0 WHERE id=?').run(parseInt(req.params.id));
+  await db.prepare('UPDATE registro_tokens SET active=0 WHERE id=?').run(parseInt(req.params.id));
   res.json({ ok: true });
 }));
 
 router.get('/api/inventario/registro-status/:token', wrap(async (req, res) => {
-  const row = db.prepare('SELECT * FROM registro_tokens WHERE token=?').get(req.params.token);
+  const row = await db.prepare('SELECT * FROM registro_tokens WHERE token=?').get(req.params.token);
   if (!row || !row.active) return res.json({ valid: false, reason: 'Enlace no válido.' });
   if (row.expires_at && new Date(row.expires_at) < new Date())
     return res.json({ valid: false, reason: 'Este enlace ha expirado.' });
@@ -62,7 +62,7 @@ router.get('/api/inventario/registro-status/:token', wrap(async (req, res) => {
 }));
 
 router.get('/api/inventario/registro-qr/:token', wrap(async (req, res) => {
-  const row = db.prepare('SELECT token FROM registro_tokens WHERE token=?').get(req.params.token);
+  const row = await db.prepare('SELECT token FROM registro_tokens WHERE token=?').get(req.params.token);
   if (!row) return res.status(404).json({ error: 'Token no encontrado.' });
   const url = `${getBaseUrl(req)}/registrar/${req.params.token}`;
   const png = await QRCode.toBuffer(url, { type:'png', width:280, margin:1 });
@@ -71,7 +71,7 @@ router.get('/api/inventario/registro-qr/:token', wrap(async (req, res) => {
 }));
 
 router.get('/api/inventario/registrar/:token/next-placa', wrap(async (req, res) => {
-  const row = db.prepare('SELECT * FROM registro_tokens WHERE token=?').get(req.params.token);
+  const row = await db.prepare('SELECT * FROM registro_tokens WHERE token=?').get(req.params.token);
   if (!row || !row.active) return res.status(403).json({ error: 'Token inválido.' });
   if (row.expires_at && new Date(row.expires_at) < new Date())
     return res.status(403).json({ error: 'Token expirado.' });
@@ -82,7 +82,7 @@ router.get('/api/inventario/registrar/:token/next-placa', wrap(async (req, res) 
 }));
 
 router.post('/api/inventario/registrar/:token', wrap(async (req, res) => {
-  const row = db.prepare('SELECT * FROM registro_tokens WHERE token=?').get(req.params.token);
+  const row = await db.prepare('SELECT * FROM registro_tokens WHERE token=?').get(req.params.token);
   if (!row || !row.active) return res.status(403).json({ error: 'Enlace no válido.' });
   if (row.expires_at && new Date(row.expires_at) < new Date())
     return res.status(403).json({ error: 'Enlace expirado.' });
@@ -97,7 +97,7 @@ router.post('/api/inventario/registrar/:token', wrap(async (req, res) => {
     if (tipo === 'equipos') {
       if (!b.placa?.trim() || !b.serial?.trim() || !b.marca?.trim() || !b.nombre_equipo?.trim())
         return res.status(400).json({ error: 'placa, marca, nombre_equipo y serial son requeridos.' });
-      const r = db.prepare(`
+      const r = await db.prepare(`
         INSERT OR IGNORE INTO inventario_equipos
           (placa,marca,nombre_equipo,serial,procesador,ram,tipo_ram,cap_disco,tipo_disco,serial_cargador,area,responsable,fecha_compra)
         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
@@ -109,7 +109,7 @@ router.post('/api/inventario/registrar/:token', wrap(async (req, res) => {
     } else {
       if (!b.imei?.trim() || !b.nombre_completo?.trim())
         return res.status(400).json({ error: 'imei y nombre_completo son requeridos.' });
-      const r = db.prepare(`
+      const r = await db.prepare(`
         INSERT OR IGNORE INTO inventario_celulares
           (placa,fecha_registro,area,ciudad,nombre_completo,cedula,linea,operador,equipo,almacenamiento,ram,modelo,imei,imei2,estado,accesorio,fecha_entrega,entregado_por)
         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
@@ -125,7 +125,7 @@ router.post('/api/inventario/registrar/:token', wrap(async (req, res) => {
     throw err;
   }
 
-  db.prepare('UPDATE registro_tokens SET use_count=use_count+1 WHERE token=?').run(req.params.token);
+  await db.prepare('UPDATE registro_tokens SET use_count=use_count+1 WHERE token=?').run(req.params.token);
   res.status(201).json({ ok: true, id });
 }));
 

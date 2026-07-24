@@ -20,7 +20,7 @@ const AREA_LABELS = {
 const ACTIVE_STATUSES   = ['abierto', 'en_progreso', 'en_espera', 'siguiente_dia'];
 const ARCHIVE_STATUSES  = ['resuelto', 'cerrado'];
 
-export function getAllTickets(db, filters = {}) {
+export async function getAllTickets(db, filters = {}) {
   const {
     status,
     status_group,
@@ -96,10 +96,10 @@ export function getAllTickets(db, filters = {}) {
   params.push(parseInt(limit), parseInt(offset));
 
   try {
-    const totalRow = db.prepare(countQuery).get(...countParams);
+    const totalRow = await db.prepare(countQuery).get(...countParams);
     const total = totalRow ? totalRow.total : 0;
     
-    const tickets = db.prepare(query).all(...params);
+    const tickets = await db.prepare(query).all(...params);
     
     // Formatear nombres de áreas legibles
     const formattedTickets = tickets.map(ticket => ({
@@ -123,9 +123,9 @@ export function getAllTickets(db, filters = {}) {
 /**
  * Obtener un ticket por ID con su conversación completa y notas
  */
-export function getTicketById(db, id) {
+export async function getTicketById(db, id) {
   try {
-    const ticket = db.prepare(`
+    const ticket = await db.prepare(`
       SELECT t.*, a.name as agent_name 
       FROM tickets t 
       LEFT JOIN agents a ON t.assigned_to = a.id 
@@ -137,14 +137,14 @@ export function getTicketById(db, id) {
     ticket.area_label = AREA_LABELS[ticket.area] || ticket.area;
 
     // Obtener los mensajes del ticket (historial del chat)
-    const messages = db.prepare(`
+    const messages = await db.prepare(`
       SELECT * FROM messages 
       WHERE ticket_id = ? 
       ORDER BY created_at ASC
     `).all(id);
 
     // Obtener notas internas
-    const notes = db.prepare(`
+    const notes = await db.prepare(`
       SELECT * FROM internal_notes 
       WHERE ticket_id = ? 
       ORDER BY created_at ASC
@@ -164,7 +164,7 @@ export function getTicketById(db, id) {
 /**
  * Actualizar campos del ticket (estado, prioridad, agente asignado)
  */
-export function updateTicket(db, id, data) {
+export async function updateTicket(db, id, data) {
   const fields = [];
   const params = [];
 
@@ -208,7 +208,7 @@ export function updateTicket(db, id, data) {
   const query = `UPDATE tickets SET ${fields.join(', ')} WHERE id = ?`;
 
   try {
-    const result = db.prepare(query).run(...params);
+    const result = await db.prepare(query).run(...params);
     return result.changes > 0;
   } catch (error) {
     console.error('Error en updateTicket:', error);
@@ -219,15 +219,15 @@ export function updateTicket(db, id, data) {
 /**
  * Agregar un nuevo mensaje al historial de un ticket
  */
-export function addMessage(db, ticketId, senderType, senderName, content) {
+export async function addMessage(db, ticketId, senderType, senderName, content) {
   try {
-    const result = db.prepare(`
+    const result = await db.prepare(`
       INSERT INTO messages (ticket_id, sender_type, sender_name, content)
       VALUES (?, ?, ?, ?)
     `).run(ticketId, senderType, senderName, content);
 
     // Actualizar la fecha de modificación del ticket
-    db.prepare(`
+    await db.prepare(`
       UPDATE tickets 
       SET updated_at = datetime('now', 'localtime') 
       WHERE id = ?
@@ -243,15 +243,15 @@ export function addMessage(db, ticketId, senderType, senderName, content) {
 /**
  * Agregar una nota interna de IT para uso del equipo
  */
-export function addInternalNote(db, ticketId, agentId, agentName, content) {
+export async function addInternalNote(db, ticketId, agentId, agentName, content) {
   try {
-    const result = db.prepare(`
+    const result = await db.prepare(`
       INSERT INTO internal_notes (ticket_id, agent_id, agent_name, content)
       VALUES (?, ?, ?, ?)
     `).run(ticketId, agentId, agentName, content);
 
     // Actualizar la fecha de modificación del ticket sin cambiar el estado
-    db.prepare(`
+    await db.prepare(`
       UPDATE tickets 
       SET updated_at = datetime('now', 'localtime') 
       WHERE id = ?

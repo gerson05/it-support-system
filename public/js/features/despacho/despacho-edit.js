@@ -6,22 +6,42 @@ import { PICKER_TABS } from './despacho-form.js';
 const _tc = s => (s || '').toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
 const _sc = s => { const v = (s || '').trim(); return v ? v.charAt(0).toUpperCase() + v.slice(1) : v; };
 
-export async function openEditDespachoModal(id, onSuccess) {
-  let d;
-  try { d = await fetchDespacho(id); }
-  catch (err) { showToast(err.message, 'error'); return; }
+function buildArtRow(art = {}, rowCountRef, isFirst = false) {
+  const i = rowCountRef.value++;
+  return `<div class="art-row-edit" style="border:1px solid var(--border);border-radius:8px;padding:12px;background:var(--surface-2);display:flex;flex-direction:column;gap:8px;">
+    <div style="display:grid;grid-template-columns:1fr 70px auto auto;gap:8px;align-items:center;">
+      <input data-field="nombre"   type="text" value="${art.nombre||''}" placeholder="Nombre del artículo *" required style="padding:7px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;min-width:0;">
+      <input data-field="cantidad" type="number" min="1" value="${art.cantidad||1}" style="padding:7px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;text-align:center;">
+      <button type="button" class="btn-dup-art" style="padding:6px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface-3);color:var(--text-2);cursor:pointer;" title="Duplicar">📋</button>
+      <button type="button" class="btn-rem-art" style="padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface-3);color:var(--danger);cursor:pointer;${isFirst?'visibility:hidden;':''}" title="Eliminar">✕</button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;">
+      <input data-field="marca"       type="text" value="${art.marca||''}"       placeholder="Marca"        style="padding:7px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;">
+      <input data-field="modelo"      type="text" value="${art.modelo||''}"      placeholder="Modelo"       style="padding:7px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;">
+      <input data-field="serial"      type="text" value="${art.serial||''}"      placeholder="Serial"       style="padding:7px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;">
+      <input data-field="descripcion" type="text" value="${art.descripcion||''}" placeholder="Accesorios"   style="padding:7px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;">
+    </div>
+  </div>`;
+}
 
-  let articulos = [];
-  try { articulos = JSON.parse(d.articulos || '[]'); } catch {}
+function wireArtRow(row, rowCountRef) {
+  row.querySelector('.btn-rem-art')?.addEventListener('click', function () { this.closest('.art-row-edit').remove(); });
+  row.querySelector('.btn-dup-art')?.addEventListener('click', function () {
+    const curr    = this.closest('.art-row-edit');
+    const artData = { nombre: curr.querySelector('[data-field="nombre"]').value, cantidad: curr.querySelector('[data-field="cantidad"]').value, marca: curr.querySelector('[data-field="marca"]').value, modelo: curr.querySelector('[data-field="modelo"]').value, serial: curr.querySelector('[data-field="serial"]').value, descripcion: curr.querySelector('[data-field="descripcion"]').value };
+    const div     = document.createElement('div');
+    div.innerHTML = buildArtRow(artData, rowCountRef, false);
+    const newRow  = div.firstElementChild;
+    curr.insertAdjacentElement('afterend', newRow);
+    wireArtRow(newRow, rowCountRef);
+  });
+  ['nombre','marca','modelo'].forEach(f => {
+    row.querySelector(`[data-field="${f}"]`)?.addEventListener('blur', e => { e.target.value = _tc(e.target.value.trim()); });
+  });
+}
 
-  const areaOptions = Object.entries(AREA_MAPPINGS)
-    .map(([v, { label }]) => `<option value="${v}" ${d.area === v ? 'selected' : ''}>${label}</option>`)
-    .join('');
-
-  const overlay = document.createElement('div');
-  overlay.className = 'modal-overlay';
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;display:flex;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;';
-  overlay.innerHTML = `
+function renderEditModalHTML(d, areaOptions) {
+  return `
     <div style="background:var(--surface);border-radius:16px;padding:32px;width:100%;max-width:680px;margin:auto 0;box-shadow:0 20px 60px rgba(0,0,0,.4);position:relative;">
       <div id="edit-modal-close" style="position:absolute;top:14px;right:14px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);border-radius:8px;background:var(--surface-2);cursor:pointer;color:var(--text-2);font-size:16px;">✕</div>
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:22px;">
@@ -78,7 +98,7 @@ export async function openEditDespachoModal(id, onSuccess) {
             <div style="display:flex;gap:6px;margin-bottom:8px;">
               <input id="inv-picker-search" type="text" placeholder="Buscar por placa, serial, marca, modelo…"
                 style="flex:1;padding:6px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;">
-              <select id="inv-picker-tipo" style="padding:6px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;cursor:pointer;">
+              <select id="inv-picker-tipo" style="width:auto;flex-shrink:0;padding:6px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;cursor:pointer;">
                 ${PICKER_TABS.map(t => `<option value="${t.id}">${t.label}</option>`).join('')}
               </select>
             </div>
@@ -105,73 +125,9 @@ export async function openEditDespachoModal(id, onSuccess) {
         </div>
       </form>
     </div>`;
+}
 
-  document.body.appendChild(overlay);
-  attachPuntoSearch(overlay.querySelector('input[name="sede"]'));
-
-  overlay.querySelector('[name="destinatario"]').addEventListener('blur', e => { e.target.value = e.target.value.trim().toUpperCase(); });
-  overlay.querySelector('[name="observaciones"]').addEventListener('blur', e => { e.target.value = _sc(e.target.value); });
-
-  const closeEdit = () => overlay.remove();
-  overlay.querySelector('#edit-modal-close').onclick  = closeEdit;
-  overlay.querySelector('#btn-cancel-edit').onclick   = closeEdit;
-  overlay.addEventListener('click', e => { if (e.target === overlay) closeEdit(); });
-
-  let rowCount = 0;
-
-  function buildArtRow(art = {}, isFirst = false) {
-    const i = rowCount++;
-    return `<div class="art-row-edit" style="border:1px solid var(--border);border-radius:8px;padding:12px;background:var(--surface-2);display:flex;flex-direction:column;gap:8px;">
-      <div style="display:grid;grid-template-columns:1fr 70px auto auto;gap:8px;align-items:center;">
-        <input data-field="nombre"   type="text" value="${art.nombre||''}" placeholder="Nombre del artículo *" required style="padding:7px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;min-width:0;">
-        <input data-field="cantidad" type="number" min="1" value="${art.cantidad||1}" style="padding:7px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;text-align:center;">
-        <button type="button" class="btn-dup-art" style="padding:6px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface-3);color:var(--text-2);cursor:pointer;" title="Duplicar">📋</button>
-        <button type="button" class="btn-rem-art" style="padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface-3);color:var(--danger);cursor:pointer;${isFirst?'visibility:hidden;':''}" title="Eliminar">✕</button>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;">
-        <input data-field="marca"       type="text" value="${art.marca||''}"       placeholder="Marca"        style="padding:7px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;">
-        <input data-field="modelo"      type="text" value="${art.modelo||''}"      placeholder="Modelo"       style="padding:7px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;">
-        <input data-field="serial"      type="text" value="${art.serial||''}"      placeholder="Serial"       style="padding:7px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;">
-        <input data-field="descripcion" type="text" value="${art.descripcion||''}" placeholder="Descripción"  style="padding:7px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;">
-      </div>
-    </div>`;
-  }
-
-  function wireArtRow(row) {
-    row.querySelector('.btn-rem-art')?.addEventListener('click', function () { this.closest('.art-row-edit').remove(); });
-    row.querySelector('.btn-dup-art')?.addEventListener('click', function () {
-      const curr    = this.closest('.art-row-edit');
-      const artData = { nombre: curr.querySelector('[data-field="nombre"]').value, cantidad: curr.querySelector('[data-field="cantidad"]').value, marca: curr.querySelector('[data-field="marca"]').value, modelo: curr.querySelector('[data-field="modelo"]').value, serial: curr.querySelector('[data-field="serial"]').value, descripcion: curr.querySelector('[data-field="descripcion"]').value };
-      const div     = document.createElement('div');
-      div.innerHTML = buildArtRow(artData, false);
-      const newRow  = div.firstElementChild;
-      curr.insertAdjacentElement('afterend', newRow);
-      wireArtRow(newRow);
-    });
-    ['nombre','marca','modelo'].forEach(f => {
-      row.querySelector(`[data-field="${f}"]`)?.addEventListener('blur', e => { e.target.value = _tc(e.target.value.trim()); });
-    });
-  }
-
-  const artsList = overlay.querySelector('#arts-list-edit');
-  (articulos.length ? articulos : [{}]).forEach((art, idx) => {
-    const div = document.createElement('div');
-    div.innerHTML = buildArtRow(art, idx === 0);
-    const row = div.firstElementChild;
-    artsList.appendChild(row);
-    wireArtRow(row);
-  });
-
-  overlay.querySelector('#btn-add-art-edit').onclick = () => {
-    const div = document.createElement('div');
-    div.innerHTML = buildArtRow({}, false);
-    const row = div.firstElementChild;
-    artsList.appendChild(row);
-    wireArtRow(row);
-    row.querySelector('[data-field="nombre"]')?.focus();
-  };
-
-  // ── Inventory picker ──────────────────────────────────────────────────────
+function attachEditInvPicker(overlay, artsList, rowCountRef) {
   const invPicker     = overlay.querySelector('#inv-picker');
   const invList       = overlay.querySelector('#inv-picker-list');
   const invSearch     = overlay.querySelector('#inv-picker-search');
@@ -180,6 +136,15 @@ export async function openEditDespachoModal(id, onSuccess) {
   const btnAddFromInv = overlay.querySelector('#btn-add-from-inv');
   let   invItems      = [];
   let   invSelected   = new Set();
+
+  function filterInvItems() {
+    const q = invSearch.value.trim().toLowerCase();
+    if (!q) return invItems;
+    return invItems.filter(it => {
+      const txt = [it.placa, it.serial, it.marca, it.nombre_equipo, it.equipo, it.modelo, it.imei, it.responsable, String(it.id||'')].join(' ').toLowerCase();
+      return txt.includes(q);
+    });
+  }
 
   function renderInvList(items) {
     if (!items.length) {
@@ -215,14 +180,7 @@ export async function openEditDespachoModal(id, onSuccess) {
     });
   }
 
-  function filterInvItems() {
-    const q = invSearch.value.trim().toLowerCase();
-    if (!q) return invItems;
-    return invItems.filter(it => {
-      const txt = [it.placa, it.serial, it.marca, it.nombre_equipo, it.equipo, it.modelo, it.imei, it.responsable, it.voltaje].join(' ').toLowerCase();
-      return txt.includes(q);
-    });
-  }
+  let _invSearchTimer = null;
 
   function updateInvCount() {
     const n = invSelected.size;
@@ -231,18 +189,18 @@ export async function openEditDespachoModal(id, onSuccess) {
     btnAddFromInv.style.opacity = n > 0 ? '1' : '.4';
   }
 
-  async function loadInvItems() {
+  async function loadInvItems(searchQuery = '') {
     const pickerTab = PICKER_TABS.find(t => t.id === invTipo.value) || PICKER_TABS[0];
     invList.innerHTML = `<div style="text-align:center;padding:16px;font-size:12px;color:var(--text-3);">Cargando…</div>`;
-    invSelected.clear();
-    updateInvCount();
+    if (!searchQuery) { invSelected.clear(); updateInvCount(); }
     try {
       const params = new URLSearchParams({ limit: 50, page: 1 });
       if (pickerTab.categoria) params.set('categoria', pickerTab.categoria);
+      if (searchQuery)         params.set('search', searchQuery);
       const res  = await fetch(`/api/inventario/${pickerTab.apiTab}?${params}`);
       const json = await res.json();
       invItems   = json.equipos || json.celulares || json.ups || [];
-      renderInvList(filterInvItems());
+      renderInvList(invItems);
     } catch {
       invList.innerHTML = `<div style="text-align:center;padding:16px;font-size:12px;color:var(--danger);">Error al cargar inventario</div>`;
     }
@@ -255,8 +213,17 @@ export async function openEditDespachoModal(id, onSuccess) {
   };
   overlay.querySelector('#btn-close-inv-picker').onclick = () => { invPicker.style.display = 'none'; };
 
-  invTipo.onchange = loadInvItems;
-  invSearch.addEventListener('input', () => renderInvList(filterInvItems()));
+  invTipo.onchange = () => loadInvItems(invSearch.value.trim());
+  invSearch.addEventListener('input', () => {
+    clearTimeout(_invSearchTimer);
+    const q = invSearch.value.trim();
+    if (q.length === 0) { loadInvItems(); return; }
+    renderInvList(invItems.filter(it =>
+      [it.placa, it.serial, it.marca, it.nombre_equipo, it.equipo, it.modelo, it.imei, it.responsable, String(it.id||'')]
+        .join(' ').toLowerCase().includes(q.toLowerCase())
+    ));
+    _invSearchTimer = setTimeout(() => loadInvItems(q), 350);
+  });
 
   btnAddFromInv.onclick = () => {
     const pickerTab = PICKER_TABS.find(t => t.id === invTipo.value) || PICKER_TABS[0];
@@ -283,11 +250,11 @@ export async function openEditDespachoModal(id, onSuccess) {
         fillRow(firstRow);
       } else {
         const div = document.createElement('div');
-        div.innerHTML = buildArtRow(art, false);
+        div.innerHTML = buildArtRow(art, rowCountRef, false);
         const row = div.firstElementChild;
         fillRow(row);
         artsList.appendChild(row);
-        wireArtRow(row);
+        wireArtRow(row, rowCountRef);
       }
     });
 
@@ -296,7 +263,57 @@ export async function openEditDespachoModal(id, onSuccess) {
     invItems = [];
     showToast(`${selected.length} artículo(s) agregado(s)`, 'success');
   };
-  // ── End inventory picker ──────────────────────────────────────────────────
+}
+
+export async function openEditDespachoModal(id, onSuccess) {
+  let d;
+  try { d = await fetchDespacho(id); }
+  catch (err) { showToast(err.message, 'error'); return; }
+
+  let articulos = [];
+  try { articulos = JSON.parse(d.articulos || '[]'); } catch {}
+
+  const areaOptions = Object.entries(AREA_MAPPINGS)
+    .map(([v, { label }]) => `<option value="${v}" ${d.area === v ? 'selected' : ''}>${label}</option>`)
+    .join('');
+
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;display:flex;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;';
+  overlay.innerHTML = renderEditModalHTML(d, areaOptions);
+
+  document.body.appendChild(overlay);
+  attachPuntoSearch(overlay.querySelector('input[name="sede"]'));
+
+  overlay.querySelector('[name="destinatario"]').addEventListener('blur', e => { e.target.value = e.target.value.trim().toUpperCase(); });
+  overlay.querySelector('[name="observaciones"]').addEventListener('blur', e => { e.target.value = _sc(e.target.value); });
+
+  const closeEdit = () => overlay.remove();
+  overlay.querySelector('#edit-modal-close').onclick  = closeEdit;
+  overlay.querySelector('#btn-cancel-edit').onclick   = closeEdit;
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeEdit(); });
+
+  const rowCountRef = { value: 0 };
+  const artsList = overlay.querySelector('#arts-list-edit');
+
+  (articulos.length ? articulos : [{}]).forEach((art, idx) => {
+    const div = document.createElement('div');
+    div.innerHTML = buildArtRow(art, rowCountRef, idx === 0);
+    const row = div.firstElementChild;
+    artsList.appendChild(row);
+    wireArtRow(row, rowCountRef);
+  });
+
+  overlay.querySelector('#btn-add-art-edit').onclick = () => {
+    const div = document.createElement('div');
+    div.innerHTML = buildArtRow({}, rowCountRef, false);
+    const row = div.firstElementChild;
+    artsList.appendChild(row);
+    wireArtRow(row, rowCountRef);
+    row.querySelector('[data-field="nombre"]')?.focus();
+  };
+
+  attachEditInvPicker(overlay, artsList, rowCountRef);
 
   overlay.querySelector('#form-edit-despacho').onsubmit = async (e) => {
     e.preventDefault();

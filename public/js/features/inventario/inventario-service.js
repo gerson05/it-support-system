@@ -36,12 +36,6 @@ const InventarioService = (() => {
       return API.post(`${API_BASE}/import`, formData);
     },
 
-    // Export to Excel
-    async exportExcel(params = {}) {
-      const query = new URLSearchParams(params);
-      return `${API_BASE}/export?${query}`;
-    },
-
     // Scan QR/barcode
     async scanCode(code) {
       return API.post(`${API_BASE}/scan`, { code });

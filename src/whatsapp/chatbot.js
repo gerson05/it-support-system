@@ -19,7 +19,7 @@ export class Chatbot {
 
     /* ── Imagen enviada fuera de flujo ── */
     if (text === '__IMAGE__') {
-      const sess = db.prepare('SELECT current_step FROM conversations WHERE phone=?').get(phone);
+      const sess = await db.prepare('SELECT current_step FROM conversations WHERE phone=?').get(phone);
       if (!sess || sess.current_step !== 'awaiting_description') {
         return getMsg(db, 'image_out_of_flow');
       }
@@ -30,9 +30,9 @@ export class Chatbot {
     const isCommand = ['hola', 'menu', 'inicio', 'reiniciar'].includes(lower);
 
     /* ── Obtener / crear sesión ── */
-    let session = db.prepare('SELECT * FROM conversations WHERE phone = ?').get(phone);
+    let session = await db.prepare('SELECT * FROM conversations WHERE phone = ?').get(phone);
     if (!session) {
-      db.prepare('INSERT INTO conversations (phone, current_step) VALUES (?,?)').run(phone, 'idle');
+      await db.prepare('INSERT INTO conversations (phone, current_step) VALUES (?,?)').run(phone, 'idle');
       session = { phone, current_step: 'idle', area: null, context: '{}' };
     }
 
@@ -42,7 +42,7 @@ export class Chatbot {
         const ctxObj = JSON.parse(session.context || '{}');
         if (!ctxObj._chatId) {
           ctxObj._chatId = chatId;
-          db.prepare('UPDATE conversations SET context=? WHERE phone=?').run(JSON.stringify(ctxObj), phone);
+          await db.prepare('UPDATE conversations SET context=? WHERE phone=?').run(JSON.stringify(ctxObj), phone);
           session = { ...session, context: JSON.stringify(ctxObj) };
         }
       } catch {}
@@ -54,7 +54,7 @@ export class Chatbot {
 
     /* ── Comando rápido: consultar estado de tickets ── */
     if (!isCommand && !inBotFlow && /^(estado|mis tickets?|consultar|ver ticket|mi caso)/i.test(lower)) {
-      const tickets = db.prepare(`SELECT ticket_number, status, area, created_at FROM tickets WHERE phone=? ORDER BY id DESC LIMIT 3`).all(phone);
+      const tickets = await db.prepare(`SELECT ticket_number, status, area, created_at FROM tickets WHERE phone=? ORDER BY id DESC LIMIT 3`).all(phone);
       if (!tickets.length) return getMsg(db, 'estado_no_tickets');
       const lines = tickets.map(t =>
         `🎟️ *${t.ticket_number}*\n   ${STATUS_LABELS_WA[t.status] || t.status}\n   ${AREA_NAMES[t.area] || t.area} · ${new Date(t.created_at).toLocaleDateString('es-CO')}`
@@ -64,15 +64,15 @@ export class Chatbot {
 
     /* ── Ticket activo: agregar mensaje sin entrar al flujo ── */
     if (!isCommand && !inBotFlow) {
-      const activeTicket = db.prepare(`SELECT * FROM tickets WHERE phone=? AND status IN ('abierto','en_progreso','en_espera') ORDER BY id DESC LIMIT 1`).get(phone);
+      const activeTicket = await db.prepare(`SELECT * FROM tickets WHERE phone=? AND status IN ('abierto','en_progreso','en_espera') ORDER BY id DESC LIMIT 1`).get(phone);
       if (activeTicket) {
         if (text === '__IMAGE__' && media?.imageBase64) {
           const attachment = JSON.stringify({ type: 'image', mimetype: media.mimetype || 'image/jpeg', base64: media.imageBase64 });
-          db.prepare(`INSERT INTO messages (ticket_id, sender_type, content, attachment) VALUES (?, 'user', '__IMAGE__', ?)`).run(activeTicket.id, attachment);
+          await db.prepare(`INSERT INTO messages (ticket_id, sender_type, content, attachment) VALUES (?, 'user', '__IMAGE__', ?)`).run(activeTicket.id, attachment);
         } else {
-          db.prepare(`INSERT INTO messages (ticket_id, sender_type, content) VALUES (?, 'user', ?)`).run(activeTicket.id, text);
+          await db.prepare(`INSERT INTO messages (ticket_id, sender_type, content) VALUES (?, 'user', ?)`).run(activeTicket.id, text);
         }
-        db.prepare(`UPDATE tickets SET updated_at=datetime('now','localtime') WHERE id=?`).run(activeTicket.id);
+        await db.prepare(`UPDATE tickets SET updated_at=datetime('now','localtime') WHERE id=?`).run(activeTicket.id);
         appEvents.emit('ticket:message', { ticketId: activeTicket.id });
         return getMsg(db, 'ticket_added', { ticketNumber: activeTicket.ticket_number });
       }
@@ -105,7 +105,7 @@ export class Chatbot {
       }
 
       /* ── Actualizar actividad ── */
-      db.prepare(`UPDATE conversations SET last_activity=datetime('now','localtime'), warned_inactive=0 WHERE phone=?`).run(phone);
+      await db.prepare(`UPDATE conversations SET last_activity=datetime('now','localtime'), warned_inactive=0 WHERE phone=?`).run(phone);
 
     } catch (err) {
       console.error('[Chatbot] Error:', err);

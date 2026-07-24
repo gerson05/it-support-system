@@ -476,7 +476,7 @@ async function _openModal(id) {
     document.getElementById('emp-cedula').readOnly = false;
     document.getElementById('emp-form').reset();
     itSection.style.display = 'none';
-    _initCombo('emp-cargo-text', 'emp-cargo-list', 'emp-cargo', _cargos, '');
+    _initCombo('emp-cargo-text', 'emp-cargo-list', 'emp-cargo', _cargos, '', _addCargo);
     _initCombo('emp-area-text',  'emp-area-list',  'emp-area',  _areas,  '');
   } else {
     document.getElementById('emp-modal-title').textContent = 'Editar empleado';
@@ -485,7 +485,7 @@ async function _openModal(id) {
       document.getElementById('emp-cedula').value    = emp.cedula;
       document.getElementById('emp-cedula').readOnly = true;
       document.getElementById('emp-nombre').value    = emp.nombre_completo || '';
-      _initCombo('emp-cargo-text', 'emp-cargo-list', 'emp-cargo', _cargos, emp.cargo || '');
+      _initCombo('emp-cargo-text', 'emp-cargo-list', 'emp-cargo', _cargos, emp.cargo || '', _addCargo);
       _initCombo('emp-area-text',  'emp-area-list',  'emp-area',  _areas,  emp.area  || '');
 
       if (!_isPending(emp)) {
@@ -686,8 +686,30 @@ async function _copyField(inputId, btnId) {
   }
 }
 
+// ─── Cargo creator ───────────────────────────────────────────────────────────
+async function _addCargo(nombre) {
+  try {
+    const res = await fetch('/api/employees-data/cargos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nombre }),
+    });
+    if (!res.ok) { showToast('Error al crear cargo.', 'error'); return null; }
+    const cargo = await res.json();
+    if (!_cargos.some(c => c.id === cargo.id)) {
+      _cargos.push(cargo);
+      _cargos.sort((a, b) => a.nombre.localeCompare(b.nombre));
+      _populateFilterSelect('emp-filter-cargo', _cargos, 'Todos los cargos', _filterCargo);
+    }
+    return cargo;
+  } catch {
+    showToast('Error al crear cargo.', 'error');
+    return null;
+  }
+}
+
 // ─── Combobox buscable ────────────────────────────────────────────────────────
-function _initCombo(textId, listId, hiddenId, items, initialValue) {
+function _initCombo(textId, listId, hiddenId, items, initialValue, onCreate = null) {
   const textEl   = document.getElementById(textId);
   const listEl   = document.getElementById(listId);
   const hiddenEl = document.getElementById(hiddenId);
@@ -700,8 +722,31 @@ function _initCombo(textId, listId, hiddenId, items, initialValue) {
     const q = (filter || '').toLowerCase();
     const hits = q ? items.filter(i => i.nombre.toLowerCase().includes(q) || (i.ciudad && i.ciudad.toLowerCase().includes(q))) : items;
     if (!hits.length) {
+      const addBtn = onCreate && filter.trim()
+        ? `<div class="emp-combo-create"
+             style="padding:8px 12px;font-size:13px;cursor:pointer;color:var(--primary);
+                    border-top:1px solid var(--border);font-weight:500;transition:background .1s;">
+             + Agregar &quot;${_esc(filter.trim())}&quot;
+           </div>`
+        : '';
       listEl.innerHTML =
-        `<div style="padding:9px 12px;font-size:13px;color:var(--text-3);">Sin resultados</div>`;
+        `<div style="padding:9px 12px;font-size:13px;color:var(--text-3);">Sin resultados</div>${addBtn}`;
+      const createEl = listEl.querySelector('.emp-combo-create');
+      if (createEl) {
+        createEl.addEventListener('mouseover', () => { createEl.style.background = 'var(--surface-2)'; });
+        createEl.addEventListener('mouseout',  () => { createEl.style.background = ''; });
+        createEl.addEventListener('mousedown', async e => {
+          e.preventDefault();
+          const newName = filter.trim();
+          createEl.textContent = 'Guardando...';
+          const created = await onCreate(newName);
+          if (created) {
+            textEl.value   = created.nombre;
+            hiddenEl.value = created.nombre;
+            listEl.style.display = 'none';
+          }
+        });
+      }
     } else {
       listEl.innerHTML = hits.map(i => {
         const nombre = _esc(i.nombre);

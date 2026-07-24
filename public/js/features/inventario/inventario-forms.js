@@ -169,6 +169,7 @@ export function equipoFormHTML(r, isDuplicate = false) {
             ${selectField('Tipo de Disco','tipo_disco',v('tipo_disco'),['SSD','HDD','M2','SATA','NVMe'])}
             ${inputField('Serial Cargador','serial_cargador',v('serial_cargador'))}
             ${areaSelectField(v('area'))}
+            ${bodegaInputField(v('ciudad'))}
             ${inputField('Responsable','responsable',v('responsable'))}
           </div>
           <div style="margin-top:12px;">
@@ -220,6 +221,7 @@ export function celularFormHTML(r, isDuplicate = false) {
             ${selectField('RAM','ram',v('ram'),['2GB','3GB','4GB','6GB','8GB','12GB','16GB'])}
             ${selectField('Operador','operador',v('operador'),['CLARO','TIGO','MOVISTAR','WOM','ETB','AVANTEL'])}
             ${inputField('Línea','linea',v('linea'))}
+            ${inputField('Número de teléfono','numero_telefono',v('numero_telefono'),'tel')}
             ${areaSelectField(v('area'))}
             ${bodegaInputField(v('ciudad'))}
             ${inputField('Nombre completo *','nombre_completo',v('nombre_completo'))}
@@ -273,6 +275,7 @@ export function upsFormHTML(r, isDuplicate = false) {
             ${inputField('Nombre del equipo','nombre_equipo',v('nombre_equipo'))}
             ${scanField('Serial','serial',v('serial'),false,!r)}
             ${areaSelectField(v('area'))}
+            ${bodegaInputField(v('ciudad'))}
             ${inputField('Voltaje','voltaje',v('voltaje'))}
           </div>
           <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:12px;">

@@ -1,5 +1,7 @@
 import { formatDate } from '../../core/app.js';
 
+const _esc = s => String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
 const ESTADOS = {
   creado:      { label: 'Creado',      cls: 'badge-pendiente', icon: '📦' },
   en_transito: { label: 'En tránsito', cls: 'badge-en_progreso', icon: '🚚' },
@@ -137,7 +139,7 @@ async function renderList(container, onDetail) {
       wrap.querySelector('#tl-prev')?.addEventListener('click', () => { currentPage--; load(); });
       wrap.querySelector('#tl-next')?.addEventListener('click', () => { currentPage++; load(); });
     } catch (e) {
-      wrap.innerHTML = `<div style="padding:30px;color:var(--danger);text-align:center;">Error al cargar: ${e.message}</div>`;
+      wrap.innerHTML = `<div style="padding:30px;color:var(--danger);text-align:center;">Error al cargar: ${_esc(e.message)}</div>`;
     }
   }
 
@@ -279,7 +281,7 @@ async function renderDetail(container, token, onBack) {
     });
 
   } catch (e) {
-    container.innerHTML = `<div style="padding:30px;color:var(--danger);text-align:center;">Error: ${e.message}</div>`;
+    container.innerHTML = `<div style="padding:30px;color:var(--danger);text-align:center;">Error: ${_esc(e.message)}</div>`;
   }
 }
 

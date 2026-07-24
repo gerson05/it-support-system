@@ -36,34 +36,26 @@ function pb(p) {
   return `<span class="badge ${c.cls}">${c.label}</span>`;
 }
 
-export async function renderTechRequestDetail(container, id) {
-  container.innerHTML = `<div style="text-align:center;padding:60px;color:var(--text-muted);">Cargando solicitud…</div>`;
+async function fetchTechRequest(id) {
+  const res = await fetch(`/api/tech-requests/${id}`);
+  if (!res.ok) throw new Error('No encontrado');
+  const req = await res.json();
 
-  let req;
-  try {
-    const res = await fetch(`/api/tech-requests/${id}`);
-    if (!res.ok) throw new Error('No encontrado');
-    req = await res.json();
-  } catch {
-    container.innerHTML = `<div style="text-align:center;padding:60px;color:#ef4444;">No se pudo cargar la solicitud.</div>`;
-    return;
-  }
-
-  const isInc  = req.type === 'incidencia';
-  const typeLabel = isInc ? `${iconWrench(13)} Incidencia` : `${iconClipboard(13)} Requerimiento`;
-
-  /* ── Cargar agentes ── */
   let agents = [];
   try {
     const ar = await fetch('/api/agents');
     if (ar.ok) agents = await ar.json();
   } catch {}
 
+  return { req, agents };
+}
+
+function renderDetailLayout(req, agents, isInc, typeLabel) {
   const agentOptions = agents.map(a =>
     `<option value="${a.id}" ${req.assigned_to === a.id ? 'selected' : ''}>${a.name}</option>`
   ).join('');
 
-  container.innerHTML = `
+  return `
     <!-- Encabezado -->
     <div style="background:linear-gradient(135deg,rgba(99,102,241,.1),rgba(139,92,246,.06));border:1px solid rgba(99,102,241,.18);border-radius:14px;padding:18px 22px;margin-bottom:24px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
       <button onclick="history.back()" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);padding:7px 14px;border-radius:8px;color:#94a3b8;font-size:13px;cursor:pointer;transition:all .2s;flex-shrink:0;"
@@ -286,14 +278,16 @@ export async function renderTechRequestDetail(container, id) {
       </div>
     </div>
   `;
+}
 
+function bindDetailEvents(container, id, req, isInc) {
   /* ── Guardar cambios ── */
-  document.getElementById('tr-btn-save').addEventListener('click', async () => {
-    const btn    = document.getElementById('tr-btn-save');
-    const status = document.getElementById('tr-sel-status').value;
-    const prio   = document.getElementById('tr-sel-priority').value;
-    const agent  = document.getElementById('tr-sel-agent').value;
-    const resNotes = document.getElementById('tr-res-notes').value.trim();
+  container.querySelector('#tr-btn-save').addEventListener('click', async () => {
+    const btn    = container.querySelector('#tr-btn-save');
+    const status = container.querySelector('#tr-sel-status').value;
+    const prio   = container.querySelector('#tr-sel-priority').value;
+    const agent  = container.querySelector('#tr-sel-agent').value;
+    const resNotes = container.querySelector('#tr-res-notes').value.trim();
 
     btn.textContent = 'Guardando…';
     btn.disabled    = true;
@@ -321,9 +315,9 @@ export async function renderTechRequestDetail(container, id) {
   });
 
   /* ── Eliminar solicitud ── */
-  document.getElementById('btn-eliminar-solicitud').addEventListener('click', async () => {
+  container.querySelector('#btn-eliminar-solicitud').addEventListener('click', async () => {
     if (!confirm(`¿Eliminar ${req.request_number}? Esta acción no se puede deshacer.`)) return;
-    const btn = document.getElementById('btn-eliminar-solicitud');
+    const btn = container.querySelector('#btn-eliminar-solicitud');
     btn.textContent = 'Eliminando…';
     btn.disabled = true;
     try {
@@ -339,7 +333,7 @@ export async function renderTechRequestDetail(container, id) {
   });
 
   /* ── Acta Modal Trigger ── */
-  document.getElementById('btn-generar-acta').addEventListener('click', () => {
+  container.querySelector('#btn-generar-acta').addEventListener('click', () => {
     openActaModal(req, () => {
       renderTechRequestDetail(container, id);
     });
@@ -351,8 +345,8 @@ export async function renderTechRequestDetail(container, id) {
   }
 
   /* ── Agregar nota ── */
-  document.getElementById('tr-btn-add-note').addEventListener('click', async () => {
-    const input = document.getElementById('tr-note-input');
+  container.querySelector('#tr-btn-add-note').addEventListener('click', async () => {
+    const input = container.querySelector('#tr-note-input');
     const note  = input.value.trim();
     if (!note) { showToast('Escribe una nota primero', 'error'); return; }
 
@@ -368,11 +362,29 @@ export async function renderTechRequestDetail(container, id) {
       // Recargar solo el historial
       const hr = await fetch(`/api/tech-requests/${id}`);
       const updated = await hr.json();
-      document.getElementById('tr-history').innerHTML = renderHistory(updated.history);
+      container.querySelector('#tr-history').innerHTML = renderHistory(updated.history);
     } catch {
       showToast('Error al agregar nota', 'error');
     }
   });
+}
+
+export async function renderTechRequestDetail(container, id) {
+  container.innerHTML = `<div style="text-align:center;padding:60px;color:var(--text-muted);">Cargando solicitud…</div>`;
+
+  let req, agents;
+  try {
+    ({ req, agents } = await fetchTechRequest(id));
+  } catch {
+    container.innerHTML = `<div style="text-align:center;padding:60px;color:#ef4444;">No se pudo cargar la solicitud.</div>`;
+    return;
+  }
+
+  const isInc = req.type === 'incidencia';
+  const typeLabel = isInc ? `${iconWrench(13)} Incidencia` : `${iconClipboard(13)} Requerimiento`;
+
+  container.innerHTML = renderDetailLayout(req, agents, isInc, typeLabel);
+  bindDetailEvents(container, id, req, isInc);
 }
 
 /* ─ Helpers de UI ─ */

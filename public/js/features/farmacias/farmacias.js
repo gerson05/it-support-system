@@ -1,6 +1,7 @@
 /* ─────────────────────────────────────────────
    Estado global
 ───────────────────────────────────────────── */
+const _esc = s => String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 let _data     = [];
 let _panelCtx = null;
 let _deleteCtx = null;
@@ -25,7 +26,7 @@ async function loadData() {
     _data = await res.json();
     renderAll(_data);
   } catch (err) {
-    root.innerHTML = `<div class="loading-msg" style="color:var(--danger)">Error cargando datos: ${err.message}</div>`;
+    root.innerHTML = `<div class="loading-msg" style="color:var(--danger)">Error cargando datos: ${_esc(err.message)}</div>`;
   }
 }
 

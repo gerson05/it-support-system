@@ -32,7 +32,7 @@ function embeddingText(item) {
 
 async function semanticSearch(query, limit = 5) {
   const queryVec = await getEmbedding(query);
-  const items = db.prepare('SELECT * FROM kb_items WHERE activo = 1 AND embedding IS NOT NULL').all();
+  const items = await db.prepare('SELECT * FROM kb_items WHERE activo = 1 AND embedding IS NOT NULL').all();
   return items
     .map(item => ({ ...item, _score: cosineSim(queryVec, JSON.parse(item.embedding)) }))
     .sort((a, b) => b._score - a._score)
@@ -42,7 +42,7 @@ async function semanticSearch(query, limit = 5) {
 function keywordSearch(query, limit = 5) {
   const terms = query.toLowerCase().split(/\s+/).filter(t => t.length > 2);
   if (!terms.length) return [];
-  const all = db.prepare('SELECT * FROM kb_items WHERE activo = 1').all();
+  const all = await db.prepare('SELECT * FROM kb_items WHERE activo = 1').all();
   return all
     .map(item => ({ ...item, _score: keywordScore(item, terms) }))
     .filter(i => i._score > 0)
@@ -67,7 +67,7 @@ function storeEmbeddingAsync(id, text) {
   setImmediate(async () => {
     try {
       const vec = await getEmbedding(text);
-      db.prepare('UPDATE kb_items SET embedding=? WHERE id=?').run(JSON.stringify(vec), id);
+      await db.prepare('UPDATE kb_items SET embedding=? WHERE id=?').run(JSON.stringify(vec), id);
     } catch (e) {
       console.warn(`[AI] Embedding gen failed for kb_item ${id}:`, e.message);
     }
@@ -91,7 +91,7 @@ router.get('/api/ai/kb', ...canRead, wrap(async (req, res) => {
     params.push(like, like, like);
   }
   sql += ' ORDER BY categoria, titulo';
-  res.json(db.prepare(sql).all(...params));
+  res.json(await db.prepare(sql).all(...params));
 }));
 
 router.get('/api/ai/kb/search', ...canRead, wrap(async (req, res) => {
@@ -105,7 +105,7 @@ router.post('/api/ai/kb', ...canEdit, wrap(async (req, res) => {
   const { categoria, titulo, descripcion, solucion, comandos = '[]', keywords = '', fuente = 'manual' } = req.body;
   if (!categoria || !titulo || !descripcion || !solucion)
     return res.status(400).json({ error: 'categoria, titulo, descripcion y solucion son requeridos.' });
-  const r = db.prepare(`
+  const r = await db.prepare(`
     INSERT INTO kb_items (categoria,titulo,descripcion,solucion,comandos,keywords,fuente)
     VALUES (?,?,?,?,?,?,?)
   `).run(categoria, titulo, descripcion, solucion,
@@ -128,16 +128,16 @@ router.put('/api/ai/kb/:id', ...canEdit, wrap(async (req, res) => {
   if (!fields.length) return res.status(400).json({ error: 'Nada que actualizar.' });
   fields.push("updated_at=datetime('now','localtime')");
   params.push(parseInt(req.params.id));
-  db.prepare(`UPDATE kb_items SET ${fields.join(',')} WHERE id=?`).run(...params);
+  await db.prepare(`UPDATE kb_items SET ${fields.join(',')} WHERE id=?`).run(...params);
 
-  const updated = db.prepare('SELECT * FROM kb_items WHERE id=?').get(parseInt(req.params.id));
+  const updated = await db.prepare('SELECT * FROM kb_items WHERE id=?').get(parseInt(req.params.id));
   if (updated) storeEmbeddingAsync(updated.id, embeddingText(updated));
 
   res.json({ ok: true });
 }));
 
 router.delete('/api/ai/kb/:id', ...canEdit, wrap(async (req, res) => {
-  db.prepare('UPDATE kb_items SET activo=0 WHERE id=?').run(parseInt(req.params.id));
+  await db.prepare('UPDATE kb_items SET activo=0 WHERE id=?').run(parseInt(req.params.id));
   res.json({ ok: true });
 }));
 
@@ -145,13 +145,13 @@ router.post('/api/ai/kb/reindex', ...canEdit, wrap(async (req, res) => {
   if (!isEmbeddingEnabled()) {
     return res.status(400).json({ error: 'Embeddings no disponibles. Configura LLM_PROVIDER=ollama en .env' });
   }
-  const items = db.prepare('SELECT * FROM kb_items WHERE activo = 1').all();
-  const upd   = db.prepare('UPDATE kb_items SET embedding=? WHERE id=?');
+  const items = await db.prepare('SELECT * FROM kb_items WHERE activo = 1').all();
+  const upd   = await db.prepare('UPDATE kb_items SET embedding=? WHERE id=?');
   let ok = 0, failed = 0;
   for (const item of items) {
     try {
       const vec = await getEmbedding(embeddingText(item));
-      upd.run(JSON.stringify(vec), item.id);
+      await upd.run(JSON.stringify(vec), item.id);
       ok++;
     } catch (e) {
       console.warn(`[AI] Reindex failed for item ${item.id}:`, e.message);
@@ -180,7 +180,7 @@ router.post('/api/ai/analyze', ...canRead, wrap(async (req, res) => {
   }
 
   if (ticket_id) {
-    db.prepare(`
+    await db.prepare(`
       INSERT INTO ai_ticket_analysis (ticket_id, problema, kb_ids, ai_response, created_at)
       VALUES (?,?,?,?,datetime('now','localtime'))
     `).run(ticket_id, problema, JSON.stringify(kbResults.map(k => k.id)), aiAnalysis || null);

@@ -15,6 +15,7 @@ import { fetchDespachos, actaBadge, articulosCount, _timeAgo } from './despacho-
 import { openDetailModal } from './despacho-detail.js';
 import { openCreateModal } from './despacho-form.js';
 import { openEditDespachoModal } from './despacho-edit.js';
+const _esc = s => String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
 export async function renderDespacho(container) {
   container.innerHTML = `
@@ -85,7 +86,7 @@ export async function renderDespacho(container) {
       const { despachos, total } = await fetchDespachos(buildParams());
       renderTable(wrap, despachos, total);
     } catch (e) {
-      wrap.innerHTML = `<div style="padding:30px;color:var(--danger);text-align:center;">${e.message}</div>`;
+      wrap.innerHTML = `<div style="padding:30px;color:var(--danger);text-align:center;">${_esc(e.message)}</div>`;
     }
   }
 

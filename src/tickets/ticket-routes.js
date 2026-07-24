@@ -1,12 +1,6 @@
 import express from 'express';
 import db from '../config/database.js';
-import {
-  getAllTickets,
-  getTicketById,
-  updateTicket,
-  addMessage,
-  addInternalNote
-} from './ticket-model.js';
+import { ticketService } from './ticket-service.js';
 import { sendWhatsAppMessage, sendWhatsAppImage } from '../whatsapp/messenger.js';
 import { appEvents } from '../events/broadcaster.js';
 import { logAudit } from '../audit/audit-logger.js';
@@ -30,13 +24,13 @@ router.get('/api/tickets', ...canRead, wrap(async (req, res) => {
     limit: req.query.limit ? parseInt(req.query.limit) : 10
   };
 
-  const data = getAllTickets(db, filters);
+  const data = ticketService.getAll(filters);
   res.json(data);
 }));
 
 router.get('/api/tickets/:id', ...canRead, wrap(async (req, res) => {
   const ticketId = parseInt(req.params.id);
-  const ticket = getTicketById(db, ticketId);
+  const ticket = ticketService.getById(ticketId);
 
   if (!ticket) {
     return res.status(404).json({ error: 'Ticket no encontrado.' });
@@ -49,7 +43,7 @@ router.put('/api/tickets/:id', ...canEdit, wrap(async (req, res) => {
   const ticketId = parseInt(req.params.id);
   const { status, priority, assigned_to, requester_name, category } = req.body;
 
-  const updated = updateTicket(db, ticketId, { status, priority, assigned_to, requester_name, category });
+  const updated = ticketService.update(ticketId, { status, priority, assigned_to, requester_name, category });
 
   if (!updated) {
     return res.status(404).json({ error: 'Ticket no encontrado o sin cambios que aplicar.' });
@@ -62,17 +56,17 @@ router.put('/api/tickets/:id', ...canEdit, wrap(async (req, res) => {
     if (assigned_to === '' || assigned_to === null) {
       auditMsg += ` [Desasignado del agente]`;
     } else {
-      const agent = db.prepare('SELECT name FROM agents WHERE id = ?').get(assigned_to);
+      const agent = await db.prepare('SELECT name FROM agents WHERE id = ?').get(assigned_to);
       if (agent) auditMsg += ` [Asignado a: ${agent.name}]`;
     }
   }
 
-  db.prepare(`
+  await db.prepare(`
     INSERT INTO messages (ticket_id, sender_type, content)
     VALUES (?, 'bot', ?)
   `).run(ticketId, auditMsg);
 
-  const ticket = db.prepare('SELECT * FROM tickets WHERE id=?').get(ticketId);
+  const ticket = await db.prepare('SELECT * FROM tickets WHERE id=?').get(ticketId);
   if (status && ticket) {
     const WA_STATUS_MSGS = {
       en_progreso: `🔧 *Tu caso está siendo atendido por el equipo de IT.*`,
@@ -87,7 +81,7 @@ router.put('/api/tickets/:id', ...canEdit, wrap(async (req, res) => {
     }
   }
 
-  const agentName = db.prepare('SELECT name FROM agents WHERE id = ?').get(req.body.agent_id)?.name;
+  const agentName = await db.prepare('SELECT name FROM agents WHERE id = ?').get(req.body.agent_id)?.name;
   logAudit(agentName || 'Sistema', 'Ticket actualizado', 'ticket', ticketId, ticket?.ticket_number, { status, priority, assigned_to });
 
   appEvents.emit('ticket:updated', { id: ticketId });
@@ -102,12 +96,12 @@ router.post('/api/tickets/:id/messages', ...canEdit, wrap(async (req, res) => {
     return res.status(400).json({ error: 'El contenido del mensaje es requerido.' });
   }
 
-  const ticket = db.prepare('SELECT * FROM tickets WHERE id = ?').get(ticketId);
+  const ticket = await db.prepare('SELECT * FROM tickets WHERE id = ?').get(ticketId);
   if (!ticket) {
     return res.status(404).json({ error: 'Ticket no encontrado.' });
   }
 
-  const saved = addMessage(db, ticketId, 'agent', agentName || 'Soporte IT', content);
+  const saved = ticketService.addMessage(ticketId, 'agent', agentName || 'Soporte IT', content);
   if (!saved) {
     return res.status(500).json({ error: 'Error al registrar el mensaje en la base de datos.' });
   }
@@ -133,7 +127,7 @@ router.post('/api/tickets/:id/notes', ...canEdit, wrap(async (req, res) => {
     return res.status(400).json({ error: 'El contenido de la nota es requerido.' });
   }
 
-  const saved = addInternalNote(db, ticketId, agentId, agentName || 'Agente IT', content);
+  const saved = ticketService.addNote(ticketId, agentId, agentName || 'Agente IT', content);
   if (!saved) {
     return res.status(500).json({ error: 'Error al guardar la nota interna.' });
   }
@@ -143,7 +137,7 @@ router.post('/api/tickets/:id/notes', ...canEdit, wrap(async (req, res) => {
 
 router.post('/api/tickets/:id/send-image', ...canEdit, wrap(async (req, res) => {
   const ticketId = parseInt(req.params.id);
-  const ticket   = getTicketById(db, ticketId);
+  const ticket   = ticketService.getById(ticketId);
   if (!ticket) return res.status(404).json({ error: 'Ticket no encontrado.' });
 
   const { base64, mimetype = 'image/jpeg', caption = '', agentName = 'Agente IT' } = req.body;
@@ -152,12 +146,12 @@ router.post('/api/tickets/:id/send-image', ...canEdit, wrap(async (req, res) => 
   const result = await sendWhatsAppImage(ticket.phone, base64, mimetype, caption);
 
   const attachment = JSON.stringify({ type: 'image', mimetype, caption });
-  db.prepare(`
+  await db.prepare(`
     INSERT INTO messages (ticket_id, sender_type, sender_name, content, attachment)
     VALUES (?, 'agent', ?, ?, ?)
   `).run(ticketId, agentName, caption || '[Imagen]', attachment);
 
-  db.prepare(`UPDATE tickets SET updated_at = datetime('now','localtime') WHERE id = ?`).run(ticketId);
+  await db.prepare(`UPDATE tickets SET updated_at = datetime('now','localtime') WHERE id = ?`).run(ticketId);
   logAudit(agentName, 'Imagen enviada', 'ticket', ticketId, ticket.ticket_number);
   appEvents.emit('ticket:message', { ticketId });
 
@@ -165,8 +159,52 @@ router.post('/api/tickets/:id/send-image', ...canEdit, wrap(async (req, res) => 
 }));
 
 router.get('/api/agents', ...canRead, wrap(async (req, res) => {
-  const agents = db.prepare('SELECT * FROM agents WHERE active = 1').all();
+  const agents = await db.prepare('SELECT * FROM agents WHERE active = 1').all();
   res.json(agents);
+}));
+
+router.put('/api/tickets/:id/requester', ...canEdit, wrap(async (req, res) => {
+  const ticketId = parseInt(req.params.id);
+  const { requester_name, cedula, agentName = 'Agente' } = req.body;
+
+  if (!requester_name?.trim()) {
+    return res.status(400).json({ error: 'El nombre del solicitante es requerido.' });
+  }
+
+  const ticket = await db.prepare('SELECT id, ticket_number FROM tickets WHERE id = ?').get(ticketId);
+  if (!ticket) return res.status(404).json({ error: 'Ticket no encontrado.' });
+
+  await db.prepare(`UPDATE tickets SET requester_name = ?, updated_at = datetime('now','localtime') WHERE id = ?`)
+    .run(requester_name.trim(), ticketId);
+
+  logAudit(agentName, 'Solicitante actualizado', 'ticket', ticketId, ticket.ticket_number, { requester_name, cedula });
+
+  res.json({ success: true });
+}));
+
+router.put('/api/tickets/:id/assign', ...canEdit, wrap(async (req, res) => {
+  const ticketId = parseInt(req.params.id);
+  const { nombre, cedula, agentName = 'Agente' } = req.body;
+
+  if (!nombre?.trim() || !cedula?.trim()) {
+    return res.status(400).json({ error: 'Nombre y cédula son requeridos.' });
+  }
+
+  const ticket = await db.prepare('SELECT id, ticket_number FROM tickets WHERE id = ?').get(ticketId);
+  if (!ticket) return res.status(404).json({ error: 'Ticket no encontrado.' });
+
+  let agent = await db.prepare('SELECT id FROM agents WHERE name = ?').get(nombre.trim());
+  if (!agent) {
+    const result = await db.prepare('INSERT INTO agents (name) VALUES (?)').run(nombre.trim());
+    agent = { id: result.lastInsertRowid };
+  }
+
+  await db.prepare(`UPDATE tickets SET assigned_to = ?, updated_at = datetime('now','localtime') WHERE id = ?`)
+    .run(agent.id, ticketId);
+
+  logAudit(agentName, 'Técnico asignado', 'ticket', ticketId, ticket.ticket_number, { nombre, cedula });
+
+  res.json({ success: true, agent_id: agent.id, agent_name: nombre.trim() });
 }));
 
 router.put('/api/agents/:id', ...canEdit, wrap(async (req, res) => {
@@ -177,7 +215,7 @@ router.put('/api/agents/:id', ...canEdit, wrap(async (req, res) => {
     return res.status(400).json({ error: 'El nombre del agente es requerido.' });
   }
 
-  const result = db.prepare('UPDATE agents SET name = ? WHERE id = ?').run(name.trim(), agentId);
+  const result = await db.prepare('UPDATE agents SET name = ? WHERE id = ?').run(name.trim(), agentId);
 
   if (result.changes === 0) {
     return res.status(404).json({ error: 'Agente no encontrado.' });

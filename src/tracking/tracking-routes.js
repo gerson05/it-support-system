@@ -45,13 +45,13 @@ const canRead = [requireAuth, requirePermission('despacho:read')];
 const canEdit = [requireAuth, requirePermission('despacho:edit')];
 
 function validateTracking(req, res, next) {
-  const t = getTrackingRow(db, req.params.token);
-  if (!t) return res.status(404).json({ error: 'Paquete no encontrado.' });
-  if (['entregado', 'devuelto'].includes(t.estado))
+  const tracking = getTrackingRow(db, req.params.token);
+  if (!tracking) return res.status(404).json({ error: 'Paquete no encontrado.' });
+  if (['entregado', 'devuelto'].includes(tracking.estado))
     return res.status(409).json({ error: 'Este paquete ya fue entregado o devuelto.' });
-  if (countRecentEventos(db, t.id) >= 5)
+  if (countRecentEventos(db, tracking.id) >= 5)
     return res.status(429).json({ error: 'Demasiados intentos. Espera antes de registrar otro evento.' });
-  req._tracking = t;
+  req._tracking = tracking;
   next();
 }
 
@@ -149,7 +149,7 @@ router.post('/api/tracking/public/:token/entrega-final',
     if (itemsParsed.length > 0) addEntregaItems(db, eventoId, itemsParsed);
 
     const tracking = getTrackingByToken(db, req.params.token);
-    const despacho = db.prepare('SELECT * FROM despachos WHERE id = ?').get(req._tracking.despacho_id);
+    const despacho = await db.prepare('SELECT * FROM despachos WHERE id = ?').get(req._tracking.despacho_id);
     const evento   = tracking.eventos.find(e => e.id === eventoId);
 
     const actaItems = itemsParsed.length > 0
@@ -193,7 +193,7 @@ router.get('/api/tracking', ...canRead, wrap(async (req, res) => {
 }));
 
 router.get('/api/tracking/:token/rotulo', ...canRead, wrap(async (req, res) => {
-  const row = db.prepare(`
+  const row = await db.prepare(`
     SELECT t.token, d.numero, d.destinatario, d.sede as sede_destino, d.fecha
     FROM paquete_tracking t JOIN despachos d ON d.id = t.despacho_id
     WHERE t.token = ?
@@ -209,8 +209,8 @@ router.get('/api/tracking/:token/rotulo', ...canRead, wrap(async (req, res) => {
 }));
 
 router.get('/api/tracking/:token/qr', ...canRead, wrap(async (req, res) => {
-  const t = getTrackingRow(db, req.params.token);
-  if (!t) return res.status(404).json({ error: 'No encontrado.' });
+  const tracking = getTrackingRow(db, req.params.token);
+  if (!tracking) return res.status(404).json({ error: 'No encontrado.' });
   const png = await QRCode.toBuffer(`${getBaseUrl(req)}/rastrear/${req.params.token}`, { type: 'png', width: 300, margin: 2 });
   res.setHeader('Content-Type', 'image/png');
   res.send(png);

@@ -3,7 +3,7 @@ import { requireAuth, requirePermission } from '../auth/auth-middleware.js';
 import {
   getAllEmployees, getEmployeeById,
   createEmployee, completeEmployee, updateEmployee, deleteEmployee,
-  getCargos, getAreas, getPendingCount,
+  getCargos, createCargo, getAreas, getPendingCount,
 } from './employees-model.js';
 import { appEvents } from '../events/broadcaster.js';
 import { sendWhatsAppMessage } from '../whatsapp/messenger.js';
@@ -104,6 +104,13 @@ router.delete('/api/employees/:id', ...canDelete, wrap(async (req, res) => {
 
 router.get('/api/employees-data/cargos', ...canRead, wrap(async (req, res) => {
   res.json(getCargos());
+}));
+
+router.post('/api/employees-data/cargos', ...canEdit, wrap(async (req, res) => {
+  const { nombre } = req.body;
+  if (!nombre || !String(nombre).trim()) return res.status(400).json({ error: 'Nombre requerido.' });
+  const cargo = createCargo(String(nombre).trim());
+  res.status(201).json(cargo);
 }));
 
 router.get('/api/employees-data/areas', ...canRead, wrap(async (req, res) => {

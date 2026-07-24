@@ -23,17 +23,15 @@ export async function handleOOS(step, { text, session, phone, db }) {
   const ctx      = getCtx(session);
   const title    = await generateTicketTitle('general', text);
   const dateStr  = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-  const last     = db.prepare(`SELECT ticket_number FROM tickets WHERE ticket_number LIKE ? ORDER BY id DESC LIMIT 1`).get(`TK-${dateStr}-%`);
+  const last     = await db.prepare(`SELECT ticket_number FROM tickets WHERE ticket_number LIKE ? ORDER BY id DESC LIMIT 1`).get(`TK-${dateStr}-%`);
   const nextNum  = last ? parseInt(last.ticket_number.split('-')[2]) + 1 : 1;
   const ticketNumber = `TK-${dateStr}-${String(nextNum).padStart(3, '0')}`;
 
-  db.prepare(`
+  const { lastInsertRowid: ticketId } = await db.prepare(`
     INSERT INTO tickets (ticket_number, phone, requester_name, area, description, title, status, priority)
     VALUES (?, ?, ?, 'general', ?, ?, 'siguiente_dia', 'media')
   `).run(ticketNumber, phone, ctx.name || 'Sin nombre', text, title);
-
-  const { id: ticketId } = db.prepare('SELECT last_insert_rowid() as id').get();
-  db.prepare(`INSERT INTO messages (ticket_id, sender_type, content) VALUES (?, 'user', ?)`).run(ticketId, text);
+  await db.prepare(`INSERT INTO messages (ticket_id, sender_type, content) VALUES (?, 'user', ?)`).run(ticketId, text);
   appEvents.emit('ticket:created', { id: ticketId, ticket_number: ticketNumber, area: 'general', phone });
 
   setStep(db, phone, 'idle', null, '{}');

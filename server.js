@@ -30,6 +30,7 @@ import reqRouter from './src/requerimientos/req-routes.js';
 import reunionesRouter from './src/reuniones/reuniones-routes.js';
 import employeesRouter from './src/employees/employees-routes.js';
 import wpConfigRouter from './src/config/wp-config-routes.js';
+import erpRouter from './src/erp/erp-routes.js';
 import { initAdminUser } from './src/auth/auth-service.js';
 import Chatbot from './src/whatsapp/chatbot.js';
 import whatsappClient from './src/whatsapp/baileys-client.js';
@@ -77,6 +78,7 @@ app.use(reqRouter);
 app.use(reunionesRouter);
 app.use(employeesRouter);
 app.use(wpConfigRouter);
+app.use(erpRouter);
 
 // Página pública de subida de acta firmada
 app.get('/firmar/:token', (_req, res) => {
@@ -322,6 +324,11 @@ app.listen(PORT, async () => {
   } else {
     console.log('[Tunnel] Túnel Cloudflare desactivado por env var.');
   }
+
+  // ERP auto-sync schedule (cada 24h si ERP_USER/ERP_PASS configurados)
+  const { scheduleSync: _scheduleSync } = await import('./src/erp/erp-sync.js');
+  const { ERPClient: _ERPClient }       = await import('./src/erp/erp-client.js');
+  _scheduleSync(new _ERPClient(), parseInt(process.env.ERP_SYNC_INTERVAL_HOURS || '24'));
 });
 
 function startCloudflaredTunnel(port) {

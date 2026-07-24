@@ -1,7 +1,7 @@
 import os from 'os';
 
 /* ── URL helper ── */
-export function getBaseUrl(req) {
+export async function getBaseUrl(req) {
   if (process.env.PUBLIC_TUNNEL_URL) return process.env.PUBLIC_TUNNEL_URL;
   const host = req.headers.host || '';
   const isLocal = /^(localhost|127\.|::1)/i.test(host);
@@ -17,7 +17,7 @@ export function getBaseUrl(req) {
 }
 
 /* ── Header normalizer ── */
-export function normalizeHeader(h) {
+export async function normalizeHeader(h) {
   return String(h ?? '')
     .normalize('NFD')
     .replace(/\p{Mn}/gu, '')              // diacritics
@@ -77,7 +77,7 @@ export const CELULARES_COLMAP = {
 };
 
 /* ── Mapping builder ── */
-export function buildMapping(headers, colmap) {
+export async function buildMapping(headers, colmap) {
   const mapping = {};
   for (const h of headers) {
     const norm = normalizeHeader(h);
@@ -91,7 +91,7 @@ export function buildMapping(headers, colmap) {
 }
 
 /* ── Cell value extractor ── */
-export function cellText(raw) {
+export async function cellText(raw) {
   if (raw === null || raw === undefined) return '';
   if (raw instanceof Date) return raw.toISOString().slice(0, 10);
   if (typeof raw === 'object' && 'result' in raw) return String(raw.result ?? '').trim();

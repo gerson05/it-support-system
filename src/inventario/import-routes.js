@@ -79,10 +79,10 @@ router.post('/api/inventario/:type/import/confirm', ...canCreate, wrap(async (re
   let inserted = 0, skipped = 0;
   const errors = [];
 
-  db.exec('BEGIN');
+  await db.exec('BEGIN');
   try {
     if (type === 'equipos') {
-      const stmt = db.prepare(`
+      const stmt = await db.prepare(`
         INSERT ${orClause} INTO inventario_equipos
           (placa,marca,nombre_equipo,serial,procesador,ram,tipo_ram,cap_disco,
            tipo_disco,serial_cargador,area,responsable,fecha_compra)
@@ -94,7 +94,7 @@ router.post('/api/inventario/:type/import/confirm', ...canCreate, wrap(async (re
           return;
         }
         try {
-          const result = stmt.run(
+          const result = await stmt.run(
             r.placa?.trim()||null, r.marca?.trim()||null, r.nombre_equipo?.trim()||null,
             r.serial?.trim()||null, r.procesador||null, r.ram||null, r.tipo_ram||null,
             r.cap_disco||null, r.tipo_disco||null, r.serial_cargador||null,
@@ -108,7 +108,7 @@ router.post('/api/inventario/:type/import/confirm', ...canCreate, wrap(async (re
     }
 
     if (type === 'celulares') {
-      const stmt = db.prepare(`
+      const stmt = await db.prepare(`
         INSERT ${orClause} INTO inventario_celulares
           (fecha_registro,area,ciudad,nombre_completo,cedula,linea,operador,equipo,
            almacenamiento,ram,modelo,imei,imei2,estado,accesorio,fecha_entrega,entregado_por)
@@ -120,7 +120,7 @@ router.post('/api/inventario/:type/import/confirm', ...canCreate, wrap(async (re
           return;
         }
         try {
-          const result = stmt.run(
+          const result = await stmt.run(
             r.fecha_registro||null, r.area||null, r.ciudad||null,
             r.nombre_completo?.trim()||null, r.cedula||null, r.linea||null,
             r.operador||null, r.equipo||null, r.almacenamiento||null,
@@ -136,7 +136,7 @@ router.post('/api/inventario/:type/import/confirm', ...canCreate, wrap(async (re
     }
 
     if (type === 'ups') {
-      const stmt = db.prepare(`
+      const stmt = await db.prepare(`
         INSERT ${orClause} INTO inventario_ups
           (placa,marca,nombre_equipo,serial,area,voltaje,fecha_compra,fecha_despacho)
         VALUES (?,?,?,?,?,?,?,?)
@@ -147,7 +147,7 @@ router.post('/api/inventario/:type/import/confirm', ...canCreate, wrap(async (re
           return;
         }
         try {
-          const result = stmt.run(
+          const result = await stmt.run(
             r.placa.trim(), r.marca||null, r.nombre_equipo||null, r.serial||null,
             r.area||null, r.voltaje||null, r.fecha_compra||null, r.fecha_despacho||null
           );
@@ -158,9 +158,9 @@ router.post('/api/inventario/:type/import/confirm', ...canCreate, wrap(async (re
       });
     }
 
-    db.exec('COMMIT');
+    await db.exec('COMMIT');
   } catch (err) {
-    try { db.exec('ROLLBACK'); } catch {}
+    try { await db.exec('ROLLBACK'); } catch {}
     throw err;
   }
 

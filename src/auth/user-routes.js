@@ -21,7 +21,7 @@ const PERMISSION_MODULES = [
 ];
 
 router.get('/api/roles', requireAuth, wrap(async (_req, res) => {
-  const roles = db.prepare(
+  const roles = await db.prepare(
     `SELECT r.id, r.name, r.description,
             COUNT(CASE WHEN u.active = 1 THEN 1 END) AS user_count
      FROM roles r
@@ -33,7 +33,7 @@ router.get('/api/roles', requireAuth, wrap(async (_req, res) => {
 }));
 
 router.get('/api/permissions', requireAuth, wrap(async (_req, res) => {
-  const allPerms = db.prepare('SELECT id, name FROM permissions').all();
+  const allPerms = await db.prepare('SELECT id, name FROM permissions').all();
   const result = PERMISSION_MODULES.map(mod => ({
     module: mod.module,
     label:  mod.label,
@@ -49,17 +49,17 @@ router.get('/api/permissions', requireAuth, wrap(async (_req, res) => {
 
 router.get('/api/roles/:id/permissions', requireAuth, wrap(async (req, res) => {
   const roleId = Number(req.params.id);
-  if (!db.prepare('SELECT id FROM roles WHERE id = ?').get(roleId)) {
+  if (!await db.prepare('SELECT id FROM roles WHERE id = ?').get(roleId)) {
     return res.status(404).json({ error: 'Rol no encontrado.' });
   }
-  const ids = db.prepare(
+  const ids = (await db.prepare(
     'SELECT permission_id FROM role_permissions WHERE role_id = ?'
-  ).all(roleId).map(r => r.permission_id);
+  ).all(roleId)).map(r => r.permission_id);
   res.json({ permission_ids: ids });
 }));
 
 router.get('/api/users', ...itOnly, wrap(async (_req, res) => {
-  const users = db.prepare(
+  const users = await db.prepare(
     `SELECT u.id, u.username, u.active, u.created_at, u.updated_at,
             r.id AS role_id, r.name AS role_name
      FROM users u JOIN roles r ON r.id = u.role_id
@@ -76,12 +76,12 @@ router.post('/api/users', ...itOnly, wrap(async (req, res) => {
   if (password.length < 6) {
     return res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres.' });
   }
-  if (!db.prepare('SELECT id FROM roles WHERE id = ?').get(role_id)) {
+  if (!await db.prepare('SELECT id FROM roles WHERE id = ?').get(role_id)) {
     return res.status(400).json({ error: 'Rol no válido.' });
   }
   try {
     const hash = await hashPassword(password);
-    const result = db.prepare(
+    const result = await db.prepare(
       'INSERT INTO users (username, password_hash, role_id) VALUES (?, ?, ?)'
     ).run(username, hash, role_id);
     res.status(201).json({ ok: true, id: result.lastInsertRowid });
@@ -97,7 +97,7 @@ router.put('/api/users/:id', ...itOnly, wrap(async (req, res) => {
   const targetId = Number(req.params.id);
   const { password, role_id, active } = req.body;
 
-  const target = db.prepare('SELECT id, role_id FROM users WHERE id = ?').get(targetId);
+  const target = await db.prepare('SELECT id, role_id FROM users WHERE id = ?').get(targetId);
   if (!target) return res.status(404).json({ error: 'Usuario no encontrado.' });
 
   if (targetId === req.user.id && (role_id !== undefined || active === 0)) {
@@ -105,9 +105,9 @@ router.put('/api/users/:id', ...itOnly, wrap(async (req, res) => {
   }
 
   if (active === 0) {
-    const itRole = db.prepare("SELECT id FROM roles WHERE name = 'it'").get();
+    const itRole = await db.prepare("SELECT id FROM roles WHERE name = 'it'").get();
     if (itRole && target.role_id === itRole.id) {
-      const itCount = db.prepare(
+      const itCount = await db.prepare(
         'SELECT COUNT(*) AS n FROM users WHERE role_id = ? AND active = 1'
       ).get(itRole.id).n;
       if (itCount <= 1) {
@@ -121,18 +121,18 @@ router.put('/api/users/:id', ...itOnly, wrap(async (req, res) => {
       return res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres.' });
     }
     const hash = await hashPassword(password);
-    db.prepare("UPDATE users SET password_hash = ?, updated_at = datetime('now','localtime') WHERE id = ?")
+    await db.prepare("UPDATE users SET password_hash = ?, updated_at = datetime('now','localtime') WHERE id = ?")
       .run(hash, targetId);
   }
   if (role_id !== undefined) {
-    if (!db.prepare('SELECT id FROM roles WHERE id = ?').get(role_id)) {
+    if (!await db.prepare('SELECT id FROM roles WHERE id = ?').get(role_id)) {
       return res.status(400).json({ error: 'Rol no válido.' });
     }
-    db.prepare("UPDATE users SET role_id = ?, updated_at = datetime('now','localtime') WHERE id = ?")
+    await db.prepare("UPDATE users SET role_id = ?, updated_at = datetime('now','localtime') WHERE id = ?")
       .run(role_id, targetId);
   }
   if (active !== undefined) {
-    db.prepare("UPDATE users SET active = ?, updated_at = datetime('now','localtime') WHERE id = ?")
+    await db.prepare("UPDATE users SET active = ?, updated_at = datetime('now','localtime') WHERE id = ?")
       .run(active ? 1 : 0, targetId);
     if (!active) deleteUserSessions(targetId);
   }
@@ -145,12 +145,12 @@ router.delete('/api/users/:id', ...itOnly, wrap(async (req, res) => {
   if (targetId === req.user.id) {
     return res.status(400).json({ error: 'No puedes desactivar tu propia cuenta.' });
   }
-  const target = db.prepare('SELECT id, role_id FROM users WHERE id = ?').get(targetId);
+  const target = await db.prepare('SELECT id, role_id FROM users WHERE id = ?').get(targetId);
   if (!target) return res.status(404).json({ error: 'Usuario no encontrado.' });
 
-  const itRole = db.prepare("SELECT id FROM roles WHERE name = 'it'").get();
+  const itRole = await db.prepare("SELECT id FROM roles WHERE name = 'it'").get();
   if (itRole && target.role_id === itRole.id) {
-    const itCount = db.prepare(
+    const itCount = await db.prepare(
       'SELECT COUNT(*) AS n FROM users WHERE role_id = ? AND active = 1'
     ).get(itRole.id).n;
     if (itCount <= 1) {
@@ -158,7 +158,7 @@ router.delete('/api/users/:id', ...itOnly, wrap(async (req, res) => {
     }
   }
 
-  db.prepare("UPDATE users SET active = 0, updated_at = datetime('now','localtime') WHERE id = ?")
+  await db.prepare("UPDATE users SET active = 0, updated_at = datetime('now','localtime') WHERE id = ?")
     .run(targetId);
   deleteUserSessions(targetId);
   res.json({ ok: true });
@@ -174,7 +174,7 @@ router.put('/api/roles/:id', ...itOnly, wrap(async (req, res) => {
     return res.status(400).json({ error: 'Nada que actualizar.' });
   }
 
-  const role = db.prepare('SELECT id, name, description FROM roles WHERE id = ?').get(id);
+  const role = await db.prepare('SELECT id, name, description FROM roles WHERE id = ?').get(id);
   if (!role) return res.status(404).json({ error: 'Rol no encontrado.' });
 
   const newName = name !== undefined ? String(name).trim() : role.name;
@@ -185,7 +185,7 @@ router.put('/api/roles/:id', ...itOnly, wrap(async (req, res) => {
   }
 
   try {
-    db.prepare('UPDATE roles SET name = ?, description = ? WHERE id = ?').run(newName, newDesc, id);
+    await db.prepare('UPDATE roles SET name = ?, description = ? WHERE id = ?').run(newName, newDesc, id);
     res.json({ ok: true });
   } catch (err) {
     if (err.message?.includes('UNIQUE')) return res.status(409).json({ error: 'Ya existe un rol con ese nombre.' });
@@ -198,7 +198,7 @@ router.put('/api/roles/:id/permissions', ...itOnly, wrap(async (req, res) => {
   if (isNaN(id)) return res.status(400).json({ error: 'ID de rol inválido.' });
   if (id === 1) return res.status(403).json({ error: 'El rol IT no se puede modificar.' });
 
-  if (!db.prepare('SELECT id FROM roles WHERE id = ?').get(id)) {
+  if (!await db.prepare('SELECT id FROM roles WHERE id = ?').get(id)) {
     return res.status(404).json({ error: 'Rol no encontrado.' });
   }
 
@@ -208,19 +208,19 @@ router.put('/api/roles/:id/permissions', ...itOnly, wrap(async (req, res) => {
   }
 
   for (const pid of permission_ids) {
-    if (!db.prepare('SELECT id FROM permissions WHERE id = ?').get(pid)) {
+    if (!await db.prepare('SELECT id FROM permissions WHERE id = ?').get(pid)) {
       return res.status(400).json({ error: `Permiso con id ${pid} no existe.` });
     }
   }
 
-  db.exec('BEGIN');
+  await db.exec('BEGIN');
   try {
-    db.prepare('DELETE FROM role_permissions WHERE role_id = ?').run(id);
-    const ins = db.prepare('INSERT INTO role_permissions (role_id, permission_id) VALUES (?, ?)');
-    for (const pid of permission_ids) ins.run(id, pid);
-    db.exec('COMMIT');
+    await db.prepare('DELETE FROM role_permissions WHERE role_id = ?').run(id);
+    const ins = await db.prepare('INSERT INTO role_permissions (role_id, permission_id) VALUES (?, ?)');
+    for (const pid of permission_ids) await ins.run(id, pid);
+    await db.exec('COMMIT');
   } catch (err) {
-    try { db.exec('ROLLBACK'); } catch {}
+    try { await db.exec('ROLLBACK'); } catch {}
     throw err;
   }
 
@@ -233,26 +233,26 @@ router.post('/api/roles', ...itOnly, wrap(async (req, res) => {
   if (!Array.isArray(permission_ids)) return res.status(400).json({ error: 'permission_ids debe ser un array.' });
 
   for (const pid of permission_ids) {
-    if (!db.prepare('SELECT id FROM permissions WHERE id = ?').get(pid)) {
+    if (!await db.prepare('SELECT id FROM permissions WHERE id = ?').get(pid)) {
       return res.status(400).json({ error: `Permiso con id ${pid} no existe.` });
     }
   }
 
   let roleId;
-  db.exec('BEGIN');
+  await db.exec('BEGIN');
   try {
-    const result = db.prepare(
+    const result = await db.prepare(
       'INSERT INTO roles (name, description) VALUES (?, ?)'
     ).run(String(name).trim(), description);
     roleId = result.lastInsertRowid;
 
     if (permission_ids.length > 0) {
-      const ins = db.prepare('INSERT INTO role_permissions (role_id, permission_id) VALUES (?, ?)');
-      for (const pid of permission_ids) ins.run(roleId, pid);
+      const ins = await db.prepare('INSERT INTO role_permissions (role_id, permission_id) VALUES (?, ?)');
+      for (const pid of permission_ids) await ins.run(roleId, pid);
     }
-    db.exec('COMMIT');
+    await db.exec('COMMIT');
   } catch (err) {
-    try { db.exec('ROLLBACK'); } catch {}
+    try { await db.exec('ROLLBACK'); } catch {}
     if (err.message?.includes('UNIQUE')) return res.status(409).json({ error: 'Ya existe un rol con ese nombre.' });
     throw err;
   }
@@ -265,11 +265,11 @@ router.delete('/api/roles/:id', ...itOnly, wrap(async (req, res) => {
   if (isNaN(id)) return res.status(400).json({ error: 'ID de rol inválido.' });
   if (id === 1) return res.status(403).json({ error: 'El rol IT no se puede eliminar.' });
 
-  if (!db.prepare('SELECT id FROM roles WHERE id = ?').get(id)) {
+  if (!await db.prepare('SELECT id FROM roles WHERE id = ?').get(id)) {
     return res.status(404).json({ error: 'Rol no encontrado.' });
   }
 
-  const n = db.prepare(
+  const n = await db.prepare(
     'SELECT COUNT(*) AS n FROM users WHERE role_id = ?'
   ).get(id).n;
   if (n > 0) {
@@ -278,8 +278,8 @@ router.delete('/api/roles/:id', ...itOnly, wrap(async (req, res) => {
     });
   }
 
-  db.prepare('DELETE FROM role_permissions WHERE role_id = ?').run(id);
-  db.prepare('DELETE FROM roles WHERE id = ?').run(id);
+  await db.prepare('DELETE FROM role_permissions WHERE role_id = ?').run(id);
+  await db.prepare('DELETE FROM roles WHERE id = ?').run(id);
   res.json({ ok: true });
 }));
 

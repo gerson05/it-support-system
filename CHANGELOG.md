@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.3.0](https://github.com/gerson05/it-support-system/compare/v1.2.0...v1.3.0) (2026-07-22)
+
+
+### Features
+
+* inventory ciudad field, server-side sede search, test suite migration ([#19](https://github.com/gerson05/it-support-system/issues/19)) ([c5ba2af](https://github.com/gerson05/it-support-system/commit/c5ba2af3e24f5e6b6716a1626bcc8ee71bee211f))
+
+## [1.2.0](https://github.com/gerson05/it-support-system/compare/v1.1.0...v1.2.0) (2026-07-17)
+
+
+### Features
+
+* inventory picker server-search, employee autocomplete, analytics, ERP integration ([#18](https://github.com/gerson05/it-support-system/issues/18)) ([4139c81](https://github.com/gerson05/it-support-system/commit/4139c81925859bbbb81435c87fd52b35ee1ef690))
+
+
+### Bug Fixes
+
+* add inventario categoria migration (026) to main ([#16](https://github.com/gerson05/it-support-system/issues/16)) ([550cccb](https://github.com/gerson05/it-support-system/commit/550cccbacbe77f370922f386c686d16b3d39bedf))
+
 ## [1.1.0](https://github.com/gerson05/it-support-system/compare/v1.0.0...v1.1.0) (2026-07-15)
 
 

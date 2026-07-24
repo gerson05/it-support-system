@@ -17,6 +17,8 @@ import {
 import { printDespacho, openRotuloModal } from './despacho-rotulo.js';
 import { openEditDespachoModal } from './despacho-edit.js';
 
+const _esc = s => String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
 export function openDetailModal(id) {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
@@ -186,7 +188,7 @@ export function openDetailModal(id) {
     }
 
   }).catch(e => {
-    overlay.querySelector('#modal-body').innerHTML = `<div style="color:var(--danger);padding:20px;text-align:center;">${e.message}</div>`;
+    overlay.querySelector('#modal-body').innerHTML = `<div style="color:var(--danger);padding:20px;text-align:center;">${_esc(e.message)}</div>`;
   });
 }
 

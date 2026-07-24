@@ -1,8 +1,8 @@
-export function escHtml(s) {
+export async function escHtml(s) {
   return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-export function confirmarPage(row, artRows, confirmed) {
+export async function confirmarPage(row, artRows, confirmed) {
   const fechaConf = confirmed && row.confirmed_at
     ? new Date(row.confirmed_at).toLocaleString('es-CO', { dateStyle: 'long', timeStyle: 'short' })
     : '';

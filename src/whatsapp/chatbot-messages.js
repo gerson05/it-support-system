@@ -81,10 +81,10 @@ export const DEFAULTS = {
  * @param {string} key — clave del mensaje (ver WP_MSG_LABELS)
  * @param {object} vars — variables a reemplazar, e.g. { nextDay: 'lunes 14' }
  */
-export function getMsg(db, key, vars = {}) {
+export async function getMsg(db, key, vars = {}) {
   let text = DEFAULTS[key] ?? '';
   try {
-    const row = db.prepare('SELECT value FROM app_config WHERE key = ?').get(`wp_msg_${key}`);
+    const row = await db.prepare('SELECT value FROM app_config WHERE key = ?').get(`wp_msg_${key}`);
     if (row?.value) text = row.value;
   } catch { /* tabla no existe aún, usa default */ }
   return Object.entries(vars).reduce((t, [k, v]) => t.replaceAll(`{${k}}`, String(v)), text);

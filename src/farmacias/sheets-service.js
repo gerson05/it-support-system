@@ -64,7 +64,7 @@ export async function readSheet() {
   return result;
 }
 
-export function parseBlock(cellText) {
+export async function parseBlock(cellText) {
   const blocks = cellText
     .split(/={3,}/)
     .map(b => b.trim())
@@ -90,7 +90,7 @@ export function parseBlock(cellText) {
 
 const SEP = '======================';
 
-export function reconstructColB(municipioNombre, farmacias) {
+export async function reconstructColB(municipioNombre, farmacias) {
   if (!farmacias.length) return '';
   const blocks = farmacias.map(f => [
     `*FARMACIA*`,

@@ -15,14 +15,14 @@ const _norm = str =>
  * Busca en FAQs estáticas + personalizadas de la BD.
  * Si no hay query, devuelve todas ordenadas por área.
  */
-export function searchFaqsAll(db, area, query) {
+export async function searchFaqsAll(db, area, query) {
   // 1. FAQs estáticas (ya scoradas)
   const staticResults = searchStaticFaqs(area, query);
 
   // 2. FAQs personalizadas desde la BD
   let customResults = [];
   try {
-    const rows = db.prepare(
+    const rows = await db.prepare(
       `SELECT * FROM custom_faqs WHERE area IN (?,?) AND active=1 ORDER BY id DESC`
     ).all(area, 'general');
 
@@ -65,13 +65,13 @@ export function searchFaqsAll(db, area, query) {
 }
 
 /** Obtiene todas las FAQs de un área (para listar en el panel) */
-export function getAllFaqsForArea(db, area) {
+export async function getAllFaqsForArea(db, area) {
   const staticFaqs = getFaqsByArea(area).map(f => ({ ...f, source: 'system' }));
   let customFaqs = [];
   try {
-    customFaqs = db.prepare(
+    customFaqs = (await db.prepare(
       `SELECT * FROM custom_faqs WHERE area=? ORDER BY id DESC`
-    ).all(area).map(r => ({
+    ).all(area)).map(r => ({
       ...r,
       keywords: _parseKeywords(r.keywords),
       source: 'custom',

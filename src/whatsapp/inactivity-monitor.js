@@ -20,14 +20,14 @@ const CHECK_INTERVAL_MS = 3 * 60 * 1000; // revisar cada 3 minutos
 
 let _timer = null;
 
-export function startInactivityMonitor() {
+export async function startInactivityMonitor() {
   if (_timer) return; // ya iniciado
   console.log('[InactivityMonitor] Iniciado — check cada 3 min, aviso a los 8 min, cierre a los 10 min.');
   _timer = setInterval(_check, CHECK_INTERVAL_MS);
   _check(); // primera revisión inmediata al arrancar
 }
 
-export function stopInactivityMonitor() {
+export async function stopInactivityMonitor() {
   if (_timer) { clearInterval(_timer); _timer = null; }
 }
 
@@ -36,7 +36,7 @@ async function _check() {
     const now = new Date();
 
     /* ── 1. Cerrar conversaciones ya avisadas sin respuesta ────────── */
-    const toClose = db.prepare(`
+    const toClose = await db.prepare(`
       SELECT phone, current_step FROM conversations
       WHERE current_step != 'idle'
         AND warned_inactive = 1
@@ -48,7 +48,7 @@ async function _check() {
         await sendWhatsAppMessage(conv.phone, getMsg(db, 'inactivity_close'));
       } catch { /* no bloquear si falla el envío */ }
 
-      db.prepare(`
+      await db.prepare(`
         UPDATE conversations
         SET current_step = 'idle', area = NULL, context = '{}', warned_inactive = 0,
             last_activity = datetime('now', 'localtime')
@@ -59,7 +59,7 @@ async function _check() {
     }
 
     /* ── 2. Avisar a conversaciones inactivas (aún no avisadas) ───── */
-    const toWarn = db.prepare(`
+    const toWarn = await db.prepare(`
       SELECT phone, current_step FROM conversations
       WHERE current_step != 'idle'
         AND warned_inactive = 0
@@ -71,7 +71,7 @@ async function _check() {
         await sendWhatsAppMessage(conv.phone, getMsg(db, 'inactivity_warn', { closeMin: CLOSE_AFTER_MIN }));
       } catch { /* no bloquear si falla el envío */ }
 
-      db.prepare(`
+      await db.prepare(`
         UPDATE conversations SET warned_inactive = 1 WHERE phone = ?
       `).run(conv.phone);
 

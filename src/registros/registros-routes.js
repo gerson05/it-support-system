@@ -33,15 +33,15 @@ router.get('/api/registros-it', requireAuth, wrap(async (req, res) => {
         NULL              AS observaciones
       FROM tech_requests r WHERE 1=1
     `;
-    const p = [];
-    if (tipo) { q += ' AND r.type = ?'; p.push(tipo); }
+    const params = [];
+    if (tipo) { q += ' AND r.type = ?'; params.push(tipo); }
     if (search) {
       q += ' AND (r.request_number LIKE ? OR r.requester_name LIKE ? OR r.sede LIKE ? OR r.description LIKE ?)';
-      const s = `%${search}%`; p.push(s, s, s, s);
+      const searchPattern = `%${search}%`; params.push(searchPattern, searchPattern, searchPattern, searchPattern);
     }
-    if (desde) { q += ' AND DATE(r.created_at) >= ?'; p.push(desde); }
-    if (hasta) { q += ' AND DATE(r.created_at) <= ?'; p.push(hasta); }
-    rows.push(...db.prepare(q).all(...p));
+    if (desde) { q += ' AND DATE(r.created_at) >= ?'; params.push(desde); }
+    if (hasta) { q += ' AND DATE(r.created_at) <= ?'; params.push(hasta); }
+    rows.push(...db.prepare(q).all(...params));
   }
 
   if (!tipo || tipo === 'despacho') {
@@ -68,14 +68,14 @@ router.get('/api/registros-it', requireAuth, wrap(async (req, res) => {
         d.observaciones
       FROM despachos d WHERE 1=1
     `;
-    const p = [];
+    const params = [];
     if (search) {
       q += ' AND (d.numero LIKE ? OR d.destinatario LIKE ? OR d.sede LIKE ?)';
-      const s = `%${search}%`; p.push(s, s, s);
+      const searchPattern = `%${search}%`; params.push(searchPattern, searchPattern, searchPattern);
     }
-    if (desde) { q += ' AND DATE(d.created_at) >= ?'; p.push(desde); }
-    if (hasta) { q += ' AND DATE(d.created_at) <= ?'; p.push(hasta); }
-    rows.push(...db.prepare(q).all(...p));
+    if (desde) { q += ' AND DATE(d.created_at) >= ?'; params.push(desde); }
+    if (hasta) { q += ' AND DATE(d.created_at) <= ?'; params.push(hasta); }
+    rows.push(...db.prepare(q).all(...params));
   }
 
   rows.sort((a, b) => (b.created_at > a.created_at ? 1 : -1));
