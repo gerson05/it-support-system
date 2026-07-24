@@ -10,7 +10,7 @@ const canEdit = [requireAuth, requirePermission('despacho:edit')];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function cosineSim(a, b) {
+async function cosineSim(a, b) {
   let dot = 0, na = 0, nb = 0;
   for (let i = 0; i < a.length; i++) {
     dot += a[i] * b[i];
@@ -21,12 +21,12 @@ function cosineSim(a, b) {
   return denom === 0 ? 0 : dot / denom;
 }
 
-function keywordScore(item, terms) {
+async function keywordScore(item, terms) {
   const hay = `${item.titulo} ${item.descripcion} ${item.solucion} ${item.keywords}`.toLowerCase();
   return terms.reduce((s, t) => s + (hay.split(t).length - 1), 0);
 }
 
-function embeddingText(item) {
+async function embeddingText(item) {
   return `${item.titulo} ${item.descripcion} ${item.solucion} ${item.keywords}`;
 }
 
@@ -39,7 +39,7 @@ async function semanticSearch(query, limit = 5) {
     .slice(0, limit);
 }
 
-function keywordSearch(query, limit = 5) {
+async function keywordSearch(query, limit = 5) {
   const terms = query.toLowerCase().split(/\s+/).filter(t => t.length > 2);
   if (!terms.length) return [];
   const all = await db.prepare('SELECT * FROM kb_items WHERE activo = 1').all();
@@ -62,7 +62,7 @@ async function hybridSearch(query, limit = 5) {
   return keywordSearch(query, limit);
 }
 
-function storeEmbeddingAsync(id, text) {
+async function storeEmbeddingAsync(id, text) {
   if (!isEmbeddingEnabled()) return;
   setImmediate(async () => {
     try {

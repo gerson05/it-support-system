@@ -32,14 +32,14 @@ if (!process.env.REQ_ADMIN_USER || !process.env.REQ_ADMIN_PASS)
   console.warn('[Req] WARNING: REQ_ADMIN_USER / REQ_ADMIN_PASS not set, using insecure defaults');
 const TOKEN_TTL  = 8 * 60 * 60 * 1000; // 8 h
 
-function makeToken(ts) {
+async function makeToken(ts) {
   if (!process.env.REQ_ADMIN_SECRET) console.warn('[Req] WARNING: REQ_ADMIN_SECRET not set, using insecure default');
   const secret = process.env.REQ_ADMIN_SECRET || 'dev-secret';
   const hmac   = crypto.createHmac('sha256', secret).update(`${ADMIN_USER}:${ts}`).digest('hex');
   return `${hmac}.${ts}`;
 }
 
-function verifyAdminToken(req) {
+async function verifyAdminToken(req) {
   const auth = req.headers.authorization;
   if (!auth?.startsWith('Bearer ')) return false;
   const [hmac, tsStr] = auth.slice(7).split('.');
@@ -57,7 +57,7 @@ let puntosCache = null;
 let puntosTs    = 0;
 
 // ── Ticket numbering ────────────────────────────────────────────────────
-function nextTicket() {
+async function nextTicket() {
   const now = new Date();
   const ym  = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}`;
   const last = await db.prepare(

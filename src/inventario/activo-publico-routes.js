@@ -8,7 +8,7 @@ import db from '../config/database.js';
 const router = express.Router();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-function loadLogo() {
+async function loadLogo() {
   const candidates = [
     path.resolve(__dirname, '../../uploads/rotulo-imgs/unique_0_id10.png'),
     path.resolve(__dirname, '../tech-requests/assets/logo-medivalle.png'),
@@ -20,7 +20,7 @@ function loadLogo() {
 }
 const LOGO_B64 = loadLogo();
 
-function findByToken(token) {
+async function findByToken(token) {
   const lookups = [
     { tabla: 'inventario_equipos',   tipo: 'Equipo',   idField: 'placa',       nameField: 'nombre_equipo' },
     { tabla: 'inventario_celulares', tipo: 'Celular',  idField: 'imei',        nameField: 'equipo'        },

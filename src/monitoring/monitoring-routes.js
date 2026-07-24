@@ -41,7 +41,7 @@ export async function startOfflineChecker() {
 const INVALID_SERIAL_EXACT    = /^(none|n\/a|na|0+|unknown|default|chassis\s+serial|system\s+serial)$/i;
 const INVALID_SERIAL_CONTAINS = /to\s+be\s+filled|default\s+string|system\s+serial\s+number/i;
 
-function isValidSerial(s) {
+async function isValidSerial(s) {
   if (typeof s !== 'string') return false;
   const t = s.trim();
   if (t.length < 4) return false;
@@ -50,7 +50,7 @@ function isValidSerial(s) {
 }
 
 // ── Vinculación agente ↔ inventario ─────────────────────────────────────────
-function linkInventory(agentId, hw) {
+async function linkInventory(agentId, hw) {
   try {
     const row = await db.prepare('SELECT inventario_equipo_id FROM agentes WHERE id=?').get(agentId);
     if (row?.inventario_equipo_id) return;
@@ -91,7 +91,7 @@ function linkInventory(agentId, hw) {
   }
 }
 
-function agentAuth(req, res, next) {
+async function agentAuth(req, res, next) {
   const agentId = parseInt(req.headers['x-agent-id'], 10);
   const apiKey  = req.headers['x-api-key'];
   if (!agentId || !apiKey) return res.status(401).json({ error: 'Missing credentials.' });

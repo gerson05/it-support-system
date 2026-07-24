@@ -10,7 +10,7 @@
 const SCRIPT_URL = process.env.REGISTROS_SCRIPT_URL;
 const TIMESTAMP_TZ = 'America/Bogota';
 
-function timestamp() {
+async function timestamp() {
   return new Date().toLocaleString('es-CO', {
     timeZone:  TIMESTAMP_TZ,
     year:      'numeric', month:  '2-digit', day:    '2-digit',
