@@ -13,17 +13,17 @@ appEvents.setMaxListeners(50);
 const sseClients = new Set();
 
 /** Registra un cliente SSE nuevo */
-export function addSseClient(res) {
+export async function addSseClient(res) {
   sseClients.add(res);
 }
 
 /** Elimina un cliente SSE (cuando cierra el navegador) */
-export function removeSseClient(res) {
+export async function removeSseClient(res) {
   sseClients.delete(res);
 }
 
 /** Envía un evento SSE a todos los paneles abiertos */
-export function broadcast(eventName, data) {
+export async function broadcast(eventName, data) {
   const payload = `event: ${eventName}\ndata: ${JSON.stringify(data)}\n\n`;
   for (const client of sseClients) {
     try { client.write(payload); } catch {}

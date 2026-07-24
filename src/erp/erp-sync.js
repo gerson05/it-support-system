@@ -180,7 +180,7 @@ export async function runFullSync(client) {
  * Schedule automatic sync every N hours (default: 24h).
  * Call once at server startup.
  */
-export function scheduleSync(client, intervalHours = 24) {
+export async function scheduleSync(client, intervalHours = 24) {
   if (!process.env.ERP_USER || !process.env.ERP_PASS) {
     console.log('[ERP Sync] Skipping schedule — ERP_USER/ERP_PASS not set');
     return;

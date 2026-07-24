@@ -1,6 +1,6 @@
 /* ── Numbering ───────────────────────────────────────────────────────── */
 
-export function generateNumero(db) {
+export async function generateNumero(db) {
   const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
   const like    = `DES-${dateStr}-%`;
   const last    = await db.prepare('SELECT numero FROM despachos WHERE numero LIKE ? ORDER BY id DESC LIMIT 1').get(like);
@@ -8,7 +8,7 @@ export function generateNumero(db) {
   return `DES-${dateStr}-${String(next).padStart(3, '0')}`;
 }
 
-export function generateActaNumero(db) {
+export async function generateActaNumero(db) {
   const year = new Date().getFullYear();
   const like = `ACTA-${year}-%`;
   const last = await db.prepare("SELECT acta_numero FROM despachos WHERE acta_numero LIKE ? ORDER BY id DESC LIMIT 1").get(like);
@@ -18,7 +18,7 @@ export function generateActaNumero(db) {
 
 /* ── Despachos ───────────────────────────────────────────────────────── */
 
-export function getDespachos(db, { search, requiere_acta, acta_firmada, limit = 20, offset = 0 } = {}) {
+export async function getDespachos(db, { search, requiere_acta, acta_firmada, limit = 20, offset = 0 } = {}) {
   let query  = 'SELECT * FROM despachos WHERE 1=1';
   const params = [];
   if (search) {
@@ -39,12 +39,12 @@ export function getDespachos(db, { search, requiere_acta, acta_firmada, limit = 
   return { despachos: rows, total };
 }
 
-export function getDespachoById(db, id) {
+export async function getDespachoById(db, id) {
   return await db.prepare('SELECT * FROM despachos WHERE id = ?').get(id) || null;
 }
 
-export function insertDespacho(db, { numero, destinatario, cedula, sede, area, articulos, observaciones, requiere_acta, acta_numero, ticket_id, agente, fecha }) {
-  await db.prepare(`
+export async function insertDespacho(db, { numero, destinatario, cedula, sede, area, articulos, observaciones, requiere_acta, acta_numero, ticket_id, agente, fecha }) {
+  const { lastInsertRowid } = await db.prepare(`
     INSERT INTO despachos (numero, destinatario, cedula, sede, area, articulos, observaciones, requiere_acta, acta_numero, ticket_id, agente, fecha)
     VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
   `).run(
@@ -54,16 +54,16 @@ export function insertDespacho(db, { numero, destinatario, cedula, sede, area, a
     ticket_id || null, agente || null,
     fecha || null,
   );
-  return (await db.prepare('SELECT last_insert_rowid() as id').get()).id;
+  return lastInsertRowid;
 }
 
-export function deleteDespacho(db, id) {
+export async function deleteDespacho(db, id) {
   await db.prepare('DELETE FROM confirmaciones_entrega WHERE despacho_id = ?').run(id);
   await db.prepare('DELETE FROM paquete_tracking WHERE despacho_id = ?').run(id);
   await db.prepare('DELETE FROM despachos WHERE id = ?').run(id);
 }
 
-export function patchDespacho(db, id, fieldMap) {
+export async function patchDespacho(db, id, fieldMap) {
   const entries = Object.entries(fieldMap);
   if (!entries.length) return;
   const setClauses = entries.map(([col]) => `${col} = ?`).join(', ');
@@ -73,13 +73,13 @@ export function patchDespacho(db, id, fieldMap) {
 
 /* ── Borradores ──────────────────────────────────────────────────────── */
 
-export function getBorrador(db, agente) {
+export async function getBorrador(db, agente) {
   const row = await db.prepare('SELECT * FROM despacho_borradores WHERE agente = ?').get(agente);
   if (!row) return null;
   return { ...row, articulos: JSON.parse(row.articulos || '[]') };
 }
 
-export function upsertBorrador(db, { agente, destinatario, sede, area, articulos, observaciones, requiere_acta, ticket_id }) {
+export async function upsertBorrador(db, { agente, destinatario, sede, area, articulos, observaciones, requiere_acta, ticket_id }) {
   await db.prepare(`
     INSERT INTO despacho_borradores (agente, destinatario, sede, area, articulos, observaciones, requiere_acta, ticket_id, updated_at)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now','localtime'))
@@ -99,17 +99,17 @@ export function upsertBorrador(db, { agente, destinatario, sede, area, articulos
   );
 }
 
-export function deleteBorrador(db, agente) {
+export async function deleteBorrador(db, agente) {
   await db.prepare('DELETE FROM despacho_borradores WHERE agente = ?').run(agente);
 }
 
 /* ── Tipos de artículo ───────────────────────────────────────────────── */
 
-export function getTiposArticulo(db) {
+export async function getTiposArticulo(db) {
   return await db.prepare("SELECT id, nombre FROM tipos_articulo WHERE activo = 1 ORDER BY nombre ASC").all();
 }
 
-export function upsertTipoArticulo(db, nombre) {
+export async function upsertTipoArticulo(db, nombre) {
   const existing = await db.prepare("SELECT id FROM tipos_articulo WHERE nombre = ?").get(nombre);
   if (existing) {
     await db.prepare("UPDATE tipos_articulo SET activo = 1 WHERE id = ?").run(existing.id);
@@ -119,21 +119,21 @@ export function upsertTipoArticulo(db, nombre) {
   return { id: result.lastInsertRowid, nombre };
 }
 
-export function deactivateTipoArticulo(db, id) {
+export async function deactivateTipoArticulo(db, id) {
   await db.prepare("UPDATE tipos_articulo SET activo = 0 WHERE id = ?").run(id);
 }
 
 /* ── Confirmaciones de entrega ───────────────────────────────────────── */
 
-export function getConfirmacion(db, despachoId) {
+export async function getConfirmacion(db, despachoId) {
   return await db.prepare('SELECT * FROM confirmaciones_entrega WHERE despacho_id = ?').get(despachoId) || null;
 }
 
-export function createConfirmacion(db, despachoId, token) {
+export async function createConfirmacion(db, despachoId, token) {
   await db.prepare('INSERT INTO confirmaciones_entrega (despacho_id, token) VALUES (?, ?)').run(despachoId, token);
 }
 
-export function getConfirmacionByToken(db, token) {
+export async function getConfirmacionByToken(db, token) {
   return await db.prepare(`
     SELECT c.token, c.confirmed_at, c.id, c.signed_by,
            d.numero, d.destinatario, d.articulos, d.sede, d.requiere_acta, c.despacho_id
@@ -143,7 +143,7 @@ export function getConfirmacionByToken(db, token) {
   `).get(token) || null;
 }
 
-export function confirmDelivery(db, id, ip, signedBy, signatureData) {
+export async function confirmDelivery(db, id, ip, signedBy, signatureData) {
   await db.prepare(`
     UPDATE confirmaciones_entrega
     SET confirmed_at = datetime('now','localtime'), ip = ?, signed_by = ?, signature_data = ?

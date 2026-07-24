@@ -20,14 +20,14 @@ const CHECK_INTERVAL_MS = 3 * 60 * 1000; // revisar cada 3 minutos
 
 let _timer = null;
 
-export function startInactivityMonitor() {
+export async function startInactivityMonitor() {
   if (_timer) return; // ya iniciado
   console.log('[InactivityMonitor] Iniciado — check cada 3 min, aviso a los 8 min, cierre a los 10 min.');
   _timer = setInterval(_check, CHECK_INTERVAL_MS);
   _check(); // primera revisión inmediata al arrancar
 }
 
-export function stopInactivityMonitor() {
+export async function stopInactivityMonitor() {
   if (_timer) { clearInterval(_timer); _timer = null; }
 }
 

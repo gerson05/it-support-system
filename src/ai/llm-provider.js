@@ -22,21 +22,21 @@ const EMBEDDING_DEFAULTS = {
   gemini: 'text-embedding-004',
 };
 
-export function isEnabled() {
+export async function isEnabled() {
   return !!(process.env.LLM_PROVIDER && process.env.LLM_PROVIDER !== 'none');
 }
 
-export function isEmbeddingEnabled() {
+export async function isEmbeddingEnabled() {
   const provider = process.env.LLM_PROVIDER;
   return !!(provider && provider !== 'none' && provider !== 'claude' && EMBEDDING_DEFAULTS[provider]);
 }
 
-export function getEmbeddingModel() {
+export async function getEmbeddingModel() {
   const provider = process.env.LLM_PROVIDER || 'ollama';
   return process.env.EMBEDDING_MODEL || EMBEDDING_DEFAULTS[provider] || 'nomic-embed-text';
 }
 
-export function getProviderInfo() {
+export async function getProviderInfo() {
   return {
     provider:       process.env.LLM_PROVIDER || 'none',
     model:          process.env.LLM_MODEL || DEFAULTS[process.env.LLM_PROVIDER] || '—',

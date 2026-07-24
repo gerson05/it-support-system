@@ -10,7 +10,7 @@ export async function verifyPassword(plain, hash) {
   return bcrypt.compare(plain, hash);
 }
 
-export function createSession(userId) {
+export async function createSession(userId) {
   const token = crypto.randomBytes(32).toString('hex');
   const expiresAt = new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString();
   await db.prepare(
@@ -19,7 +19,7 @@ export function createSession(userId) {
   return { token, expiresAt };
 }
 
-export function getSession(token) {
+export async function getSession(token) {
   if (!token) return null;
 
   const session = await db.prepare(
@@ -51,11 +51,11 @@ export function getSession(token) {
   };
 }
 
-export function deleteSession(token) {
+export async function deleteSession(token) {
   await db.prepare('DELETE FROM sessions WHERE token = ?').run(token);
 }
 
-export function deleteUserSessions(userId) {
+export async function deleteUserSessions(userId) {
   await db.prepare('DELETE FROM sessions WHERE user_id = ?').run(userId);
 }
 

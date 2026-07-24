@@ -185,13 +185,13 @@ const STRIP_PREFIXES = [
   /^MEDIVALLE\s*-\s*/,
 ];
 
-export function normSede(s) {
+export async function normSede(s) {
   return (s || '').toUpperCase().trim()
     .normalize('NFD').replace(/[̀-ͯ]/g, '')
     .replace(/\s+/g, ' ');
 }
 
-export function getSedeCode(sede) {
+export async function getSedeCode(sede) {
   if (!sede) return 'GEN';
   const full = normSede(sede);
 
@@ -214,7 +214,7 @@ export function getSedeCode(sede) {
   return letters || 'GEN';
 }
 
-export function nextConsecutivo(db, code) {
+export async function nextConsecutivo(db, code) {
   const re = new RegExp(`^AF-${code}(\\d+)$`);
   let max = 0;
   for (const table of ['inventario_equipos', 'inventario_celulares', 'inventario_ups']) {

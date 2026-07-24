@@ -1,6 +1,6 @@
 import os from 'os';
 
-export function getBaseUrl(req) {
+export async function getBaseUrl(req) {
   if (process.env.APP_URL) return process.env.APP_URL.replace(/\/$/, '');
   if (process.env.PUBLIC_TUNNEL_URL) return process.env.PUBLIC_TUNNEL_URL;
   // When behind Caddy/Cloudflare, use forwarded host (trust proxy must be enabled)

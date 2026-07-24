@@ -10,7 +10,7 @@ function coNow() {
  * 'closing' — pre-cierre 16:20–16:40
  * 'closed'  — fuera de horario / fin de semana
  */
-export function getBusinessStatus() {
+export async function getBusinessStatus() {
   const co  = coNow();
   const day = co.getDay();
   if (day === 0 || day === 6) return 'closed';
@@ -22,7 +22,7 @@ export function getBusinessStatus() {
 }
 
 /** Próximo día hábil en español */
-export function nextBusinessDay() {
+export async function nextBusinessDay() {
   const co   = coNow();
   const next = new Date(co);
   do { next.setDate(next.getDate() + 1); }
@@ -34,7 +34,7 @@ export function nextBusinessDay() {
 
 /* Rate limiting: máx 20 msg/min por número */
 const _rateMap = new Map();
-export function checkRateLimit(phone) {
+export async function checkRateLimit(phone) {
   const now = Date.now();
   let entry = _rateMap.get(phone);
   if (!entry || now > entry.resetAt) entry = { count: 0, resetAt: now + 60_000 };
@@ -44,7 +44,7 @@ export function checkRateLimit(phone) {
 }
 
 /** Detección automática de prioridad por palabras clave */
-export function detectPriority(text) {
+export async function detectPriority(text) {
   const normalized = (text || '').toLowerCase();
   if (/toda.{0,15}(sede|oficina)|sin internet.{0,10}todos|sistema.{0,10}cai[dó]|produccion.{0,10}parad|no podemos trabajar|perdida.{0,10}datos|todos los equipos|todos.{0,10}afectad/.test(normalized)) return 'critica';
   if (/urgente|bloqueado completamente|no funciona nada|desde ayer|toda la mañana|no puedo entrar|borro|eliminó/.test(normalized)) return 'alta';

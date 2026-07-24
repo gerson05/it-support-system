@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 import whatsappClient from './baileys-client.js';
 dotenv.config();
 
-export function isSimulationMode() {
+export async function isSimulationMode() {
   return !whatsappClient.getStatus().connected;
 }
 

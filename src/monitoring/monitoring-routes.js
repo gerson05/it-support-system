@@ -10,7 +10,7 @@ const canRead    = [requireAuth, requirePermission('monitoring:read')];
 const canCommand = [requireAuth, requirePermission('monitoring:command')];
 const sseClients = new Set();
 
-export function broadcast(data) {
+export async function broadcast(data) {
   const msg = `data: ${JSON.stringify(data)}\n\n`;
   for (const res of [...sseClients]) {
     if (res.writableEnded) { sseClients.delete(res); continue; }
@@ -18,7 +18,7 @@ export function broadcast(data) {
   }
 }
 
-export function startOfflineChecker() {
+export async function startOfflineChecker() {
   setInterval(() => {
     const r = await db.prepare(`
       UPDATE agentes SET estado = 'offline'

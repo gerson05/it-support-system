@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 
-export function createTracking(db, despachoId, agentName = 'IT', ubicacionOrigen = 'Bodega Central') {
+export async function createTracking(db, despachoId, agentName = 'IT', ubicacionOrigen = 'Bodega Central') {
   const token = crypto.randomUUID();
   await db.prepare(`
     INSERT INTO paquete_tracking (despacho_id, token, estado)
@@ -18,7 +18,7 @@ export function createTracking(db, despachoId, agentName = 'IT', ubicacionOrigen
   return token;
 }
 
-export function getTrackingByToken(db, token) {
+export async function getTrackingByToken(db, token) {
   const tracking = await db.prepare(`
     SELECT t.*, d.numero, d.destinatario, d.sede as sede_destino,
            d.articulos, d.agente, d.fecha
@@ -41,11 +41,11 @@ export function getTrackingByToken(db, token) {
   return tracking;
 }
 
-export function getTrackingByDespachoId(db, despachoId) {
+export async function getTrackingByDespachoId(db, despachoId) {
   return await db.prepare('SELECT * FROM paquete_tracking WHERE despacho_id = ?').get(despachoId) || null;
 }
 
-export function getAllTrackings(db, { estado, search, limit = 50, offset = 0 } = {}) {
+export async function getAllTrackings(db, { estado, search, limit = 50, offset = 0 } = {}) {
   let where = '1=1';
   const params = [];
 
@@ -77,7 +77,7 @@ export function getAllTrackings(db, { estado, search, limit = 50, offset = 0 } =
   return { rows, total };
 }
 
-export function addEvento(db, trackingId, {
+export async function addEvento(db, trackingId, {
   tipo, recibido_por, entregado_por, ubicacion, sede_id = null,
   cargo_receptor = null, observaciones = null,
   foto_path, foto_filename, es_entrega_final = false, ip = null,
@@ -93,7 +93,7 @@ export function addEvento(db, trackingId, {
 
   await db.exec('BEGIN');
   try {
-    await db.prepare(`
+    const { lastInsertRowid: eventoId } = await db.prepare(`
       INSERT INTO paquete_eventos
         (tracking_id, tipo, recibido_por, entregado_por, ubicacion, sede_id,
          cargo_receptor, observaciones, foto_path, foto_filename, estado_paquete, ip)
@@ -102,8 +102,6 @@ export function addEvento(db, trackingId, {
       trackingId, tipo, recibido_por, entregado_por, ubicacion, sede_id,
       cargo_receptor, observaciones, foto_path, foto_filename, nuevoEstado, ip
     );
-
-    const { id: eventoId } = await db.prepare('SELECT last_insert_rowid() as id').get();
 
     await db.prepare(`
       UPDATE paquete_tracking
@@ -119,7 +117,7 @@ export function addEvento(db, trackingId, {
   }
 }
 
-export function addEntregaItems(db, eventoId, items = []) {
+export async function addEntregaItems(db, eventoId, items = []) {
   const stmt = await db.prepare(`
     INSERT INTO paquete_entrega_items
       (evento_id, item_index, equipment_name, cantidad, recibido_conforme, observacion_item)
@@ -137,14 +135,14 @@ export function addEntregaItems(db, eventoId, items = []) {
   }
 }
 
-export function saveActaFinal(db, trackingId, { filepath, filename, firmado_por, cargo }) {
+export async function saveActaFinal(db, trackingId, { filepath, filename, firmado_por, cargo }) {
   await db.prepare(`
     INSERT OR REPLACE INTO paquete_acta_final (tracking_id, filepath, filename, firmado_por, cargo)
     VALUES (?, ?, ?, ?, ?)
   `).run(trackingId, filepath, filename, firmado_por, cargo);
 }
 
-export function marcarDevuelto(db, token) {
+export async function marcarDevuelto(db, token) {
   const result = await db.prepare(`
     UPDATE paquete_tracking
     SET estado = 'devuelto', updated_at = datetime('now','localtime')
@@ -153,7 +151,7 @@ export function marcarDevuelto(db, token) {
   return result.changes > 0;
 }
 
-export function countRecentEventos(db, trackingId) {
+export async function countRecentEventos(db, trackingId) {
   return await db.prepare(`
     SELECT COUNT(*) as n FROM paquete_eventos
     WHERE tracking_id = ?
@@ -162,7 +160,7 @@ export function countRecentEventos(db, trackingId) {
   `).get(trackingId).n;
 }
 
-export function getDistinctCargos(db) {
+export async function getDistinctCargos(db) {
   return (await db.prepare(`
     SELECT DISTINCT cargo FROM tech_requests
     WHERE cargo IS NOT NULL AND cargo != ''
@@ -170,17 +168,17 @@ export function getDistinctCargos(db) {
   `).all()).map(r => r.cargo);
 }
 
-export function getTrackingRow(db, token) {
+export async function getTrackingRow(db, token) {
   return await db.prepare('SELECT * FROM paquete_tracking WHERE token = ?').get(token) || null;
 }
 
-export function getActaFinalByToken(db, token) {
+export async function getActaFinalByToken(db, token) {
   const row = await db.prepare('SELECT id FROM paquete_tracking WHERE token = ?').get(token);
   if (!row) return null;
   return await db.prepare('SELECT * FROM paquete_acta_final WHERE tracking_id = ?').get(row.id) || null;
 }
 
-export function getSedesActivas(db) {
+export async function getSedesActivas(db) {
   return await db.prepare(
     `SELECT id, ciudad, nombre AS nombre_punto FROM puntos WHERE tipo='punto' AND activo = 1 ORDER BY ciudad, nombre`
   ).all();

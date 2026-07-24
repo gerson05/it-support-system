@@ -2,12 +2,12 @@ import { generateTicketTitle } from './gemini-service.js';
 import { appEvents }           from '../events/broadcaster.js';
 import { logAudit }            from '../audit/audit-logger.js';
 
-export function setStep(db, phone, step, area = null, ctx = '{}') {
+export async function setStep(db, phone, step, area = null, ctx = '{}') {
   await db.prepare(`UPDATE conversations SET current_step=?, area=?, context=? WHERE phone=?`)
     .run(step, area, ctx, phone);
 }
 
-export function getCtx(session) {
+export async function getCtx(session) {
   try { return JSON.parse(session.context || '{}'); } catch { return {}; }
 }
 
@@ -22,12 +22,10 @@ export async function crearTicket(db, phone, area, description, {
 
   const title = await generateTicketTitle(area, description);
 
-  await db.prepare(`
+  const { lastInsertRowid: ticketId } = await db.prepare(`
     INSERT INTO tickets (ticket_number, phone, chat_id, requester_name, area, description, title, status, priority)
     VALUES (?, ?, ?, ?, ?, ?, ?, 'abierto', ?)
   `).run(ticketNumber, phone, chatId || phone, requesterName, area, description, title, priority);
-
-  const { id: ticketId } = await db.prepare('SELECT last_insert_rowid() as id').get();
 
   if (imageCtx?.base64) {
     const attachment = JSON.stringify({ type: 'image', mimetype: imageCtx.mimetype || 'image/jpeg', base64: imageCtx.base64 });

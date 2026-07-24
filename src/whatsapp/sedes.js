@@ -157,7 +157,7 @@ function normC(str) {
  * @param {string} input - texto del usuario
  * @param {object|null} db - instancia DatabaseSync (opcional)
  */
-export function matchCiudad(input, db = null) {
+export async function matchCiudad(input, db = null) {
   const q = normC(input);
   if (!q || q.length < 2) return [];
 
@@ -195,7 +195,7 @@ export function matchCiudad(input, db = null) {
  * Devuelve los puntos activos de una ciudad desde la DB.
  * Fallback al mapa estático si no hay DB.
  */
-export function getPuntosCiudad(ciudad, db = null) {
+export async function getPuntosCiudad(ciudad, db = null) {
   if (db) {
     try {
       const rows = await db.prepare(`SELECT nombre_punto FROM sedes WHERE ciudad=? AND activo=1 ORDER BY id`).all(ciudad);
@@ -268,7 +268,7 @@ export const SEDES = [
 ───────────────────────────────────────────────────────────── */
 
 /** Nombre corto para mostrar en el chat (sin el prefijo "MI FARMACIA - ") */
-export function displaySede(sede) {
+export async function displaySede(sede) {
   if (!sede) return '';
   if (sede.toUpperCase().startsWith('MI FARMACIA - ')) {
     return sede.slice('MI FARMACIA - '.length);
@@ -291,7 +291,7 @@ function norm(str) {
    Devuelve un array de sedes coincidentes (máx. 5), ordenadas
    de mayor a menor confianza.
 ───────────────────────────────────────────────────────────── */
-export function matchSede(input) {
+export async function matchSede(input) {
   const query = norm(input);
   if (!query || query.length < 2) return [];
 

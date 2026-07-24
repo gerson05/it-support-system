@@ -56,6 +56,8 @@ let db;
 
 if (useMariaDB) {
   const mysql = (await import('mysql2/promise')).default;
+  const { AsyncLocalStorage } = await import('async_hooks');
+  const txStorage = new AsyncLocalStorage();
 
   const pool = mysql.createPool({
     host:               process.env.DB_HOST     || 'localhost',
@@ -71,31 +73,54 @@ if (useMariaDB) {
     decimalNumbers:     true,
   });
 
+  const execOne = async (sql, params = []) => {
+    const conn = txStorage.getStore();
+    return conn ? conn.execute(sql, params) : pool.execute(sql, params);
+  };
+
   db = {
     prepare(sql) {
-      const fixed = fixSql(sql);
+      const fixed = fixSql(sql)
+        .replace(/\bSELECT\s+last_insert_rowid\s*\(\s*\)\s+as\s+\w+/gi, 'SELECT LAST_INSERT_ID() as id');
       return {
         async all(...args) {
           const params = args.flat();
-          const [rows] = await pool.execute(fixed, params.length ? params : []);
+          const [rows] = await execOne(fixed, params.length ? params : []);
           return rows;
         },
         async get(...args) {
           const params = args.flat();
-          const [rows] = await pool.execute(fixed, params.length ? params : []);
+          const [rows] = await execOne(fixed, params.length ? params : []);
           return rows[0] ?? null;
         },
         async run(...args) {
           const params = args.flat();
-          const [result] = await pool.execute(fixed, params.length ? params : []);
+          const [result] = await execOne(fixed, params.length ? params : []);
           return { lastInsertRowid: result.insertId, changes: result.affectedRows };
         },
       };
     },
     async exec(sql) {
-      const stmts = sql.split(';').map(s => s.trim()).filter(s => s && !s.startsWith('--') && !s.startsWith('PRAGMA'));
+      const stmts = sql.split(';').map(s => s.trim())
+        .filter(s => s && !s.startsWith('--') && !s.startsWith('PRAGMA'));
       for (const stmt of stmts) {
-        try { await pool.query(fixSql(stmt)); } catch { /* ignore migration/schema errors */ }
+        const clean = fixSql(stmt);
+        if (/^BEGIN(\s+TRANSACTION)?$/i.test(clean)) {
+          const conn = await pool.getConnection();
+          await conn.beginTransaction();
+          txStorage.enterWith(conn);
+        } else if (/^COMMIT$/i.test(clean)) {
+          const conn = txStorage.getStore();
+          if (conn) { await conn.commit(); conn.release(); txStorage.enterWith(null); }
+        } else if (/^ROLLBACK$/i.test(clean)) {
+          const conn = txStorage.getStore();
+          if (conn) { await conn.rollback(); conn.release(); txStorage.enterWith(null); }
+        } else {
+          const conn = txStorage.getStore();
+          try {
+            conn ? await conn.query(clean) : await pool.query(clean);
+          } catch { /* ignore migration/schema errors */ }
+        }
       }
     },
     pool,

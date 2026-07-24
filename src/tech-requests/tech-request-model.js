@@ -15,7 +15,7 @@ function generateNumber(db, type) {
 }
 
 /** Crea una nueva solicitud y devuelve el objeto completo. */
-export function createTechRequest(db, data) {
+export async function createTechRequest(db, data) {
   const {
     type, requester_name, cedula, cargo, sede,
     description, quantity = 1,
@@ -31,7 +31,7 @@ export function createTechRequest(db, data) {
     ? items.reduce((s, i) => s + (parseInt(i.quantity) || 1), 0)
     : quantity;
 
-  await db.prepare(`
+  const { lastInsertRowid: id } = await db.prepare(`
     INSERT INTO tech_requests
       (request_number, type, requester_name, cedula, cargo, sede,
        description, quantity, equipment_name, equipment_serial,
@@ -42,8 +42,6 @@ export function createTechRequest(db, data) {
     description, totalQty, equipment_name, equipment_serial,
     priority, assigned_to ?? null,
   );
-
-  const { id } = await db.prepare('SELECT last_insert_rowid() as id').get();
 
   // Insertar ítems para requerimientos
   if (type === 'requerimiento' && Array.isArray(items) && items.length > 0) {
@@ -71,7 +69,7 @@ export function createTechRequest(db, data) {
 }
 
 /** Devuelve listado paginado con filtros. */
-export function getAllTechRequests(db, filters = {}) {
+export async function getAllTechRequests(db, filters = {}) {
   const {
     type, status, sede, priority, assigned_to, search,
     page = 1, limit = 15,
@@ -122,7 +120,7 @@ export function getAllTechRequests(db, filters = {}) {
 }
 
 /** Devuelve el detalle completo de una solicitud (con historial e ítems). */
-export function getTechRequestById(db, id) {
+export async function getTechRequestById(db, id) {
   const req = await db.prepare(`
     SELECT r.*, a.name AS agent_name
     FROM   tech_requests r
@@ -147,7 +145,7 @@ export function getTechRequestById(db, id) {
 }
 
 /** Actualiza campos editables de una solicitud. */
-export function updateTechRequest(db, id, data, agentName = 'IT') {
+export async function updateTechRequest(db, id, data, agentName = 'IT') {
   const fields  = [];
   const params  = [];
   const changes = [];
@@ -209,7 +207,7 @@ export function updateTechRequest(db, id, data, agentName = 'IT') {
  * Reemplaza todos los ítems de un requerimiento.
  * Borra los existentes e inserta los nuevos en una transacción.
  */
-export function replaceRequestItems(db, requestId, items = []) {
+export async function replaceRequestItems(db, requestId, items = []) {
   await db.exec('BEGIN');
   try {
     await db.prepare('DELETE FROM tech_request_items WHERE request_id = ?').run(requestId);
@@ -235,7 +233,7 @@ export function replaceRequestItems(db, requestId, items = []) {
 }
 
 /** Agrega una nota interna al historial. */
-export function addTechRequestNote(db, id, agentName, note) {
+export async function addTechRequestNote(db, id, agentName, note) {
   await db.prepare(`
     INSERT INTO tech_request_history (request_id, agent_name, action)
     VALUES (?, ?, ?)
@@ -245,7 +243,7 @@ export function addTechRequestNote(db, id, agentName, note) {
 }
 
 /** Elimina una solicitud y todos sus datos relacionados. */
-export function deleteTechRequest(db, id) {
+export async function deleteTechRequest(db, id) {
   await db.exec('BEGIN');
   try {
     await db.prepare('DELETE FROM tech_request_history WHERE request_id = ?').run(id);
@@ -260,7 +258,7 @@ export function deleteTechRequest(db, id) {
 }
 
 /** Estadísticas básicas para el dashboard del módulo. */
-export function getTechRequestStats(db) {
+export async function getTechRequestStats(db) {
   const byStatus = await db.prepare(`
     SELECT status, COUNT(*) as count FROM tech_requests GROUP BY status
   `).all();
