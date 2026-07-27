@@ -649,6 +649,7 @@ export async function openCreateModal(onSuccess) {
       cedula:       fd.get('cedula')       || null,
       sede:         fd.get('sede')         || null,
       area:         fd.get('area')         || null,
+      fecha:        fd.get('fecha')        || null,
       articulos,
       observaciones: fd.get('observaciones') || null,
       requiere_acta: checkAcata.checked ? 1 : 0,
