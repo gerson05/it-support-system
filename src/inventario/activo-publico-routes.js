@@ -185,7 +185,7 @@ router.get('/activo/:token/qr', async (req, res) => {
 });
 
 /* ── API JSON para modal de detalle en panel ─────────────────────────── */
-router.get('/api/inventario/activo/:token', (req, res) => {
+router.get('/api/inventario/activo/:token', async (req, res) => {
   const item = findByToken(req.params.token);
   if (!item) return res.status(404).json({ error: 'No encontrado' });
   res.json(item);

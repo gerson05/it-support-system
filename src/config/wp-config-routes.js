@@ -6,7 +6,7 @@ const router = express.Router();
 
 /* GET /api/admin/wp-messages
    Devuelve todos los mensajes con su valor actual (DB o default) */
-router.get('/api/admin/wp-messages', (req, res) => {
+router.get('/api/admin/wp-messages', async (req, res) => {
   const result = {};
   for (const key of Object.keys(DEFAULTS)) {
     let value = DEFAULTS[key];
@@ -28,7 +28,7 @@ router.get('/api/admin/wp-messages', (req, res) => {
 
 /* PUT /api/admin/wp-messages/:key
    Guarda o actualiza el override de un mensaje */
-router.put('/api/admin/wp-messages/:key', (req, res) => {
+router.put('/api/admin/wp-messages/:key', async (req, res) => {
   const { key } = req.params;
   const { value } = req.body;
 
@@ -46,7 +46,7 @@ router.put('/api/admin/wp-messages/:key', (req, res) => {
 
 /* DELETE /api/admin/wp-messages/:key
    Restaura el mensaje a su valor por defecto */
-router.delete('/api/admin/wp-messages/:key', (req, res) => {
+router.delete('/api/admin/wp-messages/:key', async (req, res) => {
   const { key } = req.params;
   if (!DEFAULTS.hasOwnProperty(key)) return res.status(404).json({ error: 'Mensaje no existe' });
   await db.prepare('DELETE FROM app_config WHERE key = ?').run(`wp_msg_${key}`);

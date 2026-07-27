@@ -98,12 +98,12 @@ router.post('/api/req/upload-foto', upload.array('fotos', 5), (req, res) => {
 });
 
 // ── POST /api/req/admin/login ───────────────────────────────────────────
-router.post('/api/req/admin/login', (req, res) => {
+router.post('/api/req/admin/login', async (req, res) => {
   const { usuario, password } = req.body || {};
   if (usuario !== ADMIN_USER || password !== ADMIN_PASS)
     return res.status(401).json({ error: 'Credenciales incorrectas.' });
   const ts = Date.now();
-  res.json({ token: makeToken(ts) });
+  res.json({ token: await makeToken(ts) });
 });
 
 // ── POST /api/req ───────────────────────────────────────────────────────
@@ -121,7 +121,7 @@ router.post('/api/req', wrap(async (req, res) => {
   if (prioridad && !PRIORIDADES_VALIDAS.includes(prioridad))
     return res.status(400).json({ error: 'Prioridad inválida.' });
 
-  const ticket_num = nextTicket();
+  const ticket_num = await nextTicket();
 
   await db.prepare(`INSERT INTO requerimientos
     (ticket_num,area,nombre,correo,punto,tipo,descripcion,fecha_requerida,ticket_relacionado,observaciones,prioridad,fotos)
@@ -138,7 +138,7 @@ router.post('/api/req', wrap(async (req, res) => {
 }));
 
 // ── GET /api/req ────────────────────────────────────────────────────────
-router.get('/api/req', (req, res) => {
+router.get('/api/req', async (req, res) => {
   const { q, tipo, estado, prioridad, page = '1' } = req.query;
   const limit  = 20;
   const parsedPage = parseInt(page, 10);
@@ -160,15 +160,15 @@ router.get('/api/req', (req, res) => {
 });
 
 // ── GET /api/req/:id ────────────────────────────────────────────────────
-router.get('/api/req/:id', (req, res) => {
+router.get('/api/req/:id', async (req, res) => {
   const row = await db.prepare('SELECT * FROM requerimientos WHERE id = ?').get(req.params.id);
   if (!row) return res.status(404).json({ error: 'No encontrado.' });
   res.json(row);
 });
 
 // ── PUT /api/req/:id/estado ─────────────────────────────────────────────
-router.put('/api/req/:id/estado', (req, res) => {
-  if (!verifyAdminToken(req)) return res.status(401).json({ error: 'No autorizado.' });
+router.put('/api/req/:id/estado', async (req, res) => {
+  if (!await verifyAdminToken(req)) return res.status(401).json({ error: 'No autorizado.' });
   const ESTADOS = ['Recibido','Asignado','En proceso','Pendiente info','Resuelto','Cancelado'];
   const { estado } = req.body || {};
   if (!ESTADOS.includes(estado)) return res.status(400).json({ error: 'Estado inválido.' });

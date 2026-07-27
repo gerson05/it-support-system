@@ -185,13 +185,13 @@ const STRIP_PREFIXES = [
   /^MEDIVALLE\s*-\s*/,
 ];
 
-export async function normSede(s) {
+export function normSede(s) {
   return (s || '').toUpperCase().trim()
     .normalize('NFD').replace(/[̀-ͯ]/g, '')
     .replace(/\s+/g, ' ');
 }
 
-export async function getSedeCode(sede) {
+export function getSedeCode(sede) {
   if (!sede) return 'GEN';
   const full = normSede(sede);
 

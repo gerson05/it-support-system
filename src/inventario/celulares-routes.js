@@ -15,7 +15,7 @@ const canDelete = [requireAuth, requirePermission('inventario:delete')];
 router.get('/api/inventario/celulares/next-placa', ...canRead, wrap(async (req, res) => {
   const sede = req.query.sede || '';
   const code = getSedeCode(sede);
-  const num  = nextConsecutivo(db, code);
+  const num  = await nextConsecutivo(db, code);
   res.json({ placa: `AF-${code}${num}`, code, num });
 }));
 

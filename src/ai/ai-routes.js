@@ -76,7 +76,7 @@ async function storeEmbeddingAsync(id, text) {
 
 // ── Routes ────────────────────────────────────────────────────────────────────
 
-router.get('/api/ai/status', requireAuth, (req, res) => {
+router.get('/api/ai/status', requireAuth, async (req, res) => {
   res.json(getProviderInfo());
 });
 
