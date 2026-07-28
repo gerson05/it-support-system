@@ -1,34 +1,6 @@
 version: '3.9'
 
 services:
-  # ── MariaDB ───────────────────────────────────────────
-  mariadb:
-    image: mariadb:11
-    container_name: it-mariadb
-    restart: unless-stopped
-    env_file:
-      - env
-    environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASS}
-      MYSQL_DATABASE:      ${DB_NAME:-it_tickets}
-      MYSQL_USER:          ${DB_USER}
-      MYSQL_PASSWORD:      ${DB_PASS}
-    volumes:
-      - it_mariadb:/var/lib/mysql
-    ports:
-      - "3306:3306"
-    healthcheck:
-      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-
   # ── Aplicación principal ──────────────────────────────
   it-support:
     build:
@@ -41,7 +13,7 @@ services:
     labels:
       - "com.centurylinklabs.watchtower.scope=it-tickets"
 
-    # Carga todas las variables del archivo env (incluye DB_HOST, DB_PORT, DB_USER, DB_PASS, DB_NAME)
+    # Carga DB_HOST, DB_PORT, DB_USER, DB_PASS, DB_NAME y demás desde archivo env
     env_file:
       - env
 
@@ -49,13 +21,12 @@ services:
       - "${PORT:-3000}:3000"
 
     environment:
-      # Servidor
       PORT: 3000
       NODE_ENV: production
       APP_URL: ${APP_URL:-}
 
       # ── IA / LLM + Embeddings (Ollama) ─────────────────
-      LLM_PROVIDER: ${LLM_PROVIDER:-ollama}
+      LLM_PROVIDER: ${LLM_PROVIDER:-none}
       LLM_API_KEY: ${LLM_API_KEY:-}
       LLM_MODEL: ${LLM_MODEL:-llama3.2}
       LLM_BASE_URL: http://ollama:11434
@@ -68,7 +39,7 @@ services:
       REGISTROS_SCRIPT_URL: ${REGISTROS_SCRIPT_URL:-}
       REGISTROS_SHEET_URL: ${REGISTROS_SHEET_URL:-}
 
-      # ── ERP Medivalle (GeneXus scraper sync) ─────────────
+      # ── ERP Medivalle ─────────────────────────────────────
       ERP_USER: ${ERP_USER:-}
       ERP_PASS: ${ERP_PASS:-}
       ERP_EMPLEADOS_OBJ: ${ERP_EMPLEADOS_OBJ:-}
@@ -81,20 +52,14 @@ services:
       DISABLE_TUNNEL: ${DISABLE_TUNNEL:-false}
 
     volumes:
-      # Solo uploads y exports — ya no se necesita volumen de SQLite
       - it_uploads:/app/uploads
       - it_exports:/app/exports
-      # Sesión de WhatsApp (evita re-escanear QR en reinicios)
       - it_wwebjs_auth:/app/.wwebjs_auth
       - it_wwebjs_cache:/app/.wwebjs_cache
 
-    # Chromium necesita acceso a /dev/shm ampliado
     shm_size: '256mb'
-
-    # Capacidades mínimas requeridas por Chromium headless
     cap_add:
       - SYS_ADMIN
-
     security_opt:
       - seccomp=unconfined
 
@@ -105,8 +70,6 @@ services:
         max-file: "5"
 
     depends_on:
-      mariadb:
-        condition: service_healthy
       ollama:
         condition: service_started
 
@@ -148,7 +111,6 @@ services:
     container_name: it-ollama
     restart: unless-stopped
     volumes:
-      # Volumen nombrado — compatible con Linux y Windows
       - ollama_models:/root/.ollama
     ports:
       - "11434:11434"
@@ -180,8 +142,6 @@ services:
 
 # ── Volúmenes persistentes ─────────────────────────────
 volumes:
-  it_mariadb:
-    driver: local
   it_uploads:
     driver: local
   it_exports:
