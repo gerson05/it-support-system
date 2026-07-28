@@ -45,9 +45,9 @@ const { handleSoporte } = await import('../../../src/whatsapp/flows/flujo-soport
 function makeMockDb(overrides = {}) {
   return {
     prepare: (sql) => ({
-      get:  (...a) => overrides.get?.(sql, ...a)  ?? null,
-      run:  (...a) => overrides.run?.(sql, ...a)  ?? { changes: 1, lastInsertRowid: 999 },
-      all:  (...a) => overrides.all?.(sql, ...a)  ?? [],
+      get: async (...a) => overrides.get?.(sql, ...a)  ?? null,
+      run: async (...a) => overrides.run?.(sql, ...a)  ?? { changes: 1, lastInsertRowid: 999 },
+      all: async (...a) => overrides.all?.(sql, ...a)  ?? [],
     }),
   };
 }
@@ -175,7 +175,7 @@ test('ask_resolved "1": no faq_shown_id → resolved, sets idle', async () => {
 test('ask_resolved "1": with faq_shown_id → marks faq hit, sets idle', async () => {
   resetAll();
   const runCalls = [];
-  const db = makeMockDb({ run: (sql, ...args) => { runCalls.push({ sql, args }); return { changes: 1 }; } });
+  const db = makeMockDb({ run: async (sql, ...args) => { runCalls.push({ sql, args }); return { changes: 1 }; } });
   mockGetCtx.mock.mockImplementation(() => ({ faq_shown_id: 7 }));
   await handleSoporte('ask_resolved', makeCtx({ cleanText: '1', db }));
   const faqUpdate = runCalls.find(c => c.sql.includes('faq_hits') && c.sql.includes('resolved=1'));
@@ -187,7 +187,7 @@ test('ask_resolved "2": no existing ticket → creates ticket, returns number', 
   resetAll();
   mockGetCtx.mock.mockImplementation(() => ({ description: 'El equipo no enciende' }));
   const db = makeMockDb({
-    get: (sql) => {
+    get: async (sql) => {
       if (sql.includes('ticket_number FROM tickets WHERE id')) return { ticket_number: 'TK-999' };
       return null; // no existing open ticket
     },
@@ -201,7 +201,7 @@ test('ask_resolved "2": existing open ticket → confirm_dup_ticket', async () =
   resetAll();
   mockGetCtx.mock.mockImplementation(() => ({ description: 'Falla red' }));
   const db = makeMockDb({
-    get: (sql) => {
+    get: async (sql) => {
       if (sql.includes('status IN') && sql.includes('ORDER BY id DESC')) {
         return { ticket_number: 'TK-100' };
       }
@@ -232,7 +232,7 @@ test('confirm_dup_ticket "1" → creates new ticket', async () => {
   resetAll();
   mockGetCtx.mock.mockImplementation(() => ({ description: 'Problema diferente' }));
   const db = makeMockDb({
-    get: (sql) => {
+    get: async (sql) => {
       if (sql.includes('ticket_number FROM tickets WHERE id')) return { ticket_number: 'TK-200' };
       return null;
     },
@@ -248,11 +248,11 @@ test('confirm_dup_ticket "2" → appends message to existing ticket', async () =
   mockGetCtx.mock.mockImplementation(() => ({ description: 'Detalles del mismo problema' }));
   const runCalls = [];
   const db = makeMockDb({
-    get: (sql) => {
+    get: async (sql) => {
       if (sql.includes('SELECT * FROM tickets')) return { id: 5, ticket_number: 'TK-050' };
       return null;
     },
-    run: (sql, ...args) => { runCalls.push({ sql, args }); return { changes: 1 }; },
+    run: async (sql, ...args) => { runCalls.push({ sql, args }); return { changes: 1 }; },
   });
   const result = await handleSoporte('confirm_dup_ticket', makeCtx({ cleanText: '2', db }));
   const inserted = runCalls.find(c => c.sql.includes('INSERT INTO messages'));
@@ -272,7 +272,7 @@ test('create_ticket → creates ticket, returns number', async () => {
   resetAll();
   mockGetCtx.mock.mockImplementation(() => ({ description: 'Falla previa' }));
   const db = makeMockDb({
-    get: (sql) => {
+    get: async (sql) => {
       if (sql.includes('ticket_number FROM tickets WHERE id')) return { ticket_number: 'TK-001' };
       return null;
     },

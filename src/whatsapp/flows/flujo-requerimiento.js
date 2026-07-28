@@ -12,19 +12,19 @@ export async function handleRequerimiento(step, { text, session, phone, db }) {
 
   if (step === 'req_name') {
     ctx.name = text;
-    setStep(db, phone, 'req_cedula', null, JSON.stringify(ctx));
+    await setStep(db, phone, 'req_cedula', null, JSON.stringify(ctx));
     return `✅ Nombre: *${text}*\n\n*¿Cuál es tu número de cédula?*`;
   }
 
   if (step === 'req_cedula') {
     ctx.cedula = text;
-    setStep(db, phone, 'req_cargo', null, JSON.stringify(ctx));
+    await setStep(db, phone, 'req_cargo', null, JSON.stringify(ctx));
     return `✅ Cédula: *${text}*\n\n*¿Cuál es tu cargo dentro de la empresa?*`;
   }
 
   if (step === 'req_cargo') {
     ctx.cargo = text;
-    setStep(db, phone, 'req_desc', null, JSON.stringify(ctx));
+    await setStep(db, phone, 'req_desc', null, JSON.stringify(ctx));
     return (
       `✅ Cargo: *${text}*\n\n` +
       `📝 *¿Qué equipos o materiales necesitas?*\n\n` +
@@ -50,7 +50,7 @@ export async function handleRequerimiento(step, { text, session, phone, db }) {
   });
 
   appEvents.emit('tech-request:created', { id: result.id, request_number: result.request_number, type: 'requerimiento' });
-  setStep(db, phone, 'idle', null, '{}');
+  await setStep(db, phone, 'idle', null, '{}');
 
   return (
     `✅ *¡Requerimiento registrado exitosamente!*\n\n` +

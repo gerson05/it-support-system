@@ -202,8 +202,9 @@ export async function renderDespacho(container) {
   document.addEventListener('open-despacho', openHandler);
   document.addEventListener('despacho-borrador-saved', borradorHandler);
 
+  const thisBtn = container.querySelector('#btn-nuevo-despacho');
   const observer = new MutationObserver(() => {
-    if (!document.body.contains(container.querySelector('#btn-nuevo-despacho'))) {
+    if (!document.body.contains(thisBtn)) {
       document.removeEventListener('open-despacho', openHandler);
       document.removeEventListener('despacho-borrador-saved', borradorHandler);
       observer.disconnect();
