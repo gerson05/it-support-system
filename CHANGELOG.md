@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.4.1](https://github.com/gerson05/it-support-system/compare/v1.4.0...v1.4.1) (2026-07-28)
+
+
+### Bug Fixes
+
+* add async/await to remaining route callbacks and fix sede-codes async ([97f9411](https://github.com/gerson05/it-support-system/commit/97f9411f80b20c42b1be66e769d511436864331c))
+* add await to despacho model calls, fix listener leak and fixSql async ([#42](https://github.com/gerson05/it-support-system/issues/42)) ([9caf5a4](https://github.com/gerson05/it-support-system/commit/9caf5a4969f80b4d4e63d07b83fba8a85ff12565))
+* add missing await on _checkLoginRate and remove spurious async from sedes helpers ([6d38285](https://github.com/gerson05/it-support-system/commit/6d38285b79e23132e27090724c15bcab1b0baa76))
+* add missing awaits to async chatbot functions and remove .env.linux from tracking ([e01c3fb](https://github.com/gerson05/it-support-system/commit/e01c3fb5000ef7f9aabbe50dd000fffb84a24676))
+* add missing awaits to ticketService calls in ticket-routes.js ([673de8f](https://github.com/gerson05/it-support-system/commit/673de8f56a9cad60243d3616ed1e87e82a5f1890))
+* convert await-in-forEach/eachRow antipatterns to for...of loops ([8032b45](https://github.com/gerson05/it-support-system/commit/8032b45d74a166dcc39c6bebaa630b151f877d11))
+* **deps:** pin brace-expansion &gt;=5.0.8 to resolve CVE-2026-14257 (HIGH) ([95ab58b](https://github.com/gerson05/it-support-system/commit/95ab58b48d2f20dd10787f758058f829211cfd96))
+* make non-exported helper functions async — fixes server startup SyntaxError ([#41](https://github.com/gerson05/it-support-system/issues/41)) ([3cf2882](https://github.com/gerson05/it-support-system/commit/3cf2882eaee9be643c03d128eeeac9e171351965))
+* remove spurious async from extractToken and add await to flujo-sede tests ([10fadb9](https://github.com/gerson05/it-support-system/commit/10fadb97e710be43962bb5b59f50045568f74024))
+* resolve all 76 remaining unit test failures ([9de61b8](https://github.com/gerson05/it-support-system/commit/9de61b8dad9d6b9d073d3054f3b10062de41edc9))
+* restore test-ci.mjs and migrate all test db mocks to async ([#40](https://github.com/gerson05/it-support-system/issues/40)) ([fb1951e](https://github.com/gerson05/it-support-system/commit/fb1951e10456b284ac9e5e6b83142e208aab8339))
+
 ## [1.3.0](https://github.com/gerson05/it-support-system/compare/v1.2.0...v1.3.0) (2026-07-22)
 
 
