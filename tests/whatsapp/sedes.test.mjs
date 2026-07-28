@@ -4,143 +4,143 @@ import { displaySede, matchSede, matchCiudad, getPuntosCiudad, CIUDADES } from '
 
 // ── displaySede ───────────────────────────────────────────────────────────────
 
-test('displaySede: strips MI FARMACIA - prefix', () => {
-  assert.equal(displaySede('MI FARMACIA - CALI SUR'), 'CALI SUR');
+test('displaySede: strips MI FARMACIA - prefix', async () => {
+  assert.equal(await displaySede('MI FARMACIA - CALI SUR'), 'CALI SUR');
 });
 
-test('displaySede: strips prefix case-insensitively (module uses startsWith)', () => {
-  assert.equal(displaySede('MI FARMACIA - MANIZALES'), 'MANIZALES');
+test('displaySede: strips prefix case-insensitively (module uses startsWith)', async () => {
+  assert.equal(await displaySede('MI FARMACIA - MANIZALES'), 'MANIZALES');
 });
 
-test('displaySede: leaves non-MI FARMACIA names unchanged', () => {
-  assert.equal(displaySede('ZARZAL'), 'ZARZAL');
+test('displaySede: leaves non-MI FARMACIA names unchanged', async () => {
+  assert.equal(await displaySede('ZARZAL'), 'ZARZAL');
 });
 
-test('displaySede: leaves MEDIVALLE names unchanged', () => {
-  assert.equal(displaySede('MEDIVALLE LA VICTORIA'), 'MEDIVALLE LA VICTORIA');
+test('displaySede: leaves MEDIVALLE names unchanged', async () => {
+  assert.equal(await displaySede('MEDIVALLE LA VICTORIA'), 'MEDIVALLE LA VICTORIA');
 });
 
-test('displaySede: empty string returns empty string', () => {
-  assert.equal(displaySede(''), '');
+test('displaySede: empty string returns empty string', async () => {
+  assert.equal(await displaySede(''), '');
 });
 
-test('displaySede: null/falsy returns empty string', () => {
-  assert.equal(displaySede(null), '');
-  assert.equal(displaySede(undefined), '');
+test('displaySede: null/falsy returns empty string', async () => {
+  assert.equal(await displaySede(null), '');
+  assert.equal(await displaySede(undefined), '');
 });
 
 // ── matchSede ─────────────────────────────────────────────────────────────────
 
-test('matchSede: exact city name matches', () => {
-  const result = matchSede('Manizales');
+test('matchSede: exact city name matches', async () => {
+  const result = await matchSede('Manizales');
   assert.ok(result.length > 0);
   assert.ok(result.some(s => s.includes('MANIZALES')));
 });
 
-test('matchSede: partial city match returns results', () => {
-  const result = matchSede('cali sur');
+test('matchSede: partial city match returns results', async () => {
+  const result = await matchSede('cali sur');
   assert.ok(result.length > 0);
   assert.equal(result[0], 'MI FARMACIA - CALI SUR');
 });
 
-test('matchSede: case insensitive', () => {
-  const lower = matchSede('pereira');
-  const upper = matchSede('PEREIRA');
+test('matchSede: case insensitive', async () => {
+  const lower = await matchSede('pereira');
+  const upper = await matchSede('PEREIRA');
   assert.deepEqual(lower, upper);
 });
 
-test('matchSede: accent normalization (popayan vs popayán)', () => {
-  const result = matchSede('popayan');
+test('matchSede: accent normalization (popayan vs popayán)', async () => {
+  const result = await matchSede('popayan');
   assert.ok(result.some(s => s.includes('POPAYAN')));
 });
 
-test('matchSede: no match returns empty array', () => {
-  assert.deepEqual(matchSede('xyzqwerty_nomatch'), []);
+test('matchSede: no match returns empty array', async () => {
+  assert.deepEqual(await matchSede('xyzqwerty_nomatch'), []);
 });
 
-test('matchSede: very short input (< 2 chars) returns empty', () => {
-  assert.deepEqual(matchSede('a'), []);
+test('matchSede: very short input (< 2 chars) returns empty', async () => {
+  assert.deepEqual(await matchSede('a'), []);
 });
 
-test('matchSede: returns at most 5 results', () => {
-  const result = matchSede('mi farmacia');
+test('matchSede: returns at most 5 results', async () => {
+  const result = await matchSede('mi farmacia');
   assert.ok(result.length <= 5);
 });
 
-test('matchSede: exact match is ranked first', () => {
-  const result = matchSede('pasto');
+test('matchSede: exact match is ranked first', async () => {
+  const result = await matchSede('pasto');
   assert.ok(result.length > 0);
   assert.equal(result[0], 'MI FARMACIA - PASTO');
 });
 
 // ── matchCiudad ───────────────────────────────────────────────────────────────
 
-test('matchCiudad: finds CALI without db', () => {
-  const result = matchCiudad('Cali', null);
+test('matchCiudad: finds CALI without db', async () => {
+  const result = await matchCiudad('Cali', null);
   assert.ok(result.includes('CALI'));
 });
 
-test('matchCiudad: finds MANIZALES without db', () => {
-  const result = matchCiudad('Manizales', null);
+test('matchCiudad: finds MANIZALES without db', async () => {
+  const result = await matchCiudad('Manizales', null);
   assert.ok(result.includes('MANIZALES'));
 });
 
-test('matchCiudad: finds PASTO without db', () => {
-  const result = matchCiudad('Pasto', null);
+test('matchCiudad: finds PASTO without db', async () => {
+  const result = await matchCiudad('Pasto', null);
   assert.ok(result.includes('PASTO'));
 });
 
-test('matchCiudad: empty input returns empty array', () => {
-  assert.deepEqual(matchCiudad('', null), []);
+test('matchCiudad: empty input returns empty array', async () => {
+  assert.deepEqual(await matchCiudad('', null), []);
 });
 
-test('matchCiudad: no match returns empty array', () => {
-  assert.deepEqual(matchCiudad('xyzabc_nomatch', null), []);
+test('matchCiudad: no match returns empty array', async () => {
+  assert.deepEqual(await matchCiudad('xyzabc_nomatch', null), []);
 });
 
-test('matchCiudad: returns at most 6 results', () => {
-  const result = matchCiudad('Cali', null);
+test('matchCiudad: returns at most 6 results', async () => {
+  const result = await matchCiudad('Cali', null);
   assert.ok(result.length <= 6);
 });
 
-test('matchCiudad: uses db when provided', () => {
+test('matchCiudad: uses db when provided', async () => {
   const mockDb = {
     prepare: () => ({ all: async () => [{ ciudad: 'CALI' }, { ciudad: 'PALMIRA' }] }),
   };
-  const result = matchCiudad('Cali', mockDb);
+  const result = await matchCiudad('Cali', mockDb);
   assert.ok(result.includes('CALI'));
 });
 
-test('matchCiudad: falls back to static map on db error', () => {
+test('matchCiudad: falls back to static map on db error', async () => {
   const badDb = {
     prepare: () => ({ all: async () => { throw new Error('db fail'); } }),
   };
-  const result = matchCiudad('Cali', badDb);
+  const result = await matchCiudad('Cali', badDb);
   assert.ok(result.includes('CALI'));
 });
 
 // ── getPuntosCiudad ───────────────────────────────────────────────────────────
 
-test('getPuntosCiudad: returns points for known city without db', () => {
-  const result = getPuntosCiudad('CALI', null);
+test('getPuntosCiudad: returns points for known city without db', async () => {
+  const result = await getPuntosCiudad('CALI', null);
   assert.ok(result.length > 0);
 });
 
-test('getPuntosCiudad: Buenaventura has multiple points', () => {
-  const result = getPuntosCiudad('BUENAVENTURA', null);
+test('getPuntosCiudad: Buenaventura has multiple points', async () => {
+  const result = await getPuntosCiudad('BUENAVENTURA', null);
   assert.ok(result.length > 1);
 });
 
-test('getPuntosCiudad: unknown city returns empty array', () => {
-  assert.deepEqual(getPuntosCiudad('CIUDAD_DESCONOCIDA_XYZ', null), []);
+test('getPuntosCiudad: unknown city returns empty array', async () => {
+  assert.deepEqual(await getPuntosCiudad('CIUDAD_DESCONOCIDA_XYZ', null), []);
 });
 
-test('getPuntosCiudad: uses db rows when provided', () => {
+test('getPuntosCiudad: uses db rows when provided', async () => {
   const mockDb = {
     prepare: () => ({
       all: async () => [{ nombre_punto: 'MI FARMACIA - TEST' }],
     }),
   };
-  const result = getPuntosCiudad('CALI', mockDb);
+  const result = await getPuntosCiudad('CALI', mockDb);
   assert.deepEqual(result, ['MI FARMACIA - TEST']);
 });

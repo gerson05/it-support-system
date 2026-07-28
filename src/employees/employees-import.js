@@ -41,14 +41,14 @@ export async function importEmployeeDataFromExcel(filePath, db) {
       const stmtCargo = await db.prepare(`
         INSERT OR IGNORE INTO employee_cargos (nombre) VALUES (?)
       `);
-      cargos.forEach(cargo => {
+      for (const cargo of cargos) {
         try {
           const result = await stmtCargo.run(cargo);
           if (result.changes > 0) cargosNuevos++;
         } catch (e) {
           // Ya existe
         }
-      });
+      }
 
       // Extraer FARMACIAS (columna única)
       const farmacias = new Set();
@@ -64,14 +64,14 @@ export async function importEmployeeDataFromExcel(filePath, db) {
       const stmtArea = await db.prepare(`
         INSERT OR IGNORE INTO employee_areas (nombre) VALUES (?)
       `);
-      farmacias.forEach(area => {
+      for (const area of farmacias) {
         try {
           const result = await stmtArea.run(area);
           if (result.changes > 0) areasNuevas++;
         } catch (e) {
           // Ya existe
         }
-      });
+      }
 
       console.log(`✅ Cargos: ${cargosNuevos} nuevos`);
       console.log(`✅ Áreas: ${areasNuevas} nuevas`);
@@ -117,52 +117,47 @@ export async function importEmployeeDataFromExcel(filePath, db) {
         SELECT COUNT(*) as cnt FROM employees WHERE cedula = ?
       `);
 
+      const baseRows = [];
       baseWorksheet.eachRow((row, rowNumber) => {
-        if (rowNumber === 1) return; // Saltar encabezado
+        if (rowNumber === 1) return;
+        baseRows.push({
+          rowNumber,
+          cedula:     String(row.getCell('A').value || '').trim(),
+          nombre:     String(row.getCell('B').value || '').trim(),
+          cargo:      String(row.getCell('C').value || '').trim(),
+          area:       String(row.getCell('D').value || '').trim(),
+          usuario:    String(row.getCell('E').value || '').trim(),
+          contraseña: String(row.getCell('F').value || '').trim(),
+          fecha:      String(row.getCell('G').value || '').trim(),
+        });
+      });
 
-        const cedula = String(row.getCell('A').value || '').trim();
-        const nombre = String(row.getCell('B').value || '').trim();
-        const cargo = String(row.getCell('C').value || '').trim();
-        const area = String(row.getCell('D').value || '').trim();
-        const usuario = String(row.getCell('E').value || '').trim();
-        const contraseña = String(row.getCell('F').value || '').trim();
-        const fecha = String(row.getCell('G').value || '').trim();
-
-        // Validar campos no vacíos
+      for (const { rowNumber, cedula, nombre, cargo, area, usuario, contraseña, fecha } of baseRows) {
         if (!cedula || !nombre || !cargo || !area || !usuario || !contraseña) {
           if (cedula || nombre || cargo || area || usuario || contraseña) {
             console.warn(`⚠️  Fila ${rowNumber}: campos vacíos, omitiendo`);
           }
           empleadosSkipped++;
-          return;
+          continue;
         }
 
-        // Verificar que cédula no existe
         const cedulaExists = await stmtCheckCedula.get(cedula);
         if (cedulaExists.cnt > 0) {
           console.warn(`⚠️  Cédula ${cedula} ya existe, omitiendo`);
           empleadosSkipped++;
-          return;
+          continue;
         }
 
-        // Insertar empleado
         try {
           const result = await stmtInsert.run(
-            cedula,
-            nombre,
-            cargo,
-            area,
-            usuario,
-            contraseña,
-            fecha || null,
-            createdBy
+            cedula, nombre, cargo, area, usuario, contraseña, fecha || null, createdBy
           );
           if (result.changes > 0) empleadosInsertados++;
         } catch (e) {
           console.warn(`⚠️  Error insertando cédula ${cedula}: ${e.message}`);
           empleadosSkipped++;
         }
-      });
+      }
 
       console.log(`✅ Empleados: ${empleadosInsertados} nuevos`);
       if (empleadosSkipped > 0) {
