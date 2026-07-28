@@ -23,7 +23,7 @@ async function _checkLoginRate(ip) {
 }
 
 router.post('/api/auth/login', async (req, res) => {
-  if (_checkLoginRate(req.ip || req.socket.remoteAddress)) {
+  if (await _checkLoginRate(req.ip || req.socket.remoteAddress)) {
     return res.status(429).json({ error: 'Demasiados intentos. Espera 15 minutos.' });
   }
   const { username, password } = req.body;
