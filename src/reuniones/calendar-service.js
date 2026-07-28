@@ -3,7 +3,7 @@ import { google } from 'googleapis';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 
-function getAuth() {
+async function getAuth() {
   try {
     const keyJson = process.env.GOOGLE_SERVICE_ACCOUNT_KEY_JSON;
     const keyPath = process.env.GOOGLE_SERVICE_ACCOUNT_KEY_PATH;

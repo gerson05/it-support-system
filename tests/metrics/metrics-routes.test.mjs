@@ -11,9 +11,9 @@ await mock.module('../../src/config/database.js', {
   exports: {
     default: {
       prepare: (sql) => ({
-        get:  (...a) => _get(sql, ...a),
-        all:  (...a) => _all(sql, ...a),
-        run:  () => ({ changes: 1, lastInsertRowid: 1 }),
+        get: async (...a) => _get(sql, ...a),
+        all: async (...a) => _all(sql, ...a),
+        run: async () => ({ changes: 1, lastInsertRowid: 1 }),
       }),
       exec: () => {},
     },

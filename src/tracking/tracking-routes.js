@@ -181,7 +181,7 @@ router.get('/api/tracking/public/:token/acta-final', wrap(async (req, res) => {
    AUTHENTICATED ENDPOINTS
    ══════════════════════════════════════════════════ */
 
-router.get('/api/tracking/fotos/:filename', ...canRead, (req, res) => {
+router.get('/api/tracking/fotos/:filename', ...canRead, async (req, res) => {
   const filepath = path.join(FOTOS_DIR, path.basename(req.params.filename));
   if (!fs.existsSync(filepath)) return res.status(404).json({ error: 'Foto no encontrada.' });
   res.sendFile(filepath);

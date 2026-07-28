@@ -29,13 +29,13 @@ const TODAY_STR = new Date().toISOString().slice(0, 10).replace(/-/g, '');
 function makeDb(lastTicketNumber = null) {
   return {
     prepare: (sql) => ({
-      get: () => {
+      get: async () => {
         if (sql.includes('last_insert_rowid')) return { id: 42 };
         if (sql.includes('ticket_number'))     return lastTicketNumber ? { ticket_number: lastTicketNumber } : null;
         return null;
       },
-      run: () => ({ lastInsertRowid: 42 }),
-      all: () => [],
+      run: async () => ({ lastInsertRowid: 42 }),
+      all: async () => [],
     }),
   };
 }

@@ -11,7 +11,7 @@ export async function handleOOS(step, { text, session, phone, db }) {
   if (step === 'oos_name') {
     const ctx = getCtx(session);
     ctx.name = text.trim();
-    setStep(db, phone, 'oos_desc', null, JSON.stringify(ctx));
+    await setStep(db, phone, 'oos_desc', null, JSON.stringify(ctx));
     return (
       `✅ Gracias, *${ctx.name}*.\n\n` +
       `📝 Descríbeme brevemente el problema o lo que necesitas.\n` +
@@ -34,7 +34,7 @@ export async function handleOOS(step, { text, session, phone, db }) {
   await db.prepare(`INSERT INTO messages (ticket_id, sender_type, content) VALUES (?, 'user', ?)`).run(ticketId, text);
   appEvents.emit('ticket:created', { id: ticketId, ticket_number: ticketNumber, area: 'general', phone });
 
-  setStep(db, phone, 'idle', null, '{}');
+  await setStep(db, phone, 'idle', null, '{}');
   return (
     `✅ *Caso agendado para el ${nextBusinessDay()}*\n\n` +
     `🎟️ Número de caso: *${ticketNumber}*\n` +

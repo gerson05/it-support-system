@@ -88,10 +88,10 @@ router.post('/api/inventario/:type/import/confirm', ...canCreate, wrap(async (re
            tipo_disco,serial_cargador,area,responsable,fecha_compra)
         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
       `);
-      rows.forEach((r, i) => {
+      for (const [i, r] of rows.entries()) {
         if (!r.placa?.trim() || !r.serial?.trim() || !r.marca?.trim() || !r.nombre_equipo?.trim()) {
           errors.push({ row: i + 2, message: `Fila ${i + 2}: placa, serial, marca y nombre de equipo son requeridos.` });
-          return;
+          continue;
         }
         try {
           const result = await stmt.run(
@@ -104,7 +104,7 @@ router.post('/api/inventario/:type/import/confirm', ...canCreate, wrap(async (re
         } catch (err) {
           errors.push({ row: i + 2, message: err.message });
         }
-      });
+      }
     }
 
     if (type === 'celulares') {
@@ -114,10 +114,10 @@ router.post('/api/inventario/:type/import/confirm', ...canCreate, wrap(async (re
            almacenamiento,ram,modelo,imei,imei2,estado,accesorio,fecha_entrega,entregado_por)
         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
       `);
-      rows.forEach((r, i) => {
+      for (const [i, r] of rows.entries()) {
         if (!r.imei?.trim() || !r.nombre_completo?.trim()) {
           errors.push({ row: i + 2, message: `Fila ${i + 2}: imei y nombre completo son requeridos.` });
-          return;
+          continue;
         }
         try {
           const result = await stmt.run(
@@ -132,7 +132,7 @@ router.post('/api/inventario/:type/import/confirm', ...canCreate, wrap(async (re
         } catch (err) {
           errors.push({ row: i + 2, message: err.message });
         }
-      });
+      }
     }
 
     if (type === 'ups') {
@@ -141,10 +141,10 @@ router.post('/api/inventario/:type/import/confirm', ...canCreate, wrap(async (re
           (placa,marca,nombre_equipo,serial,area,voltaje,fecha_compra,fecha_despacho)
         VALUES (?,?,?,?,?,?,?,?)
       `);
-      rows.forEach((r, i) => {
+      for (const [i, r] of rows.entries()) {
         if (!r.placa?.trim()) {
           errors.push({ row: i + 2, message: `Fila ${i + 2}: placa es requerida.` });
-          return;
+          continue;
         }
         try {
           const result = await stmt.run(
@@ -155,7 +155,7 @@ router.post('/api/inventario/:type/import/confirm', ...canCreate, wrap(async (re
         } catch (err) {
           errors.push({ row: i + 2, message: err.message });
         }
-      });
+      }
     }
 
     await db.exec('COMMIT');

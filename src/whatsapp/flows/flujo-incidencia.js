@@ -12,19 +12,19 @@ export async function handleIncidencia(step, { text, session, phone, db }) {
 
   if (step === 'inc_name') {
     ctx.name = text;
-    setStep(db, phone, 'inc_cedula', null, JSON.stringify(ctx));
+    await setStep(db, phone, 'inc_cedula', null, JSON.stringify(ctx));
     return `✅ Nombre: *${text}*\n\n*¿Cuál es tu número de cédula?*`;
   }
 
   if (step === 'inc_cedula') {
     ctx.cedula = text;
-    setStep(db, phone, 'inc_cargo', null, JSON.stringify(ctx));
+    await setStep(db, phone, 'inc_cargo', null, JSON.stringify(ctx));
     return `✅ Cédula: *${text}*\n\n*¿Cuál es tu cargo dentro de la empresa?*`;
   }
 
   if (step === 'inc_cargo') {
     ctx.cargo = text;
-    setStep(db, phone, 'inc_equipo', null, JSON.stringify(ctx));
+    await setStep(db, phone, 'inc_equipo', null, JSON.stringify(ctx));
     return (
       `✅ Cargo: *${text}*\n\n` +
       `🖥️ *¿Cuál es el nombre o tipo del equipo con falla?*\n\n` +
@@ -42,7 +42,7 @@ export async function handleIncidencia(step, { text, session, phone, db }) {
       ctx.equipment_name   = text;
       ctx.equipment_serial = null;
     }
-    setStep(db, phone, 'inc_desc', null, JSON.stringify(ctx));
+    await setStep(db, phone, 'inc_desc', null, JSON.stringify(ctx));
     return (
       `✅ Equipo: *${ctx.equipment_name}*` +
       (ctx.equipment_serial ? `\n✅ Serial: *${ctx.equipment_serial}*` : '') +
@@ -67,7 +67,7 @@ export async function handleIncidencia(step, { text, session, phone, db }) {
   });
 
   appEvents.emit('tech-request:created', { id: result.id, request_number: result.request_number, type: 'incidencia' });
-  setStep(db, phone, 'idle', null, '{}');
+  await setStep(db, phone, 'idle', null, '{}');
 
   return (
     `✅ *¡Incidencia registrada exitosamente!*\n\n` +

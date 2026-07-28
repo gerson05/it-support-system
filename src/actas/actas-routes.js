@@ -191,7 +191,7 @@ router.get('/api/actas/status/:token', wrap(async (req, res) => {
 
 router.post('/api/actas/upload/:token',
   uploadRateLimit,
-  (req, res, next) => {
+  async (req, res, next) => {
     const row = await db.prepare('SELECT * FROM acta_uploads WHERE token = ?').get(req.params.token);
     if (!row) return res.status(404).json({ error: 'Token no encontrado.' });
     const prevPaths = [row.filepath];

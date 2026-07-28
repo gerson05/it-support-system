@@ -3,7 +3,7 @@
  */
 
 /** Genera el número correlativo: RQ-YYYYMMDD-001 / IN-YYYYMMDD-001 */
-function generateNumber(db, type) {
+async function generateNumber(db, type) {
   const prefix  = type === 'requerimiento' ? 'RQ' : 'IN';
   const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
   const like    = `${prefix}-${dateStr}-%`;
