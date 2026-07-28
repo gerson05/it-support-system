@@ -31,7 +31,7 @@ await mock.module('../../../src/whatsapp/chatbot-config.js', {
 const { isSedeCompleta, routeAfterSede, handleSede } = await import('../../../src/whatsapp/flows/flujo-sede.js');
 
 function makeDb() {
-  return { prepare: () => ({ run: () => {}, get: () => null, all: () => [] }) };
+  return { prepare: () => ({ run: async () => {}, get: async () => null, all: async () => [] }) };
 }
 
 function makeArgs(step, text, cleanText, ctxOverride = {}) {
@@ -71,127 +71,126 @@ test('isSedeCompleta: case-insensitive (lowercase sede principal)', () => {
 
 // ── routeAfterSede ────────────────────────────────────────────────────────────
 
-test('routeAfterSede: flowType 1 + sede principal → menu_area with full menu', () => {
-  const r = routeAfterSede('1', 'SEDE PRINCIPAL', 'MEDIVALLE - SEDE PRINCIPAL');
+test('routeAfterSede: flowType 1 + sede principal → menu_area with full menu', async () => {
+  const r = await routeAfterSede('1', 'SEDE PRINCIPAL', 'MEDIVALLE - SEDE PRINCIPAL');
   assert.equal(r.step, 'menu_area');
   assert.ok(r.msg.includes('Cartera'));
   assert.ok(r.msg.includes('Farmacia'));
 });
 
-test('routeAfterSede: flowType 1 + branch sede → menu_area_simple', () => {
-  const r = routeAfterSede('1', 'MANIZALES', 'MI FARMACIA - MANIZALES');
+test('routeAfterSede: flowType 1 + branch sede → menu_area_simple', async () => {
+  const r = await routeAfterSede('1', 'MANIZALES', 'MI FARMACIA - MANIZALES');
   assert.equal(r.step, 'menu_area_simple');
   assert.ok(r.msg.includes('Administrativo'));
 });
 
-test('routeAfterSede: flowType 2 → req_name regardless of sede', () => {
-  const r = routeAfterSede('2', 'CALI SUR', 'MI FARMACIA - CALI SUR');
+test('routeAfterSede: flowType 2 → req_name regardless of sede', async () => {
+  const r = await routeAfterSede('2', 'CALI SUR', 'MI FARMACIA - CALI SUR');
   assert.equal(r.step, 'req_name');
   assert.ok(r.msg.includes('nombre completo'));
 });
 
-test('routeAfterSede: flowType 3 → inc_name', () => {
-  const r = routeAfterSede('3', 'PASTO', 'MI FARMACIA - PASTO');
+test('routeAfterSede: flowType 3 → inc_name', async () => {
+  const r = await routeAfterSede('3', 'PASTO', 'MI FARMACIA - PASTO');
   assert.equal(r.step, 'inc_name');
   assert.ok(r.msg.includes('nombre completo'));
 });
 
-test('routeAfterSede: unknown flowType → inc_name', () => {
-  const r = routeAfterSede('99', 'CALI', 'MI FARMACIA - CALI SUR');
+test('routeAfterSede: unknown flowType → inc_name', async () => {
+  const r = await routeAfterSede('99', 'CALI', 'MI FARMACIA - CALI SUR');
   assert.equal(r.step, 'inc_name');
 });
 
-test('routeAfterSede: msg always contains sede label', () => {
-  const r = routeAfterSede('2', 'PEREIRA', 'MI FARMACIA - PEREIRA');
+test('routeAfterSede: msg always contains sede label', async () => {
+  const r = await routeAfterSede('2', 'PEREIRA', 'MI FARMACIA - PEREIRA');
   assert.ok(r.msg.includes('PEREIRA'));
 });
 
 // ── handleSede ────────────────────────────────────────────────────────────────
 
-test('handleSede: unknown step returns null', () => {
-  assert.equal(handleSede('idle', makeArgs('idle', '', '')), null);
+test('handleSede: unknown step returns null', async () => {
+  assert.equal(await handleSede('idle', makeArgs('idle', '', '')), null);
   reset();
 });
 
-test('handleSede: select_type valid option 1 sets step to ask_ciudad', () => {
+test('handleSede: select_type valid option 1 sets step to ask_ciudad', async () => {
   const args = makeArgs('select_type', '1', '1');
-  handleSede('select_type', args);
+  await handleSede('select_type', args);
   assert.equal(mockSetStep.mock.calls[0].arguments[2], 'ask_ciudad');
   reset();
 });
 
-test('handleSede: select_type valid option 2 sets step to ask_ciudad', () => {
+test('handleSede: select_type valid option 2 sets step to ask_ciudad', async () => {
   const args = makeArgs('select_type', '2', '2');
-  handleSede('select_type', args);
+  await handleSede('select_type', args);
   assert.equal(mockSetStep.mock.calls[0].arguments[2], 'ask_ciudad');
   reset();
 });
 
-test('handleSede: select_type invalid option returns error message', () => {
-  const result = handleSede('select_type', makeArgs('select_type', '9', '9'));
+test('handleSede: select_type invalid option returns error message', async () => {
+  const result = await handleSede('select_type', makeArgs('select_type', '9', '9'));
   assert.ok(result.includes('válida') || result.includes('1'));
   reset();
 });
 
-test('handleSede: ask_ciudad no match returns not-found message', () => {
+test('handleSede: ask_ciudad no match returns not-found message', async () => {
   mockGetCtx.mock.mockImplementation(() => ({ flowType: '1' }));
   mockMatchCiudad.mock.mockImplementation(() => []);
-  const result = handleSede('ask_ciudad', makeArgs('ask_ciudad', 'ciudadnomatch', 'ciudadnomatch'));
+  const result = await handleSede('ask_ciudad', makeArgs('ask_ciudad', 'ciudadnomatch', 'ciudadnomatch'));
   assert.ok(result.includes('No encontré'));
   reset();
 });
 
-test('handleSede: ask_ciudad multiple matches shows selection list', () => {
+test('handleSede: ask_ciudad multiple matches shows selection list', async () => {
   mockGetCtx.mock.mockImplementation(() => ({ flowType: '1' }));
   mockMatchCiudad.mock.mockImplementation(() => ['CALI', 'CALIMA']);
-  const result = handleSede('ask_ciudad', makeArgs('ask_ciudad', 'cal', 'cal'));
+  const result = await handleSede('ask_ciudad', makeArgs('ask_ciudad', 'cal', 'cal'));
   assert.ok(result.includes('varias ciudades'));
   reset();
 });
 
-test('handleSede: ask_ciudad single city single punto routes directly', () => {
+test('handleSede: ask_ciudad single city single punto routes directly', async () => {
   mockMatchCiudad.mock.mockImplementation(() => ['MANIZALES']);
   mockGetPuntosCiudad.mock.mockImplementation(() => ['MI FARMACIA - MANIZALES']);
-  // pass ctx via makeArgs so it isn't overridden
-  handleSede('ask_ciudad', makeArgs('ask_ciudad', 'manizales', 'manizales', { flowType: '2' }));
+  await handleSede('ask_ciudad', makeArgs('ask_ciudad', 'manizales', 'manizales', { flowType: '2' }));
   assert.equal(mockSetStep.mock.calls.length, 1);
   assert.equal(mockSetStep.mock.calls[0].arguments[2], 'req_name');
   reset();
 });
 
-test('handleSede: ask_ciudad single city multiple puntos shows punto list', () => {
+test('handleSede: ask_ciudad single city multiple puntos shows punto list', async () => {
   mockGetCtx.mock.mockImplementation(() => ({ flowType: '1' }));
   mockMatchCiudad.mock.mockImplementation(() => ['CALI']);
   mockGetPuntosCiudad.mock.mockImplementation(() => ['MEDIVALLE - SEDE PRINCIPAL', 'MI FARMACIA - CALI SUR']);
-  const result = handleSede('ask_ciudad', makeArgs('ask_ciudad', 'cali', 'cali'));
+  const result = await handleSede('ask_ciudad', makeArgs('ask_ciudad', 'cali', 'cali'));
   assert.ok(result.includes('punto de atención'));
   reset();
 });
 
-test('handleSede: ask_ciudad_confirm invalid index returns error', () => {
+test('handleSede: ask_ciudad_confirm invalid index returns error', async () => {
   mockGetCtx.mock.mockImplementation(() => ({ ciudad_candidates: ['CALI', 'CALIMA'] }));
-  const result = handleSede('ask_ciudad_confirm', makeArgs('ask_ciudad_confirm', '9', '9'));
+  const result = await handleSede('ask_ciudad_confirm', makeArgs('ask_ciudad_confirm', '9', '9'));
   assert.ok(result.includes('válida') || result.includes('número'));
   reset();
 });
 
-test('handleSede: ask_punto invalid index returns error', () => {
+test('handleSede: ask_punto invalid index returns error', async () => {
   mockGetCtx.mock.mockImplementation(() => ({ flowType: '1', punto_options: ['OPT1', 'OPT2'] }));
-  const result = handleSede('ask_punto', makeArgs('ask_punto', '9', '9'));
+  const result = await handleSede('ask_punto', makeArgs('ask_punto', '9', '9'));
   assert.ok(result.includes('válida') || result.includes('número'));
   reset();
 });
 
-test('handleSede: ask_punto valid index sets step', () => {
+test('handleSede: ask_punto valid index sets step', async () => {
   const ctx = { flowType: '2', punto_options: ['MI FARMACIA - CALI SUR', 'MI FARMACIA - CALI NORTE'] };
-  handleSede('ask_punto', makeArgs('ask_punto', '1', '1', ctx));
+  await handleSede('ask_punto', makeArgs('ask_punto', '1', '1', ctx));
   assert.equal(mockSetStep.mock.calls[0].arguments[2], 'req_name');
   reset();
 });
 
-test('handleSede: ask_ciudad_confirm single punto routes directly without asking punto', () => {
+test('handleSede: ask_ciudad_confirm single punto routes directly without asking punto', async () => {
   mockGetPuntosCiudad.mock.mockImplementation(() => ['MI FARMACIA - MANIZALES']);
-  const result = handleSede('ask_ciudad_confirm', makeArgs('ask_ciudad_confirm', '1', '1', {
+  const result = await handleSede('ask_ciudad_confirm', makeArgs('ask_ciudad_confirm', '1', '1', {
     flowType: '2',
     ciudad_candidates: ['MANIZALES'],
   }));

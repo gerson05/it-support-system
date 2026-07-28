@@ -48,7 +48,7 @@ function reset() {
 await mock.module('../../src/config/database.js', {
   exports: {
     default: {
-      prepare: () => ({ get: () => null, all: () => [], run: () => ({ changes: 1 }) }),
+      prepare: () => ({ get: async () => null, all: async () => [], run: async () => ({ changes: 1 }) }),
       exec: () => {},
     },
   },

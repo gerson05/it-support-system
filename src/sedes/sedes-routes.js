@@ -6,7 +6,7 @@ import { wrap } from '../utils/async-handler.js';
 
 const router = express.Router();
 
-function generateDespachoNumero() {
+async function generateDespachoNumero() {
   const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
   const like = `DES-${dateStr}-%`;
   const last = await db.prepare('SELECT numero FROM despachos WHERE numero LIKE ? ORDER BY id DESC LIMIT 1').get(like);

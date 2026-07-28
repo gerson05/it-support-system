@@ -54,3 +54,15 @@ _wal_checkpoint.mjs
 database/recovered_tables.json
 database/tickets_rebuilt.db
 database/dump.json
+
+# Runtime data — never commit
+database/*.db
+database/*.db-shm
+database/*.db-wal
+database/baileys-auth/
+uploads/
+
+# Local env variants and utility scripts
+.env.linux
+.env.windows
+fix-noexport-async.cjs

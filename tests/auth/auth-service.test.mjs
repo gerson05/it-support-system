@@ -4,15 +4,15 @@ import assert from 'node:assert/strict';
 // Mutable mock — tests can override per-call
 let _mockGet = () => null;
 let _mockAll = () => [];
-let _mockRun = () => ({ changes: 1 });
+let _mockRun = () => ({ changes: 1, lastInsertRowid: 1 });
 
 await mock.module('../../src/config/database.js', {
   exports: {
     default: {
       prepare: (sql) => ({
-        run:  (...a) => _mockRun(sql, ...a),
-        get:  (...a) => _mockGet(sql, ...a),
-        all:  (...a) => _mockAll(sql, ...a),
+        run: async (...a) => _mockRun(sql, ...a),
+        get: async (...a) => _mockGet(sql, ...a),
+        all: async (...a) => _mockAll(sql, ...a),
       }),
     },
   },
@@ -83,45 +83,45 @@ test('verifyPassword: round-trips multiple passwords', async () => {
 
 // ── createSession ─────────────────────────────────────────────────────────────
 
-test('createSession: returns token and expiresAt', () => {
-  const result = createSession(42);
+test('createSession: returns token and expiresAt', async () => {
+  const result = await createSession(42);
   assert.ok(typeof result.token === 'string');
-  assert.equal(result.token.length, 64); // 32 bytes hex = 64 chars
+  assert.equal(result.token.length, 64);
   assert.ok(typeof result.expiresAt === 'string');
-  assert.ok(result.expiresAt.includes('T')); // ISO format
+  assert.ok(result.expiresAt.includes('T'));
   resetMocks();
 });
 
-test('createSession: token is unique per call', () => {
-  const r1 = createSession(1);
-  const r2 = createSession(1);
+test('createSession: token is unique per call', async () => {
+  const r1 = await createSession(1);
+  const r2 = await createSession(1);
   assert.notEqual(r1.token, r2.token);
   resetMocks();
 });
 
 // ── getSession ────────────────────────────────────────────────────────────────
 
-test('getSession: null token returns null without db call', () => {
+test('getSession: null token returns null without db call', async () => {
   let called = false;
   _mockGet = () => { called = true; return null; };
-  assert.equal(getSession(null), null);
+  assert.equal(await getSession(null), null);
   assert.equal(called, false);
   resetMocks();
 });
 
-test('getSession: valid token with no session row returns null', () => {
+test('getSession: valid token with no session row returns null', async () => {
   _mockGet = () => null;
-  assert.equal(getSession('sometoken'), null);
+  assert.equal(await getSession('sometoken'), null);
   resetMocks();
 });
 
-test('getSession: inactive user returns null', () => {
+test('getSession: inactive user returns null', async () => {
   _mockGet = () => ({ user_id: 1, active: 0, role_id: 1, username: 'bob', role_name: 'agent' });
-  assert.equal(getSession('tok'), null);
+  assert.equal(await getSession('tok'), null);
   resetMocks();
 });
 
-test('getSession: valid active session returns user object with permissions', () => {
+test('getSession: valid active session returns user object with permissions', async () => {
   let getCallCount = 0;
   _mockGet = () => {
     getCallCount++;
@@ -129,7 +129,7 @@ test('getSession: valid active session returns user object with permissions', ()
     return null;
   };
   _mockAll = () => [{ name: 'tickets:read' }, { name: 'tickets:write' }];
-  const user = getSession('validtok');
+  const user = await getSession('validtok');
   assert.equal(user.id, 5);
   assert.equal(user.username, 'alice');
   assert.equal(user.role, 'admin');
