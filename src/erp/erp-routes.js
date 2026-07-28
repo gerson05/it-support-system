@@ -164,16 +164,21 @@ router.post('/api/erp/import/empleados', requireAuth, requirePermission('setting
   `);
 
   let imported = 0; let skipped = 0;
+  const rowsData = [];
   ws.eachRow((row, idx) => {
     if (idx === 1) return;
-    const cedula = String(row.getCell(iCedula + 1).value || '').trim();
-    const nombre = String(row.getCell(iNombre + 1).value || '').trim();
-    if (!cedula || !nombre) { skipped++; return; }
-    const cargo = iCargo !== -1 ? String(row.getCell(iCargo + 1).value || '').trim() : '';
-    const area  = iArea  !== -1 ? String(row.getCell(iArea  + 1).value || '').trim() : '';
+    rowsData.push({
+      cedula: String(row.getCell(iCedula + 1).value || '').trim(),
+      nombre: String(row.getCell(iNombre + 1).value || '').trim(),
+      cargo:  iCargo !== -1 ? String(row.getCell(iCargo + 1).value || '').trim() : '',
+      area:   iArea  !== -1 ? String(row.getCell(iArea  + 1).value || '').trim() : '',
+    });
+  });
+  for (const { cedula, nombre, cargo, area } of rowsData) {
+    if (!cedula || !nombre) { skipped++; continue; }
     try { await upsert.run(cedula, nombre, cargo, area); imported++; }
     catch { skipped++; }
-  });
+  }
 
   res.json({ success: true, imported, skipped });
 }));
@@ -208,16 +213,20 @@ router.post('/api/erp/import/puntos', requireAuth, requirePermission('settings:e
   const insert = await db.prepare(`INSERT OR IGNORE INTO puntos (nombre, ciudad, activo) VALUES (?, ?, 1)`);
   const update = await db.prepare(`UPDATE puntos SET ciudad=?, activo=1 WHERE nombre=?`);
 
+  const puntosRows = [];
   ws.eachRow((row, idx) => {
     if (idx === 1) return;
     const nombre = String(row.getCell(iNombre + 1).value || '').trim();
     if (!nombre) { skipped++; return; }
     const ciudad = iCiudad !== -1 ? String(row.getCell(iCiudad + 1).value || '').trim() : '';
+    puntosRows.push({ nombre, ciudad });
+  });
+  for (const { nombre, ciudad } of puntosRows) {
     try {
       const r = await insert.run(nombre, ciudad);
       if (r.changes) { imported++; } else { await update.run(ciudad, nombre); }
     } catch { skipped++; }
-  });
+  }
 
   res.json({ success: true, imported, skipped });
 }));

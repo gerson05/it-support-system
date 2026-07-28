@@ -19,7 +19,7 @@ export async function broadcast(data) {
 }
 
 export async function startOfflineChecker() {
-  setInterval(() => {
+  setInterval(async () => {
     const r = await db.prepare(`
       UPDATE agentes SET estado = 'offline'
       WHERE estado = 'online' AND datetime(last_seen) < datetime('now', '-90 minutes')

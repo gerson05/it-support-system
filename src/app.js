@@ -171,7 +171,7 @@ app.post('/api/whatsapp/reset', (_req, res) => {
 });
 
 // Health
-app.get('/api/health', (_req, res) => {
+app.get('/api/health', async (_req, res) => {
   try {
     await db.prepare('SELECT 1').get();
     res.json({ status: 'ok', uptime: process.uptime(), memory: process.memoryUsage(), timestamp: new Date().toISOString() });
