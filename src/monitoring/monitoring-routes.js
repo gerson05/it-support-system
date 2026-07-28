@@ -19,7 +19,7 @@ export async function broadcast(data) {
 }
 
 export async function startOfflineChecker() {
-  setInterval(() => {
+  setInterval(async () => {
     const r = await db.prepare(`
       UPDATE agentes SET estado = 'offline'
       WHERE estado = 'online' AND datetime(last_seen) < datetime('now', '-90 minutes')
@@ -102,7 +102,7 @@ async function agentAuth(req, res, next) {
 }
 
 /* POST /api/monitoring/register */
-router.post('/api/monitoring/register', (req, res) => {
+router.post('/api/monitoring/register', async (req, res) => {
   const { hostname, ip, mac_address, os_name, os_version,
           cpu_model, cpu_cores, cpu_ghz, ram_total,
           disk_model, disk_total, gpu,
@@ -193,7 +193,7 @@ router.post('/api/monitoring/heartbeat', agentAuth, wrap(async (req, res) => {
 }));
 
 /* GET /api/monitoring/agents */
-router.get('/api/monitoring/agents', ...canRead, (req, res) => {
+router.get('/api/monitoring/agents', ...canRead, async (req, res) => {
   const agents = await db.prepare(`
     SELECT a.*,
            m.cpu_percent, m.ram_used, m.disk_used, m.uptime,
@@ -208,7 +208,7 @@ router.get('/api/monitoring/agents', ...canRead, (req, res) => {
 });
 
 /* GET /api/monitoring/agents/:id */
-router.get('/api/monitoring/agents/:id', ...canRead, (req, res) => {
+router.get('/api/monitoring/agents/:id', ...canRead, async (req, res) => {
   const agent = await db.prepare('SELECT * FROM agentes WHERE id = ?').get(req.params.id);
   if (!agent) return res.status(404).json({ error: 'Not found.' });
   const metrics = await db.prepare(`
@@ -233,7 +233,7 @@ router.get('/api/monitoring/stream', ...canRead, (req, res) => {
 });
 
 /* POST /api/monitoring/agents/:id/command */
-router.post('/api/monitoring/agents/:id/command', ...canCommand, (req, res) => {
+router.post('/api/monitoring/agents/:id/command', ...canCommand, async (req, res) => {
   const { tipo, parametro } = req.body;
   const validTypes = [
     'reboot', 'shutdown', 'kill_process', 'processes', 'shell',
@@ -261,7 +261,7 @@ router.post('/api/monitoring/agents/:id/command', ...canCommand, (req, res) => {
 });
 
 /* POST /api/monitoring/command/:id/output */
-router.post('/api/monitoring/command/:id/output', agentAuth, (req, res) => {
+router.post('/api/monitoring/command/:id/output', agentAuth, async (req, res) => {
   const { chunk, done, exit_code } = req.body;
   const cmd = await db.prepare('SELECT agente_id FROM comandos_agente WHERE id = ?').get(req.params.id);
   if (!cmd) return res.status(404).json({ error: 'Comando no encontrado.' });
@@ -284,7 +284,7 @@ router.post('/api/monitoring/command/:id/output', agentAuth, (req, res) => {
 });
 
 /* GET /api/monitoring/agents/:id/commands */
-router.get('/api/monitoring/agents/:id/commands', ...canCommand, (req, res) => {
+router.get('/api/monitoring/agents/:id/commands', ...canCommand, async (req, res) => {
   const commands = await db.prepare(`
     SELECT * FROM comandos_agente
     WHERE agente_id = ?

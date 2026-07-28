@@ -24,13 +24,13 @@ router.get('/api/tickets', ...canRead, wrap(async (req, res) => {
     limit: req.query.limit ? parseInt(req.query.limit) : 10
   };
 
-  const data = ticketService.getAll(filters);
+  const data = await ticketService.getAll(filters);
   res.json(data);
 }));
 
 router.get('/api/tickets/:id', ...canRead, wrap(async (req, res) => {
   const ticketId = parseInt(req.params.id);
-  const ticket = ticketService.getById(ticketId);
+  const ticket = await ticketService.getById(ticketId);
 
   if (!ticket) {
     return res.status(404).json({ error: 'Ticket no encontrado.' });
@@ -43,7 +43,7 @@ router.put('/api/tickets/:id', ...canEdit, wrap(async (req, res) => {
   const ticketId = parseInt(req.params.id);
   const { status, priority, assigned_to, requester_name, category } = req.body;
 
-  const updated = ticketService.update(ticketId, { status, priority, assigned_to, requester_name, category });
+  const updated = await ticketService.update(ticketId, { status, priority, assigned_to, requester_name, category });
 
   if (!updated) {
     return res.status(404).json({ error: 'Ticket no encontrado o sin cambios que aplicar.' });
@@ -101,7 +101,7 @@ router.post('/api/tickets/:id/messages', ...canEdit, wrap(async (req, res) => {
     return res.status(404).json({ error: 'Ticket no encontrado.' });
   }
 
-  const saved = ticketService.addMessage(ticketId, 'agent', agentName || 'Soporte IT', content);
+  const saved = await ticketService.addMessage(ticketId, 'agent', agentName || 'Soporte IT', content);
   if (!saved) {
     return res.status(500).json({ error: 'Error al registrar el mensaje en la base de datos.' });
   }
@@ -127,7 +127,7 @@ router.post('/api/tickets/:id/notes', ...canEdit, wrap(async (req, res) => {
     return res.status(400).json({ error: 'El contenido de la nota es requerido.' });
   }
 
-  const saved = ticketService.addNote(ticketId, agentId, agentName || 'Agente IT', content);
+  const saved = await ticketService.addNote(ticketId, agentId, agentName || 'Agente IT', content);
   if (!saved) {
     return res.status(500).json({ error: 'Error al guardar la nota interna.' });
   }
@@ -137,7 +137,7 @@ router.post('/api/tickets/:id/notes', ...canEdit, wrap(async (req, res) => {
 
 router.post('/api/tickets/:id/send-image', ...canEdit, wrap(async (req, res) => {
   const ticketId = parseInt(req.params.id);
-  const ticket   = ticketService.getById(ticketId);
+  const ticket   = await ticketService.getById(ticketId);
   if (!ticket) return res.status(404).json({ error: 'Ticket no encontrado.' });
 
   const { base64, mimetype = 'image/jpeg', caption = '', agentName = 'Agente IT' } = req.body;

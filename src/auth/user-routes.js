@@ -107,9 +107,9 @@ router.put('/api/users/:id', ...itOnly, wrap(async (req, res) => {
   if (active === 0) {
     const itRole = await db.prepare("SELECT id FROM roles WHERE name = 'it'").get();
     if (itRole && target.role_id === itRole.id) {
-      const itCount = await db.prepare(
+      const itCount = (await db.prepare(
         'SELECT COUNT(*) AS n FROM users WHERE role_id = ? AND active = 1'
-      ).get(itRole.id).n;
+      ).get(itRole.id)).n;
       if (itCount <= 1) {
         return res.status(400).json({ error: 'No puedes desactivar al único usuario IT activo.' });
       }
@@ -150,9 +150,9 @@ router.delete('/api/users/:id', ...itOnly, wrap(async (req, res) => {
 
   const itRole = await db.prepare("SELECT id FROM roles WHERE name = 'it'").get();
   if (itRole && target.role_id === itRole.id) {
-    const itCount = await db.prepare(
+    const itCount = (await db.prepare(
       'SELECT COUNT(*) AS n FROM users WHERE role_id = ? AND active = 1'
-    ).get(itRole.id).n;
+    ).get(itRole.id)).n;
     if (itCount <= 1) {
       return res.status(400).json({ error: 'No puedes desactivar al único usuario IT activo.' });
     }
@@ -269,9 +269,9 @@ router.delete('/api/roles/:id', ...itOnly, wrap(async (req, res) => {
     return res.status(404).json({ error: 'Rol no encontrado.' });
   }
 
-  const n = await db.prepare(
+  const n = (await db.prepare(
     'SELECT COUNT(*) AS n FROM users WHERE role_id = ?'
-  ).get(id).n;
+  ).get(id)).n;
   if (n > 0) {
     return res.status(400).json({
       error: `Este rol tiene ${n} usuario${n > 1 ? 's' : ''} asignado${n > 1 ? 's' : ''}. Reasígnalos antes de eliminar.`,

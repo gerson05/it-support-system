@@ -63,7 +63,6 @@ async function main() {
     username: 'admin',
     password: process.env.INIT_ADMIN_PASS,
   }).catch(e => ({ status: 0, body: e.message }));
-  console.log(`  login response: ${JSON.stringify(login.body)}`);
   check('Admin login', login.status === 200, `HTTP ${login.status}`);
 
   for (const [path, label] of [
@@ -94,7 +93,7 @@ async function main() {
     await sleep(200);
   }
 
-  const tickets = await get('/api/tickets').catch(e => ({ status: 0, body: {} }));
+  const tickets = await get('/api/tickets').catch(e => ({ status: 0, body: { error: e.message } }));
   check('Ticket was created', (tickets.body?.total ?? 0) > 0, `total=${tickets.body?.total}`);
 
   server.kill();

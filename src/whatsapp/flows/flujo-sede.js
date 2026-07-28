@@ -4,11 +4,11 @@ import { AREA_MAP_FULL, AREA_MAP_SIMPLE } from '../chatbot-config.js';
 
 const SEDE_STEPS = new Set(['ask_ciudad', 'ask_ciudad_confirm', 'ask_punto', 'select_type']);
 
-export async function isSedeCompleta(sede) {
+export function isSedeCompleta(sede) {
   return (sede || '').toUpperCase().includes('SEDE PRINCIPAL');
 }
 
-export async function routeAfterSede(flowType, sedeLabel, sedeRaw = '') {
+export function routeAfterSede(flowType, sedeLabel, sedeRaw = '') {
   const confirma = `✅ Punto: *${sedeLabel}*\n\n`;
   const completa = isSedeCompleta(sedeRaw || sedeLabel);
 
@@ -60,7 +60,7 @@ export async function handleSede(step, { text, cleanText, session, phone, db }) 
   if (step === 'select_type') {
     const typeMap = { '1': 'soporte', '2': 'requerimiento', '3': 'incidencia' };
     if (typeMap[cleanText]) {
-      setStep(db, phone, 'ask_ciudad', null, JSON.stringify({ flowType: cleanText }));
+      await setStep(db, phone, 'ask_ciudad', null, JSON.stringify({ flowType: cleanText }));
       return (
         `📍 *¿Desde qué ciudad nos escribes?*\n\n` +
         `Escribe el nombre de tu ciudad.\n` +
@@ -76,7 +76,7 @@ export async function handleSede(step, { text, cleanText, session, phone, db }) 
   }
 
   if (step === 'ask_ciudad') {
-    const ciudades = matchCiudad(text, db);
+    const ciudades = await matchCiudad(text, db);
     if (ciudades.length === 0) {
       return (
         `❓ No encontré ninguna ciudad con "*${text}*".\n\n` +
@@ -86,20 +86,20 @@ export async function handleSede(step, { text, cleanText, session, phone, db }) 
     }
     if (ciudades.length > 1) {
       ctx.ciudad_candidates = ciudades;
-      setStep(db, phone, 'ask_ciudad_confirm', null, JSON.stringify(ctx));
+      await setStep(db, phone, 'ask_ciudad_confirm', null, JSON.stringify(ctx));
       const lista = ciudades.map((c, i) => `*${i + 1}️⃣* ${c}`).join('\n');
       return `⚠️ Encontré varias ciudades. ¿Cuál es la tuya?\n\n${lista}\n\n_Responde con el número._`;
     }
     const ciudad = ciudades[0];
-    const puntos = getPuntosCiudad(ciudad, db);
+    const puntos = await getPuntosCiudad(ciudad, db);
     if (puntos.length === 1) {
       ctx.sede = puntos[0]; ctx.ciudad = ciudad;
       const { step: ns, msg } = routeAfterSede(ctx.flowType, displaySede(ctx.sede), ctx.sede);
-      setStep(db, phone, ns, null, JSON.stringify(ctx));
+      await setStep(db, phone, ns, null, JSON.stringify(ctx));
       return `✅ Ciudad: *${ciudad}*\n\n` + msg;
     }
     ctx.ciudad = ciudad; ctx.punto_options = puntos;
-    setStep(db, phone, 'ask_punto', null, JSON.stringify(ctx));
+    await setStep(db, phone, 'ask_punto', null, JSON.stringify(ctx));
     const lista = puntos.map((p, i) => `*${i + 1}️⃣* ${displaySede(p)}`).join('\n');
     return `✅ Ciudad: *${ciudad}*\n\n📍 *¿Cuál es tu punto de atención?*\n\n${lista}\n\n_Responde con el número (ej. 1)_`;
   }
@@ -112,17 +112,17 @@ export async function handleSede(step, { text, cleanText, session, phone, db }) 
       return `⚠️ Opción no válida. Responde con un número:\n\n${lista}`;
     }
     const ciudad = cands[idx];
-    const puntos = getPuntosCiudad(ciudad, db);
+    const puntos = await getPuntosCiudad(ciudad, db);
     delete ctx.ciudad_candidates;
     ctx.ciudad = ciudad;
     if (puntos.length === 1) {
       ctx.sede = puntos[0];
       const { step: ns, msg } = routeAfterSede(ctx.flowType, displaySede(ctx.sede), ctx.sede);
-      setStep(db, phone, ns, null, JSON.stringify(ctx));
+      await setStep(db, phone, ns, null, JSON.stringify(ctx));
       return `✅ Ciudad: *${ciudad}*\n\n` + msg;
     }
     ctx.punto_options = puntos;
-    setStep(db, phone, 'ask_punto', null, JSON.stringify(ctx));
+    await setStep(db, phone, 'ask_punto', null, JSON.stringify(ctx));
     const lista = puntos.map((p, i) => `*${i + 1}️⃣* ${displaySede(p)}`).join('\n');
     return `✅ Ciudad: *${ciudad}*\n\n📍 *¿Cuál es tu punto de atención?*\n\n${lista}\n\n_Responde con el número (ej. 1)_`;
   }
@@ -137,6 +137,6 @@ export async function handleSede(step, { text, cleanText, session, phone, db }) 
   ctx.sede = puntos[idx];
   delete ctx.punto_options;
   const { step: ns, msg } = routeAfterSede(ctx.flowType, displaySede(ctx.sede), ctx.sede);
-  setStep(db, phone, ns, null, JSON.stringify(ctx));
+  await setStep(db, phone, ns, null, JSON.stringify(ctx));
   return `✅ Punto: *${displaySede(ctx.sede)}*\n\n` + msg;
 }

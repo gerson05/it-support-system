@@ -87,7 +87,7 @@ app.post('/api/simulate', requireAuth, async (req, res) => {
   }
 });
 
-app.post('/api/simulate/reset', requireAuth, (req, res) => {
+app.post('/api/simulate/reset', requireAuth, async (req, res) => {
   try {
     const { phone } = req.body;
     if (!phone) return res.status(400).json({ error: 'Teléfono es requerido.' });
@@ -138,7 +138,7 @@ app.get('/api/whatsapp/qr', (_req, res) => {
   res.json(status.qrString ? { qr: status.qrString } : { qr: null, message: 'No hay QR disponible.' });
 });
 
-app.post('/api/whatsapp/connect', (req, res) => {
+app.post('/api/whatsapp/connect', async (req, res) => {
   try {
     const status = whatsappClient.getStatus();
     if (status.connected) return res.json({ success: true, message: 'WhatsApp ya está conectado.', status });
@@ -171,7 +171,7 @@ app.post('/api/whatsapp/reset', (_req, res) => {
 });
 
 // Health
-app.get('/api/health', (_req, res) => {
+app.get('/api/health', async (_req, res) => {
   try {
     await db.prepare('SELECT 1').get();
     res.json({ status: 'ok', uptime: process.uptime(), memory: process.memoryUsage(), timestamp: new Date().toISOString() });

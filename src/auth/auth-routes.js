@@ -23,7 +23,7 @@ async function _checkLoginRate(ip) {
 }
 
 router.post('/api/auth/login', async (req, res) => {
-  if (_checkLoginRate(req.ip || req.socket.remoteAddress)) {
+  if (await _checkLoginRate(req.ip || req.socket.remoteAddress)) {
     return res.status(429).json({ error: 'Demasiados intentos. Espera 15 minutos.' });
   }
   const { username, password } = req.body;
@@ -39,7 +39,7 @@ router.post('/api/auth/login', async (req, res) => {
   if (!valid) return res.status(401).json({ error: 'Credenciales incorrectas.' });
   if (!user.active) return res.status(403).json({ error: 'Cuenta desactivada. Contacta al equipo IT.' });
 
-  const { token } = createSession(user.id);
+  const { token } = await createSession(user.id);
   res.cookie(COOKIE, token, COOKIE_OPTS);
 
   const role = await db.prepare('SELECT name FROM roles WHERE id = ?').get(user.role_id);
