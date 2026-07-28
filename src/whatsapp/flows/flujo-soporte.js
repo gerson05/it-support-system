@@ -20,7 +20,7 @@ export async function handleSoporte(step, { text, cleanText, session, phone, db,
   if (step === 'menu_area') {
     const a = AREA_MAP_FULL[cleanText];
     if (!a) return `⚠️ Opción no válida. Selecciona tu área (1–7):\n\n*1* Cartera\n*2* Compra\n*3* Gestión Humana\n*4* PQRS\n*5* Contabilidad\n*6* Farmacia\n*7* Cuentas Médicas`;
-    setStep(db, phone, 'ask_ticket_name', a, '{}');
+    await setStep(db, phone, 'ask_ticket_name', a, '{}');
     return `👍 Área: *${AREA_NAMES[a]}*\n\n👤 *¿Cuál es tu nombre completo?*`;
   }
 
@@ -28,14 +28,14 @@ export async function handleSoporte(step, { text, cleanText, session, phone, db,
   if (step === 'menu_area_simple') {
     const a = AREA_MAP_SIMPLE[cleanText];
     if (!a) return `⚠️ Opción no válida. Responde con:\n\n*1* — Administrativo\n*2* — Farmacia`;
-    setStep(db, phone, 'ask_ticket_name', a, '{}');
+    await setStep(db, phone, 'ask_ticket_name', a, '{}');
     return `👍 Área: *${AREA_NAMES[a]}*\n\n*¿Cuál es tu nombre completo?*`;
   }
 
   /* ── Nombre del solicitante ── */
   if (step === 'ask_ticket_name') {
     ctx.requester_name = text.trim();
-    setStep(db, phone, 'awaiting_description', area, JSON.stringify(ctx));
+    await setStep(db, phone, 'awaiting_description', area, JSON.stringify(ctx));
     const ejemplos = AREA_EXAMPLES[area] || '';
     return (
       `✅ Gracias, *${ctx.requester_name}*.\n\n` +
@@ -79,7 +79,7 @@ export async function handleSoporte(step, { text, cleanText, session, phone, db,
     if (aiSolution) {
       const nextCtx = { description, area, faq_shown_id: faqId };
       if (ctx._imageBase64) { nextCtx._imageBase64 = ctx._imageBase64; nextCtx._imageMimetype = ctx._imageMimetype; }
-      setStep(db, phone, 'ask_resolved', area, JSON.stringify(nextCtx));
+      await setStep(db, phone, 'ask_resolved', area, JSON.stringify(nextCtx));
       return (
         msgHeader + aiSolution + `\n\n━━━━━━━━━━━━━━━\n` +
         `*¿Pudiste resolver el problema?*\n\n` +
@@ -88,7 +88,7 @@ export async function handleSoporte(step, { text, cleanText, session, phone, db,
     }
     const nextCtx = { description, area };
     if (ctx._imageBase64) { nextCtx._imageBase64 = ctx._imageBase64; nextCtx._imageMimetype = ctx._imageMimetype; }
-    setStep(db, phone, 'create_ticket', area, JSON.stringify(nextCtx));
+    await setStep(db, phone, 'create_ticket', area, JSON.stringify(nextCtx));
     return `No encontré solución automática para este caso. 🤔\n\nVoy a crear un *ticket de soporte* directamente.\n¿Tienes algún detalle adicional que agregar?\n\n_(O responde *no* para crear el ticket ahora)_`;
   }
 
@@ -101,14 +101,14 @@ export async function handleSoporte(step, { text, cleanText, session, phone, db,
             .run(phone, String(ctx.faq_shown_id));
         } catch {}
       }
-      setStep(db, phone, 'idle', null, '{}');
+      await setStep(db, phone, 'idle', null, '{}');
       return `🎉 *¡Genial, problema resuelto!*\n\nMe alegra haber podido ayudarte. Si tienes otra consulta, solo escribe *Hola*. ¡Buen día! 😊`;
     }
 
     if (cleanText === '2' || /^no\b/i.test(cleanText)) {
       const existing = await db.prepare(`SELECT ticket_number FROM tickets WHERE phone=? AND status IN ('abierto','en_progreso','en_espera') ORDER BY id DESC LIMIT 1`).get(phone);
       if (existing) {
-        setStep(db, phone, 'confirm_dup_ticket', area, JSON.stringify(ctx));
+        await setStep(db, phone, 'confirm_dup_ticket', area, JSON.stringify(ctx));
         return (
           `⚠️ Ya tienes el ticket *${existing.ticket_number}* activo en el sistema.\n\n` +
           `¿Tu problema actual es *diferente* al de ese ticket?\n\n` +
@@ -119,7 +119,7 @@ export async function handleSoporte(step, { text, cleanText, session, phone, db,
       const priority = detectPriority(ctx.description);
       const imageCtx = ctx._imageBase64 ? { base64: ctx._imageBase64, mimetype: ctx._imageMimetype } : null;
       const ticketId = await crearTicket(db, phone, area, ctx.description || '(sin descripción)', { priority, requesterName: ctx.requester_name, imageCtx, chatId });
-      setStep(db, phone, 'idle', null, '{}');
+      await setStep(db, phone, 'idle', null, '{}');
       const { ticket_number } = await db.prepare('SELECT ticket_number FROM tickets WHERE id=?').get(ticketId);
       return (
         `😔 Entendido. El equipo de IT tomará el caso directamente.\n\n` +
@@ -130,7 +130,7 @@ export async function handleSoporte(step, { text, cleanText, session, phone, db,
     }
 
     if (cleanText === '3' || /diferente|otro|distint/i.test(cleanText)) {
-      setStep(db, phone, 'awaiting_description', area, JSON.stringify({ faq_tried: true }));
+      await setStep(db, phone, 'awaiting_description', area, JSON.stringify({ faq_tried: true }));
       return `Entendido. 🔄\n\n📝 *Descríbeme tu problema con más detalle:*\n\nIncluye el programa o equipo, el mensaje de error exacto y qué acción realizabas.\n\n📸 También puedes enviar una *captura de pantalla* del error.`;
     }
 
@@ -143,7 +143,7 @@ export async function handleSoporte(step, { text, cleanText, session, phone, db,
       const priority = detectPriority(ctx.description);
       const imageCtx = ctx._imageBase64 ? { base64: ctx._imageBase64, mimetype: ctx._imageMimetype } : null;
       const ticketId = await crearTicket(db, phone, area, ctx.description || '(sin descripción)', { priority, requesterName: ctx.requester_name, imageCtx, chatId });
-      setStep(db, phone, 'idle', null, '{}');
+      await setStep(db, phone, 'idle', null, '{}');
       const { ticket_number } = await db.prepare('SELECT ticket_number FROM tickets WHERE id=?').get(ticketId);
       return `✅ Nuevo ticket creado: *${ticket_number}*\n📍 Área: ${AREA_NAMES[area] || area}\n\nUn técnico se comunicará contigo a la brevedad.`;
     }
@@ -154,7 +154,7 @@ export async function handleSoporte(step, { text, cleanText, session, phone, db,
         await db.prepare(`UPDATE tickets SET updated_at=datetime('now','localtime') WHERE id=?`).run(existing.id);
         appEvents.emit('ticket:message', { ticketId: existing.id });
       }
-      setStep(db, phone, 'idle', null, '{}');
+      await setStep(db, phone, 'idle', null, '{}');
       return `📥 Mensaje agregado al ticket *${existing?.ticket_number || 'existente'}*.\n\nEl equipo de IT revisará la información adicional. ¡Gracias!`;
     }
     return `⚠️ Responde *1* para crear un nuevo ticket o *2* para agregar al ticket existente.`;
@@ -165,7 +165,7 @@ export async function handleSoporte(step, { text, cleanText, session, phone, db,
   const priority = detectPriority(detail);
   const imageCtx = ctx._imageBase64 ? { base64: ctx._imageBase64, mimetype: ctx._imageMimetype } : null;
   const ticketId = await crearTicket(db, phone, area, detail, { priority, requesterName: ctx.requester_name, imageCtx, chatId });
-  setStep(db, phone, 'idle', null, '{}');
+  await setStep(db, phone, 'idle', null, '{}');
   const { ticket_number } = await db.prepare('SELECT ticket_number FROM tickets WHERE id=?').get(ticketId);
   return `🎟️ *¡Ticket creado exitosamente!*\nNúmero de caso: *${ticket_number}*\n\nEl equipo de IT fue notificado. ¡Gracias por tu paciencia!`;
 }

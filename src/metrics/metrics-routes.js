@@ -9,18 +9,18 @@ router.get('/api/metrics', requireAuth, requirePermission('metrics:read'), wrap(
   const totalOpen = (await db.prepare("SELECT COUNT(*) as count FROM tickets WHERE status = 'abierto'").get()).count;
   const totalInProgress = (await db.prepare("SELECT COUNT(*) as count FROM tickets WHERE status = 'en_progreso'").get()).count;
 
-  const totalResolvedToday = await db.prepare(`
+  const totalResolvedToday = (await db.prepare(`
     SELECT COUNT(*) as count
     FROM tickets
     WHERE status = 'resuelto'
     AND date(resolved_at) = date('now', 'localtime')
-  `).get().count;
+  `).get()).count;
 
-  const totalThisWeek = await db.prepare(`
+  const totalThisWeek = (await db.prepare(`
     SELECT COUNT(*) as count
     FROM tickets
     WHERE date(created_at) >= date('now', '-7 days', 'localtime')
-  `).get().count;
+  `).get()).count;
 
   const byArea = await db.prepare(`
     SELECT area, COUNT(*) as count

@@ -84,12 +84,12 @@ export class Chatbot {
         const bizStatus = getBusinessStatus();
         if (bizStatus !== 'open') {
           const isClosing = bizStatus === 'closing';
-          setStep(db, phone, 'oos_name', null, '{}');
+          await setStep(db, phone, 'oos_name', null, '{}');
           response = isClosing
             ? getMsg(db, 'oos_closing', { nextDay: nextBusinessDay() })
             : getMsg(db, 'oos_closed',  { nextDay: nextBusinessDay() });
         } else {
-          setStep(db, phone, 'select_type', null, '{}');
+          await setStep(db, phone, 'select_type', null, '{}');
           response = getMsg(db, 'greeting');
         }
       } else {
@@ -101,7 +101,7 @@ export class Chatbot {
           (await handleSoporte(step, flowArgs)) ??
           (await handleRequerimiento(step, flowArgs)) ??
           (await handleIncidencia(step, flowArgs)) ??
-          (() => { setStep(db, phone, 'idle', null, '{}'); return `❓ No entendí eso. Escribe *Hola* para volver al menú principal.`; })();
+          await (async () => { await setStep(db, phone, 'idle', null, '{}'); return `❓ No entendí eso. Escribe *Hola* para volver al menú principal.`; })();
       }
 
       /* ── Actualizar actividad ── */
@@ -109,7 +109,7 @@ export class Chatbot {
 
     } catch (err) {
       console.error('[Chatbot] Error:', err);
-      setStep(db, phone, 'idle', null, '{}');
+      await setStep(db, phone, 'idle', null, '{}');
       response = getMsg(db, 'error_fallback');
     }
 
