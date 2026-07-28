@@ -25,7 +25,7 @@ await mock.module('../../../src/events/broadcaster.js', {
 const { handleIncidencia } = await import('../../../src/whatsapp/flows/flujo-incidencia.js');
 
 function makeDb() {
-  return { prepare: () => ({ run: () => {}, get: () => null, all: () => [] }) };
+  return { prepare: () => ({ run: async () => {}, get: async () => null, all: async () => [] }) };
 }
 
 function reset() {

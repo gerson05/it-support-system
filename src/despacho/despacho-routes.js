@@ -28,30 +28,30 @@ const canDelete = [requireAuth, requirePermission('despacho:delete')];
 /* ── Despachos CRUD ──────────────────────────────────────────────────── */
 
 router.get('/api/despachos', ...canRead, wrap(async (req, res) => {
-  res.json(getDespachos(db, req.query));
+  res.json(await getDespachos(db, req.query));
 }));
 
 router.get('/api/despachos/borrador', ...canRead, wrap(async (req, res) => {
   const { agente } = req.query;
   if (!agente) return res.status(400).json({ error: 'agente es obligatorio.' });
-  res.json({ borrador: getBorrador(db, agente) });
+  res.json({ borrador: await getBorrador(db, agente) });
 }));
 
 router.put('/api/despachos/borrador', ...canEdit, wrap(async (req, res) => {
   if (!req.body.agente) return res.status(400).json({ error: 'agente es obligatorio.' });
-  upsertBorrador(db, req.body);
+  await upsertBorrador(db, req.body);
   res.json({ ok: true });
 }));
 
 router.delete('/api/despachos/borrador', ...canEdit, wrap(async (req, res) => {
   const { agente } = req.query;
   if (!agente) return res.status(400).json({ error: 'agente es obligatorio.' });
-  deleteBorrador(db, agente);
+  await deleteBorrador(db, agente);
   res.json({ ok: true });
 }));
 
 router.get('/api/despachos/:id', ...canRead, wrap(async (req, res) => {
-  const row = getDespachoById(db, parseInt(req.params.id));
+  const row = await getDespachoById(db, parseInt(req.params.id));
   if (!row) return res.status(404).json({ error: 'Despacho no encontrado.' });
   res.json(row);
 }));
@@ -62,11 +62,11 @@ router.post('/api/despachos', ...canCreate, wrap(async (req, res) => {
   if (!destinatario || !articulos?.length)
     return res.status(400).json({ error: 'Destinatario y artículos son obligatorios.' });
 
-  const numero      = generateNumero(db);
-  const acta_numero = requiere_acta ? generateActaNumero(db) : null;
-  const id          = insertDespacho(db, { numero, destinatario, cedula, sede, area,
-                                           articulos, observaciones, requiere_acta,
-                                           acta_numero, ticket_id, agente });
+  const numero      = await generateNumero(db);
+  const acta_numero = requiere_acta ? await generateActaNumero(db) : null;
+  const id          = await insertDespacho(db, { numero, destinatario, cedula, sede, area,
+                                                 articulos, observaciones, requiere_acta,
+                                                 acta_numero, ticket_id, agente });
 
   logAudit(agente || 'Sistema', 'Despacho creado', 'despacho', id, numero, { destinatario, sede });
 
@@ -75,7 +75,7 @@ router.post('/api/despachos', ...canCreate, wrap(async (req, res) => {
   logDespachoSheet(desData).catch(err => console.error('[sheets-logger] despacho:', err.message));
 
   try {
-    createTracking(db, id, agente || 'IT', 'Bodega Central');
+    await createTracking(db, id, agente || 'IT', 'Bodega Central');
   } catch (err) {
     console.error('[tracking] Error al crear tracking:', err.message);
   }
@@ -107,23 +107,23 @@ router.put('/api/despachos/:id', ...canEdit, wrap(async (req, res) => {
   if (!Object.keys(fieldMap).length)
     return res.status(400).json({ error: 'No se enviaron campos para actualizar.' });
 
-  patchDespacho(db, id, fieldMap);
-  const row = getDespachoById(db, id);
+  await patchDespacho(db, id, fieldMap);
+  const row = await getDespachoById(db, id);
   logAudit(agente || 'Sistema', 'Despacho actualizado', 'despacho', id, row?.numero, { acta_firmada, destinatario });
   res.json({ success: true });
 }));
 
 router.delete('/api/despachos/:id', ...canDelete, wrap(async (req, res) => {
   const id = parseInt(req.params.id);
-  const row = getDespachoById(db, id);
+  const row = await getDespachoById(db, id);
   if (!row) return res.status(404).json({ error: 'Despacho no encontrado.' });
-  deleteDespacho(db, id);
+  await deleteDespacho(db, id);
   logAudit(req.user?.username || 'Sistema', 'Despacho eliminado', 'despacho', id, row.numero, { destinatario: row.destinatario });
   res.json({ ok: true });
 }));
 
 router.post('/api/despachos/:id/acta-word', ...canRead, wrap(async (req, res) => {
-  const despacho = getDespachoById(db, parseInt(req.params.id));
+  const despacho = await getDespachoById(db, parseInt(req.params.id));
   if (!despacho) return res.status(404).json({ error: 'Despacho no encontrado.' });
 
   const articulos = JSON.parse(despacho.articulos || '[]');
@@ -145,24 +145,24 @@ router.post('/api/despachos/:id/acta-word', ...canRead, wrap(async (req, res) =>
 /* ── Tipos de artículo ───────────────────────────────────────────────── */
 
 router.get('/api/tipos-articulo', ...canRead, wrap(async (req, res) => {
-  res.json(getTiposArticulo(db));
+  res.json(await getTiposArticulo(db));
 }));
 
 router.post('/api/tipos-articulo', ...canEdit, wrap(async (req, res) => {
   const nombre = (req.body.nombre || '').trim().toUpperCase();
   if (!nombre) return res.status(400).json({ error: 'Nombre requerido.' });
-  res.json(upsertTipoArticulo(db, nombre));
+  res.json(await upsertTipoArticulo(db, nombre));
 }));
 
 router.delete('/api/tipos-articulo/:id', ...canEdit, wrap(async (req, res) => {
-  deactivateTipoArticulo(db, parseInt(req.params.id));
+  await deactivateTipoArticulo(db, parseInt(req.params.id));
   res.json({ ok: true });
 }));
 
 /* ── Confirmaciones de entrega ───────────────────────────────────────── */
 
 router.get('/api/despachos/:id/confirmacion', ...canRead, wrap(async (req, res) => {
-  const row = getConfirmacion(db, parseInt(req.params.id));
+  const row = await getConfirmacion(db, parseInt(req.params.id));
   if (!row) return res.json({ token: null, confirmed: false });
   const base = getBaseUrl(req);
   res.json({ token: row.token, url: row.token ? `${base}/confirmar/${row.token}` : null, confirmed: !!row.confirmed_at, confirmed_at: row.confirmed_at || null, signed_by: row.signed_by || null });
@@ -170,21 +170,21 @@ router.get('/api/despachos/:id/confirmacion', ...canRead, wrap(async (req, res) 
 
 router.post('/api/despachos/:id/confirmacion', ...canEdit, wrap(async (req, res) => {
   const despachoId = parseInt(req.params.id);
-  const despacho = getDespachoById(db, despachoId);
+  const despacho = await getDespachoById(db, despachoId);
   if (!despacho) return res.status(404).json({ error: 'Despacho no encontrado.' });
   if (despacho.requiere_acta) return res.status(400).json({ error: 'Este despacho requiere acta firmada.' });
 
-  const existing = getConfirmacion(db, despachoId);
+  const existing = await getConfirmacion(db, despachoId);
   if (existing) return res.json({ token: existing.token });
 
   const token = crypto.randomBytes(20).toString('hex');
-  createConfirmacion(db, despachoId, token);
+  await createConfirmacion(db, despachoId, token);
   const base = getBaseUrl(req);
   res.json({ token, url: `${base}/confirmar/${token}` });
 }));
 
 router.get('/confirmar/:token', wrap(async (req, res) => {
-  const row = getConfirmacionByToken(db, req.params.token);
+  const row = await getConfirmacionByToken(db, req.params.token);
   if (!row) return res.status(404).send('<h2>Enlace no válido.</h2>');
   let arts = [];
   try { arts = JSON.parse(row.articulos || '[]'); } catch {}
@@ -197,7 +197,7 @@ router.get('/confirmar/:token', wrap(async (req, res) => {
 }));
 
 router.post('/confirmar/:token', express.json(), wrap(async (req, res) => {
-  const row = getConfirmacionByToken(db, req.params.token);
+  const row = await getConfirmacionByToken(db, req.params.token);
   if (!row) return res.status(404).json({ error: 'Enlace no válido.' });
   if (row.confirmed_at) return res.json({ already: true, confirmed_at: row.confirmed_at, signed_by: row.signed_by || null });
   const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '';
@@ -205,7 +205,7 @@ router.post('/confirmar/:token', express.json(), wrap(async (req, res) => {
   if (!signed_by || !String(signed_by).trim()) {
     return res.status(400).json({ error: 'El nombre es requerido.' });
   }
-  confirmDelivery(db, row.id, ip, String(signed_by).trim(), signature_data || null);
+  await confirmDelivery(db, row.id, ip, String(signed_by).trim(), signature_data || null);
   res.json({ ok: true });
 }));
 

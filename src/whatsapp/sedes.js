@@ -268,7 +268,7 @@ export const SEDES = [
 ───────────────────────────────────────────────────────────── */
 
 /** Nombre corto para mostrar en el chat (sin el prefijo "MI FARMACIA - ") */
-export async function displaySede(sede) {
+export function displaySede(sede) {
   if (!sede) return '';
   if (sede.toUpperCase().startsWith('MI FARMACIA - ')) {
     return sede.slice('MI FARMACIA - '.length);
@@ -291,7 +291,7 @@ function norm(str) {
    Devuelve un array de sedes coincidentes (máx. 5), ordenadas
    de mayor a menor confianza.
 ───────────────────────────────────────────────────────────── */
-export async function matchSede(input) {
+export function matchSede(input) {
   const query = norm(input);
   if (!query || query.length < 2) return [];
 

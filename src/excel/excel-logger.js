@@ -60,7 +60,7 @@ function setupSheet(ws) {
   ws.views = [{ state: 'frozen', ySplit: 1 }];
 }
 
-function styleRow(row, tipo) {
+async function styleRow(row, tipo) {
   const style = TIPO_STYLE[tipo] ?? { bg: 'FFE2E8F0', font: 'FF0F172A' };
 
   row.eachCell({ includeEmpty: true }, cell => {
@@ -82,7 +82,7 @@ function styleRow(row, tipo) {
   row.commit();
 }
 
-function timestamp() {
+async function timestamp() {
   return new Date().toLocaleString('es-CO', {
     timeZone:  'America/Bogota',
     year:      'numeric', month:  '2-digit', day:    '2-digit',

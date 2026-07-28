@@ -11,9 +11,9 @@ function makeMockDb(config = {}) {
   const db = {
     _calls: calls,
     prepare: (sql) => ({
-      get:  (...args) => { calls.push({ op: 'get',  sql, args }); return config.get?.(sql, ...args) ?? null; },
-      all:  (...args) => { calls.push({ op: 'all',  sql, args }); return config.all?.(sql, ...args) ?? [];   },
-      run:  (...args) => { calls.push({ op: 'run',  sql, args }); return config.run?.(sql, ...args) ?? { changes: 1, lastInsertRowid: 1 }; },
+      get: async (...args) => { calls.push({ op: 'get',  sql, args }); return config.get?.(sql, ...args) ?? null; },
+      all: async (...args) => { calls.push({ op: 'all',  sql, args }); return config.all?.(sql, ...args) ?? [];   },
+      run: async (...args) => { calls.push({ op: 'run',  sql, args }); return config.run?.(sql, ...args) ?? { changes: 1, lastInsertRowid: 1 }; },
     }),
   };
   return db;
@@ -21,15 +21,15 @@ function makeMockDb(config = {}) {
 
 // ── getAllTickets ─────────────────────────────────────────────────────────────
 
-test('getAllTickets: no filters → returns paginated result', () => {
+test('getAllTickets: no filters → returns paginated result', async () => {
   const db = makeMockDb({
-    get: (sql) => sql.includes('COUNT(*)') ? { total: 2 } : null,
-    all: () => [
+    get: async (sql) => sql.includes('COUNT(*)') ? { total: 2 } : null,
+    all: async () => [
       { id: 1, area: 'cartera', ticket_number: 'TK-001', status: 'abierto' },
       { id: 2, area: 'farmacia', ticket_number: 'TK-002', status: 'resuelto' },
     ],
   });
-  const result = getAllTickets(db);
+  const result = await getAllTickets(db);
   assert.equal(result.total, 2);
   assert.equal(result.tickets.length, 2);
   assert.equal(result.tickets[0].area_label, 'Cartera');
@@ -39,8 +39,8 @@ test('getAllTickets: no filters → returns paginated result', () => {
 
 test('getAllTickets: status_group=activos → filters active statuses', () => {
   const db = makeMockDb({
-    get: () => ({ total: 0 }),
-    all: () => [],
+    get: async () => ({ total: 0 }),
+    all: async () => [],
   });
   getAllTickets(db, { status_group: 'activos' });
   const countCall = db._calls.find(c => c.op === 'get' && c.sql.includes('COUNT(*)'));
@@ -49,89 +49,89 @@ test('getAllTickets: status_group=activos → filters active statuses', () => {
 });
 
 test('getAllTickets: status_group=archivo → filters archive statuses', () => {
-  const db = makeMockDb({ get: () => ({ total: 0 }), all: () => [] });
+  const db = makeMockDb({ get: async () => ({ total: 0 }), all: async () => [] });
   getAllTickets(db, { status_group: 'archivo' });
   const countCall = db._calls.find(c => c.op === 'get');
   assert.ok(countCall.sql.includes('IN ('));
 });
 
 test('getAllTickets: specific status filter', () => {
-  const db = makeMockDb({ get: () => ({ total: 0 }), all: () => [] });
+  const db = makeMockDb({ get: async () => ({ total: 0 }), all: async () => [] });
   getAllTickets(db, { status: 'resuelto' });
   const call = db._calls.find(c => c.op === 'get');
   assert.ok(call.sql.includes('t.status = ?'));
 });
 
 test('getAllTickets: priority filter', () => {
-  const db = makeMockDb({ get: () => ({ total: 0 }), all: () => [] });
+  const db = makeMockDb({ get: async () => ({ total: 0 }), all: async () => [] });
   getAllTickets(db, { priority: 'alta' });
   const call = db._calls.find(c => c.op === 'get');
   assert.ok(call.sql.includes('t.priority = ?'));
 });
 
 test('getAllTickets: search filter adds LIKE clauses', () => {
-  const db = makeMockDb({ get: () => ({ total: 0 }), all: () => [] });
+  const db = makeMockDb({ get: async () => ({ total: 0 }), all: async () => [] });
   getAllTickets(db, { search: 'excel' });
   const call = db._calls.find(c => c.op === 'get');
   assert.ok(call.sql.includes('LIKE ?'));
 });
 
 test('getAllTickets: assigned_to=null → IS NULL clause', () => {
-  const db = makeMockDb({ get: () => ({ total: 0 }), all: () => [] });
+  const db = makeMockDb({ get: async () => ({ total: 0 }), all: async () => [] });
   getAllTickets(db, { assigned_to: 'null' });
   const call = db._calls.find(c => c.op === 'get');
   assert.ok(call.sql.includes('IS NULL'));
 });
 
 test('getAllTickets: assigned_to=5 → numeric filter', () => {
-  const db = makeMockDb({ get: () => ({ total: 0 }), all: () => [] });
+  const db = makeMockDb({ get: async () => ({ total: 0 }), all: async () => [] });
   getAllTickets(db, { assigned_to: '5' });
   const call = db._calls.find(c => c.op === 'get');
   assert.ok(call.sql.includes('t.assigned_to = ?'));
 });
 
-test('getAllTickets: pagination → correct total_pages', () => {
-  const db = makeMockDb({ get: () => ({ total: 25 }), all: () => [] });
-  const result = getAllTickets(db, { page: 2, limit: 10 });
+test('getAllTickets: pagination → correct total_pages', async () => {
+  const db = makeMockDb({ get: async () => ({ total: 25 }), all: async () => [] });
+  const result = await getAllTickets(db, { page: 2, limit: 10 });
   assert.equal(result.total_pages, 3);
   assert.equal(result.page, 2);
 });
 
-test('getAllTickets: unknown area_label → falls back to area code', () => {
+test('getAllTickets: unknown area_label → falls back to area code', async () => {
   const db = makeMockDb({
-    get: () => ({ total: 1 }),
-    all: () => [{ id: 1, area: 'unknown_area', ticket_number: 'TK-X' }],
+    get: async () => ({ total: 1 }),
+    all: async () => [{ id: 1, area: 'unknown_area', ticket_number: 'TK-X' }],
   });
-  const result = getAllTickets(db);
+  const result = await getAllTickets(db);
   assert.equal(result.tickets[0].area_label, 'unknown_area');
 });
 
 // ── getTicketById ─────────────────────────────────────────────────────────────
 
-test('getTicketById: found → returns ticket with messages and notes', () => {
+test('getTicketById: found → returns ticket with messages and notes', async () => {
   const db = makeMockDb({
-    get: (sql) => sql.includes('WHERE t.id') ? { id: 1, area: 'farmacia', ticket_number: 'TK-001' } : null,
-    all: (sql) => sql.includes('messages') ? [{ id: 10, content: 'Hola' }]
+    get: async (sql) => sql.includes('WHERE t.id') ? { id: 1, area: 'farmacia', ticket_number: 'TK-001' } : null,
+    all: async (sql) => sql.includes('messages') ? [{ id: 10, content: 'Hola' }]
                 : sql.includes('internal_notes') ? [{ id: 20, content: 'Nota' }]
                 : [],
   });
-  const ticket = getTicketById(db, 1);
+  const ticket = await getTicketById(db, 1);
   assert.equal(ticket.id, 1);
   assert.equal(ticket.area_label, 'Farmacia');
   assert.equal(ticket.messages.length, 1);
   assert.equal(ticket.notes.length, 1);
 });
 
-test('getTicketById: not found → null', () => {
-  const db = makeMockDb({ get: () => null });
-  assert.equal(getTicketById(db, 999), null);
+test('getTicketById: not found → null', async () => {
+  const db = makeMockDb({ get: async () => null });
+  assert.equal(await getTicketById(db, 999), null);
 });
 
 // ── updateTicket ─────────────────────────────────────────────────────────────
 
-test('updateTicket: empty data → returns false', () => {
+test('updateTicket: empty data → returns false', async () => {
   const db = makeMockDb();
-  const result = updateTicket(db, 1, {});
+  const result = await updateTicket(db, 1, {});
   assert.equal(result, false);
   assert.equal(db._calls.length, 0);
 });
@@ -166,23 +166,23 @@ test('updateTicket: assigned_to=null → stores NULL', () => {
   assert.ok(call.args.includes(null));
 });
 
-test('updateTicket: changes=0 → returns false', () => {
-  const db = makeMockDb({ run: () => ({ changes: 0 }) });
-  const result = updateTicket(db, 999, { status: 'abierto' });
+test('updateTicket: changes=0 → returns false', async () => {
+  const db = makeMockDb({ run: async () => ({ changes: 0 }) });
+  const result = await updateTicket(db, 999, { status: 'abierto' });
   assert.equal(result, false);
 });
 
-test('updateTicket: changes=1 → returns true', () => {
-  const db = makeMockDb({ run: () => ({ changes: 1 }) });
-  const result = updateTicket(db, 1, { status: 'abierto' });
+test('updateTicket: changes=1 → returns true', async () => {
+  const db = makeMockDb({ run: async () => ({ changes: 1 }) });
+  const result = await updateTicket(db, 1, { status: 'abierto' });
   assert.equal(result, true);
 });
 
 // ── addMessage ────────────────────────────────────────────────────────────────
 
-test('addMessage: inserts message and updates ticket timestamp', () => {
+test('addMessage: inserts message and updates ticket timestamp', async () => {
   const db = makeMockDb();
-  const result = addMessage(db, 1, 'agent', 'IT', 'Mensaje de prueba');
+  const result = await addMessage(db, 1, 'agent', 'IT', 'Mensaje de prueba');
   assert.equal(result, true);
   const insert = db._calls.find(c => c.op === 'run' && c.sql.includes('INSERT INTO messages'));
   const update = db._calls.find(c => c.op === 'run' && c.sql.includes('UPDATE tickets'));
@@ -190,17 +190,17 @@ test('addMessage: inserts message and updates ticket timestamp', () => {
   assert.ok(update, 'should update ticket timestamp');
 });
 
-test('addMessage: changes=0 → returns false', () => {
-  const db = makeMockDb({ run: () => ({ changes: 0 }) });
-  const result = addMessage(db, 1, 'agent', 'IT', 'Prueba');
+test('addMessage: changes=0 → returns false', async () => {
+  const db = makeMockDb({ run: async () => ({ changes: 0 }) });
+  const result = await addMessage(db, 1, 'agent', 'IT', 'Prueba');
   assert.equal(result, false);
 });
 
 // ── addInternalNote ───────────────────────────────────────────────────────────
 
-test('addInternalNote: inserts note and updates ticket timestamp', () => {
+test('addInternalNote: inserts note and updates ticket timestamp', async () => {
   const db = makeMockDb();
-  const result = addInternalNote(db, 1, 5, 'Admin', 'Nota privada');
+  const result = await addInternalNote(db, 1, 5, 'Admin', 'Nota privada');
   assert.equal(result, true);
   const insert = db._calls.find(c => c.op === 'run' && c.sql.includes('INSERT INTO internal_notes'));
   const update = db._calls.find(c => c.op === 'run' && c.sql.includes('UPDATE tickets'));
@@ -211,7 +211,7 @@ test('addInternalNote: inserts note and updates ticket timestamp', () => {
 // ── getAllTickets: area filter (lines 68-72) ───────────────────────────────────
 
 test('getAllTickets: area filter adds WHERE clause', () => {
-  const db = makeMockDb({ get: () => ({ total: 0 }), all: () => [] });
+  const db = makeMockDb({ get: async () => ({ total: 0 }), all: async () => [] });
   getAllTickets(db, { area: 'farmacia' });
   const call = db._calls.find(c => c.op === 'get' && c.sql.includes('COUNT(*)'));
   assert.ok(call.sql.includes('t.area = ?'));
@@ -237,27 +237,27 @@ test('updateTicket: category field included in update', () => {
 
 // ── error propagation (catch blocks) ─────────────────────────────────────────
 
-test('getAllTickets: db error propagates', () => {
-  const db = { prepare: () => ({ get: () => { throw new Error('DB fail'); }, all: () => [] }) };
-  assert.throws(() => getAllTickets(db), /DB fail/);
+test('getAllTickets: db error propagates', async () => {
+  const db = { prepare: () => ({ get: async () => { throw new Error('DB fail'); }, all: async () => [] }) };
+  await assert.rejects(async () => { await getAllTickets(db); }, /DB fail/);
 });
 
-test('getTicketById: db error propagates', () => {
-  const db = { prepare: () => ({ get: () => { throw new Error('DB fail'); }, all: () => [] }) };
-  assert.throws(() => getTicketById(db, 1), /DB fail/);
+test('getTicketById: db error propagates', async () => {
+  const db = { prepare: () => ({ get: async () => { throw new Error('DB fail'); }, all: async () => [] }) };
+  await assert.rejects(async () => { await getTicketById(db, 1); }, /DB fail/);
 });
 
-test('updateTicket: db error propagates', () => {
-  const db = { prepare: () => ({ run: () => { throw new Error('DB fail'); } }) };
-  assert.throws(() => updateTicket(db, 1, { status: 'abierto' }), /DB fail/);
+test('updateTicket: db error propagates', async () => {
+  const db = { prepare: () => ({ run: async () => { throw new Error('DB fail'); } }) };
+  await assert.rejects(async () => { await updateTicket(db, 1, { status: 'abierto' }); }, /DB fail/);
 });
 
-test('addMessage: db error propagates', () => {
-  const db = { prepare: () => ({ run: () => { throw new Error('DB fail'); } }) };
-  assert.throws(() => addMessage(db, 1, 'agent', 'IT', 'msg'), /DB fail/);
+test('addMessage: db error propagates', async () => {
+  const db = { prepare: () => ({ run: async () => { throw new Error('DB fail'); } }) };
+  await assert.rejects(async () => { await addMessage(db, 1, 'agent', 'IT', 'msg'); }, /DB fail/);
 });
 
-test('addInternalNote: db error propagates', () => {
-  const db = { prepare: () => ({ run: () => { throw new Error('DB fail'); } }) };
-  assert.throws(() => addInternalNote(db, 1, 1, 'Admin', 'note'), /DB fail/);
+test('addInternalNote: db error propagates', async () => {
+  const db = { prepare: () => ({ run: async () => { throw new Error('DB fail'); } }) };
+  await assert.rejects(async () => { await addInternalNote(db, 1, 1, 'Admin', 'note'); }, /DB fail/);
 });

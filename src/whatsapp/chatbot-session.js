@@ -7,7 +7,7 @@ export async function setStep(db, phone, step, area = null, ctx = '{}') {
     .run(step, area, ctx, phone);
 }
 
-export async function getCtx(session) {
+export function getCtx(session) {
   try { return JSON.parse(session.context || '{}'); } catch { return {}; }
 }
 

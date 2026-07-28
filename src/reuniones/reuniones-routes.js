@@ -10,7 +10,7 @@ const router = express.Router();
 
 const TIPOS = ['interna', 'con_sede', 'con_proveedor', 'formacion'];
 
-function conflicto(sala_id, inicio, fin, excludeId = null) {
+async function conflicto(sala_id, inicio, fin, excludeId = null) {
   let sql = `SELECT id FROM reuniones
     WHERE sala_id = ? AND estado = 'activa'
       AND fecha_inicio < ? AND fecha_fin > ?`;
@@ -85,7 +85,7 @@ router.post('/api/reuniones', requireAuth, requirePermission('reuniones:create')
   if (durMin < 15)        return res.status(400).json({ error: 'Duración mínima: 15 minutos.' });
   if (durMin > 8 * 60)    return res.status(400).json({ error: 'Duración máxima: 8 horas.' });
 
-  if (conflicto(sala_id, fecha_inicio, fecha_fin))
+  if (await conflicto(sala_id, fecha_inicio, fecha_fin))
     return res.status(409).json({ error: 'La sala ya tiene una reunión en ese horario.' });
 
   const { meetLink, eventId } = await crearEventoConMeet({
@@ -132,7 +132,7 @@ router.put('/api/reuniones/:id', requireAuth, requirePermission('reuniones:edit'
     const durMin = (new Date(nFin) - new Date(nInicio)) / 60000;
     if (durMin < 15)     return res.status(400).json({ error: 'Duración mínima: 15 minutos.' });
     if (durMin > 8 * 60) return res.status(400).json({ error: 'Duración máxima: 8 horas.' });
-    if (conflicto(nSala, nInicio, nFin, id))
+    if (await conflicto(nSala, nInicio, nFin, id))
       return res.status(409).json({ error: 'La sala ya tiene una reunión en ese horario.' });
   }
 
@@ -206,7 +206,7 @@ router.post('/api/reuniones/public', wrap(async (req, res) => {
   if (durMin < 15)     return res.status(400).json({ error: 'Duración mínima: 15 minutos.' });
   if (durMin > 8 * 60) return res.status(400).json({ error: 'Duración máxima: 8 horas.' });
 
-  if (conflicto(sala_id, fecha_inicio, fecha_fin))
+  if (await conflicto(sala_id, fecha_inicio, fecha_fin))
     return res.status(409).json({ error: 'La sala ya tiene una reunión en ese horario.' });
 
   const { meetLink, eventId } = await crearEventoConMeet({
