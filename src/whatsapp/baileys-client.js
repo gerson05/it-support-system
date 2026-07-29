@@ -17,7 +17,7 @@ import { broadcast } from '../events/broadcaster.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const AUTH_DIR = path.resolve(__dirname, '../../database/wwebjs-auth');
+const AUTH_DIR = process.env.WWEBJS_AUTH_DIR || path.resolve(__dirname, '../../.wwebjs_auth');
 
 const chatbot = new Chatbot();
 
