@@ -39,18 +39,19 @@ export async function readSheet() {
   const result = [];
   let currentDept = null;
 
-  rows.forEach((row, idx) => {
+  for (let idx = 0; idx < rows.length; idx++) {
+    const row = rows[idx];
     const sheetRow = idx + 1;
     const colA = (row[0] || '').trim();
     const colB = (row[1] || '').trim();
-    if (!colA || !colB) return;
+    if (!colA || !colB) continue;
 
     if (/elegiste los municipios/i.test(colB)) {
       const match = colB.match(/municipios\s+del?\s+\*?([^*\n]+)\*?/i);
       const nombre = match ? match[1].trim() : `Departamento ${result.length + 1}`;
       currentDept = { nombre, municipios: [] };
       result.push(currentDept);
-      return;
+      continue;
     }
 
     if (/farmacia:/i.test(colB) && currentDept) {
@@ -59,7 +60,7 @@ export async function readSheet() {
       const nombre = keywords.find(k => !/^\d+$/.test(k)) || `Municipio ${numKw ?? sheetRow}`;
       currentDept.municipios.push({ sheetRow, nombre, keywords, farmacias: await parseBlock(colB) });
     }
-  });
+  }
 
   return result;
 }
