@@ -240,15 +240,10 @@ function selfInstallTask() {
     `try{if(-not(Get-NetFirewallRule -DisplayName 'Agente IT' -EA SilentlyContinue)){New-NetFirewallRule -DisplayName 'Agente IT' -Direction Outbound -Program '${esc(localExe)}' -Action Allow -Profile Any | Out-Null}}catch{}`,
     `try{if(-not(Get-NetFirewallRule -DisplayName 'Agente IT (In)' -EA SilentlyContinue)){New-NetFirewallRule -DisplayName 'Agente IT (In)' -Direction Inbound -Program '${esc(localExe)}' -Action Allow -Profile Any | Out-Null}}catch{}`,
     // Scheduled task (SYSTEM, at startup — hardware monitoring)
-    `if(Get-ScheduledTask -TaskName $n -EA SilentlyContinue){Write-Output 'TASK_EXISTS'; exit 0}`,
-    `$a=New-ScheduledTaskAction -Execute '${esc(localExe)}' -WorkingDirectory '${esc(INSTALL_DIR)}'`,
-    `$t=New-ScheduledTaskTrigger -AtStartup`,
-    `$s=New-ScheduledTaskSettingsSet -RestartCount 5 -RestartInterval (New-TimeSpan -Minutes 1) -ExecutionTimeLimit (New-TimeSpan -Days 365)`,
-    `$p=New-ScheduledTaskPrincipal -UserId SYSTEM -RunLevel Highest`,
-    `Register-ScheduledTask -TaskName $n -Action $a -Trigger $t -Settings $s -Principal $p -Force | Out-Null`,
-    // Tray companion (user session, at logon — shows icon in system tray)
+    `if(-not(Get-ScheduledTask -TaskName $n -EA SilentlyContinue)){$a=New-ScheduledTaskAction -Execute '${esc(localExe)}' -WorkingDirectory '${esc(INSTALL_DIR)}'; $t=New-ScheduledTaskTrigger -AtStartup; $s=New-ScheduledTaskSettingsSet -RestartCount 5 -RestartInterval (New-TimeSpan -Minutes 1) -ExecutionTimeLimit (New-TimeSpan -Days 365); $p=New-ScheduledTaskPrincipal -UserId SYSTEM -RunLevel Highest; Register-ScheduledTask -TaskName $n -Action $a -Trigger $t -Settings $s -Principal $p -Force | Out-Null}`,
+    // Tray companion (user session, at logon — shows icon in system tray) — always update
     `$tb='${trayB64}'; [IO.File]::WriteAllText('${esc(INSTALL_DIR)}\\tray.ps1', [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($tb)))`,
-    `$tn='Agente IT Tray'; if(-not(Get-ScheduledTask -TaskName $tn -EA SilentlyContinue)){$ta=New-ScheduledTaskAction -Execute 'powershell.exe' -Argument ('-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File ${esc(INSTALL_DIR)}\\tray.ps1'); $tt=New-ScheduledTaskTrigger -AtLogOn; $ts=New-ScheduledTaskSettingsSet -ExecutionTimeLimit (New-TimeSpan -Days 365) -MultipleInstances IgnoreNew; $tp=New-ScheduledTaskPrincipal -GroupId 'BUILTIN\\Users' -RunLevel Limited; Register-ScheduledTask -TaskName $tn -Action $ta -Trigger $tt -Settings $ts -Principal $tp -Force | Out-Null}`,
+    `$tn='Agente IT Tray'; $ta=New-ScheduledTaskAction -Execute 'powershell.exe' -Argument ('-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File ${esc(INSTALL_DIR)}\\tray.ps1'); $tt=New-ScheduledTaskTrigger -AtLogOn; $ts=New-ScheduledTaskSettingsSet -ExecutionTimeLimit (New-TimeSpan -Days 365) -MultipleInstances IgnoreNew; $tp=New-ScheduledTaskPrincipal -GroupId 'BUILTIN\\Users' -RunLevel Limited; Register-ScheduledTask -TaskName $tn -Action $ta -Trigger $tt -Settings $ts -Principal $tp -Force | Out-Null`,
     `Write-Output 'TASK_CREATED'`,
   ].join('; ');
 
