@@ -30,6 +30,7 @@ import { migrations as m025 } from './migrations/025-kb-embeddings.js';
 import { migrations as m026 } from './migrations/026-inventario-categoria.js';
 import { migrations as m027 } from './migrations/027-celulares-numero-telefono.js';
 import { migrations as m028 } from './migrations/028-inventario-sede.js';
+import { migrations as m029 } from './migrations/029-agent-current-user.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);
@@ -161,7 +162,7 @@ if (useMariaDB) {
   const allMigrations = [
     ...m001, ...m002, ...m003, ...m004, ...m005,
     ...m006, ...m007, ...m008, ...m009, ...m010, ...m011, ...m012, ...m013, ...m014, ...m015, ...m016, ...m017,
-    ...m018, ...m019, ...m020, ...m021, ...m022, ...m023, ...m024, ...m025, ...m026, ...m027, ...m028,
+    ...m018, ...m019, ...m020, ...m021, ...m022, ...m023, ...m024, ...m025, ...m026, ...m027, ...m028, ...m029,
   ];
   for (const sql of allMigrations) {
     try { await db.exec(sql); } catch { /* column/table already exists */ }
@@ -216,7 +217,7 @@ if (useMariaDB) {
   const allMigrations = [
     ...m001, ...m002, ...m003, ...m004, ...m005,
     ...m006, ...m007, ...m008, ...m009, ...m010, ...m011, ...m012, ...m013, ...m014, ...m015, ...m016, ...m017,
-    ...m018, ...m019, ...m020, ...m021, ...m022, ...m023, ...m024, ...m025, ...m026, ...m027, ...m028,
+    ...m018, ...m019, ...m020, ...m021, ...m022, ...m023, ...m024, ...m025, ...m026, ...m027, ...m028, ...m029,
   ];
   for (const sql of allMigrations) {
     try { sqlite.exec(sql); } catch { /* column/table already exists */ }

@@ -106,13 +106,14 @@ router.post('/api/monitoring/register', async (req, res) => {
   const { hostname, ip, mac_address, os_name, os_version,
           cpu_model, cpu_cores, cpu_ghz, ram_total,
           disk_model, disk_total, gpu,
-          serial, manufacturer, model, sede } = req.body;
+          serial, manufacturer, model, sede, current_user } = req.body;
   if (!hostname || !mac_address) return res.status(400).json({ error: 'hostname and mac_address required.' });
 
   const hw      = { hostname, ip, mac_address, os_name, os_version,
                     cpu_model, cpu_cores, cpu_ghz, ram_total,
                     disk_model, disk_total, gpu, serial, manufacturer, model, sede };
   const sedeVal = sede?.trim() || null;
+  const userVal = current_user?.trim() || null;
 
   const existing = await db.prepare('SELECT id, api_key FROM agentes WHERE mac_address = ?').get(mac_address);
   if (existing) {
@@ -121,10 +122,11 @@ router.post('/api/monitoring/register', async (req, res) => {
       SET hostname=?,ip=?,os_name=?,os_version=?,cpu_model=?,cpu_cores=?,cpu_ghz=?,
           ram_total=?,disk_model=?,disk_total=?,gpu=?,
           sede=COALESCE(?,sede),
+          current_user=COALESCE(?,current_user),
           estado='online',last_seen=datetime('now')
       WHERE id=?
     `).run(hostname, ip, os_name, os_version, cpu_model, cpu_cores, cpu_ghz,
-           ram_total, disk_model, disk_total, gpu, sedeVal, existing.id);
+           ram_total, disk_model, disk_total, gpu, sedeVal, userVal, existing.id);
     linkInventory(existing.id, hw);
     broadcast({ type: 'agent_updated', agent_id: existing.id });
     return res.json({ id: existing.id, api_key: existing.api_key });
@@ -134,10 +136,10 @@ router.post('/api/monitoring/register', async (req, res) => {
   const result  = await db.prepare(`
     INSERT INTO agentes
       (hostname,mac_address,ip,os_name,os_version,cpu_model,cpu_cores,cpu_ghz,
-       ram_total,disk_model,disk_total,gpu,sede,api_key,estado,last_seen)
-    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,'online',datetime('now'))
+       ram_total,disk_model,disk_total,gpu,sede,current_user,api_key,estado,last_seen)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'online',datetime('now'))
   `).run(hostname, mac_address, ip, os_name, os_version, cpu_model, cpu_cores, cpu_ghz,
-         ram_total, disk_model, disk_total, gpu, sedeVal, api_key);
+         ram_total, disk_model, disk_total, gpu, sedeVal, userVal, api_key);
 
   const newId = result.lastInsertRowid;
   linkInventory(newId, hw);
@@ -147,13 +149,13 @@ router.post('/api/monitoring/register', async (req, res) => {
 
 /* POST /api/monitoring/heartbeat */
 router.post('/api/monitoring/heartbeat', agentAuth, wrap(async (req, res) => {
-  const { cpu_percent, ram_used, disk_used, uptime } = req.body;
+  const { cpu_percent, ram_used, disk_used, uptime, current_user } = req.body;
   let pending = [];
 
   await db.prepare('BEGIN').run();
   try {
-    await db.prepare(`UPDATE agentes SET estado='online', last_seen=datetime('now') WHERE id=?`)
-      .run(req.agentId);
+    await db.prepare(`UPDATE agentes SET estado='online', last_seen=datetime('now'), current_user=COALESCE(NULLIF(?,''),current_user) WHERE id=?`)
+      .run(current_user || '', req.agentId);
 
     await db.prepare(`
       INSERT INTO metricas_agentes (agente_id, cpu_percent, ram_used, disk_used, uptime)
@@ -183,6 +185,7 @@ router.post('/api/monitoring/heartbeat', agentAuth, wrap(async (req, res) => {
       type: 'metrics', agent_id: req.agentId,
       cpu_percent, ram_used, disk_used, uptime,
       ram_total: agent?.ram_total, disk_total: agent?.disk_total,
+      current_user: current_user || undefined,
     });
 
     res.json({ ok: true, commands: pending });

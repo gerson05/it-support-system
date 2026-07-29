@@ -41,10 +41,12 @@ async function getHardwareInfo() {
   const netList     = Array.isArray(nets) ? nets : [];
   const primaryNet  = netList.find(n => !n.internal && n.ip4) || {};
 
+  const current_user = await getLoggedInUser();
   return {
     hostname:     os.hostname(),
     ip:           primaryNet.ip4 || '',
     mac_address:  primaryNet.mac || `${os.hostname()}-fallback`,
+    current_user,
     os_name:      osInfo.distro || osInfo.platform || '',
     os_version:   osInfo.release || '',
     cpu_model:    cpu.brand || cpu.manufacturer || '',
@@ -73,6 +75,21 @@ async function getMetrics() {
   };
 }
 
+let _cachedUser = '', _userCacheTs = 0;
+async function getLoggedInUser() {
+  if (Date.now() - _userCacheTs < 300_000) return _cachedUser;
+  try {
+    const { execSync } = require('child_process');
+    const raw = execSync(
+      'powershell -NoProfile -Command "(Get-CimInstance Win32_ComputerSystem).UserName"',
+      { timeout: 5000, windowsHide: true }
+    ).toString().trim();
+    _cachedUser = raw.split('\\').pop() || '';
+  } catch { _cachedUser = ''; }
+  _userCacheTs = Date.now();
+  return _cachedUser;
+}
+
 async function register(serverUrl, hw) {
   const res = await fetch(`${serverUrl}/api/monitoring/register`, {
     method: 'POST',
@@ -84,7 +101,7 @@ async function register(serverUrl, hw) {
 }
 
 async function sendHeartbeat(serverUrl, agentId, apiKey) {
-  const metrics = await getMetrics();
+  const [metrics, current_user] = await Promise.all([getMetrics(), getLoggedInUser()]);
   const res = await fetch(`${serverUrl}/api/monitoring/heartbeat`, {
     method: 'POST',
     headers: {
@@ -92,7 +109,7 @@ async function sendHeartbeat(serverUrl, agentId, apiKey) {
       'x-agent-id':   String(agentId),
       'x-api-key':    apiKey,
     },
-    body: JSON.stringify(metrics),
+    body: JSON.stringify({ ...metrics, current_user }),
   });
   if (!res.ok) throw new Error(`Heartbeat failed: ${res.status}`);
   return res.json();
@@ -198,6 +215,20 @@ function selfInstallTask() {
   // Escape single-quotes for PowerShell strings
   const esc = s => s.replace(/'/g, "''");
 
+  // Tray companion: PS1 written as base64 to avoid quoting issues
+  const trayPs1 = [
+    'Add-Type -AssemblyName System.Windows.Forms,System.Drawing',
+    '$ni = New-Object System.Windows.Forms.NotifyIcon',
+    "try { $ni.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon('C:\\agente-it\\agente-it.exe') } catch { $ni.Icon = [System.Drawing.SystemIcons]::Computer }",
+    '$ni.Visible = $true',
+    "$ni.Text = 'Agente IT Medivalle - Activo'",
+    '$ctx = New-Object System.Windows.Forms.ContextMenuStrip',
+    "[void]$ctx.Items.Add('Agente IT Medivalle')",
+    '$ni.ContextMenuStrip = $ctx',
+    '[System.Windows.Forms.Application]::Run()',
+  ].join('\r\n');
+  const trayB64 = Buffer.from(trayPs1, 'utf8').toString('base64');
+
   const ps = [
     `$n='Agente IT'`,
     `New-Item -ItemType Directory -Force '${esc(INSTALL_DIR)}' | Out-Null`,
@@ -208,13 +239,16 @@ function selfInstallTask() {
     // Firewall rules (best-effort, ignore errors individually)
     `try{if(-not(Get-NetFirewallRule -DisplayName 'Agente IT' -EA SilentlyContinue)){New-NetFirewallRule -DisplayName 'Agente IT' -Direction Outbound -Program '${esc(localExe)}' -Action Allow -Profile Any | Out-Null}}catch{}`,
     `try{if(-not(Get-NetFirewallRule -DisplayName 'Agente IT (In)' -EA SilentlyContinue)){New-NetFirewallRule -DisplayName 'Agente IT (In)' -Direction Inbound -Program '${esc(localExe)}' -Action Allow -Profile Any | Out-Null}}catch{}`,
-    // Scheduled task
+    // Scheduled task (SYSTEM, at startup — hardware monitoring)
     `if(Get-ScheduledTask -TaskName $n -EA SilentlyContinue){Write-Output 'TASK_EXISTS'; exit 0}`,
     `$a=New-ScheduledTaskAction -Execute '${esc(localExe)}' -WorkingDirectory '${esc(INSTALL_DIR)}'`,
     `$t=New-ScheduledTaskTrigger -AtStartup`,
     `$s=New-ScheduledTaskSettingsSet -RestartCount 5 -RestartInterval (New-TimeSpan -Minutes 1) -ExecutionTimeLimit (New-TimeSpan -Days 365)`,
     `$p=New-ScheduledTaskPrincipal -UserId SYSTEM -RunLevel Highest`,
     `Register-ScheduledTask -TaskName $n -Action $a -Trigger $t -Settings $s -Principal $p -Force | Out-Null`,
+    // Tray companion (user session, at logon — shows icon in system tray)
+    `$tb='${trayB64}'; [IO.File]::WriteAllText('${esc(INSTALL_DIR)}\\tray.ps1', [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($tb)))`,
+    `$tn='Agente IT Tray'; if(-not(Get-ScheduledTask -TaskName $tn -EA SilentlyContinue)){$ta=New-ScheduledTaskAction -Execute 'powershell.exe' -Argument ('-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File ${esc(INSTALL_DIR)}\\tray.ps1'); $tt=New-ScheduledTaskTrigger -AtLogOn; $ts=New-ScheduledTaskSettingsSet -ExecutionTimeLimit (New-TimeSpan -Days 365) -MultipleInstances IgnoreNew; $tp=New-ScheduledTaskPrincipal -GroupId 'BUILTIN\\Users' -RunLevel Limited; Register-ScheduledTask -TaskName $tn -Action $ta -Trigger $tt -Settings $ts -Principal $tp -Force | Out-Null}`,
     `Write-Output 'TASK_CREATED'`,
   ].join('; ');
 
