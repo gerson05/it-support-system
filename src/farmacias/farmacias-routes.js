@@ -65,19 +65,12 @@ router.post('/api/farmacias/municipio', requireAuth, requirePermission('farmacia
     ? Math.max(...dept.municipios.map(m => m.sheetRow))
     : dept.sheetRow;
 
-  // El consecutivo (columna A) es único y correlativo a lo largo de TODA la
-  // hoja — no reinicia por departamento — así que hay que revisar todos los
-  // municipios de todos los departamentos para hallar el próximo número libre.
-  const nextNum = data.flatMap(d => d.municipios).reduce((max, m) => {
-    const n = Number((m.keywords || []).find(k => /^\d+$/.test(k)));
-    return Number.isFinite(n) && n > max ? n : max;
-  }, 0) + 1;
-
-  const nombreLimpio = municipioNombre.trim();
-  const colA = `${nextNum}, ${nombreLimpio}, ${nombreLimpio.toLowerCase()}, ${nombreLimpio.toUpperCase()}`;
+  // El consecutivo (columna A) lo calcula y renumera el propio Apps Script,
+  // leyendo la hoja en vivo bajo un lock — así queda correlativo con sus
+  // vecinos y protegido contra ediciones simultáneas (ver insertMunicipio).
   const colB = await reconstructColB(municipioNombre, [{ nombre, direccion, correo, horario, telefono, mapsUrl }]);
 
-  const newRow = await insertMunicipio(afterRow, colA, colB);
+  const newRow = await insertMunicipio(afterRow, municipioNombre, colB);
   console.log(`[Farmacias] Municipio creado — depto:${departamento} municipio:${municipioNombre} row:${newRow}`);
   res.json({ ok: true, sheetRow: newRow });
 }));

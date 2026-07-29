@@ -141,9 +141,12 @@ export async function writeRow(sheetRow, cellText) {
   }
 }
 
-export async function insertMunicipio(afterRow, colA, colB) {
+export async function insertMunicipio(afterRow, municipioNombre, colB) {
   if (!SCRIPT_URL) throw new Error('[FarmaciasService] GOOGLE_APPS_SCRIPT_URL no configurado — edición deshabilitada');
-  const payload = { action: 'insertMunicipio', afterRow, colA, colB };
+  // El consecutivo (columna A) lo calcula el Apps Script leyendo la hoja en
+  // vivo en el momento de insertar — no aquí, para evitar duplicados si el
+  // CSV que usamos para leer llegó a quedar unos segundos desactualizado.
+  const payload = { action: 'insertMunicipio', afterRow, municipioNombre, colB };
 
   const first = await fetch(SCRIPT_URL, {
     method: 'POST',
@@ -170,6 +173,7 @@ export async function insertMunicipio(afterRow, colA, colB) {
   try { parsed = JSON.parse(body); } catch { throw new Error(`Respuesta inesperada de Apps Script: ${body}`); }
   if (parsed.error) throw new Error(`Apps Script respondió: ${parsed.error}`);
   if (!parsed.newRow) throw new Error('Apps Script no devolvió el número de fila nueva.');
+  console.log(`[Farmacias] Consecutivo asignado por Apps Script: ${parsed.colA}`);
   return parsed.newRow;
 }
 
