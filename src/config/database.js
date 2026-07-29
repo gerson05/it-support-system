@@ -63,8 +63,8 @@ function fixSql(sql) {
     // specific session expiry comparisons (must come before generic datetime(col))
     .replace(/datetime\s*\(\s*s\.expires_at\s*\)\s*>/gi, 's.expires_at >')
     .replace(/datetime\s*\(\s*expires_at\s*\)\s*<=/gi, 'expires_at <=')
-    // datetime(column) → DATE_FORMAT(column, ...)
-    .replace(/datetime\s*\(\s*([\w.]+)\s*\)/gi, "DATE_FORMAT($1, '%Y-%m-%d %H:%M:%S')")
+    // datetime(column) → just the column; MariaDB compares ISO datetime strings natively
+    .replace(/datetime\s*\(\s*([\w.]+)\s*\)/gi, '$1')
     // strftime('%Y-%m-%d %H:%M:%S', 'now') → NOW()
     .replace(/strftime\s*\(\s*'%Y-%m-%d %H:%M:%S'\s*,\s*'now'\s*\)/gi, 'NOW()')
     // date('now', 'localtime', '-N unit') — localtime BEFORE offset

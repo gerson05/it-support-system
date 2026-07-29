@@ -57,7 +57,7 @@ export async function readSheet() {
       const keywords = colA.split(',').map(k => k.trim()).filter(Boolean);
       const numKw = keywords.find(k => /^\d+$/.test(k));
       const nombre = keywords.find(k => !/^\d+$/.test(k)) || `Municipio ${numKw ?? sheetRow}`;
-      currentDept.municipios.push({ sheetRow, nombre, keywords, farmacias: parseBlock(colB) });
+      currentDept.municipios.push({ sheetRow, nombre, keywords, farmacias: await parseBlock(colB) });
     }
   });
 
