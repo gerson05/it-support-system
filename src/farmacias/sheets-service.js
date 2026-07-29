@@ -62,6 +62,7 @@ export async function readSheet() {
     }
   }
 
+  console.log(`[Farmacias] rows=${rows.length} depts=${result.length} municipios=${result.reduce((s,d)=>s+d.municipios.length,0)}`);
   return result;
 }
 
