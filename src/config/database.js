@@ -35,18 +35,49 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);
 
 // Converts SQLite-specific SQL to MariaDB-compatible SQL
+const TIME_UNIT_MAP = { second: 'SECOND', minute: 'MINUTE', hour: 'HOUR', day: 'DAY', month: 'MONTH', year: 'YEAR' };
+function toMariaInterval(base, n, unit) {
+  const num = parseInt(n, 10);
+  const u = TIME_UNIT_MAP[unit.toLowerCase().replace(/s$/, '')] || 'DAY';
+  if (num < 0) return `DATE_SUB(${base}, INTERVAL ${Math.abs(num)} ${u})`;
+  if (num > 0) return `DATE_ADD(${base}, INTERVAL ${num} ${u})`;
+  return base;
+}
+
 function fixSql(sql) {
   return sql
+    // DML compatibility
     .replace(/INSERT\s+OR\s+IGNORE\s+INTO/gi, 'INSERT IGNORE INTO')
     .replace(/INSERT\s+OR\s+REPLACE\s+INTO/gi, 'REPLACE INTO')
     .replace(/ON\s+CONFLICT\s*\([^)]*\)\s*DO\s+NOTHING/gi, '')
     .replace(/ON\s+CONFLICT\s+DO\s+NOTHING/gi, '')
-    .replace(/datetime\s*\(\s*'now'\s*,\s*'localtime'\s*\)/gi, 'NOW()')
-    .replace(/datetime\s*\(\s*'now'\s*\)/gi, 'NOW()')
-    .replace(/datetime\s*\(\s*([\w.]+)\s*\)/gi, 'DATE_FORMAT($1, \'%Y-%m-%d %H:%M:%S\')')
-    .replace(/strftime\s*\(\s*'%Y-%m-%d %H:%M:%S'\s*,\s*'now'\s*\)/gi, 'NOW()')
+    // datetime('now', 'localtime', '-N unit') — localtime BEFORE offset
+    .replace(/datetime\s*\(\s*'now'\s*,\s*'localtime'\s*,\s*'(-?\d+)\s+(seconds?|minutes?|hours?|days?|months?|years?)'\s*\)/gi,
+      (_, n, u) => toMariaInterval('NOW()', n, u))
+    // datetime('now', '-N unit') or datetime('now', '-N unit', 'localtime') — offset first
+    .replace(/datetime\s*\(\s*'now'\s*,\s*'(-?\d+)\s+(seconds?|minutes?|hours?|days?|months?|years?)'\s*(?:,\s*'localtime'\s*)?\)/gi,
+      (_, n, u) => toMariaInterval('NOW()', n, u))
+    // plain datetime('now', 'localtime') or datetime('now')
+    .replace(/datetime\s*\(\s*'now'\s*(?:,\s*'localtime'\s*)?\)/gi, 'NOW()')
+    // specific session expiry comparisons (must come before generic datetime(col))
     .replace(/datetime\s*\(\s*s\.expires_at\s*\)\s*>/gi, 's.expires_at >')
     .replace(/datetime\s*\(\s*expires_at\s*\)\s*<=/gi, 'expires_at <=')
+    // datetime(column) → DATE_FORMAT(column, ...)
+    .replace(/datetime\s*\(\s*([\w.]+)\s*\)/gi, "DATE_FORMAT($1, '%Y-%m-%d %H:%M:%S')")
+    // strftime('%Y-%m-%d %H:%M:%S', 'now') → NOW()
+    .replace(/strftime\s*\(\s*'%Y-%m-%d %H:%M:%S'\s*,\s*'now'\s*\)/gi, 'NOW()')
+    // date('now', 'localtime', '-N unit') — localtime BEFORE offset
+    .replace(/\bdate\s*\(\s*'now'\s*,\s*'localtime'\s*,\s*'(-?\d+)\s+(seconds?|minutes?|hours?|days?|months?|years?)'\s*\)/gi,
+      (_, n, u) => toMariaInterval('CURDATE()', n, u))
+    // date('now', '-N unit') or date('now', '-N unit', 'localtime')
+    .replace(/\bdate\s*\(\s*'now'\s*,\s*'(-?\d+)\s+(seconds?|minutes?|hours?|days?|months?|years?)'\s*(?:,\s*'localtime'\s*)?\)/gi,
+      (_, n, u) => toMariaInterval('CURDATE()', n, u))
+    // plain date('now', 'localtime') or date('now')
+    .replace(/\bdate\s*\(\s*'now'\s*(?:,\s*'localtime'\s*)?\)/gi, 'CURDATE()')
+    // date(column, 'localtime') → DATE(column)
+    .replace(/\bdate\s*\(\s*([\w.]+)\s*,\s*'localtime'\s*\)/gi, 'DATE($1)')
+    // strftime('%s', col) → UNIX_TIMESTAMP(col)
+    .replace(/strftime\s*\(\s*'%s'\s*,\s*([\w.]+)\s*\)/gi, 'UNIX_TIMESTAMP($1)')
     .replace(/AUTOINCREMENT/gi, 'AUTO_INCREMENT');
 }
 
