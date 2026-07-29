@@ -142,5 +142,5 @@ export async function writeRow(sheetRow, cellText) {
 }
 
 export async function saveFarmacias(sheetRow, municipioNombre, farmacias) {
-  await writeRow(sheetRow, reconstructColB(municipioNombre, farmacias));
+  await writeRow(sheetRow, await reconstructColB(municipioNombre, farmacias));
 }
