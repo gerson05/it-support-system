@@ -25,8 +25,9 @@ const chatbot = new Chatbot();
 function clearChromiumLocks(authDir) {
   if (!fs.existsSync(authDir)) return;
   try {
+    const lockNames = /^(Singleton|\.parentlock|lockfile)/i;
     for (const entry of fs.readdirSync(authDir, { recursive: true })) {
-      if (/^Singleton/.test(path.basename(entry))) {
+      if (lockNames.test(path.basename(entry))) {
         fs.rmSync(path.join(authDir, entry), { force: true });
       }
     }
