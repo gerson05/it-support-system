@@ -7,6 +7,28 @@ function safeParse(e) {
   try { return JSON.parse(e.data); } catch { return null; }
 }
 
+let _audioCtx = null;
+function playChime(notes, gap = 0.13, vol = 0.25) {
+  try {
+    if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (_audioCtx.state === 'suspended') _audioCtx.resume();
+    notes.forEach((freq, i) => {
+      const osc  = _audioCtx.createOscillator();
+      const gain = _audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(_audioCtx.destination);
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      const t = _audioCtx.currentTime + i * gap;
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.linearRampToValueAtTime(vol, t + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + gap);
+      osc.start(t);
+      osc.stop(t + gap + 0.01);
+    });
+  } catch {}
+}
+
 export function startRealTimeUpdates() {
   if (window._offlineMode) return;
 
@@ -18,6 +40,7 @@ export function startRealTimeUpdates() {
 
   evtSource.addEventListener('ticket-created', (e) => {
     const data = safeParse(e); if (!data) return;
+    playChime([880, 1100, 1320]);
     showToast(`🎟️ Nuevo ticket: ${data.ticket_number} (${getAreaName(data.area)})`, 'info');
     if (state.currentPage === 'dashboard') {
       setTimeout(router, 400);
@@ -40,6 +63,7 @@ export function startRealTimeUpdates() {
 
   evtSource.addEventListener('tech-request-created', (e) => {
     const data = safeParse(e); if (!data) return;
+    playChime([660, 880]);
     const label = data.type === 'incidencia' ? '🔧 Incidencia' : '📋 Requerimiento';
     showToast(`${label} nuevo: ${data.request_number}`, 'info');
     if (state.currentPage === 'tech-requests') setTimeout(router, 400);
@@ -69,6 +93,7 @@ export function startRealTimeUpdates() {
 
   evtSource.addEventListener('employee-created', (e) => {
     const data = safeParse(e); if (!data) return;
+    playChime([550, 770, 990, 1210]);
     showToast(`👤 Nuevo empleado pendiente de credenciales: ${data.nombre_completo}`, 'warning');
     _shiftEmployeeBadge(1);
   });
