@@ -51,8 +51,8 @@ function section(title, rows) {
 }
 
 /* ── Página pública de detalle ───────────────────────────────────────── */
-router.get('/activo/:token', (req, res) => {
-  const item = findByToken(req.params.token);
+router.get('/activo/:token', async (req, res) => {
+  const item = await findByToken(req.params.token);
   if (!item) {
     return res.status(404).send(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>No encontrado</title>
     <style>body{font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;background:#f1f5f9}
@@ -186,14 +186,14 @@ router.get('/activo/:token/qr', async (req, res) => {
 
 /* ── API JSON para modal de detalle en panel ─────────────────────────── */
 router.get('/api/inventario/activo/:token', async (req, res) => {
-  const item = findByToken(req.params.token);
+  const item = await findByToken(req.params.token);
   if (!item) return res.status(404).json({ error: 'No encontrado' });
   res.json(item);
 });
 
 /* ── Etiqueta imprimible 50×25mm ─────────────────────────────────────── */
 router.get('/activo/:token/etiqueta', async (req, res) => {
-  const item = findByToken(req.params.token);
+  const item = await findByToken(req.params.token);
   if (!item) return res.status(404).send('<h2>No encontrado</h2>');
 
   const { _meta } = item;
