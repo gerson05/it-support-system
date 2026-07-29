@@ -82,7 +82,7 @@ function renderTable() {
   const agents = Object.values(_agents)
     .filter(a => {
       if (filter && a.estado !== filter) return false;
-      if (search && !`${a.hostname||''} ${a.ip||''} ${a.sede||''} ${a.apodo||''} ${a.current_user||''}`.toLowerCase().includes(search)) return false;
+      if (search && !`${a.hostname||''} ${a.ip||''} ${a.sede||''} ${a.apodo||''} ${a.logged_user||''}`.toLowerCase().includes(search)) return false;
       return true;
     })
     .sort((a, b) => {
@@ -136,7 +136,7 @@ function buildRow(a) {
       <div>
         <div style="font-weight:600;font-family:monospace;font-size:13px;color:var(--text);">${a.hostname||'—'}</div>
         <div style="font-size:11px;color:var(--text-3);">${a.ip||'—'}${a.apodo?` · ${a.apodo}`:''}</div>
-        ${a.current_user ? `<div style="font-size:11px;color:var(--text-3);">👤 ${escapeHtml(a.current_user)}</div>` : ''}
+        ${a.logged_user ? `<div style="font-size:11px;color:var(--text-3);">👤 ${escapeHtml(a.logged_user)}</div>` : ''}
       </div>
       <span style="font-size:13px;color:var(--text-2);">${a.sede||'—'}</span>
       <div style="text-align:center;">
@@ -290,7 +290,7 @@ function connectSSE() {
         last_seen:    new Date().toISOString(),
         ram_total:    data.ram_total    ?? _agents[data.agent_id].ram_total,
         disk_total:   data.disk_total   ?? _agents[data.agent_id].disk_total,
-        current_user: data.current_user ?? _agents[data.agent_id].current_user,
+        logged_user: data.logged_user ?? _agents[data.agent_id].logged_user,
       });
       renderKPIs();
       updateRow(data.agent_id);

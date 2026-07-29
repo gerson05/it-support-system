@@ -122,7 +122,7 @@ router.post('/api/monitoring/register', async (req, res) => {
       SET hostname=?,ip=?,os_name=?,os_version=?,cpu_model=?,cpu_cores=?,cpu_ghz=?,
           ram_total=?,disk_model=?,disk_total=?,gpu=?,
           sede=COALESCE(?,sede),
-          current_user=COALESCE(?,current_user),
+          logged_user=COALESCE(?,logged_user),
           estado='online',last_seen=datetime('now')
       WHERE id=?
     `).run(hostname, ip, os_name, os_version, cpu_model, cpu_cores, cpu_ghz,
@@ -136,7 +136,7 @@ router.post('/api/monitoring/register', async (req, res) => {
   const result  = await db.prepare(`
     INSERT INTO agentes
       (hostname,mac_address,ip,os_name,os_version,cpu_model,cpu_cores,cpu_ghz,
-       ram_total,disk_model,disk_total,gpu,sede,current_user,api_key,estado,last_seen)
+       ram_total,disk_model,disk_total,gpu,sede,logged_user,api_key,estado,last_seen)
     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'online',datetime('now'))
   `).run(hostname, mac_address, ip, os_name, os_version, cpu_model, cpu_cores, cpu_ghz,
          ram_total, disk_model, disk_total, gpu, sedeVal, userVal, api_key);
@@ -154,7 +154,7 @@ router.post('/api/monitoring/heartbeat', agentAuth, wrap(async (req, res) => {
 
   await db.prepare('BEGIN').run();
   try {
-    await db.prepare(`UPDATE agentes SET estado='online', last_seen=datetime('now'), current_user=COALESCE(NULLIF(?,''),current_user) WHERE id=?`)
+    await db.prepare(`UPDATE agentes SET estado='online', last_seen=datetime('now'), logged_user=COALESCE(NULLIF(?,''),logged_user) WHERE id=?`)
       .run(current_user || '', req.agentId);
 
     await db.prepare(`
@@ -185,7 +185,7 @@ router.post('/api/monitoring/heartbeat', agentAuth, wrap(async (req, res) => {
       type: 'metrics', agent_id: req.agentId,
       cpu_percent, ram_used, disk_used, uptime,
       ram_total: agent?.ram_total, disk_total: agent?.disk_total,
-      current_user: current_user || undefined,
+      logged_user: current_user || undefined,
     });
 
     res.json({ ok: true, commands: pending });
