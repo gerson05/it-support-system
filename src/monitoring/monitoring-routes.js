@@ -102,7 +102,7 @@ async function agentAuth(req, res, next) {
 }
 
 /* POST /api/monitoring/register */
-router.post('/api/monitoring/register', async (req, res) => {
+router.post('/api/monitoring/register', wrap(async (req, res) => {
   const { hostname, ip, mac_address, os_name, os_version,
           cpu_model, cpu_cores, cpu_ghz, ram_total,
           disk_model, disk_total, gpu,
@@ -145,7 +145,7 @@ router.post('/api/monitoring/register', async (req, res) => {
   linkInventory(newId, hw);
   broadcast({ type: 'agent_registered', agent_id: newId });
   res.json({ id: newId, api_key });
-});
+}));
 
 /* POST /api/monitoring/heartbeat */
 router.post('/api/monitoring/heartbeat', agentAuth, wrap(async (req, res) => {
