@@ -49,7 +49,7 @@ export async function readSheet() {
     if (/elegiste los municipios/i.test(colB)) {
       const match = colB.match(/municipios\s+del?\s+\*?([^*\n]+)\*?/i);
       const nombre = match ? match[1].trim() : `Departamento ${result.length + 1}`;
-      currentDept = { nombre, municipios: [] };
+      currentDept = { nombre, sheetRow, municipios: [] };
       result.push(currentDept);
       continue;
     }
@@ -139,6 +139,38 @@ export async function writeRow(sheetRow, cellText) {
   if (body && body.toLowerCase().startsWith('error')) {
     throw new Error(`Apps Script respondió: ${body}`);
   }
+}
+
+export async function insertMunicipio(afterRow, colA, colB) {
+  if (!SCRIPT_URL) throw new Error('[FarmaciasService] GOOGLE_APPS_SCRIPT_URL no configurado — edición deshabilitada');
+  const payload = { action: 'insertMunicipio', afterRow, colA, colB };
+
+  const first = await fetch(SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+    redirect: 'manual',
+  });
+
+  let res;
+  if (first.status === 301 || first.status === 302) {
+    const location = first.headers.get('location');
+    if (!location) throw new Error('Apps Script redirect sin Location header');
+    res = await fetch(location, { method: 'GET' });
+  } else {
+    res = first;
+  }
+
+  if (!res.ok) throw new Error(`Apps Script HTTP error: ${res.status}`);
+
+  const body = await res.text();
+  console.log(`[Farmacias] Apps Script insertMunicipio response (afterRow ${afterRow}):`, body?.slice(0, 200));
+
+  let parsed;
+  try { parsed = JSON.parse(body); } catch { throw new Error(`Respuesta inesperada de Apps Script: ${body}`); }
+  if (parsed.error) throw new Error(`Apps Script respondió: ${parsed.error}`);
+  if (!parsed.newRow) throw new Error('Apps Script no devolvió el número de fila nueva.');
+  return parsed.newRow;
 }
 
 export async function saveFarmacias(sheetRow, municipioNombre, farmacias) {

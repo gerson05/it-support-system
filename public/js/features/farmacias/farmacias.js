@@ -57,6 +57,9 @@ function renderDept(dept) {
     </div>
     <div class="muni-list">
       ${dept.municipios.map(renderMuni).join('') || '<div class="empty-dept">Sin municipios</div>'}
+      <button class="btn-add-muni" data-action="add-muni" data-dept="${esc(dept.nombre)}">
+        <i data-lucide="plus" style="width:13px;height:13px;"></i> Agregar municipio
+      </button>
     </div>
   </div>`;
 }
@@ -166,6 +169,10 @@ function bindFarmaciaActions() {
       openPanel('add', sheetRow, muniNombre, null, {});
     }
 
+    if (action === 'add-muni') {
+      openPanel('add-muni', null, null, null, {}, btn.dataset.dept);
+    }
+
     if (action === 'delete') {
       const idx   = parseInt(btn.dataset.idx);
       const fname = btn.dataset.fname;
@@ -192,11 +199,17 @@ function wirePanel() {
   document.getElementById('btn-panel-save').addEventListener('click', onPanelSave);
 }
 
-function openPanel(mode, sheetRow, municipioNombre, index, farmacia) {
-  _panelCtx = { mode, sheetRow, municipioNombre, index };
+function openPanel(mode, sheetRow, municipioNombre, index, farmacia, departamento) {
+  _panelCtx = { mode, sheetRow, municipioNombre, index, departamento };
+
+  const isAddMuni = mode === 'add-muni';
+  document.getElementById('fg-muni-nombre').style.display = isAddMuni ? 'block' : 'none';
+  document.getElementById('f-muni-nombre').value = '';
 
   document.getElementById('panel-title').textContent =
-    mode === 'edit' ? `Editar: ${farmacia.nombre || ''}` : 'Agregar farmacia';
+    mode === 'edit'    ? `Editar: ${farmacia.nombre || ''}` :
+    isAddMuni          ? `Agregar municipio en ${departamento}` :
+                          'Agregar farmacia';
 
   document.getElementById('f-nombre').value    = farmacia.nombre    || '';
   document.getElementById('f-direccion').value = farmacia.direccion || '';
@@ -222,9 +235,11 @@ function closePanel() {
 async function onPanelSave() {
   if (!_panelCtx) return;
 
+  const isAddMuni = _panelCtx.mode === 'add-muni';
+
   const payload = {
     sheetRow:        _panelCtx.sheetRow,
-    municipioNombre: _panelCtx.municipioNombre,
+    municipioNombre: isAddMuni ? document.getElementById('f-muni-nombre').value.trim() : _panelCtx.municipioNombre,
     nombre:    document.getElementById('f-nombre').value.trim(),
     direccion: document.getElementById('f-direccion').value.trim(),
     correo:    document.getElementById('f-correo').value.trim(),
@@ -233,6 +248,10 @@ async function onPanelSave() {
     mapsUrl:   document.getElementById('f-maps').value.trim(),
   };
 
+  if (isAddMuni && !payload.municipioNombre) {
+    setStatus('El nombre del municipio es obligatorio.', 'err');
+    return;
+  }
   if (!payload.nombre) {
     setStatus('El nombre es obligatorio.', 'err');
     return;
@@ -243,13 +262,18 @@ async function onPanelSave() {
   setStatus('Guardando...', '');
 
   try {
+    let url    = '/api/farmacias/punto';
     let method = 'POST';
+
     if (_panelCtx.mode === 'edit') {
       method = 'PUT';
       payload.index = _panelCtx.index;
+    } else if (isAddMuni) {
+      url = '/api/farmacias/municipio';
+      payload.departamento = _panelCtx.departamento;
     }
 
-    const res = await fetch('/api/farmacias/punto', {
+    const res = await fetch(url, {
       method,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
