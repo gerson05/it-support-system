@@ -1,7 +1,7 @@
 const CSV_URL    = process.env.GOOGLE_SHEETS_CSV_URL;
 const SCRIPT_URL = process.env.GOOGLE_APPS_SCRIPT_URL;
 
-async function parseCSV(text) {
+function parseCSV(text) {
   const rows = [];
   let i = 0;
   while (i < text.length) {
