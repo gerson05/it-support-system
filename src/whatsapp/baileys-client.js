@@ -21,8 +21,13 @@ const AUTH_DIR = process.env.WWEBJS_AUTH_DIR || path.resolve(__dirname, '../../.
 
 const chatbot = new Chatbot();
 
-/** Elimina Chromium SingletonLock/Cookie/Socket para evitar bloqueo tras reinicio. */
-function clearChromiumLocks(authDir) {
+/** Mata procesos Chromium huérfanos y borra lock files. */
+async function clearChromiumLocks(authDir) {
+  try {
+    const { exec } = await import('child_process');
+    await new Promise(r => exec('pkill -f "chromium|chrome" 2>/dev/null; true', r));
+    await new Promise(r => setTimeout(r, 800));
+  } catch {}
   if (!fs.existsSync(authDir)) return;
   try {
     const lockNames = /^(Singleton|\.parentlock|lockfile)/i;
@@ -68,9 +73,15 @@ class WhatsAppClient {
     this.qrCode      = null;
     this.qrImageDataUrl = null;
     this._connecting = false;
-    if (client) client.destroy().catch(() => {});
-    if (clearAuth) clearAuthData();
-    this.connect().catch(err => console.error('[WhatsApp] Error en forceConnect:', err));
+
+    const doConnect = async () => {
+      if (client) { try { await client.destroy(); } catch {} }
+      if (clearAuth) clearAuthData();
+      await new Promise(r => setTimeout(r, 1500));
+      await clearChromiumLocks(AUTH_DIR);
+      this.connect().catch(err => console.error('[WhatsApp] Error en forceConnect:', err));
+    };
+    doConnect().catch(err => console.error('[WhatsApp] Error en forceConnect:', err));
   }
 
   async connect() {
@@ -79,7 +90,7 @@ class WhatsAppClient {
     this.status = 'disconnected';
 
     console.log('[WhatsApp] Iniciando cliente...');
-    clearChromiumLocks(AUTH_DIR);
+    await clearChromiumLocks(AUTH_DIR);
 
     this.client = new Client({
       authStrategy: new LocalAuth({ dataPath: AUTH_DIR }),
