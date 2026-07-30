@@ -56,10 +56,10 @@ export async function getAllTrackings(db, { estado, search, limit = 50, offset =
     params.push(searchPattern, searchPattern, searchPattern);
   }
 
-  const total = await db.prepare(`
+  const total = (await db.prepare(`
     SELECT COUNT(*) as n FROM paquete_tracking t
     JOIN despachos d ON d.id = t.despacho_id WHERE ${where}
-  `).get(...params).n;
+  `).get(...params)).n;
 
   const rows = await db.prepare(`
     SELECT t.id, t.token, t.estado, t.updated_at,
