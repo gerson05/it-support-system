@@ -73,6 +73,11 @@ function applyStripe(tr, cells) {
 const ROLES = ['hide', 'actions', 'badge', 'id', 'title', 'chip', 'wide'];
 
 function labelizeTable(table) {
+  // Permission matrix has its own dedicated mobile layout (styles.css) —
+  // the generic classifier treats any cell with an <input> as an "action"
+  // and hides it behind tap-to-expand, wrong for a grid of checkboxes
+  // meant to stay visible and toggleable at a glance.
+  if (table.classList.contains('perm-table')) return;
   const headerCells = table.querySelectorAll('thead th');
   if (!headerCells.length) return;
   const labels = Array.from(headerCells).map(th => th.textContent.trim());

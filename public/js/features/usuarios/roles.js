@@ -1,5 +1,5 @@
-import { showToast } from '../../ui/components.js';
-import { iconLock, iconChevronDown, iconChevronUp } from '../../utils/icons.js';
+import { showToast, avatarGradient, initialsOf } from '../../ui/components.js';
+import { iconLock, iconChevronDown, iconPlus } from '../../utils/icons.js';
 
 let _modules = [];
 let _roles   = [];
@@ -7,6 +7,8 @@ let _expandedId   = null;
 let _originalPerms = {};
 let _pendingPerms  = {};
 let _isLoading = false;
+
+const ACTION_LABELS = { read: 'Leer', create: 'Crear', edit: 'Editar', delete: 'Eliminar' };
 
 export async function renderRolesTab(container) {
   container.innerHTML = `
@@ -44,11 +46,7 @@ function _renderList() {
   wrap.innerHTML =
     _roles.map(r => _cardHtml(r)).join('') +
     `<div id="new-role-area"></div>
-     <div id="btn-add-role" style="
-       display:flex;align-items:center;gap:6px;padding:10px 14px;
-       border:1px dashed var(--border);border-radius:8px;cursor:pointer;
-       color:var(--primary);font-size:13px;font-weight:600;
-       transition:all .15s ease;">+ Nuevo rol</div>`;
+     <div id="btn-add-role" class="add-role-row">${iconPlus(15)} Nuevo rol</div>`;
 
   wrap.querySelectorAll('[data-role-header]').forEach(h => {
     h.addEventListener('click', () => _toggleCard(Number(h.dataset.roleHeader)));
@@ -59,28 +57,18 @@ function _renderList() {
 function _cardHtml(role) {
   const isIT = role.id === 1;
   return `
-    <div id="role-card-${role.id}" style="
-      background:var(--surface-2);border:1px solid var(--border);border-radius:8px;overflow:hidden;">
-      <div data-role-header="${role.id}" style="
-        display:flex;justify-content:space-between;align-items:center;
-        padding:10px 14px;cursor:${isIT ? 'default' : 'pointer'};
-        transition:background .15s ease;"
-        ${isIT ? '' : 'onmouseenter="this.style.background=\'var(--surface-3)\'" onmouseleave="this.style.background=\'\'"'}>
-        <div>
-          <div style="display:flex;align-items:center;gap:8px;">
-            <span style="font-size:12px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:.4px;">
-              ${escHtml(role.name)}
-            </span>
-            ${isIT ? `<span style="font-size:10px;background:var(--surface-3);border:1px solid var(--border);color:var(--text-3);border-radius:4px;padding:1px 7px;display:inline-flex;align-items:center;gap:4px;">${iconLock(10)} bloqueado</span>` : ''}
+    <div id="role-card-${role.id}" class="role-card">
+      <div data-role-header="${role.id}" class="role-head" style="${isIT ? 'cursor:default;' : ''}">
+        <div class="role-avatar" style="background:${avatarGradient(role.name)};">${initialsOf(role.name)}</div>
+        <div class="role-main">
+          <div class="role-name">
+            ${escHtml(role.name)}
+            ${isIT ? `<span class="lock-badge">${iconLock(10)} bloqueado</span>` : ''}
           </div>
-          <div style="font-size:12px;color:var(--text-3);margin-top:2px;">${escHtml(role.description || '')}</div>
+          <div class="role-desc">${escHtml(role.description || '')}</div>
         </div>
-        <div style="display:flex;align-items:center;gap:10px;">
-          <span style="font-size:11px;color:var(--text-3);background:var(--surface-3);border:1px solid var(--border);border-radius:4px;padding:2px 8px;">
-            ${escHtml(String(role.user_count))} usuario${role.user_count !== 1 ? 's' : ''}
-          </span>
-          ${isIT ? '' : `<span style="color:var(--text-3);" id="chevron-${role.id}">${iconChevronDown(14)}</span>`}
-        </div>
+        <span class="count-badge">${escHtml(String(role.user_count))} usuario${role.user_count !== 1 ? 's' : ''}</span>
+        ${isIT ? '' : `<span class="role-chevron">${iconChevronDown(16)}</span>`}
       </div>
       <div id="role-body-${role.id}" style="display:none;"></div>
     </div>`;
@@ -111,8 +99,7 @@ async function _toggleCard(roleId) {
   }
 
   _expandedId = roleId;
-  const chevron = document.getElementById(`chevron-${roleId}`);
-  if (chevron) chevron.innerHTML = iconChevronUp(14);
+  document.getElementById(`role-card-${roleId}`)?.classList.add('expanded');
 
   const body = document.getElementById(`role-body-${roleId}`);
   body.style.display = 'block';
@@ -130,10 +117,7 @@ async function _toggleCard(roleId) {
       const body = document.getElementById(`role-body-${roleId}`);
       if (body) body.innerHTML = `<p style="color:var(--danger);padding:12px;">Error cargando permisos.</p>`;
       _expandedId = null;
-      const chevron = document.getElementById(`chevron-${roleId}`);
-      if (chevron) chevron.innerHTML = iconChevronDown(14);
-      const card = document.getElementById(`role-card-${roleId}`);
-      if (card) card.style.borderColor = 'var(--border)';
+      document.getElementById(`role-card-${roleId}`)?.classList.remove('expanded');
       _isLoading = false;
       return;
     } finally {
@@ -147,18 +131,13 @@ async function _toggleCard(roleId) {
 function _collapseCard(roleId) {
   const body = document.getElementById(`role-body-${roleId}`);
   if (body) body.style.display = 'none';
-  const chevron = document.getElementById(`chevron-${roleId}`);
-  if (chevron) chevron.textContent = '▼';
-  const card = document.getElementById(`role-card-${roleId}`);
-  if (card) card.style.borderColor = 'var(--border)';
+  document.getElementById(`role-card-${roleId}`)?.classList.remove('expanded');
 }
 
 function _renderCardBody(roleId) {
   const body = document.getElementById(`role-body-${roleId}`);
   if (!body) return;
-
-  const card = document.getElementById(`role-card-${roleId}`);
-  if (card) card.style.borderColor = 'var(--primary)';
+  document.getElementById(`role-card-${roleId}`)?.classList.add('expanded');
 
   const active = new Set(_pendingPerms[roleId] ?? []);
   const role   = _roles.find(r => r.id === roleId);
@@ -168,38 +147,36 @@ function _renderCardBody(roleId) {
     const cells = ACTIONS.map(action => {
       const perm = mod.permissions.find(p => p.action === action);
       if (!perm) {
-        return `<td style="text-align:center;"><span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:var(--surface-3);opacity:.3;"></span></td>`;
+        return `<td data-label="${ACTION_LABELS[action]}"><span class="perm-chk perm-chk-na"></span></td>`;
       }
-      return `<td style="text-align:center;">
-        <input type="checkbox" data-perm-id="${perm.id}" data-role-id="${roleId}"
-          ${active.has(perm.id) ? 'checked' : ''}
-          style="width:14px;height:14px;cursor:pointer;accent-color:var(--primary);">
+      return `<td data-label="${ACTION_LABELS[action]}">
+        <input type="checkbox" class="perm-chk" data-perm-id="${perm.id}" data-role-id="${roleId}"
+          ${active.has(perm.id) ? 'checked' : ''}>
       </td>`;
     }).join('');
     return `<tr>
-      <td style="padding:6px 0;font-size:13px;color:var(--text-1);">${escHtml(mod.label)}</td>
+      <td>${escHtml(mod.label)}</td>
       ${cells}
     </tr>`;
   }).join('');
 
   body.innerHTML = `
-    <div style="padding:12px 14px 14px;border-top:1px solid var(--border);">
-      <table style="width:100%;border-collapse:collapse;">
+    <div class="perm-body">
+      <table class="perm-table">
         <thead>
           <tr>
-            <th style="text-align:left;font-size:11px;color:var(--text-3);font-weight:600;padding-bottom:8px;">Módulo</th>
-            <th style="text-align:center;font-size:11px;color:var(--text-3);font-weight:600;width:60px;">Leer</th>
-            <th style="text-align:center;font-size:11px;color:var(--text-3);font-weight:600;width:60px;">Crear</th>
-            <th style="text-align:center;font-size:11px;color:var(--text-3);font-weight:600;width:60px;">Editar</th>
-            <th style="text-align:center;font-size:11px;color:var(--text-3);font-weight:600;width:60px;">Eliminar</th>
+            <th>Módulo</th>
+            <th>Leer</th>
+            <th>Crear</th>
+            <th>Editar</th>
+            <th>Eliminar</th>
           </tr>
         </thead>
         <tbody>${rows}</tbody>
       </table>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:10px;border-top:1px solid var(--border);">
-        <button id="btn-delete-role-${roleId}"
-          style="background:transparent;border:none;color:var(--danger,#ef4444);font-size:12px;cursor:pointer;font-family:inherit;
-                 ${role?.user_count > 0 ? 'opacity:.4;cursor:not-allowed;' : ''}"
+      <div class="perm-foot">
+        <button id="btn-delete-role-${roleId}" class="link-danger"
+          style="${role?.user_count > 0 ? 'opacity:.4;cursor:not-allowed;' : ''}"
           ${role?.user_count > 0 ? 'disabled title="Tiene usuarios activos"' : ''}>
           Eliminar rol
         </button>
@@ -268,22 +245,19 @@ function _showNewRoleForm() {
     const cells = ACTIONS.map(action => {
       const perm = mod.permissions.find(p => p.action === action);
       if (!perm) {
-        return `<td style="text-align:center;"><span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:var(--surface-3);opacity:.3;"></span></td>`;
+        return `<td data-label="${ACTION_LABELS[action]}"><span class="perm-chk perm-chk-na"></span></td>`;
       }
-      return `<td style="text-align:center;">
-        <input type="checkbox" data-new-perm-id="${perm.id}"
-          style="width:14px;height:14px;cursor:pointer;accent-color:var(--primary);">
-      </td>`;
+      return `<td data-label="${ACTION_LABELS[action]}"><input type="checkbox" class="perm-chk" data-new-perm-id="${perm.id}"></td>`;
     }).join('');
     return `<tr>
-      <td style="padding:6px 0;font-size:13px;color:var(--text-1);">${escHtml(mod.label)}</td>
+      <td>${escHtml(mod.label)}</td>
       ${cells}
     </tr>`;
   }).join('');
 
   area.innerHTML = `
-    <div style="background:var(--surface-2);border:1px solid var(--primary);border-radius:8px;padding:14px;margin-bottom:8px;">
-      <div style="font-size:13px;font-weight:600;color:var(--text-1);margin-bottom:12px;">Nuevo rol</div>
+    <div class="role-card expanded" style="padding:16px 18px 18px;">
+      <div style="font-size:13.5px;font-weight:700;color:var(--text);margin-bottom:12px;">Nuevo rol</div>
       <div id="new-role-error" style="display:none;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);
         color:var(--danger);border-radius:6px;padding:8px 12px;font-size:13px;margin-bottom:10px;"></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
@@ -296,14 +270,14 @@ function _showNewRoleForm() {
           <input id="new-role-desc" type="text" class="form-control" placeholder="Descripción breve">
         </div>
       </div>
-      <table style="width:100%;border-collapse:collapse;margin-bottom:14px;">
+      <table class="perm-table" style="margin-bottom:14px;">
         <thead>
           <tr>
-            <th style="text-align:left;font-size:11px;color:var(--text-3);font-weight:600;padding-bottom:8px;">Módulo</th>
-            <th style="text-align:center;font-size:11px;color:var(--text-3);font-weight:600;width:60px;">Leer</th>
-            <th style="text-align:center;font-size:11px;color:var(--text-3);font-weight:600;width:60px;">Crear</th>
-            <th style="text-align:center;font-size:11px;color:var(--text-3);font-weight:600;width:60px;">Editar</th>
-            <th style="text-align:center;font-size:11px;color:var(--text-3);font-weight:600;width:60px;">Eliminar</th>
+            <th>Módulo</th>
+            <th>Leer</th>
+            <th>Crear</th>
+            <th>Editar</th>
+            <th>Eliminar</th>
           </tr>
         </thead>
         <tbody>${rows}</tbody>

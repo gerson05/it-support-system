@@ -1,5 +1,5 @@
-import { showToast } from '../../ui/components.js';
-import { iconPlus } from '../../utils/icons.js';
+import { showToast, avatarGradient, initialsOf } from '../../ui/components.js';
+import { iconPlus, iconEdit } from '../../utils/icons.js';
 
 let _roles = [];
 
@@ -117,8 +117,10 @@ export async function renderUsers(container) {
   await loadUsers(tabContent);
 }
 
+let _allUsers = [];
+
 async function loadUsers(tabContainer) {
-  tabContainer.innerHTML = `<div class="card"><div id="users-table-wrap"><div class="loading-spinner"></div></div></div>`;
+  tabContainer.innerHTML = `<div class="card"><div id="users-table-wrap" style="padding:40px;"><div class="loading-spinner"></div></div></div>`;
   const wrap = tabContainer.querySelector('#users-table-wrap');
   if (!wrap) return;
 
@@ -133,63 +135,100 @@ async function loadUsers(tabContainer) {
       return;
     }
 
-    const users = await usersRes.json();
-    _roles = await rolesRes.json();
+    _allUsers = await usersRes.json();
+    _roles    = await rolesRes.json();
 
-    if (!users.length) {
-      wrap.innerHTML = `<p style="color:var(--text-2);padding:20px;">No hay usuarios registrados.</p>`;
+    if (!_allUsers.length) {
+      tabContainer.innerHTML = `<p style="color:var(--text-2);padding:20px;">No hay usuarios registrados.</p>`;
       return;
     }
 
-    wrap.innerHTML = `
-      <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Usuario</th>
-            <th>Rol</th>
-            <th>Estado</th>
-            <th>Creado</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          ${users.map(u => `
-            <tr>
-              <td><strong>${escHtml(u.username)}</strong></td>
-              <td><span class="badge badge-role">${escHtml(u.role_name)}</span></td>
-              <td>
-                <span class="badge ${u.active ? 'badge-resuelto' : 'badge-cerrado'}">
-                  ${u.active ? 'Activo' : 'Inactivo'}
-                </span>
-              </td>
-              <td style="color:var(--text-2);font-size:13px;">${fmtDate(u.created_at)}</td>
-              <td style="text-align:right;">
-                <button class="btn btn-small btn-secondary btn-edit"
-                  data-id="${u.id}" data-username="${escHtml(u.username)}"
-                  data-role="${u.role_id}" data-active="${u.active}">
-                  Editar
-                </button>
-              </td>
-            </tr>`).join('')}
-        </tbody>
-      </table>
-      </div>`;
-
-    wrap.querySelectorAll('.btn-edit').forEach(btn => {
-      btn.addEventListener('click', () => {
-        openModal({
-          id:       Number(btn.dataset.id),
-          username: btn.dataset.username,
-          role_id:  Number(btn.dataset.role),
-          active:   btn.dataset.active === '1',
-        });
-      });
-    });
+    renderUsersShell(tabContainer);
   } catch (err) {
     if (wrap) wrap.innerHTML = `<p style="color:var(--danger);padding:20px;">Error cargando usuarios.</p>`;
     console.error(err);
   }
+}
+
+function renderUsersShell(tabContainer) {
+  const total    = _allUsers.length;
+  const activos  = _allUsers.filter(u => u.active).length;
+  const roleOpts = [...new Map(_roles.map(r => [r.id, r])).values()];
+
+  tabContainer.innerHTML = `
+    <div class="stat-strip">
+      <div class="stat"><b>${total}</b><span>Total</span></div>
+      <div class="stat ok"><b>${activos}</b><span>Activos</span></div>
+      <div class="stat"><b>${total - activos}</b><span>Inactivos</span></div>
+      <div class="stat accent"><b>${roleOpts.length}</b><span>Roles</span></div>
+    </div>
+    <div class="toolbar">
+      <input type="text" id="users-search" placeholder="Buscar por usuario…">
+      <select id="users-filter-role">
+        <option value="">Todos los roles</option>
+        ${roleOpts.map(r => `<option value="${r.id}">${escHtml(r.name)}</option>`).join('')}
+      </select>
+      <select id="users-filter-status">
+        <option value="">Todos los estados</option>
+        <option value="1">Activos</option>
+        <option value="0">Inactivos</option>
+      </select>
+    </div>
+    <div class="card" id="users-list-wrap" style="overflow:hidden;"></div>`;
+
+  const search = tabContainer.querySelector('#users-search');
+  const roleF  = tabContainer.querySelector('#users-filter-role');
+  const statF  = tabContainer.querySelector('#users-filter-status');
+  const rerender = () => renderUserRows(tabContainer, search.value, roleF.value, statF.value);
+
+  search.addEventListener('input', rerender);
+  roleF.addEventListener('change', rerender);
+  statF.addEventListener('change', rerender);
+
+  renderUserRows(tabContainer, '', '', '');
+}
+
+function renderUserRows(tabContainer, query, roleId, status) {
+  const listWrap = tabContainer.querySelector('#users-list-wrap');
+  if (!listWrap) return;
+
+  const q = query.trim().toLowerCase();
+  const filtered = _allUsers.filter(u => {
+    if (q && !u.username.toLowerCase().includes(q)) return false;
+    if (roleId && String(u.role_id) !== roleId) return false;
+    if (status && String(u.active ? 1 : 0) !== status) return false;
+    return true;
+  });
+
+  if (!filtered.length) {
+    listWrap.innerHTML = `<p style="color:var(--text-3);padding:24px;text-align:center;">Sin usuarios que coincidan.</p>`;
+    return;
+  }
+
+  listWrap.innerHTML = filtered.map(u => `
+    <div class="user-row">
+      <div class="avatar" style="background:${avatarGradient(u.username)};">${initialsOf(u.username)}</div>
+      <div class="u-main">
+        <div class="u-name">${escHtml(u.username)}</div>
+        <div class="u-meta"><span class="role-pill">${escHtml(u.role_name)}</span></div>
+      </div>
+      <div class="status-dot" style="--dot:${u.active ? 'var(--success)' : 'var(--text-3)'};">${u.active ? 'Activo' : 'Inactivo'}</div>
+      <div class="u-created">${fmtDate(u.created_at)}</div>
+      <button class="icon-btn btn-edit" title="Editar"
+        data-id="${u.id}" data-username="${escHtml(u.username)}"
+        data-role="${u.role_id}" data-active="${u.active}">${iconEdit(14)}</button>
+    </div>`).join('');
+
+  listWrap.querySelectorAll('.btn-edit').forEach(btn => {
+    btn.addEventListener('click', () => {
+      openModal({
+        id:       Number(btn.dataset.id),
+        username: btn.dataset.username,
+        role_id:  Number(btn.dataset.role),
+        active:   btn.dataset.active === '1',
+      });
+    });
+  });
 }
 
 function openModal(user = null) {
