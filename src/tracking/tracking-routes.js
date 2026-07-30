@@ -189,7 +189,7 @@ router.get('/api/tracking/fotos/:filename', ...canRead, async (req, res) => {
 
 router.get('/api/tracking', ...canRead, wrap(async (req, res) => {
   const { estado, search, limit = 50, offset = 0 } = req.query;
-  res.json(getAllTrackings(db, { estado, search, limit: parseInt(limit), offset: parseInt(offset) }));
+  res.json(await getAllTrackings(db, { estado, search, limit: parseInt(limit), offset: parseInt(offset) }));
 }));
 
 router.get('/api/tracking/:token/rotulo', ...canRead, wrap(async (req, res) => {
@@ -201,7 +201,7 @@ router.get('/api/tracking/:token/rotulo', ...canRead, wrap(async (req, res) => {
   if (!row) return res.status(404).json({ error: 'No encontrado.' });
 
   const trackingUrl  = `${getBaseUrl(req)}/rastrear/${req.params.token}`;
-  const sedesActivas = req.query.modo === 'todos' ? getSedesActivas(db) : [];
+  const sedesActivas = req.query.modo === 'todos' ? await getSedesActivas(db) : [];
   const html         = await generateRotuloHtml(row, req.query, trackingUrl, sedesActivas);
 
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
@@ -209,7 +209,7 @@ router.get('/api/tracking/:token/rotulo', ...canRead, wrap(async (req, res) => {
 }));
 
 router.get('/api/tracking/:token/qr', ...canRead, wrap(async (req, res) => {
-  const tracking = getTrackingRow(db, req.params.token);
+  const tracking = await getTrackingRow(db, req.params.token);
   if (!tracking) return res.status(404).json({ error: 'No encontrado.' });
   const png = await QRCode.toBuffer(`${getBaseUrl(req)}/rastrear/${req.params.token}`, { type: 'png', width: 300, margin: 2 });
   res.setHeader('Content-Type', 'image/png');
@@ -219,19 +219,19 @@ router.get('/api/tracking/:token/qr', ...canRead, wrap(async (req, res) => {
 router.put('/api/tracking/:token/estado', ...canEdit, wrap(async (req, res) => {
   const { estado } = req.body;
   if (estado !== 'devuelto') return res.status(400).json({ error: "Solo se permite estado 'devuelto'." });
-  const ok = marcarDevuelto(db, req.params.token);
+  const ok = await marcarDevuelto(db, req.params.token);
   if (!ok) return res.status(404).json({ error: 'No encontrado o ya está en estado final.' });
   res.json({ ok: true });
 }));
 
 router.get('/api/tracking/by-despacho/:despachoId', ...canRead, wrap(async (req, res) => {
-  const row = getTrackingByDespachoId(db, parseInt(req.params.despachoId));
+  const row = await getTrackingByDespachoId(db, parseInt(req.params.despachoId));
   if (!row) return res.json({ token: null });
   res.json({ token: row.token, qr_url: `${getBaseUrl(req)}/api/tracking/${row.token}/qr` });
 }));
 
 router.get('/api/tracking/:token', ...canRead, wrap(async (req, res) => {
-  const tracking = getTrackingByToken(db, req.params.token);
+  const tracking = await getTrackingByToken(db, req.params.token);
   if (!tracking) return res.status(404).json({ error: 'No encontrado.' });
   tracking.qr_url = `${getBaseUrl(req)}/rastrear/${tracking.token}`;
   res.json(tracking);
