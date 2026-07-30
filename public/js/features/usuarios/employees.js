@@ -1,6 +1,6 @@
 import { showToast, copyToClipboard } from '../../ui/components.js';
 import { can } from '../../core/state.js';
-import { iconEye } from '../../utils/icons.js';
+import { iconEye, iconPlus } from '../../utils/icons.js';
 
 let _employees = [];
 let _cargos = [];
@@ -20,8 +20,8 @@ export async function renderEmployees(container) {
       <h2 class="page-title">Creación de Usuarios</h2>
       <p class="page-subtitle">Personal nuevo — flujo Gestión Humana → IT</p>
     </div>
-    <button class="btn btn-primary" id="emp-btn-new"
-      style="${!can('employees:create') ? 'display:none;' : ''}">+ Nuevo empleado</button>
+    <button class="btn btn-primary btn-create" id="emp-btn-new"
+      style="${!can('employees:create') ? 'display:none;' : ''}">${iconPlus(14)} Nuevo empleado</button>
   </div>
 
   <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center;">

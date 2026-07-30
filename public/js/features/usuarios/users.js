@@ -1,4 +1,5 @@
 import { showToast } from '../../ui/components.js';
+import { iconPlus } from '../../utils/icons.js';
 
 let _roles = [];
 
@@ -9,7 +10,7 @@ export async function renderUsers(container) {
       <h2 class="page-title">Usuarios</h2>
       <p class="page-subtitle">Gestión de cuentas y accesos del panel IT</p>
     </div>
-    <button class="btn btn-primary" id="btn-new-user" style="display:none;">+ Nuevo usuario</button>
+    <button class="btn btn-primary btn-create" id="btn-new-user" style="display:none;">${iconPlus(14)} Nuevo usuario</button>
   </div>
 
   <div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:20px;">
