@@ -547,6 +547,18 @@ body {
   opacity: .5; cursor:not-allowed;
 }
 
+/* Stands out from ordinary primary actions (Guardar, Enviar…) — a
+   persistent glow instead of hover-only, so "create a new X" reads as
+   its own distinct affordance in the page header. */
+.btn-create {
+  font-weight: 700;
+  box-shadow: var(--shadow-primary);
+}
+.btn-create:hover {
+  box-shadow: 0 6px 22px rgba(99,102,241,.5);
+}
+.btn-create svg { flex-shrink: 0; }
+
 .btn-secondary {
   background: var(--surface-2);
   color: var(--text-2);
@@ -1050,30 +1062,50 @@ body.modal-open { overflow: hidden; }
 @media (max-width: 600px) {
   .grid-4 { grid-template-columns: 1fr 1fr; }
 
-  /* ── Tables → status cards ──────────────────────────────────────────
-     Roles (rt-id/badge/title/chip/wide/actions/hide) + the --stripe
-     color are computed per row by responsive-tables.js: id + badge sit
-     on a header line, title below, remaining short fields become
-     wrapped chips, long fields get their own line, actions sit in a
-     footer — and the left stripe reflects the row's status badge color. */
+  /* ── Tables → dense rows, tap to expand ──────────────────────────────
+     Roles (rt-id/badge/title/chip/wide/actions/hide) are computed per
+     cell by responsive-tables.js, which also toggles .rt-open on the
+     <tr> when tapped (ignoring taps on real buttons/links inside it).
+     Collapsed: a status dot (from the row's --stripe color) + title +
+     badge + chevron on one line, id as a muted line right below.
+     Expanded (.rt-open): remaining chips/long fields/actions unfold
+     below, full width, thanks to flex-wrap + flex-basis:100%. */
   table thead { display: none; }
   table, table tbody { display: block; width: 100%; }
 
   table tbody tr {
-    display: block;
-    background: var(--surface-2);
-    border-radius: var(--radius-lg);
-    border-left: 4px solid var(--stripe, var(--border-2));
-    padding: 13px 14px;
-    margin-bottom: 10px;
-    box-shadow: 0 1px 3px rgba(0,0,0,.16);
-    transition: background .15s ease;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 10px;
+    padding: 13px 4px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    cursor: pointer;
   }
-  table tbody tr:active { background: var(--surface-3); }
-  table tbody tr:last-child { margin-bottom: 0; }
+  table tbody tr:last-child { border-bottom: none; }
+  table tbody tr:active { background: var(--surface-2); }
+
+  table tbody tr::before {
+    content: "";
+    order: 0;
+    flex: 0 0 auto;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--stripe, var(--border-2));
+  }
+  table tbody tr::after {
+    content: "›";
+    order: 4;
+    flex: 0 0 auto;
+    color: var(--text-3);
+    font-size: 17px;
+    line-height: 1;
+    transition: transform .15s ease;
+  }
+  table tbody tr.rt-open::after { transform: rotate(90deg); }
 
   table tbody td {
-    display: block;
     border: none;
     padding: 0;
     min-width: 0;
@@ -1086,66 +1118,71 @@ body.modal-open { overflow: hidden; }
 
   table tbody td.rt-hide { display: none; }
 
-  /* header line: id floats left, status badge floats right */
-  table tbody td.rt-id {
-    float: left;
-    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--primary);
-    margin: 0 10px 8px 0;
-  }
-  table tbody td.rt-badge {
-    float: right;
-    margin-bottom: 8px;
-  }
-
-  /* everything below the header line clears both floats (clear only
-     affects position relative to floats, so chips still wrap together
-     normally on the same line as each other afterwards) */
-  table tbody td.rt-title,
-  table tbody td.rt-chip,
-  table tbody td.rt-wide,
-  table tbody td.rt-actions {
-    clear: both;
-  }
-
+  /* collapsed summary line: title (grows) + badge, id as the line below */
   table tbody td.rt-title {
+    order: 1;
+    flex: 1 1 auto;
+    min-width: 80px;
     font-size: 13.5px;
     font-weight: 600;
     color: var(--text);
-    margin-bottom: 8px;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+  table tbody td.rt-badge { order: 2; flex: 0 0 auto; }
+  table tbody td.rt-id {
+    order: 3;
+    flex: 1 1 100%;
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 11px;
+    color: var(--text-3);
   }
 
-  table tbody td.rt-wide {
-    font-size: 12.5px;
-    color: var(--text-2);
-    margin-bottom: 8px;
-    line-height: 1.5;
+  /* expanded-only content — collapsed by default */
+  table tbody td.rt-chip,
+  table tbody td.rt-wide,
+  table tbody td.rt-actions {
+    display: none;
+    flex: 1 1 100%;
+    order: 10;
+  }
+  table tbody tr.rt-open td.rt-chip,
+  table tbody tr.rt-open td.rt-wide,
+  table tbody tr.rt-open td.rt-actions {
+    display: block;
   }
 
-  table tbody td.rt-chip {
+  table tbody tr.rt-open td.rt-chip {
     display: inline-flex;
     align-items: center;
+    flex: 0 0 auto;
     font-size: 11px;
     color: var(--text-2);
     background: var(--surface-3);
     padding: 4px 9px;
     border-radius: 7px;
-    margin: 0 6px 6px 0;
+    margin: 6px 6px 0 0;
   }
 
-  table tbody td.rt-actions,
-  .data-table .td-actions,
-  table tbody td[data-label="Acciones"],
-  table tbody td[data-label="Acción"] {
+  table tbody tr.rt-open td.rt-wide {
+    font-size: 12.5px;
+    color: var(--text-2);
+    line-height: 1.5;
+    margin-top: 8px;
+  }
+
+  table tbody tr.rt-open td.rt-actions,
+  table tbody tr.rt-open .data-table .td-actions,
+  table tbody tr.rt-open td[data-label="Acciones"],
+  table tbody tr.rt-open td[data-label="Acción"] {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
     text-align: left !important;
-    padding-top: 10px !important;
-    margin-top: 4px;
-    border-top: 1px solid var(--border) !important;
+    padding-top: 10px;
+    margin-top: 8px;
+    border-top: 1px solid var(--border);
   }
   /* icon-only square buttons — safe to force to a fixed touch-target size */
   table tbody td.rt-actions .tbl-btn,
@@ -1159,6 +1196,23 @@ body.modal-open { overflow: hidden; }
      make sure they clear the touch-target minimum height */
   table tbody td.rt-actions button:not(.tbl-btn) {
     min-height: 36px;
+  }
+
+  /* ── Monitoreo — bespoke CSS-grid rows (not <table>, so the rules above
+     don't reach them). None of this had mobile handling before, hence the
+     5/8-column grids running off the edge of the screen. */
+  #mon-kpis {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  .mon-row-main {
+    display: flex !important;
+    flex-wrap: wrap;
+    row-gap: 6px;
+    column-gap: 10px;
+  }
+  .mon-row-main > * { flex: 1 1 auto; min-width: 0; }
+  .mon-hw-grid {
+    grid-template-columns: 1fr 1fr !important;
   }
 }
 
@@ -1956,6 +2010,7 @@ body.sidebar-open .hamburger span:nth-child(3) { transform: translateY(-6px) rot
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   padding: 20px 12px 16px;
   background: var(--surface-2);
@@ -2060,4 +2115,9 @@ body.sidebar-open .hamburger span:nth-child(3) { transform: translateY(-6px) rot
   .inv-welcome-card-count {
     font-size: 18px;
   }
+}
+
+@media (max-width: 460px) {
+  .inv-welcome-card { padding: 16px 8px 13px; }
+  .inv-welcome-card-name { font-size: 11px; }
 }

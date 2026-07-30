@@ -197,11 +197,11 @@ export function renderConfirmacionSection(d, conf = { token: null, confirmed: fa
     const fecha = conf.confirmed_at ? new Date(conf.confirmed_at).toLocaleString('es-CO') : '';
     const signer = conf.signed_by ? ` por <strong>${conf.signed_by}</strong>` : ' por el destinatario';
     return `
-      <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#d1fae5;border-radius:8px;border:1px solid #6ee7b7;">
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(16,185,129,.12);border-radius:8px;border:1px solid rgba(16,185,129,.3);">
         <span style="font-size:18px;">✅</span>
         <div>
-          <div style="font-weight:600;color:#065f46;font-size:13px;">Recepción confirmada${signer}</div>
-          <div style="font-size:12px;color:#047857;">${fecha}</div>
+          <div style="font-weight:600;color:var(--success);font-size:13px;">Recepción confirmada${signer}</div>
+          <div style="font-size:12px;color:var(--success);">${fecha}</div>
         </div>
       </div>`;
   }
@@ -211,10 +211,10 @@ export function renderConfirmacionSection(d, conf = { token: null, confirmed: fa
     return `
       <div style="padding:10px 14px;background:var(--surface-3);border-radius:8px;border:1px solid var(--border);">
         <div style="font-size:12px;font-weight:500;color:var(--text-2);margin-bottom:8px;display:flex;align-items:center;gap:5px;">${iconLink(12)} Enlace de confirmación activo — pendiente de respuesta</div>
-        <div style="display:flex;gap:6px;align-items:center;">
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
           <input id="conf-link-input" type="text" readonly value="${url}"
-            style="flex:1;padding:6px 9px;border:1px solid var(--border);border-radius:5px;background:var(--surface);color:var(--text);font-size:11px;font-family:monospace;">
-          <button id="conf-copy-btn" style="padding:6px 10px;border:1px solid var(--border);border-radius:5px;background:var(--surface-2);color:var(--text-2);font-size:11px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;">${iconCopy(11)} Copiar</button>
+            style="flex:1;min-width:0;padding:6px 9px;border:1px solid var(--border);border-radius:5px;background:var(--surface);color:var(--text);font-size:11px;font-family:monospace;">
+          <button id="conf-copy-btn" style="padding:6px 10px;border:1px solid var(--border);border-radius:5px;background:var(--surface-2);color:var(--text-2);font-size:11px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;flex-shrink:0;">${iconCopy(11)} Copiar</button>
         </div>
       </div>`;
   }

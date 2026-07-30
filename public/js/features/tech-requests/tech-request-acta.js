@@ -208,10 +208,10 @@ function renderFirmaContent(actaInfo, req) {
   if (actaInfo.token && !actaInfo.uploaded) {
     return `
       <div style="font-size:12px;font-weight:500;color:#94a3b8;margin-bottom:8px;display:flex;align-items:center;gap:5px;">${iconLink(12)} Link activo — pendiente de subida por el receptor</div>
-      <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px;">
+      <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px;flex-wrap:wrap;">
         <input type="text" readonly value="${actaInfo.url || ''}"
-          style="flex:1;padding:6px 9px;border:1px solid rgba(255,255,255,.1);border-radius:5px;background:#0f172a;color:#e2e8f0;font-size:11px;font-family:monospace;">
-        <button id="btn-copy-link-tr" style="padding:6px 10px;border:1px solid rgba(255,255,255,.1);border-radius:5px;background:#1e293b;color:#94a3b8;font-size:11px;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:4px;">${iconCopy(11)} Copiar</button>
+          style="flex:1;min-width:0;padding:6px 9px;border:1px solid rgba(255,255,255,.1);border-radius:5px;background:#0f172a;color:#e2e8f0;font-size:11px;font-family:monospace;">
+        <button id="btn-copy-link-tr" style="padding:6px 10px;border:1px solid rgba(255,255,255,.1);border-radius:5px;background:#1e293b;color:#94a3b8;font-size:11px;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:4px;flex-shrink:0;">${iconCopy(11)} Copiar</button>
       </div>
       <div style="display:flex;align-items:center;gap:15px;flex-wrap:wrap;margin-bottom:8px;">
         <img src="/api/actas/qr/${actaInfo.token}" alt="QR" style="width:100px;height:100px;border-radius:6px;background:#fff;padding:4px;display:block;">

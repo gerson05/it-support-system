@@ -174,13 +174,13 @@ export function renderDespachoActasPanel(container, { focusId = null } = {}) {
             </div>`).join('')}
         </div>
 
-        <div style="padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;">
-          <div style="flex:1;">
+        <div style="padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+          <div style="flex:1;min-width:140px;">
             <div style="font-size:10px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;">Firmante</div>
             <div style="font-size:14px;color:var(--text);font-weight:600;">${escHtml(getFirmanteLabel(acta))}</div>
             ${acta.signed_role ? `<div style="font-size:12px;color:var(--text-3);">${escHtml(acta.signed_role)}</div>` : ''}
           </div>
-          <div style="display:flex;flex-wrap:wrap;gap:7px;">
+          <div style="display:flex;flex-wrap:wrap;gap:7px;min-width:0;">
             <button id="modal-btn-despacho" class="btn btn-secondary" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:7px 12px;">${iconEye(12)} Ver despacho</button>
             ${acta.token ? `<a href="${publicUrl}" target="_blank" rel="noreferrer" class="btn btn-secondary" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:7px 12px;">${iconExternalLink(12)} Abrir firma</a>` : ''}
           </div>

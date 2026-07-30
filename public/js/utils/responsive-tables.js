@@ -1,7 +1,8 @@
 /* Auto-tags <td> cells with data-label + a semantic role so the mobile CSS
-   (styles.css → RESPONSIVE — MOBILE) can render tables as "status cards":
-   a colored left stripe (from the row's status badge), an id + badge
-   header line, a title line, wrapped meta chips, and an actions footer.
+   (styles.css → RESPONSIVE — MOBILE) can render tables as dense rows:
+   a status dot (from the row's badge color), title + badge on one line,
+   id as a muted line below, and everything else (chips/long text/actions)
+   tucked behind a tap-to-expand toggle (.rt-open on the <tr>).
 
    Roles:
    rt-hide   — purely decorative cell (no label, no text, no interactive
@@ -101,5 +102,17 @@ export function initResponsiveTables(root) {
     }
   });
   observer.observe(root, { childList: true, subtree: true });
+
+  // Tap a row to reveal the fields tucked away for mobile (chips/long
+  // text/actions). Delegated on `root` so it works for rows added later.
+  // No-ops on desktop widths — .rt-open only has a visual effect under the
+  // mobile media query in styles.css.
+  root.addEventListener('click', (e) => {
+    if (e.target.closest('button, a, input, select, label')) return;
+    const tr = e.target.closest('tbody tr');
+    if (!tr || !tr.closest('table')?.querySelector('thead')) return;
+    tr.classList.toggle('rt-open');
+  });
+
   return observer;
 }

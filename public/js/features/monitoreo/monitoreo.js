@@ -182,7 +182,7 @@ function buildAccordion(a) {
     `style="background:${bg};color:${fg};border:1px solid ${fg}40;border-radius:5px;padding:5px 12px;font-size:12px;cursor:pointer;font-weight:500;"`;
 
   return `
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;">
+    <div class="mon-hw-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;">
       ${hwCards}
     </div>
     <div style="border-top:1px solid var(--border);padding-top:12px;">
