@@ -168,7 +168,7 @@ class WhatsAppClient {
 
     // ── Mensaje entrante ──
     this.client.on('message', async (msg) => {
-      if (msg.isGroupMsg) return;
+      if (msg.isGroupMsg || msg.from?.endsWith('@g.us')) return;
       if (msg.from === 'status@broadcast') return;
       if (msg.fromMe) return;
 
