@@ -63,7 +63,7 @@ async function linkInventory(agentId, hw) {
     if (!equipo) {
       const qr_token = crypto.randomUUID();
       const code     = getSedeCode(hw.sede);
-      const num      = nextConsecutivo(db, code);
+      const num      = await nextConsecutivo(db, code);
       const placa    = `AF-${code}${num}`;
       const marca    = hw.manufacturer?.trim() || 'Sin marca';
       const nombre   = hw.model?.trim() || hw.hostname;

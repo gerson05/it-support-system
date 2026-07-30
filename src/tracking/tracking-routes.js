@@ -44,15 +44,17 @@ const uploadFoto = multer({
 const canRead = [requireAuth, requirePermission('despacho:read')];
 const canEdit = [requireAuth, requirePermission('despacho:edit')];
 
-function validateTracking(req, res, next) {
-  const tracking = getTrackingRow(db, req.params.token);
-  if (!tracking) return res.status(404).json({ error: 'Paquete no encontrado.' });
-  if (['entregado', 'devuelto'].includes(tracking.estado))
-    return res.status(409).json({ error: 'Este paquete ya fue entregado o devuelto.' });
-  if (countRecentEventos(db, tracking.id) >= 5)
-    return res.status(429).json({ error: 'Demasiados intentos. Espera antes de registrar otro evento.' });
-  req._tracking = tracking;
-  next();
+async function validateTracking(req, res, next) {
+  try {
+    const tracking = await getTrackingRow(db, req.params.token);
+    if (!tracking) return res.status(404).json({ error: 'Paquete no encontrado.' });
+    if (['entregado', 'devuelto'].includes(tracking.estado))
+      return res.status(409).json({ error: 'Este paquete ya fue entregado o devuelto.' });
+    if (await countRecentEventos(db, tracking.id) >= 5)
+      return res.status(429).json({ error: 'Demasiados intentos. Espera antes de registrar otro evento.' });
+    req._tracking = tracking;
+    next();
+  } catch (err) { next(err); }
 }
 
 // Route-level multer error handler — 400 for multer/file errors, rethrows others
@@ -68,11 +70,11 @@ const multerErrHandler = (err, _req, res, next) => {
    ══════════════════════════════════════════════════ */
 
 router.get('/api/tracking/public/sedes', wrap(async (req, res) => {
-  res.json({ sedes: getSedesActivas(db), cargos: getDistinctCargos(db) });
+  res.json({ sedes: await getSedesActivas(db), cargos: await getDistinctCargos(db) });
 }));
 
 router.get('/api/tracking/public/:token', wrap(async (req, res) => {
-  const tracking = getTrackingByToken(db, req.params.token);
+  const tracking = await getTrackingByToken(db, req.params.token);
   if (!tracking) return res.status(404).json({ error: 'Paquete no encontrado.' });
 
   const eventos = tracking.eventos.map(e => ({
@@ -106,7 +108,7 @@ router.post('/api/tracking/public/:token/evento',
     if (!entregado_por?.trim()) return res.status(400).json({ error: 'El nombre de quien entrega es obligatorio.' });
     if (!ubicacion?.trim())     return res.status(400).json({ error: 'La ubicación es obligatoria.' });
 
-    const { eventoId, nuevoEstado } = addEvento(db, req._tracking.id, {
+    const { eventoId, nuevoEstado } = await addEvento(db, req._tracking.id, {
       tipo: 'recepcion', recibido_por: recibido_por.trim(),
       entregado_por: entregado_por.trim(), ubicacion: ubicacion.trim(),
       sede_id: sede_id ? parseInt(sede_id) : null,
@@ -115,7 +117,7 @@ router.post('/api/tracking/public/:token/evento',
       es_entrega_final: false, ip: req.ip,
     });
 
-    const tracking = getTrackingByToken(db, req.params.token);
+    const tracking = await getTrackingByToken(db, req.params.token);
     notifyTrackingEvento(tracking, tracking.eventos.find(e => e.id === eventoId)).catch(() => {});
     res.json({ ok: true, estado: nuevoEstado });
   }),
@@ -136,7 +138,7 @@ router.post('/api/tracking/public/:token/entrega-final',
     let itemsParsed = [];
     try { itemsParsed = typeof items === 'string' ? JSON.parse(items) : (items || []); } catch {}
 
-    const { eventoId } = addEvento(db, req._tracking.id, {
+    const { eventoId } = await addEvento(db, req._tracking.id, {
       tipo: 'entrega_final', recibido_por: recibido_por.trim(),
       entregado_por: entregado_por.trim(), ubicacion: ubicacion.trim(),
       sede_id: sede_id ? parseInt(sede_id) : null,
@@ -146,9 +148,9 @@ router.post('/api/tracking/public/:token/entrega-final',
       es_entrega_final: true, ip: req.ip,
     });
 
-    if (itemsParsed.length > 0) addEntregaItems(db, eventoId, itemsParsed);
+    if (itemsParsed.length > 0) await addEntregaItems(db, eventoId, itemsParsed);
 
-    const tracking = getTrackingByToken(db, req.params.token);
+    const tracking = await getTrackingByToken(db, req.params.token);
     const despacho = await db.prepare('SELECT * FROM despachos WHERE id = ?').get(req._tracking.despacho_id);
     const evento   = tracking.eventos.find(e => e.id === eventoId);
 

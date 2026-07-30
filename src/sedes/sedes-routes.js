@@ -25,13 +25,13 @@ router.post('/api/sedes/setup', requireAuth, requirePermission('sedes:create'), 
   await db.exec('BEGIN');
   try {
     if (articulos.length > 0) {
-      const numero = generateDespachoNumero();
+      const numero = await generateDespachoNumero();
       const rd = await db.prepare(`
         INSERT INTO despachos (numero, destinatario, sede, articulos, agente)
         VALUES (?, ?, ?, ?, ?)
       `).run(numero, responsable || nombre_punto.trim(), nombre_punto.trim(), JSON.stringify(articulos), agente);
       despachoId = rd.lastInsertRowid;
-      trackingToken = createTracking(db, despachoId, agente, 'Bodega Central');
+      trackingToken = await createTracking(db, despachoId, agente, 'Bodega Central');
     }
 
     const rs = await db.prepare(`
@@ -143,7 +143,7 @@ router.post('/api/sedes/:id/marcar-enviado', requireAuth, requirePermission('sed
     return res.status(409).json({ error: `Estado actual es '${tracking.estado}', ya fue procesado.` });
   }
 
-  addEvento(db, tracking.id, {
+  await addEvento(db, tracking.id, {
     tipo: 'en_transito',
     entregado_por: agente,
     observaciones: 'Enviado desde IT',

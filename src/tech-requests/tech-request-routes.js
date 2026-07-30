@@ -25,7 +25,7 @@ const canEdit   = [requireAuth, requirePermission('tech-requests:edit')];
 const canDelete = [requireAuth, requirePermission('tech-requests:delete')];
 
 router.get('/api/tech-requests/stats', ...canRead, wrap(async (req, res) => {
-  res.json(getTechRequestStats(db));
+  res.json(await getTechRequestStats(db));
 }));
 
 router.get('/api/tech-requests', ...canRead, wrap(async (req, res) => {
@@ -39,7 +39,7 @@ router.get('/api/tech-requests', ...canRead, wrap(async (req, res) => {
     page:        req.query.page  ? parseInt(req.query.page)  : 1,
     limit:       req.query.limit ? parseInt(req.query.limit) : 15,
   };
-  res.json(getAllTechRequests(db, filters));
+  res.json(await getAllTechRequests(db, filters));
 }));
 
 router.post('/api/tech-requests', ...canCreate, wrap(async (req, res) => {
@@ -59,7 +59,7 @@ router.post('/api/tech-requests', ...canCreate, wrap(async (req, res) => {
     return res.status(400).json({ error: 'El tipo debe ser "requerimiento" o "incidencia".' });
   }
 
-  const result = createTechRequest(db, req.body);
+  const result = await createTechRequest(db, req.body);
   appEvents.emit('tech-request:created', { id: result.id, request_number: result.request_number, type });
 
   const trData = {
@@ -77,7 +77,7 @@ router.post('/api/tech-requests', ...canCreate, wrap(async (req, res) => {
 }));
 
 router.get('/api/tech-requests/:id', ...canRead, wrap(async (req, res) => {
-  const req2 = getTechRequestById(db, parseInt(req.params.id));
+  const req2 = await getTechRequestById(db, parseInt(req.params.id));
   if (!req2) return res.status(404).json({ error: 'Solicitud no encontrada.' });
   res.json(req2);
 }));
@@ -85,12 +85,12 @@ router.get('/api/tech-requests/:id', ...canRead, wrap(async (req, res) => {
 router.put('/api/tech-requests/:id', ...canEdit, wrap(async (req, res) => {
   const id        = parseInt(req.params.id);
   const agentName = req.body.agentName || 'IT';
-  const updated   = updateTechRequest(db, id, req.body, agentName);
+  const updated   = await updateTechRequest(db, id, req.body, agentName);
   if (!updated) return res.status(404).json({ error: 'Solicitud no encontrada o sin cambios.' });
   appEvents.emit('tech-request:updated', { id });
 
   if (Array.isArray(req.body.items)) {
-    replaceRequestItems(db, id, req.body.items);
+    await replaceRequestItems(db, id, req.body.items);
   }
 
   if (req.body.status) {
@@ -107,7 +107,7 @@ router.put('/api/tech-requests/:id', ...canEdit, wrap(async (req, res) => {
 }));
 
 router.delete('/api/tech-requests/:id', ...canDelete, wrap(async (req, res) => {
-  const deleted = deleteTechRequest(db, parseInt(req.params.id));
+  const deleted = await deleteTechRequest(db, parseInt(req.params.id));
   if (!deleted) return res.status(404).json({ error: 'Solicitud no encontrada.' });
   appEvents.emit('tech-request:deleted', { id: parseInt(req.params.id) });
   res.json({ success: true });
@@ -118,14 +118,14 @@ router.post('/api/tech-requests/:id/notes', ...canEdit, wrap(async (req, res) =>
   const { agentName, content } = req.body;
   if (!content?.trim()) return res.status(400).json({ error: 'El contenido es requerido.' });
 
-  addTechRequestNote(db, id, agentName || 'IT', content);
+  await addTechRequestNote(db, id, agentName || 'IT', content);
   appEvents.emit('tech-request:updated', { id });
   res.json({ success: true });
 }));
 
 router.post('/api/tech-requests/:id/acta', ...canEdit, wrap(async (req, res) => {
   const id  = parseInt(req.params.id);
-  const req2 = getTechRequestById(db, id);
+  const req2 = await getTechRequestById(db, id);
   if (!req2) return res.status(404).json({ error: 'Solicitud no encontrada.' });
 
   const { items, accesorios, observaciones, agentName } = req.body;
