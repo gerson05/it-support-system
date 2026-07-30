@@ -7,10 +7,10 @@ export function renderGestion(container, options = {}) {
   const focusId = options.focusId ?? null;
 
   container.innerHTML = `
-    <div style="padding:24px;max-width:1200px;margin:0 auto;">
-      <div style="margin-bottom:22px;">
-        <h1 style="margin:0 0 4px;font-size:22px;font-weight:800;letter-spacing:-.4px;color:var(--text);">Gestión</h1>
-        <p style="margin:0;font-size:13px;color:var(--text-3);">Documentación, actas y flujos administrativos.</p>
+    <div class="gestion-page">
+      <div class="gestion-header">
+        <h1 class="gestion-title">Gestión</h1>
+        <p class="gestion-subtitle">Documentación, actas y flujos administrativos.</p>
       </div>
 
       <div style="display:flex;gap:6px;margin-bottom:22px;flex-wrap:wrap;">
