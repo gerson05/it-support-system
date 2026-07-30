@@ -303,7 +303,7 @@ async function loadNetworkUrl() {
     const res = await fetch('/api/network-info');
     if (res.ok) {
       const data = await res.json();
-      const url = `http://${data.ip}:${data.port}`;
+      const url = data.url || `http://${data.ip}:${data.port}`;
       urlEl.textContent = url;
       if (btnCopy) {
         btnCopy.addEventListener('click', async () => {

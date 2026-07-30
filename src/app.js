@@ -119,6 +119,13 @@ app.get('/api/public-url', (_req, res) => {
 });
 
 app.get('/api/network-info', (_req, res) => {
+  const appUrl = process.env.PUBLIC_TUNNEL_URL || process.env.APP_URL;
+  if (appUrl) {
+    try {
+      const u = new URL(appUrl);
+      return res.json({ ip: u.hostname, port: u.port || (u.protocol === 'https:' ? 443 : 80), url: appUrl });
+    } catch {}
+  }
   const nets = os.networkInterfaces();
   let localIp = '127.0.0.1';
   for (const iface of Object.values(nets)) {
