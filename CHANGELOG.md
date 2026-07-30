@@ -1,5 +1,37 @@
 # Changelog
 
+## [1.5.0](https://github.com/gerson05/it-support-system/compare/v1.4.1...v1.5.0) (2026-07-30)
+
+
+### Features
+
+* **agent:** system tray icon + current_user display in monitoring ([4b8ad92](https://github.com/gerson05/it-support-system/commit/4b8ad925ec0877045792ce41c7b844dea42b6bc4))
+* **farmacias:** allow adding a new municipio within a departamento ([c332fc0](https://github.com/gerson05/it-support-system/commit/c332fc0d01ef4f4dd95c744265585a88a0767093))
+* **ui:** audio chimes for ticket/request/employee SSE events via Web Audio API ([4e475f8](https://github.com/gerson05/it-support-system/commit/4e475f89e6557336d73c5b7e93cd449fdba469dc))
+
+
+### Bug Fixes
+
+* **agent:** always create tray task regardless of existing main task ([a1397c2](https://github.com/gerson05/it-support-system/commit/a1397c2689f960b90d94e669ead6f0bd8aaa363f))
+* **db:** comprehensive MariaDB compatibility for SQLite date/time functions ([6390b9c](https://github.com/gerson05/it-support-system/commit/6390b9c5bf5a21aec2c155089c206d562917fe08))
+* **db:** datetime(col) must not use DATE_FORMAT in MariaDB (%M=month name, not minutes); add missing await on parseBlock ([6b19ae7](https://github.com/gerson05/it-support-system/commit/6b19ae7872c702c4bacec7d14a765ee098f36c0a))
+* **docker:** add MariaDB service, env_file, fix Ollama volume for Linux ([e04f0c7](https://github.com/gerson05/it-support-system/commit/e04f0c7c5d7085982ff30c3b3f293c0f999aece0))
+* **docker:** explicit DB_* env vars in environment block ([81ab445](https://github.com/gerson05/it-support-system/commit/81ab44534e97c5cd2c73aced8d221d04025b12b2))
+* **docker:** remove embedded MariaDB service - DB is external at 10.10.0.230 ([550bd39](https://github.com/gerson05/it-support-system/commit/550bd39e916fbbf939232519d6ceabb584b9b423))
+* **employees:** add missing await on all model calls in routes ([3d5578d](https://github.com/gerson05/it-support-system/commit/3d5578d61a199a06edc829c18246ab92df74d530))
+* **farmacias:** await parseBlock inside for-of instead of forEach ([8383d3e](https://github.com/gerson05/it-support-system/commit/8383d3eac7607f8f77e7af1b1a5cf0137c3916de))
+* **farmacias:** await reconstructColB in saveFarmacias ([2363cdd](https://github.com/gerson05/it-support-system/commit/2363cdd81ceeb3f25cb68ac9df82a83420d19d1d))
+* **farmacias:** compute consecutivo in Apps Script, not Node ([cb62745](https://github.com/gerson05/it-support-system/commit/cb62745986ce3666fb98b4b1a2afa304dcfb34a9))
+* **farmacias:** parseCSV was async but called without await — rows was Promise not array ([b84a494](https://github.com/gerson05/it-support-system/commit/b84a4945323c269d1d3be91d2a206a5459b5348b))
+* **inventario:** add missing await on findByToken in 3 routes ([13a2532](https://github.com/gerson05/it-support-system/commit/13a253283ff7abddfa8e78d55e3766ec8d10e89b))
+* **monitoring:** rename current_user→logged_user — reserved word in MariaDB ([62f77ba](https://github.com/gerson05/it-support-system/commit/62f77ba186ad14a4816a92f9c01cc480dbfce060))
+* **monitoring:** wrap register endpoint so errors return 500 instead of hanging ([6bf8a94](https://github.com/gerson05/it-support-system/commit/6bf8a94aa0c90ffc9d2779ebf7f2cb958f99fa06))
+* **settings:** network-info uses APP_URL env var instead of Docker internal IP ([1897c86](https://github.com/gerson05/it-support-system/commit/1897c86feca4f2db289b0f8a345de28183e995ff))
+* **whatsapp:** align AUTH_DIR with Docker volume mount (.wwebjs_auth) ([18d5655](https://github.com/gerson05/it-support-system/commit/18d5655f4ad0f6b285092e69d2813caa34a8e9c7))
+* **whatsapp:** await destroy before reconnect, kill chromium processes before clearing locks ([3fc2a7e](https://github.com/gerson05/it-support-system/commit/3fc2a7ede04d81c5ce5505364bde40ccaa26702c))
+* **whatsapp:** clear all Chromium lock types on startup ([6f5d9b0](https://github.com/gerson05/it-support-system/commit/6f5d9b08f6f250c5ee44cb820648b2f60e07da44))
+* **whatsapp:** filter groups by [@g](https://github.com/g).us suffix — isGroupMsg unreliable in newer wwebjs ([b5e48b1](https://github.com/gerson05/it-support-system/commit/b5e48b11ae0c46046b9ddaa034d48b8e5810f184))
+
 ## [1.4.1](https://github.com/gerson05/it-support-system/compare/v1.4.0...v1.4.1) (2026-07-28)
 
 
