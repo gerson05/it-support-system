@@ -363,7 +363,7 @@ export function renderDespachoActasPanel(container, { focusId = null } = {}) {
       renderPagination();
       if (focusId && !_didFocusScroll) {
         _didFocusScroll = true;
-        const row = listWrap.querySelector(`tr[data-acta-id="${focusId}"]`);
+        const row = listWrap.querySelector(`tr[data-acta-id="${focusId}"], .acta-row[data-acta-id="${focusId}"]`);
         if (row) {
           row.style.outline = '2px solid var(--primary)';
           row.style.outlineOffset = '-2px';
