@@ -87,7 +87,13 @@ export async function renderAudit(container) {
     const auditContainer = container.querySelector('#audit-container');
     if (!auditContainer) return;
     try {
-      const res = await fetch(`/api/audit?limit=${AUDIT_PAGE_SIZE}&offset=${offset}`);
+      let res;
+      try {
+        res = await fetch(`/api/audit?limit=${AUDIT_PAGE_SIZE}&offset=${offset}`);
+      } catch {
+        await new Promise(r => setTimeout(r, 800));
+        res = await fetch(`/api/audit?limit=${AUDIT_PAGE_SIZE}&offset=${offset}`);
+      }
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Error del servidor');
       const { logs, total } = data;

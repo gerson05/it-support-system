@@ -61,7 +61,13 @@ function actaStatusBadge(acta) {
 
 async function fetchActas(params = {}) {
   const qs = new URLSearchParams(params).toString();
-  const res = await fetch(`/api/actas?${qs}`);
+  let res;
+  try {
+    res = await fetch(`/api/actas?${qs}`);
+  } catch {
+    await new Promise(r => setTimeout(r, 800));
+    res = await fetch(`/api/actas?${qs}`);
+  }
   if (!res.ok) throw new Error('No se pudieron cargar las actas');
   return res.json();
 }

@@ -19,8 +19,17 @@ export async function createSession(userId) {
   return { token, expiresAt };
 }
 
+// In-memory cache: avoids 3 synchronous DB queries per request on mobile.
+// Entries expire after 30 s; logout invalidates immediately.
+const _sessionCache = new Map(); // token → { user, userId, ttl }
+const SESSION_CACHE_TTL = 30_000;
+
 export async function getSession(token) {
   if (!token) return null;
+
+  const now = Date.now();
+  const cached = _sessionCache.get(token);
+  if (cached && cached.ttl > now) return cached.user;
 
   const session = await db.prepare(
     `SELECT s.user_id, s.expires_at, u.username, u.active, u.role_id,
@@ -31,7 +40,10 @@ export async function getSession(token) {
      WHERE s.token = ? AND datetime(s.expires_at) > datetime('now')`
   ).get(token);
 
-  if (!session || !session.active) return null;
+  if (!session || !session.active) {
+    _sessionCache.delete(token);
+    return null;
+  }
 
   const permissions = (await db.prepare(
     `SELECT p.name FROM permissions p
@@ -43,19 +55,25 @@ export async function getSession(token) {
   const newExpiry = new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString();
   await db.prepare('UPDATE sessions SET expires_at = ? WHERE token = ?').run(newExpiry, token);
 
-  return {
+  const user = {
     id:          session.user_id,
     username:    session.username,
     role:        session.role_name,
     permissions,
   };
+  _sessionCache.set(token, { user, userId: session.user_id, ttl: now + SESSION_CACHE_TTL });
+  return user;
 }
 
 export async function deleteSession(token) {
+  _sessionCache.delete(token);
   await db.prepare('DELETE FROM sessions WHERE token = ?').run(token);
 }
 
 export async function deleteUserSessions(userId) {
+  for (const [token, entry] of _sessionCache) {
+    if (entry.userId === userId) _sessionCache.delete(token);
+  }
   await db.prepare('DELETE FROM sessions WHERE user_id = ?').run(userId);
 }
 
