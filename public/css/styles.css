@@ -1974,7 +1974,7 @@ body.sidebar-open .hamburger span:nth-child(3) { transform: translateY(-6px) rot
    24px on top via inline styles — inline styles can't be overridden by
    a media query, so mobile got double padding. Now it's a real class,
    zeroed out on mobile so page-container's padding is the only one. */
-.gestion-page { padding: 24px; max-width: 1200px; margin: 0 auto; }
+.gestion-page { padding: 24px; max-width: 1200px; margin: 0 auto; width: 100%; }
 .gestion-header { margin-bottom: 22px; }
 .gestion-title { margin: 0 0 4px; font-size: 22px; font-weight: 800; letter-spacing: -.4px; color: var(--text); }
 .gestion-subtitle { margin: 0; font-size: 13px; color: var(--text-3); }
