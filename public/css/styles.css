@@ -1978,7 +1978,7 @@ body.sidebar-open .hamburger span:nth-child(3) { transform: translateY(-6px) rot
 .gestion-title { margin: 0 0 4px; font-size: 22px; font-weight: 800; letter-spacing: -.4px; color: var(--text); }
 .gestion-subtitle { margin: 0; font-size: 13px; color: var(--text-3); }
 
-.actas-mobile-list { display: none; }
+@media (min-width: 601px) { .actas-mobile-list { display: none; } }
 
 @media (max-width: 900px) {
   .gestion-page { padding: 0; }
