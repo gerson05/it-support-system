@@ -88,7 +88,9 @@ export async function renderAudit(container) {
     if (!auditContainer) return;
     try {
       const res = await fetch(`/api/audit?limit=${AUDIT_PAGE_SIZE}&offset=${offset}`);
-      const { logs, total } = await res.json();
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Error del servidor');
+      const { logs, total } = data;
       if (!logs.length) {
         auditContainer.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-3);">No hay eventos registrados aún.</div>';
         return;
@@ -149,7 +151,7 @@ export async function renderAudit(container) {
       auditContainer.querySelector('#audit-next')?.addEventListener('click', () => loadAudit(offset + AUDIT_PAGE_SIZE));
     } catch (err) {
       console.error('[Audit]', err);
-      auditContainer.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-3);">Error al cargar el log de auditoría.</div>';
+      auditContainer.innerHTML = `<div style="padding:40px;text-align:center;color:var(--text-3);">Error al cargar el log de auditoría: ${err.message}</div>`;
     }
   }
 
