@@ -1,4 +1,4 @@
-import { showToast, createEmptyState, createLoadingSpinner, copyToClipboard } from '../../ui/components.js';
+import { showToast, createEmptyState, createLoadingSpinner, copyToClipboard, avatarGradient, initialsOf } from '../../ui/components.js';
 import { iconCopy, iconDownload, iconExternalLink, iconLink, iconRefresh, iconSearch, iconEye,
          iconClose, iconDocument, iconChevronLeft, iconChevronRight } from '../../utils/icons.js';
 import { openDetailModal } from './despacho-detail.js';
@@ -257,6 +257,21 @@ export function renderDespachoActasPanel(container, { focusId = null } = {}) {
     pgWrap.querySelectorAll('[data-p]').forEach(b => b.addEventListener('click', () => { _page = parseInt(b.dataset.p); refresh(); }));
   }
 
+  function mobileRowHtml(acta) {
+    const nombre = acta.despacho_destinatario || 'Sin destinatario';
+    const numero = escHtml(acta.despacho_acta_numero || acta.entity_ref || '—');
+    const meta   = escHtml(getFirmanteLabel(acta));
+    return `
+      <div class="acta-row" data-acta-id="${acta.entity_id}">
+        <div class="acta-row-avatar" style="background:${avatarGradient(nombre)};">${escHtml(initialsOf(nombre))}</div>
+        <div class="acta-row-main">
+          <div class="acta-row-name">${escHtml(nombre)}</div>
+          <div class="acta-row-sub">${numero} · ${meta}</div>
+        </div>
+        <span class="acta-row-chevron">&rsaquo;</span>
+      </div>`;
+  }
+
   function renderList() {
     if (!actas.length) {
       listWrap.innerHTML = createEmptyState('No hay actas para mostrar', iconDocument(32));
@@ -265,7 +280,10 @@ export function renderDespachoActasPanel(container, { focusId = null } = {}) {
 
     const thStyle = 'padding:10px 14px;text-align:left;font-size:10px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;';
     listWrap.innerHTML = `
-      <div style="overflow-x:auto;">
+      <div class="actas-mobile-list">
+        ${actas.map(mobileRowHtml).join('')}
+      </div>
+      <div class="actas-table-wrap" style="overflow-x:auto;">
         <table style="width:100%;border-collapse:collapse;">
           <thead>
             <tr style="background:var(--surface-2);border-bottom:2px solid var(--border);">
@@ -319,6 +337,13 @@ export function renderDespachoActasPanel(container, { focusId = null } = {}) {
       </div>`;
 
     listWrap.querySelectorAll('tr[data-acta-id]').forEach(row => {
+      row.addEventListener('click', () => {
+        const acta = actas.find(a => Number(a.entity_id) === Number(row.dataset.actaId));
+        if (acta) openActaModal(acta);
+      });
+    });
+
+    listWrap.querySelectorAll('.acta-row[data-acta-id]').forEach(row => {
       row.addEventListener('click', () => {
         const acta = actas.find(a => Number(a.entity_id) === Number(row.dataset.actaId));
         if (acta) openActaModal(acta);
