@@ -1,5 +1,30 @@
 # Changelog
 
+## [1.6.0](https://github.com/gerson05/it-support-system/compare/v1.5.0...v1.6.0) (2026-07-31)
+
+
+### Features
+
+* **gestion:** contact-style mobile row list for actas de entrega ([170cb61](https://github.com/gerson05/it-support-system/commit/170cb6197e83c56ba79d2a62c9b03304bf91c40d))
+* **mobile:** dense-row table design + fix overflow across several modules ([c99efd6](https://github.com/gerson05/it-support-system/commit/c99efd67ffb618d6b9079cbc7b32d4b29c5732c1))
+* **usuarios:** avatar system + reorganized Users/Roles tab UI ([ab9bd03](https://github.com/gerson05/it-support-system/commit/ab9bd038755337c832d81501dcf7bca168f91b03))
+
+
+### Bug Fixes
+
+* **audit:** surface real error instead of crashing on non-2xx response ([48358b9](https://github.com/gerson05/it-support-system/commit/48358b98e42ca22075ce28e2064d9a662c92e13d))
+* **await:** systematic missing await on async model calls across tech-requests, tracking, sedes, monitoring routes ([9883d55](https://github.com/gerson05/it-support-system/commit/9883d55f05ce707b524c15ef8b12ac557efdc285))
+* **css:** add width:100% to .gestion-page to prevent card overflow on mobile ([a68e1c2](https://github.com/gerson05/it-support-system/commit/a68e1c2ca0d3ee74da77e73d589ab06ee0c6534d))
+* **css:** prevent horizontal overflow on mobile via html/body max-width ([4c7b52b](https://github.com/gerson05/it-support-system/commit/4c7b52b188335258a631ef1cc03f41cb679f0bb7))
+* **css:** scope actas-mobile-list hide rule to min-width 601px ([0af1355](https://github.com/gerson05/it-support-system/commit/0af135576153f60b29d046bf5d7ddc57fbe66dd9))
+* **gestion:** apply focus-highlight to mobile acta rows too ([34179f8](https://github.com/gerson05/it-support-system/commit/34179f87477ac3459ca619f9165abb5e0f4b1772))
+* **gestion:** select correct focus-highlight row for active layout (not DOM order) ([1432257](https://github.com/gerson05/it-support-system/commit/1432257d4f6ba05f46cad5f28e752af6bdd13567))
+* **gestion:** stop double mobile padding from inline + page-container styles ([bd9083d](https://github.com/gerson05/it-support-system/commit/bd9083d1cf0c6d484c9327ec809a9e0eb09660af))
+* **mobile:** responsive layout for trazabilidad detail and despacho buttons ([02ed0cc](https://github.com/gerson05/it-support-system/commit/02ed0cc51084e0a8ca975a2a755957648a3a2697))
+* **mobile:** session cache + fetch retry to prevent Failed to fetch on cellular ([7de0414](https://github.com/gerson05/it-support-system/commit/7de041489f72cad92bca04a0ac920a1ffffdf47c))
+* **tracking:** add missing await on all async model calls in routes ([d12e270](https://github.com/gerson05/it-support-system/commit/d12e270692b290a5f8a05f37f19164ccab06cace))
+* **tracking:** parenthesize await before .n access on COUNT query ([3a7c78d](https://github.com/gerson05/it-support-system/commit/3a7c78d91af3e0f104e66d2a3da884a79fc24443))
+
 ## [1.5.0](https://github.com/gerson05/it-support-system/compare/v1.4.1...v1.5.0) (2026-07-30)
 
 
