@@ -87,5 +87,5 @@ export async function getMsg(db, key, vars = {}) {
     const row = await db.prepare('SELECT value FROM app_config WHERE key = ?').get(`wp_msg_${key}`);
     if (row?.value) text = row.value;
   } catch { /* tabla no existe aún, usa default */ }
-  return Object.entries(vars).reduce((t, [k, v]) => t.replaceAll(`{${k}}`, String(v)), text);
+  return Object.entries(vars).reduce((t, [k, v]) => t.replaceAll(`{${k}}`, String(v ?? '')), text);
 }

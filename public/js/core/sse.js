@@ -42,13 +42,13 @@ export function startRealTimeUpdates() {
     const data = safeParse(e); if (!data) return;
     playChime([880, 1100, 1320]);
     showToast(`🎟️ Nuevo ticket: ${data.ticket_number} (${getAreaName(data.area)})`, 'info');
-    if (state.currentPage === 'dashboard') {
-      setTimeout(router, 400);
-    } else if (state.currentPage === 'tickets') {
-      const app         = document.getElementById('app');
-      const currentMode = app?._ticketListMode?.();
-      if (!currentMode || currentMode === 'activos') setTimeout(router, 400);
-    }
+    setTimeout(() => {
+      if (window.location.hash !== '#tickets') {
+        window.location.hash = '#tickets'; // hashchange → router()
+      } else {
+        router();
+      }
+    }, 400);
   });
 
   evtSource.addEventListener('ticket-updated', (e) => {

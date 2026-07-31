@@ -118,9 +118,8 @@ export async function handleSoporte(step, { text, cleanText, session, phone, db,
       }
       const priority = detectPriority(ctx.description);
       const imageCtx = ctx._imageBase64 ? { base64: ctx._imageBase64, mimetype: ctx._imageMimetype } : null;
-      const ticketId = await crearTicket(db, phone, area, ctx.description || '(sin descripción)', { priority, requesterName: ctx.requester_name, imageCtx, chatId });
+      const { ticket_number } = await crearTicket(db, phone, area, ctx.description || '(sin descripción)', { priority, requesterName: ctx.requester_name, imageCtx, chatId });
       await setStep(db, phone, 'idle', null, '{}');
-      const { ticket_number } = await db.prepare('SELECT ticket_number FROM tickets WHERE id=?').get(ticketId);
       return (
         `😔 Entendido. El equipo de IT tomará el caso directamente.\n\n` +
         `🎟️ *Ticket creado: ${ticket_number}*\n📍 Área: ${AREA_NAMES[area] || area}\n` +
@@ -142,9 +141,8 @@ export async function handleSoporte(step, { text, cleanText, session, phone, db,
     if (cleanText === '1') {
       const priority = detectPriority(ctx.description);
       const imageCtx = ctx._imageBase64 ? { base64: ctx._imageBase64, mimetype: ctx._imageMimetype } : null;
-      const ticketId = await crearTicket(db, phone, area, ctx.description || '(sin descripción)', { priority, requesterName: ctx.requester_name, imageCtx, chatId });
+      const { ticket_number } = await crearTicket(db, phone, area, ctx.description || '(sin descripción)', { priority, requesterName: ctx.requester_name, imageCtx, chatId });
       await setStep(db, phone, 'idle', null, '{}');
-      const { ticket_number } = await db.prepare('SELECT ticket_number FROM tickets WHERE id=?').get(ticketId);
       return `✅ Nuevo ticket creado: *${ticket_number}*\n📍 Área: ${AREA_NAMES[area] || area}\n\nUn técnico se comunicará contigo a la brevedad.`;
     }
     if (cleanText === '2') {
@@ -164,8 +162,7 @@ export async function handleSoporte(step, { text, cleanText, session, phone, db,
   const detail   = /^no$/i.test(cleanText) ? (ctx.description || text) : text;
   const priority = detectPriority(detail);
   const imageCtx = ctx._imageBase64 ? { base64: ctx._imageBase64, mimetype: ctx._imageMimetype } : null;
-  const ticketId = await crearTicket(db, phone, area, detail, { priority, requesterName: ctx.requester_name, imageCtx, chatId });
+  const { ticket_number } = await crearTicket(db, phone, area, detail, { priority, requesterName: ctx.requester_name, imageCtx, chatId });
   await setStep(db, phone, 'idle', null, '{}');
-  const { ticket_number } = await db.prepare('SELECT ticket_number FROM tickets WHERE id=?').get(ticketId);
   return `🎟️ *¡Ticket creado exitosamente!*\nNúmero de caso: *${ticket_number}*\n\nEl equipo de IT fue notificado. ¡Gracias por tu paciencia!`;
 }

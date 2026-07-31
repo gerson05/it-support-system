@@ -38,5 +38,5 @@ export async function crearTicket(db, phone, area, description, {
 
   logAudit('Bot WhatsApp', 'Ticket creado', 'ticket', ticketId, ticketNumber, { area, phone });
   appEvents.emit('ticket:created', { id: ticketId, ticket_number: ticketNumber, area, phone });
-  return ticketId;
+  return { id: ticketId, ticket_number: ticketNumber };
 }
