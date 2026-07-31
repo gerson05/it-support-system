@@ -153,6 +153,17 @@ async function renderList(container, onDetail) {
 }
 
 async function renderDetail(container, token, onBack) {
+  if (!document.getElementById('tl-detail-styles')) {
+    const s = document.createElement('style');
+    s.id = 'tl-detail-styles';
+    s.textContent = `
+      .tl-detail-grid{display:grid;grid-template-columns:1fr 300px;gap:24px;align-items:start;}
+      @media(max-width:700px){.tl-detail-grid{grid-template-columns:1fr;}}
+      .tl-steps{display:flex;margin-bottom:28px;border-radius:10px;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+      .tl-steps > div{flex:0 0 auto;min-width:80px;}
+    `;
+    document.head.appendChild(s);
+  }
   container.innerHTML = `<div style="padding:40px;text-align:center;color:var(--text-muted);">Cargando…</div>`;
 
   try {
@@ -176,7 +187,7 @@ async function renderDetail(container, token, onBack) {
       <p style="color:var(--text-muted);font-size:13px;margin-bottom:20px;">
         ${t.sede_destino || t.destinatario} · ${formatDate(t.created_at)}
       </p>
-      <div style="display:flex;margin-bottom:28px;overflow:hidden;border-radius:10px;">
+      <div class="tl-steps">
         ${STEP_LABELS.map((label, i) => `
           <div style="flex:1;padding:10px 6px;text-align:center;font-size:11px;font-weight:600;
             ${i < currentStep ? 'background:rgba(16,185,129,.15);color:#6ee7b7;' :
@@ -186,7 +197,7 @@ async function renderDetail(container, token, onBack) {
             ${label}
           </div>`).join('')}
       </div>
-      <div style="display:grid;grid-template-columns:1fr 300px;gap:24px;align-items:start;">
+      <div class="tl-detail-grid">
         <div class="card">
           <h4 style="font-size:13px;font-weight:700;color:var(--text-muted);margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em;">
             Historial de movimientos
