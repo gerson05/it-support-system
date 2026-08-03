@@ -104,6 +104,11 @@ export function startRealTimeUpdates() {
     setEmployeeBadge(pending);
   });
 
+  evtSource.addEventListener('tunnel-ready', (e) => {
+    const data = safeParse(e); if (!data) return;
+    document.dispatchEvent(new CustomEvent('tunnel-ready', { detail: data }));
+  });
+
   evtSource.onerror = () => console.warn('[SSE] Conexión perdida, reintentando...');
 }
 

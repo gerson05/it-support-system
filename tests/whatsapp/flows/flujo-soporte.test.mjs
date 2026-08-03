@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 
 const mockSetStep     = mock.fn();
 const mockGetCtx      = mock.fn(() => ({}));
-const mockCrearTicket = mock.fn(async () => 42);
+const mockCrearTicket = mock.fn(async () => ({ id: 42, ticket_number: 'TK-001' }));
 
 await mock.module('../../../src/whatsapp/chatbot-session.js', {
   exports: { setStep: mockSetStep, getCtx: mockGetCtx, crearTicket: mockCrearTicket },
@@ -72,6 +72,7 @@ function resetAll() {
   mockGetAISolutionFromImage.mock.mockImplementation(async () => null);
   mockSearchFaqsAll.mock.mockImplementation(() => []);
   mockGetCtx.mock.mockImplementation(() => ({}));
+  mockCrearTicket.mock.mockImplementation(async () => ({ id: 42, ticket_number: 'TK-001' }));
 }
 
 // ── Step routing ─────────────────────────────────────────────────────────────
@@ -186,10 +187,11 @@ test('ask_resolved "1": with faq_shown_id → marks faq hit, sets idle', async (
 test('ask_resolved "2": no existing ticket → creates ticket, returns number', async () => {
   resetAll();
   mockGetCtx.mock.mockImplementation(() => ({ description: 'El equipo no enciende' }));
+  mockCrearTicket.mock.mockImplementation(async () => ({ id: 42, ticket_number: 'TK-999' }));
   const db = makeMockDb({
     get: async (sql) => {
-      if (sql.includes('ticket_number FROM tickets WHERE id')) return { ticket_number: 'TK-999' };
-      return null; // no existing open ticket
+      if (sql.includes('status IN')) return null; // no existing open ticket
+      return null;
     },
   });
   const result = await handleSoporte('ask_resolved', makeCtx({ cleanText: '2', db }));
@@ -231,12 +233,8 @@ test('ask_resolved invalid → reprompt', async () => {
 test('confirm_dup_ticket "1" → creates new ticket', async () => {
   resetAll();
   mockGetCtx.mock.mockImplementation(() => ({ description: 'Problema diferente' }));
-  const db = makeMockDb({
-    get: async (sql) => {
-      if (sql.includes('ticket_number FROM tickets WHERE id')) return { ticket_number: 'TK-200' };
-      return null;
-    },
-  });
+  mockCrearTicket.mock.mockImplementation(async () => ({ id: 42, ticket_number: 'TK-200' }));
+  const db = makeMockDb();
   const result = await handleSoporte('confirm_dup_ticket', makeCtx({ cleanText: '1', db }));
   assert.equal(mockCrearTicket.mock.calls.length, 1);
   assert.ok(result.includes('TK-200'));
@@ -271,12 +269,7 @@ test('confirm_dup_ticket invalid → reprompt', async () => {
 test('create_ticket → creates ticket, returns number', async () => {
   resetAll();
   mockGetCtx.mock.mockImplementation(() => ({ description: 'Falla previa' }));
-  const db = makeMockDb({
-    get: async (sql) => {
-      if (sql.includes('ticket_number FROM tickets WHERE id')) return { ticket_number: 'TK-001' };
-      return null;
-    },
-  });
+  const db = makeMockDb();
   const result = await handleSoporte('create_ticket', makeCtx({
     text: 'Detalles adicionales', cleanText: 'detalles adicionales', db,
   }));

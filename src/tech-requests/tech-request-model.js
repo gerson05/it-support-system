@@ -24,7 +24,7 @@ export async function createTechRequest(db, data) {
     items = [],   // array de { equipment_name, quantity, serial } — solo requerimientos
   } = data;
 
-  const request_number = generateNumber(db, type);
+  const request_number = await generateNumber(db, type);
 
   // Para requerimientos con ítems, quantity = suma total de unidades
   const totalQty = (type === 'requerimiento' && Array.isArray(items) && items.length)

@@ -12,6 +12,10 @@ import {
 } from '../../utils/icons.js';
 import { openActaModal, setupFirmaSection } from './tech-request-acta.js';
 
+function escHtml(str) {
+  return String(str ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
 const STATUS_CFG = {
   pendiente:   { label: 'Pendiente',   cls: 'badge-pendiente'   },
   en_revision: { label: 'En Revisión', cls: 'badge-en_espera'   },
@@ -383,8 +387,13 @@ export async function renderTechRequestDetail(container, id) {
   const isInc = req.type === 'incidencia';
   const typeLabel = isInc ? `${iconWrench(13)} Incidencia` : `${iconClipboard(13)} Requerimiento`;
 
-  container.innerHTML = renderDetailLayout(req, agents, isInc, typeLabel);
-  bindDetailEvents(container, id, req, isInc);
+  try {
+    container.innerHTML = renderDetailLayout(req, agents, isInc, typeLabel);
+    bindDetailEvents(container, id, req, isInc);
+  } catch (err) {
+    console.error('[tech-request-detail] Error al renderizar:', err);
+    container.innerHTML = `<div style="padding:40px;text-align:center;color:#ef4444;">Error al mostrar la solicitud.<br><small>${String(err.message)}</small></div>`;
+  }
 }
 
 /* ─ Helpers de UI ─ */
