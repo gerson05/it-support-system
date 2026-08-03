@@ -12,6 +12,10 @@ import {
 } from '../../utils/icons.js';
 import { openActaModal, setupFirmaSection } from './tech-request-acta.js';
 
+function escHtml(str) {
+  return String(str ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
 const STATUS_CFG = {
   pendiente:   { label: 'Pendiente',   cls: 'badge-pendiente'   },
   en_revision: { label: 'En Revisión', cls: 'badge-en_espera'   },
