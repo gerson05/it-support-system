@@ -94,8 +94,14 @@ class WhatsAppClient {
 
     this.client = new Client({
       authStrategy: new LocalAuth({ dataPath: AUTH_DIR }),
-      // Sin webVersionCache remoto — deja que WWebJS use su versión incorporada.
-      // El remotePath de GitHub puede colgar si está caído o la versión expiró.
+      // webVersionCache: WA rechaza la versión embebida cuando expira → sesión cae
+      // justo después de escanear el QR. Usamos remotePath para obtener la versión
+      // actual; wwebjs la guarda en caché local, por lo que sólo necesita internet
+      // en el primer arranque.
+      webVersionCache: {
+        type: 'remote',
+        remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.3000.1017534965-alpha.html',
+      },
       puppeteer: {
         headless: true,
         args: [
