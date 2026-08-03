@@ -10,21 +10,66 @@ export async function renderSettings(container) {
 
     <div style="display:grid;gap:16px;max-width:680px;">
 
-      <!-- Acceso en red -->
+      <!-- Acceso en red local -->
       <div class="card">
-        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-3);margin-bottom:14px;">Acceso desde otras PCs</div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-3);margin-bottom:14px;">Acceso en red local (WiFi)</div>
         <p style="font-size:13px;color:var(--text-2);margin-bottom:14px;line-height:1.5;">
-          Para que el equipo de IT acceda al panel desde sus computadoras, deben abrir esta dirección en su navegador:
+          Para acceder desde PCs o celulares conectados a la misma red WiFi:
         </p>
         <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;">
-          <div style="font-size:11px;color:var(--text-3);margin-bottom:8px;font-weight:500;text-transform:uppercase;letter-spacing:.4px;">URL del servidor</div>
+          <div style="font-size:11px;color:var(--text-3);margin-bottom:8px;font-weight:500;text-transform:uppercase;letter-spacing:.4px;">URL local</div>
           <div style="display:flex;align-items:center;gap:8px;">
             <code id="network-url" style="flex:1;font-size:13px;color:var(--primary);background:var(--primary-light);padding:8px 12px;border-radius:var(--radius-sm);word-break:break-all;border:1px solid rgba(99,102,241,.2);">http://&lt;IP&gt;:3000</code>
             <button id="btn-copy-url" class="btn btn-primary btn-small" style="white-space:nowrap;">Copiar</button>
           </div>
-          <div style="margin-top:12px;font-size:12px;color:var(--text-3);line-height:1.6;">
-            <strong style="color:var(--text-2);">¿Cómo encontrar la IP?</strong><br>
-            Abre CMD y ejecuta <code style="background:var(--surface-3);padding:2px 6px;border-radius:3px;font-size:11px;">ipconfig</code> · busca "Dirección IPv4" (suele ser 192.168.X.X o 10.0.X.X).
+          <div style="margin-top:10px;font-size:12px;color:var(--text-3);">
+            Solo funciona si el dispositivo está en la misma red WiFi que el servidor.
+          </div>
+        </div>
+      </div>
+
+      <!-- Túnel HTTPS (acceso externo) -->
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-3);">Acceso externo — Túnel HTTPS</div>
+          <span id="tunnel-badge" style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:9999px;background:rgba(234,179,8,.15);color:#ca8a04;border:1px solid rgba(234,179,8,.3);">Iniciando…</span>
+        </div>
+        <p style="font-size:13px;color:var(--text-2);margin-bottom:14px;line-height:1.5;">
+          URL pública HTTPS generada automáticamente por Cloudflare. Funciona desde datos móviles, fuera de la red WiFi y habilita la cámara del celular.
+        </p>
+
+        <!-- Estado: iniciando -->
+        <div id="tunnel-pending" style="display:flex;align-items:center;gap:10px;padding:14px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);">
+          <svg style="width:18px;height:18px;flex-shrink:0;animation:spin 1.2s linear infinite;color:var(--text-3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+          </svg>
+          <span style="font-size:13px;color:var(--text-3);">El túnel Cloudflare se está iniciando, estará listo en unos segundos…</span>
+        </div>
+
+        <!-- Estado: activo -->
+        <div id="tunnel-active" style="display:none;">
+          <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:14px;">
+            <div style="font-size:11px;color:var(--text-3);margin-bottom:8px;font-weight:500;text-transform:uppercase;letter-spacing:.4px;">URL pública</div>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+              <code id="tunnel-url" style="flex:1;min-width:0;font-size:13px;color:#22c55e;background:rgba(34,197,94,.08);padding:8px 12px;border-radius:var(--radius-sm);word-break:break-all;border:1px solid rgba(34,197,94,.2);">—</code>
+              <div style="display:flex;gap:6px;flex-shrink:0;">
+                <button id="btn-copy-tunnel" class="btn btn-primary btn-small" style="white-space:nowrap;">Copiar</button>
+                <button id="btn-share-tunnel" class="btn btn-secondary btn-small" style="white-space:nowrap;display:none;">Compartir</button>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex;align-items:flex-start;gap:20px;flex-wrap:wrap;">
+            <div style="flex:1;min-width:180px;">
+              <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px;">Escanea con el celular</div>
+              <div style="font-size:12px;color:var(--text-3);line-height:1.6;">Abre la cámara y apunta al código QR para abrir el panel directamente. La URL cambia cada vez que el servidor reinicia.</div>
+            </div>
+            <div id="tunnel-qr-wrap" style="flex-shrink:0;">
+              <div style="width:130px;height:130px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;">
+                <img id="tunnel-qr-img" src="" alt="QR túnel" style="width:120px;height:120px;border-radius:6px;display:none;">
+                <span id="tunnel-qr-loading" style="font-size:11px;color:var(--text-3);">Generando…</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -100,6 +145,7 @@ export async function renderSettings(container) {
   `;
 
   loadNetworkUrl();
+  loadTunnelUrl();
   loadWaStatus();
   loadWpMessages();
   bindEvents();
@@ -296,30 +342,86 @@ async function populateWpMessagesList() {
 }
 
 async function loadNetworkUrl() {
-  const urlEl = document.getElementById('network-url');
+  const urlEl   = document.getElementById('network-url');
   const btnCopy = document.getElementById('btn-copy-url');
   if (!urlEl) return;
   try {
     const res = await fetch('/api/network-info');
     if (res.ok) {
       const data = await res.json();
-      const url = data.url || `http://${data.ip}:${data.port}`;
+      const url  = data.localUrl || `http://${data.ip}:${data.port}`;
       urlEl.textContent = url;
       if (btnCopy) {
         btnCopy.addEventListener('click', async () => {
           const ok = await copyToClipboard(url);
-          if (ok) {
-            showToast(`URL copiada: ${url}`, 'success');
-          } else {
-            showToast('No se pudo copiar la URL', 'error');
-          }
+          showToast(ok ? `URL copiada: ${url}` : 'No se pudo copiar la URL', ok ? 'success' : 'error');
         });
       }
+      if (data.tunnelUrl) activateTunnel(data.tunnelUrl);
       return;
     }
   } catch { /* fallback */ }
   const port = window.location.port || '3000';
   urlEl.textContent = `http://<IP-DE-ESTA-PC>:${port}`;
+}
+
+function activateTunnel(url) {
+  const badge   = document.getElementById('tunnel-badge');
+  const pending = document.getElementById('tunnel-pending');
+  const active  = document.getElementById('tunnel-active');
+  const urlEl   = document.getElementById('tunnel-url');
+  const btnCopy = document.getElementById('btn-copy-tunnel');
+  const btnShare= document.getElementById('btn-share-tunnel');
+  if (!badge || !pending || !active || !urlEl) return;
+
+  badge.textContent = 'Activo';
+  badge.style.background = 'rgba(34,197,94,.12)';
+  badge.style.color = '#16a34a';
+  badge.style.borderColor = 'rgba(34,197,94,.3)';
+  pending.style.display = 'none';
+  active.style.display  = 'block';
+  urlEl.textContent = url;
+
+  btnCopy?.addEventListener('click', async () => {
+    const ok = await copyToClipboard(url);
+    showToast(ok ? `URL copiada: ${url}` : 'No se pudo copiar', ok ? 'success' : 'error');
+  });
+
+  if (navigator.share && btnShare) {
+    btnShare.style.display = 'inline-flex';
+    btnShare.addEventListener('click', () =>
+      navigator.share({ title: 'IT Support', url }).catch(() => {})
+    );
+  }
+
+  // Load QR code from server
+  fetch('/api/tunnel/qr').then(r => r.ok ? r.json() : null).then(data => {
+    const img     = document.getElementById('tunnel-qr-img');
+    const loading = document.getElementById('tunnel-qr-loading');
+    if (data?.qr && img && loading) {
+      img.src = data.qr;
+      img.style.display = 'block';
+      loading.style.display = 'none';
+    }
+  }).catch(() => {});
+}
+
+async function loadTunnelUrl() {
+  // tunnel may already be up if page loaded after server was running for a while
+  try {
+    const res = await fetch('/api/network-info');
+    if (res.ok) {
+      const data = await res.json();
+      if (data.tunnelUrl) { activateTunnel(data.tunnelUrl); return; }
+    }
+  } catch { /* ignore */ }
+
+  // Not ready yet — listen for SSE event relayed through sse.js
+  const handler = ({ detail }) => {
+    if (detail?.url) activateTunnel(detail.url);
+    document.removeEventListener('tunnel-ready', handler);
+  };
+  document.addEventListener('tunnel-ready', handler);
 }
 
 async function loadWaStatus() {
