@@ -81,7 +81,7 @@ async function init() {
       pulseInd.style.background  = '#f59e0b';
       pulseInd.style.boxShadow   = '0 0 8px #f59e0b';
       const label = document.querySelector('.sidebar-footer span:first-child');
-      if (label) label.innerHTML = 'v1.0.0 <strong>(Demo Local)</strong>';
+      if (label) label.innerHTML = 'v1.6.1 <strong>(Demo Local)</strong>';
     }
     showToast('Iniciado en Modo Demostración Local (Sin servidor)', 'info');
   } else {
