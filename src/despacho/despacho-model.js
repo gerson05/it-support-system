@@ -106,7 +106,9 @@ export async function deleteBorrador(db, agente) {
 /* ── Tipos de artículo ───────────────────────────────────────────────── */
 
 export async function getTiposArticulo(db) {
-  return await db.prepare("SELECT MIN(id) as id, nombre FROM tipos_articulo WHERE activo = 1 GROUP BY nombre ORDER BY nombre ASC").all();
+  const rows = await db.prepare("SELECT id, nombre FROM tipos_articulo WHERE activo = 1 ORDER BY nombre ASC, id ASC").all();
+  const seen = new Set();
+  return rows.filter(r => { if (seen.has(r.nombre)) return false; seen.add(r.nombre); return true; });
 }
 
 export async function upsertTipoArticulo(db, nombre) {
