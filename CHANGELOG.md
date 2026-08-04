@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.6.2](https://github.com/gerson05/it-support-system/compare/v1.6.1...v1.6.2) (2026-08-04)
+
+
+### Bug Fixes
+
+* **despacho:** deduplicate tipos_articulo — MariaDB TEXT UNIQUE not enforced ([f306690](https://github.com/gerson05/it-support-system/commit/f306690e2ac3f475f5f29badf450dcecc13fce8f))
+* **despacho:** JS-side dedup + MariaDB-compatible DELETE for tipos_articulo ([209f306](https://github.com/gerson05/it-support-system/commit/209f3062abfbdeaffebfd465127c0433753d2cd0))
+* **despacho:** re-seed tipos_articulo missing from MariaDB on startup ([dc69344](https://github.com/gerson05/it-support-system/commit/dc69344157a8bb76a6deaf0b8d797ad875a6173c))
+
 ## [1.6.1](https://github.com/gerson05/it-support-system/compare/v1.6.0...v1.6.1) (2026-08-04)
 
 
