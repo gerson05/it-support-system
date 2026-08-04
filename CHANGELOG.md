@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.0](https://github.com/gerson05/it-support-system/compare/v1.6.2...v1.7.0) (2026-08-04)
+
+
+### Features
+
+* serve app version from package.json via /api/version ([c8369f5](https://github.com/gerson05/it-support-system/commit/c8369f5a5ae52245ad7970cefbdd7753ad9f74b1))
+
 ## [1.6.2](https://github.com/gerson05/it-support-system/compare/v1.6.1...v1.6.2) (2026-08-04)
 
 
