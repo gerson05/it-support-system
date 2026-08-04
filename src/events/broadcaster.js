@@ -39,3 +39,4 @@ appEvents.on('tech-request:updated',   (data) => broadcast('tech-request-updated
 appEvents.on('tracking:evento',        (data) => broadcast('tracking-evento', data));
 appEvents.on('employee:created',       (data) => broadcast('employee-created',      data));
 appEvents.on('employee:credentialed',  (data) => broadcast('employee-credentialed', data));
+appEvents.on('tunnel:ready',           (data) => broadcast('tunnel-ready',           data));

@@ -1,5 +1,5 @@
 {
-  "server_url": "http://10.10.0.16:3000",
+  "server_url": "http://10.10.0.234:3000",
   "interval_ms": 30000,
   "sede": ""
 }

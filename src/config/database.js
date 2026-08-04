@@ -182,16 +182,20 @@ if (useMariaDB) {
   try { await pool.execute('DELETE FROM sessions WHERE expires_at <= NOW()'); } catch {}
 
   // Initialize sedes if empty
-  const [sedesRows] = await pool.execute('SELECT COUNT(*) as n FROM sedes');
-  if (sedesRows[0].n === 0) {
-    const { CIUDADES } = await import('../whatsapp/sedes.js');
-    for (const [ciudad, puntos] of Object.entries(CIUDADES)) {
-      for (const punto of puntos) {
-        await pool.execute('INSERT IGNORE INTO sedes (ciudad, nombre_punto) VALUES (?, ?)', [ciudad, punto]);
+  try {
+    const [sedesRows] = await pool.execute('SELECT COUNT(*) as n FROM sedes');
+    if (sedesRows[0].n === 0) {
+      const { CIUDADES } = await import('../whatsapp/sedes.js');
+      for (const [ciudad, puntos] of Object.entries(CIUDADES)) {
+        for (const punto of puntos) {
+          await pool.execute('INSERT IGNORE INTO sedes (ciudad, nombre_punto) VALUES (?, ?)', [ciudad, punto]);
+        }
       }
+      const [cnt] = await pool.execute('SELECT COUNT(*) as n FROM sedes');
+      console.log(`[DB] Red de puntos inicializada: ${cnt[0].n} puntos.`);
     }
-    const [cnt] = await pool.execute('SELECT COUNT(*) as n FROM sedes');
-    console.log(`[DB] Red de puntos inicializada: ${cnt[0].n} puntos.`);
+  } catch (e) {
+    console.warn('[DB] No se pudo verificar/inicializar sedes:', e.message);
   }
 
   console.log(`[DB] Conectado a MariaDB ${process.env.DB_HOST}/${process.env.DB_NAME || 'it_tickets'}`);

@@ -35,7 +35,8 @@ import { initAdminUser } from './src/auth/auth-service.js';
 import Chatbot from './src/whatsapp/chatbot.js';
 import whatsappClient from './src/whatsapp/baileys-client.js';
 import { startInactivityMonitor } from './src/whatsapp/inactivity-monitor.js';
-import { addSseClient, removeSseClient } from './src/events/broadcaster.js';
+import { addSseClient, removeSseClient, appEvents } from './src/events/broadcaster.js';
+import QRCode from 'qrcode';
 
 dotenv.config();
 
@@ -177,14 +178,29 @@ app.get('/api/network-info', (req, res) => {
   let localIp = '127.0.0.1';
   for (const iface of Object.values(nets)) {
     for (const net of iface) {
-      if (net.family === 'IPv4' && !net.internal) {
-        localIp = net.address;
-        break;
-      }
+      if (net.family === 'IPv4' && !net.internal) { localIp = net.address; break; }
     }
     if (localIp !== '127.0.0.1') break;
   }
-  res.json({ ip: localIp, port: process.env.PORT || 3000 });
+  const port = process.env.PORT || 3000;
+  res.json({
+    ip: localIp,
+    port,
+    localUrl:  `http://${localIp}:${port}`,
+    tunnelUrl: process.env.PUBLIC_TUNNEL_URL || null,
+  });
+});
+
+// QR del túnel Cloudflare para escanear desde el celular
+app.get('/api/tunnel/qr', async (_req, res) => {
+  const url = process.env.PUBLIC_TUNNEL_URL;
+  if (!url) return res.status(404).json({ error: 'Túnel no activo todavía.' });
+  try {
+    const qr = await QRCode.toDataURL(url, { width: 220, margin: 1 });
+    res.json({ url, qr });
+  } catch (e) {
+    res.status(500).json({ error: 'No se pudo generar el QR.' });
+  }
 });
 
 // ====== ENDPOINTS DE WHATSAPP ======
@@ -350,6 +366,7 @@ function startCloudflaredTunnel(port) {
       process.env.PUBLIC_TUNNEL_URL = match[0];
       console.log(`\n🌐 Túnel HTTPS activo: ${match[0]}`);
       console.log(`   Usa esta URL en el celular para habilitar la cámara.\n`);
+      appEvents.emit('tunnel:ready', { url: match[0] });
     }
   };
 

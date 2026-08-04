@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.6.1](https://github.com/gerson05/it-support-system/compare/v1.6.0...v1.6.1) (2026-08-04)
+
+
+### Bug Fixes
+
+* **config:** actualiza IP del servidor a 10.10.0.234 y corrige desconexión de sesión WP ([47fee5a](https://github.com/gerson05/it-support-system/commit/47fee5a7f3f2ed23cc68d82af3ee2d2673c22950))
+* corregir bugs en requerimientos/incidencias y crash del contenedor Docker ([126694a](https://github.com/gerson05/it-support-system/commit/126694a77306edc05c8f028ecf3a260524331c6d))
+* **deps:** patch HIGH severity vulns in brace-expansion and ip-address ([614eaba](https://github.com/gerson05/it-support-system/commit/614eabad9fdb8fae014b2dd2c83b9ea6e134430b))
+* **tech-requests:** add missing escHtml to fix frozen detail view ([998481a](https://github.com/gerson05/it-support-system/commit/998481a5048990a35764cf0dfd6ed34266f2c08e))
+* **tickets:** SSE auto-navega a #tickets + elimina 'undefined' en numero de ticket ([939d7a9](https://github.com/gerson05/it-support-system/commit/939d7a9ca95454f31a6b85915194c79f6e330e47))
+
 ## [1.6.0](https://github.com/gerson05/it-support-system/compare/v1.5.0...v1.6.0) (2026-07-31)
 
 

@@ -1,6 +1,6 @@
 {
   "name": "it-tickets",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "description": "Sistema de Tickets IT con WhatsApp y Panel Web",
   "main": "server.js",
   "type": "module",
@@ -17,7 +17,7 @@
     "client:preview": "cd client && npm run preview"
   },
   "dependencies": {
-    "@whiskeysockets/baileys": "^7.0.0-rc13",
+    "@whiskeysockets/baileys": "^7.0.0-rc14",
     "adm-zip": "^0.6.0",
     "bcryptjs": "^3.0.3",
     "cloudflared": "^0.7.1",
@@ -35,7 +35,7 @@
   },
   "devDependencies": {
     "c8": "^12.0.0",
-    "playwright": "^1.62.0"
+    "playwright": "^1.62.1"
   },
   "overrides": {
     "brace-expansion": ">=5.0.8"

@@ -40,12 +40,18 @@ export function router() {
   if (hash.startsWith('#ticket/')) {
     if (!guard('tickets:read')) return;
     activate('nav-tickets', 'ticket-detail');
-    renderTicketDetail(app, hash.split('/')[1]);
+    renderTicketDetail(app, hash.split('/')[1]).catch(err => {
+      console.error('[Router] Error en ticket detail:', err);
+      if (app) app.innerHTML = `<div style="padding:40px;text-align:center;color:#ef4444;">Error al cargar el ticket.<br><small>${_esc(err.message)}</small></div>`;
+    });
 
   } else if (hash.startsWith('#tech-request/')) {
     if (!guard('tech-requests:read')) return;
     activate('nav-tech-requests', 'tech-request-detail');
-    renderTechRequestDetail(app, hash.split('/')[1]);
+    renderTechRequestDetail(app, hash.split('/')[1]).catch(err => {
+      console.error('[Router] Error en tech-request detail:', err);
+      if (app) app.innerHTML = `<div style="padding:40px;text-align:center;color:#ef4444;">Error al cargar la solicitud.<br><small>${_esc(err.message)}</small></div>`;
+    });
 
   } else {
     if (hash.startsWith('#gestion')) {
