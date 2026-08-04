@@ -87,6 +87,11 @@ async function init() {
   } else {
     showToast('Conectado con Servidor Central IT', 'success');
     startWhatsAppMonitor();
+    fetch('/api/version').then(r => r.ok ? r.json() : null).then(data => {
+      if (!data?.version) return;
+      const label = document.querySelector('.sidebar-footer span:first-child');
+      if (label) label.textContent = `v${data.version}`;
+    }).catch(() => {});
   }
 
   if (can('employees:read')) {

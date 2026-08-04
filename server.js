@@ -7,6 +7,8 @@ import { spawn } from 'child_process';
 import https from 'node:https';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'url';
+const _require = createRequire(import.meta.url);
+const APP_VERSION = _require('./package.json').version;
 import db from './src/config/database.js';
 import webhookRouter from './src/whatsapp/webhook.js';
 import ticketRouter from './src/tickets/ticket-routes.js';
@@ -165,6 +167,8 @@ app.get('/api/events', (req, res) => {
   req.on('close',  () => removeSseClient(res));
   req.on('error',  () => removeSseClient(res));
 });
+
+app.get('/api/version', (_req, res) => res.json({ version: APP_VERSION }));
 
 // URL pública actual (tunnel o APP_URL configurado)
 app.get('/api/public-url', (_req, res) => {
