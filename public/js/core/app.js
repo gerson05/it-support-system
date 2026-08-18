@@ -46,6 +46,7 @@ function _applyUserUI(user) {
   if (can('full'))               show('nav-users');
   if (can('employees:read'))     show('nav-employees');
   if (can('monitoreo:read'))     show('nav-monitoreo');
+  if (can('settings:read'))      show('nav-settings');
 }
 
 function initSidebarToggle() {
