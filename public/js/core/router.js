@@ -70,7 +70,7 @@ export function router() {
       '#tickets':      { perm: 'tickets:read',        nav: 'nav-tickets',       page: 'tickets',              render: () => renderTicketList(app) },
       '#tech-requests':{ perm: 'tech-requests:read',  nav: 'nav-tech-requests', page: 'tech-requests',        render: () => renderTechRequests(app) },
       '#faqs':         { perm: 'faqs:read',           nav: 'nav-faqs',          page: 'faqs',                 render: () => renderFaqs(app) },
-      '#settings':     { perm: null,                  nav: 'nav-settings',      page: 'settings',             render: () => renderSettings(app) },
+      '#settings':     { perm: 'settings:read',         nav: 'nav-settings',      page: 'settings',             render: () => renderSettings(app) },
       '#sedes':        { perm: 'sedes:read',          nav: 'nav-sedes',         page: 'sedes',                render: () => renderSedesAdmin(app) },
       '#reuniones':    { perm: 'reuniones:read',      nav: 'nav-reuniones',     page: 'reuniones',            render: () => renderReuniones(app) },
       '#despacho':     { perm: 'despacho:read',       nav: 'nav-despacho',      page: 'despacho',             render: () => renderDespacho(app) },

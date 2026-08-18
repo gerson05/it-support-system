@@ -20,5 +20,6 @@ export function firstAccessibleHash() {
   if (can('audit:read'))         return '#audit';
   if (can('inventario:read'))    return '#inventario';
   if (can('employees:read'))     return '#employees';
-  return '#settings';
+  if (can('settings:read'))      return '#settings';
+  return '#dashboard';
 }
