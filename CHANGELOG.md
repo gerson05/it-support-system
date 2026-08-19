@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.8.0](https://github.com/gerson05/it-support-system/compare/v1.7.0...v1.8.0) (2026-08-19)
+
+
+### Features
+
+* restringir Configuración con settings:read y corregir vulnerabilidades de seguridad ([3c0ba18](https://github.com/gerson05/it-support-system/commit/3c0ba18e4cc8847e03974fcd05aa7dc30e9ac749))
+
+
+### Bug Fixes
+
+* **roles:** agregar módulo Configuración a PERMISSION_MODULES ([3ffeb82](https://github.com/gerson05/it-support-system/commit/3ffeb8248f05509b886e46e5c9c8b998f8143cfa))
+
 ## [1.7.0](https://github.com/gerson05/it-support-system/compare/v1.6.2...v1.7.0) (2026-08-04)
 
 
