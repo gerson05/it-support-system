@@ -272,10 +272,8 @@ export function attachPuntoSearch(inputEl) {
     });
 
     if (!hasAny) {
-      const empty = document.createElement('div');
-      empty.style.cssText = 'padding:12px;text-align:center;font-size:13px;color:var(--text-3);';
-      empty.textContent = query ? `Sin resultados para "${q}"` : 'No hay puntos registrados';
-      dropdown.appendChild(empty);
+      dropdown.style.display = 'none';
+      return;
     }
 
     dropdown.style.display = '';

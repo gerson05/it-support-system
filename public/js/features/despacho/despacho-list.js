@@ -9,8 +9,8 @@
  *  - despacho-form.js      → openCreateModal, buildArticuloRow
  *  - despacho-edit.js      → openEditDespachoModal
  */
-import { state } from '../../core/app.js';
-import { createLoadingSpinner, createEmptyState } from '../../ui/components.js';
+import { state, can } from '../../core/app.js';
+import { createLoadingSpinner, createEmptyState, showToast } from '../../ui/components.js';
 import { fetchDespachos, actaBadge, articulosCount, _timeAgo } from './despacho-helpers.js';
 import { openDetailModal } from './despacho-detail.js';
 import { openCreateModal } from './despacho-form.js';
@@ -130,8 +130,11 @@ export async function renderDespacho(container) {
                   <button class="btn btn-secondary" style="font-size:11px;padding:4px 10px;margin-right:4px;"
                     onclick="event.stopPropagation();document.dispatchEvent(new CustomEvent('open-despacho', {detail:${d.id}}))">Ver</button>
                   <button class="btn-despacho-edit" data-id="${d.id}"
-                    style="font-size:11px;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface-2);color:var(--text-2);cursor:pointer;"
+                    style="font-size:11px;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface-2);color:var(--text-2);cursor:pointer;margin-right:4px;"
                     onclick="event.stopPropagation();">✏️ Editar</button>
+                  ${can('despacho:delete') ? `<button class="btn-despacho-delete" data-id="${d.id}" data-num="${_esc(d.numero)}"
+                    style="font-size:11px;padding:4px 10px;border:1px solid rgba(239,68,68,.3);border-radius:6px;background:rgba(239,68,68,.08);color:var(--danger);cursor:pointer;"
+                    onclick="event.stopPropagation();">🗑️ Eliminar</button>` : ''}
                 </td>
               </tr>`).join('')}
           </tbody>
@@ -154,6 +157,23 @@ export async function renderDespacho(container) {
 
     wrap.querySelectorAll('.btn-despacho-edit').forEach(btn => {
       btn.addEventListener('click', () => openEditDespachoModal(parseInt(btn.dataset.id), loadTable));
+    });
+    wrap.querySelectorAll('.btn-despacho-delete').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id  = parseInt(btn.dataset.id);
+        const num = btn.dataset.num;
+        if (!confirm(`¿Eliminar el despacho ${num}? Esta acción no se puede deshacer.`)) return;
+        btn.disabled = true;
+        try {
+          const res = await fetch(`/api/despachos/${id}`, { method: 'DELETE' });
+          if (!res.ok) { const e = await res.json(); throw new Error(e.error || 'Error al eliminar'); }
+          showToast(`Despacho ${num} eliminado`, 'success');
+          loadTable();
+        } catch (e) {
+          showToast(e.message, 'error');
+          btn.disabled = false;
+        }
+      });
     });
     wrap.querySelector('#desp-prev')?.addEventListener('click', () => { currentPage--; loadTable(); });
     wrap.querySelector('#desp-next')?.addEventListener('click', () => { currentPage++; loadTable(); });
