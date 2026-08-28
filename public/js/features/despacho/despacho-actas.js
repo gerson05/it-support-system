@@ -1,6 +1,7 @@
 import { showToast, createEmptyState, createLoadingSpinner, copyToClipboard, avatarGradient, initialsOf } from '../../ui/components.js';
 import { iconCopy, iconDownload, iconExternalLink, iconLink, iconRefresh, iconSearch, iconEye,
-         iconClose, iconDocument, iconChevronLeft, iconChevronRight } from '../../utils/icons.js';
+         iconClose, iconDocument, iconChevronLeft, iconChevronRight,
+         iconTrash, iconUpload } from '../../utils/icons.js';
 import { openDetailModal } from './despacho-detail.js';
 
 const PER_PAGE = 25;
@@ -217,19 +218,19 @@ export function renderDespachoActasPanel(container, { focusId = null } = {}) {
               <div style="font-size:13px;color:var(--text);margin-bottom:8px;">${escHtml(acta.filename)}</div>
               <div style="display:flex;gap:7px;flex-wrap:wrap;">
                 <a href="/api/actas/download/${acta.token}" class="btn btn-secondary" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:6px 12px;text-decoration:none;">${iconDownload(12)} Descargar</a>
-                <button id="modal-btn-replace-file" class="btn btn-secondary" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:6px 12px;">↑ Reemplazar</button>
-                <button id="modal-btn-delete-file" class="btn btn-secondary" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:6px 12px;color:var(--danger);">✕ Eliminar</button>
+                <button id="modal-btn-replace-file" class="btn btn-secondary" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:6px 12px;">${iconUpload(12)} Reemplazar</button>
+                <button id="modal-btn-delete-file" class="btn btn-secondary" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:6px 12px;color:var(--danger);">${iconTrash(12)} Eliminar</button>
               </div>
               <div id="acta-replace-wrap" style="display:none;margin-top:10px;">
                 <input type="file" id="acta-replace-input" accept=".pdf,.docx" style="display:block;margin-bottom:8px;font-size:12px;">
-                <button id="modal-btn-do-replace" class="btn btn-primary" style="font-size:12px;padding:6px 14px;">Subir nuevo archivo</button>
+                <button id="modal-btn-do-replace" class="btn btn-primary" style="font-size:12px;padding:6px 14px;">${iconUpload(12)} Subir nuevo archivo</button>
                 <span id="acta-replace-err" style="display:none;color:var(--danger);font-size:12px;margin-left:8px;"></span>
               </div>
             </div>` : acta.token ? `
             <div id="acta-upload-section" style="margin-top:14px;padding:12px 14px;border:1px dashed var(--border);border-radius:10px;background:var(--surface-2);">
               <div style="font-size:10px;font-weight:700;color:var(--text-3);text-transform:uppercase;margin-bottom:8px;">Subir archivo firmado</div>
               <input type="file" id="acta-upload-input" accept=".pdf,.docx" style="display:block;margin-bottom:8px;font-size:12px;">
-              <button id="modal-btn-do-upload" class="btn btn-primary" style="font-size:12px;padding:6px 14px;">Subir acta</button>
+              <button id="modal-btn-do-upload" class="btn btn-primary" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:6px 14px;">${iconUpload(12)} Subir acta</button>
               <span id="acta-upload-err" style="display:none;color:var(--danger);font-size:12px;margin-left:8px;"></span>
             </div>` : ''}
         </div>
