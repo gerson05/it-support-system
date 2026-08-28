@@ -212,10 +212,25 @@ export function renderDespachoActasPanel(container, { focusId = null } = {}) {
             </div>
           `}
           ${acta.filename ? `
-            <div style="margin-top:14px;padding:12px 14px;border:1px solid var(--border);border-radius:10px;background:var(--surface-2);">
+            <div id="acta-file-section" style="margin-top:14px;padding:12px 14px;border:1px solid var(--border);border-radius:10px;background:var(--surface-2);">
               <div style="font-size:10px;font-weight:700;color:var(--text-3);text-transform:uppercase;margin-bottom:4px;">Archivo cargado</div>
               <div style="font-size:13px;color:var(--text);margin-bottom:8px;">${escHtml(acta.filename)}</div>
-              <a href="/api/actas/download/${acta.token}" class="btn btn-secondary" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:6px 12px;text-decoration:none;">${iconDownload(12)} Descargar</a>
+              <div style="display:flex;gap:7px;flex-wrap:wrap;">
+                <a href="/api/actas/download/${acta.token}" class="btn btn-secondary" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:6px 12px;text-decoration:none;">${iconDownload(12)} Descargar</a>
+                <button id="modal-btn-replace-file" class="btn btn-secondary" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:6px 12px;">↑ Reemplazar</button>
+                <button id="modal-btn-delete-file" class="btn btn-secondary" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:6px 12px;color:var(--danger);">✕ Eliminar</button>
+              </div>
+              <div id="acta-replace-wrap" style="display:none;margin-top:10px;">
+                <input type="file" id="acta-replace-input" accept=".pdf,.docx" style="display:block;margin-bottom:8px;font-size:12px;">
+                <button id="modal-btn-do-replace" class="btn btn-primary" style="font-size:12px;padding:6px 14px;">Subir nuevo archivo</button>
+                <span id="acta-replace-err" style="display:none;color:var(--danger);font-size:12px;margin-left:8px;"></span>
+              </div>
+            </div>` : acta.token ? `
+            <div id="acta-upload-section" style="margin-top:14px;padding:12px 14px;border:1px dashed var(--border);border-radius:10px;background:var(--surface-2);">
+              <div style="font-size:10px;font-weight:700;color:var(--text-3);text-transform:uppercase;margin-bottom:8px;">Subir archivo firmado</div>
+              <input type="file" id="acta-upload-input" accept=".pdf,.docx" style="display:block;margin-bottom:8px;font-size:12px;">
+              <button id="modal-btn-do-upload" class="btn btn-primary" style="font-size:12px;padding:6px 14px;">Subir acta</button>
+              <span id="acta-upload-err" style="display:none;color:var(--danger);font-size:12px;margin-left:8px;"></span>
             </div>` : ''}
         </div>
       </div>`;
@@ -234,6 +249,55 @@ export function renderDespachoActasPanel(container, { focusId = null } = {}) {
     });
     overlay.querySelector('#modal-btn-create')?.addEventListener('click', async () => {
       try { await createActaToken(acta); close(); await refresh(); showToast('Link de firma generado', 'success'); } catch (e) { showToast(e.message, 'error'); }
+    });
+
+    // Delete uploaded file
+    overlay.querySelector('#modal-btn-delete-file')?.addEventListener('click', async () => {
+      if (!confirm('¿Eliminar el archivo cargado? Esta acción no se puede deshacer.')) return;
+      try {
+        const res = await fetch(`/api/actas/${acta.token}/file`, { method: 'DELETE' });
+        const json = await res.json();
+        if (!res.ok) throw new Error(json.error || 'Error al eliminar');
+        close(); await refresh(); showToast('Archivo eliminado', 'success');
+      } catch (e) { showToast(e.message, 'error'); }
+    });
+
+    // Toggle replace file input
+    overlay.querySelector('#modal-btn-replace-file')?.addEventListener('click', () => {
+      const wrap = overlay.querySelector('#acta-replace-wrap');
+      if (wrap) wrap.style.display = wrap.style.display === 'none' ? 'block' : 'none';
+    });
+
+    // Upload replacement file
+    overlay.querySelector('#modal-btn-do-replace')?.addEventListener('click', async () => {
+      const input = overlay.querySelector('#acta-replace-input');
+      const errEl = overlay.querySelector('#acta-replace-err');
+      errEl.style.display = 'none';
+      if (!input?.files?.length) { errEl.textContent = 'Selecciona un archivo.'; errEl.style.display = 'inline'; return; }
+      const fd = new FormData();
+      fd.append('acta', input.files[0]);
+      try {
+        const res = await fetch(`/api/actas/upload/${acta.token}`, { method: 'POST', body: fd });
+        const json = await res.json();
+        if (!res.ok) throw new Error(json.error || 'Error al subir');
+        close(); await refresh(); showToast('Archivo reemplazado', 'success');
+      } catch (e) { errEl.textContent = e.message; errEl.style.display = 'inline'; }
+    });
+
+    // Upload new file (when no file exists yet)
+    overlay.querySelector('#modal-btn-do-upload')?.addEventListener('click', async () => {
+      const input = overlay.querySelector('#acta-upload-input');
+      const errEl = overlay.querySelector('#acta-upload-err');
+      errEl.style.display = 'none';
+      if (!input?.files?.length) { errEl.textContent = 'Selecciona un archivo.'; errEl.style.display = 'inline'; return; }
+      const fd = new FormData();
+      fd.append('acta', input.files[0]);
+      try {
+        const res = await fetch(`/api/actas/upload/${acta.token}`, { method: 'POST', body: fd });
+        const json = await res.json();
+        if (!res.ok) throw new Error(json.error || 'Error al subir');
+        close(); await refresh(); showToast('Acta subida correctamente', 'success');
+      } catch (e) { errEl.textContent = e.message; errEl.style.display = 'inline'; }
     });
   }
 
