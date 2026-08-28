@@ -65,6 +65,98 @@ function _attachEmpleadoSearch(inputEl, cedulaEl) {
   inputEl.addEventListener('blur', () => setTimeout(_closeDrop, 150));
 }
 
+async function _searchInventario(q) {
+  const params = new URLSearchParams({ search: q, limit: 6 });
+  const all = [];
+  await Promise.allSettled([
+    fetch(`/api/inventario/equipos?${params}`).then(r => r.json()).then(j => {
+      (j.equipos || []).forEach(it => all.push({
+        nombre:      it.nombre_equipo || '',
+        marca:       it.marca || '',
+        modelo:      it.modelo || '',
+        serial:      it.serial || '',
+        descripcion: '',
+        label:       it.nombre_equipo || '—',
+        sub:         [it.placa ? `Placa: ${it.placa}` : '', it.marca || '', `Serial: ${it.serial || '—'}`].filter(Boolean).join(' · '),
+      }));
+    }).catch(() => {}),
+    fetch(`/api/inventario/celulares?${params}`).then(r => r.json()).then(j => {
+      (j.celulares || []).forEach(it => all.push({
+        nombre:      it.equipo || it.modelo || '',
+        marca:       it.marca || '',
+        modelo:      it.modelo || '',
+        serial:      it.serial || it.imei || '',
+        descripcion: '',
+        label:       it.equipo || it.modelo || '—',
+        sub:         [it.marca || '', it.serial ? `Serial: ${it.serial}` : (it.imei ? `IMEI: ${it.imei}` : '')].filter(Boolean).join(' · '),
+      }));
+    }).catch(() => {}),
+    fetch(`/api/inventario/ups?${params}`).then(r => r.json()).then(j => {
+      (j.ups || []).forEach(it => all.push({
+        nombre:      it.nombre_equipo || 'UPS',
+        marca:       it.marca || '',
+        modelo:      it.modelo || '',
+        serial:      it.serial || '',
+        descripcion: it.voltaje ? `Voltaje: ${it.voltaje}` : '',
+        label:       `${it.nombre_equipo || 'UPS'}`,
+        sub:         [it.marca || '', `Serial: ${it.serial || '—'}`, it.voltaje || ''].filter(Boolean).join(' · '),
+      }));
+    }).catch(() => {}),
+  ]);
+  return all.slice(0, 12);
+}
+
+function _attachInventarioSearch(nombreEl, rowEl) {
+  if (!nombreEl) return;
+  let _timer = null;
+  let _drop  = null;
+
+  function _positionDrop() {
+    if (!_drop) return;
+    const rect = nombreEl.getBoundingClientRect();
+    _drop.style.top   = `${rect.bottom + 4}px`;
+    _drop.style.left  = `${rect.left}px`;
+    _drop.style.width = `${rect.width}px`;
+  }
+
+  function _closeDrop() { _drop?.remove(); _drop = null; }
+
+  function _openDrop(items) {
+    _closeDrop();
+    if (!items.length) return;
+    _drop = document.createElement('div');
+    _drop.style.cssText = 'position:fixed;z-index:9999;background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,.25);max-height:220px;overflow-y:auto;';
+    _positionDrop();
+    items.forEach(item => {
+      const div = document.createElement('div');
+      div.style.cssText = 'padding:8px 12px;cursor:pointer;font-size:12px;border-bottom:1px solid var(--border);';
+      div.innerHTML = `<div style="font-weight:600;color:var(--text);">${escHtml(item.label)}</div><div style="font-size:11px;color:var(--text-3);margin-top:1px;">${escHtml(item.sub)}</div>`;
+      div.addEventListener('mousedown', e => {
+        e.preventDefault();
+        nombreEl.value = item.nombre;
+        ['marca','modelo','serial','descripcion'].forEach(f => {
+          const el = rowEl.querySelector(`[data-field="${f}"]`);
+          if (el) el.value = item[f] || '';
+        });
+        _closeDrop();
+      });
+      div.addEventListener('mouseenter', () => div.style.background = 'var(--surface-2)');
+      div.addEventListener('mouseleave', () => div.style.background = '');
+      _drop.appendChild(div);
+    });
+    document.body.appendChild(_drop);
+  }
+
+  nombreEl.addEventListener('input', () => {
+    clearTimeout(_timer);
+    const q = nombreEl.value.trim();
+    if (q.length < 2) { _closeDrop(); return; }
+    _timer = setTimeout(async () => _openDrop(await _searchInventario(q)), 300);
+  });
+  nombreEl.addEventListener('blur',    () => setTimeout(_closeDrop, 150));
+  nombreEl.addEventListener('keydown', e => { if (e.key === 'Escape') _closeDrop(); });
+}
+
 export const PICKER_TABS = [
   { id:'computadores', label:'Computadores', apiTab:'equipos',   categoria:'computadores' },
   { id:'impresoras',   label:'Impresoras',   apiTab:'equipos',   categoria:'impresoras'   },
@@ -286,6 +378,7 @@ export async function openCreateModal(onSuccess) {
         e.target.value = _tc(e.target.value.trim());
       });
     });
+    _attachInventarioSearch(row.querySelector('[data-field="nombre"]'), row);
   }
 
   overlay.querySelector('#btn-add-articulo').onclick = () => {
