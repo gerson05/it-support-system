@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.8.0](https://github.com/gerson05/it-support-system/compare/v1.7.0...v1.8.0) (2026-08-28)
+
+
+### Features
+
+* cédula/nombre en inventario + gestión de archivos en actas ([#63](https://github.com/gerson05/it-support-system/issues/63)) ([8bdd29b](https://github.com/gerson05/it-support-system/commit/8bdd29b5d23613b27015f9fcabb11e6dae2a6059))
+* **despacho:** autocomplete inventario + auto-fill destinatario ([#61](https://github.com/gerson05/it-support-system/issues/61)) ([64e24bc](https://github.com/gerson05/it-support-system/commit/64e24bc0ab2838322f3b87635a8e738c000c2734))
+* restringir Configuración con settings:read y corregir vulnerabilidades de seguridad ([3c0ba18](https://github.com/gerson05/it-support-system/commit/3c0ba18e4cc8847e03974fcd05aa7dc30e9ac749))
+
+
+### Bug Fixes
+
+* **despacho:** ocultar dropdown sede sin resultados y agregar botón Eliminar ([30f9a43](https://github.com/gerson05/it-support-system/commit/30f9a43f58c810469ed2e9e7f38db3194e96bfc2))
+* exportar can desde app.js ([#62](https://github.com/gerson05/it-support-system/issues/62)) ([c141a41](https://github.com/gerson05/it-support-system/commit/c141a410a7bc5fef6d75ece0edb3772b18e78848))
+* **roles:** agregar módulo Configuración a PERMISSION_MODULES ([3ffeb82](https://github.com/gerson05/it-support-system/commit/3ffeb8248f05509b886e46e5c9c8b998f8143cfa))
+
 ## [1.7.0](https://github.com/gerson05/it-support-system/compare/v1.6.2...v1.7.0) (2026-08-04)
 
 
