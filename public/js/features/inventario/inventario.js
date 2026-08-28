@@ -364,7 +364,7 @@ function renderEquiposTable(rows) {
           <th>RAM</th>
           <th>Disco</th>
           <th>Área</th>
-          <th>Responsable</th>
+          <th>Asignado a</th>
           <th></th>
         </tr></thead>
         <tbody>
@@ -387,7 +387,10 @@ function renderEquiposTable(rows) {
                 : '<span style="color:var(--text-3)">—</span>'}
             </td>
             <td style="font-size:12px;">${esc(r.area||'—')}</td>
-            <td style="font-size:12px;">${esc(r.responsable||'—')}</td>
+            <td>
+              <div style="font-size:13px;">${esc(r.nombre_completo||r.responsable||'—')}</div>
+              ${r.cedula ? `<div class="td-sub">${esc(r.cedula)}</div>` : ''}
+            </td>
             <td class="td-actions">
               ${r.qr_token ? `<button class="tbl-btn btn-inv-qr" data-token="${r.qr_token}" title="Imprimir etiqueta QR">
                 <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="3" height="3"/></svg>
@@ -461,6 +464,7 @@ function renderUpsTable(rows) {
           <th>Serial</th>
           <th>Área</th>
           <th>Voltaje</th>
+          <th>Asignado a</th>
           <th>F. Compra</th>
           <th>F. Despacho</th>
           <th></th>
@@ -475,6 +479,10 @@ function renderUpsTable(rows) {
             <td class="td-mono">${esc(r.serial||'—')}</td>
             <td style="font-size:12px;">${esc(r.area||'—')}</td>
             <td style="font-size:12px;">${esc(r.voltaje||'—')}</td>
+            <td>
+              <div style="font-size:13px;">${esc(r.nombre_completo||'—')}</div>
+              ${r.cedula ? `<div class="td-sub">${esc(r.cedula)}</div>` : ''}
+            </td>
             <td style="font-size:12px;">${esc(r.fecha_compra||'—')}</td>
             <td style="font-size:12px;">${esc(r.fecha_despacho||'—')}</td>
             <td class="td-actions">
