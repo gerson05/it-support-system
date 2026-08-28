@@ -38,7 +38,7 @@ router.get('/api/inventario/equipos', ...canRead, wrap(async (req, res) => {
 }));
 
 router.post('/api/inventario/equipos', ...canCreate, wrap(async (req, res) => {
-  const { placa, marca, nombre_equipo, serial, procesador, ram, tipo_ram, cap_disco, tipo_disco, serial_cargador, area, responsable, fecha_compra, categoria, ciudad } = req.body;
+  const { placa, marca, nombre_equipo, serial, procesador, ram, tipo_ram, cap_disco, tipo_disco, serial_cargador, area, responsable, fecha_compra, categoria, ciudad, nombre_completo, cedula } = req.body;
   if (!placa?.trim() || !marca?.trim() || !nombre_equipo?.trim() || !serial?.trim()) {
     return res.status(400).json({ error: 'placa, marca, nombre_equipo y serial son requeridos.' });
   }
@@ -46,12 +46,13 @@ router.post('/api/inventario/equipos', ...canCreate, wrap(async (req, res) => {
   try {
     const result = await db.prepare(`
       INSERT INTO inventario_equipos
-        (placa,marca,nombre_equipo,serial,procesador,ram,tipo_ram,cap_disco,tipo_disco,serial_cargador,area,responsable,fecha_compra,qr_token,categoria,ciudad)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        (placa,marca,nombre_equipo,serial,procesador,ram,tipo_ram,cap_disco,tipo_disco,serial_cargador,area,responsable,fecha_compra,qr_token,categoria,ciudad,nombre_completo,cedula)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
     `).run(placa.trim(), marca.trim(), nombre_equipo.trim(), serial.trim(),
            procesador||null, ram||null, tipo_ram||null, cap_disco||null,
            tipo_disco||null, serial_cargador||null, area||null,
-           responsable||null, fecha_compra||null, qr_token, categoria||'computadores', ciudad||null);
+           responsable||null, fecha_compra||null, qr_token, categoria||'computadores', ciudad||null,
+           nombre_completo||null, cedula||null);
     res.status(201).json({ ok: true, id: result.lastInsertRowid, qr_token });
   } catch (err) {
     if (err.message?.includes('UNIQUE')) return res.status(409).json({ error: 'Ya existe un equipo con esa placa o serial.' });
@@ -64,19 +65,20 @@ router.put('/api/inventario/equipos/:id', ...canEdit, wrap(async (req, res) => {
   if (!await db.prepare('SELECT id FROM inventario_equipos WHERE id = ?').get(id)) {
     return res.status(404).json({ error: 'Equipo no encontrado.' });
   }
-  const { placa, marca, nombre_equipo, serial, procesador, ram, tipo_ram, cap_disco, tipo_disco, serial_cargador, area, responsable, fecha_compra, categoria, ciudad } = req.body;
+  const { placa, marca, nombre_equipo, serial, procesador, ram, tipo_ram, cap_disco, tipo_disco, serial_cargador, area, responsable, fecha_compra, categoria, ciudad, nombre_completo, cedula } = req.body;
   try {
     await db.prepare(`
       UPDATE inventario_equipos SET
         placa=?,marca=?,nombre_equipo=?,serial=?,procesador=?,ram=?,tipo_ram=?,
         cap_disco=?,tipo_disco=?,serial_cargador=?,area=?,responsable=?,
-        fecha_compra=?,categoria=?,ciudad=?,updated_at=datetime('now','localtime')
+        fecha_compra=?,categoria=?,ciudad=?,nombre_completo=?,cedula=?,updated_at=datetime('now','localtime')
       WHERE id=?
     `).run(placa, marca, nombre_equipo, serial,
            procesador||null, ram||null, tipo_ram||null,
            cap_disco||null, tipo_disco||null, serial_cargador||null,
            area||null, responsable||null, fecha_compra||null,
-           categoria||'computadores', ciudad||null, id);
+           categoria||'computadores', ciudad||null,
+           nombre_completo||null, cedula||null, id);
     res.json({ ok: true });
   } catch (err) {
     if (err.message?.includes('UNIQUE')) return res.status(409).json({ error: 'Placa o serial ya existe en otro equipo.' });

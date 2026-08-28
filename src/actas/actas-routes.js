@@ -235,6 +235,33 @@ router.post('/api/actas/upload/:token',
   }
 );
 
+router.delete('/api/actas/:token/file', ...canEdit, wrap(async (req, res) => {
+  const row = await db.prepare('SELECT * FROM acta_uploads WHERE token = ?').get(req.params.token);
+  if (!row) return res.status(404).json({ error: 'Token no encontrado.' });
+
+  // Delete physical file
+  const prevPaths = [row.filepath];
+  if (row.filepath || row.filename) {
+    const ext = path.extname(row.filepath || '') || path.extname(row.filename || '');
+    prevPaths.push(path.join(UPLOAD_DIR, `${req.params.token}${ext}`));
+  }
+  for (const p of prevPaths) {
+    if (p && fs.existsSync(p)) { try { fs.unlinkSync(p); } catch {} break; }
+  }
+
+  await db.prepare(`
+    UPDATE acta_uploads
+    SET filename = NULL, filepath = NULL, signed_by = NULL, signed_role = NULL, uploaded_at = NULL
+    WHERE token = ?
+  `).run(req.params.token);
+
+  if (row.entity_type === 'despacho') {
+    await db.prepare('UPDATE despachos SET acta_firmada = 0 WHERE id = ?').run(row.entity_id);
+  }
+
+  res.json({ ok: true });
+}));
+
 router.get('/api/actas/download/:token', wrap(async (req, res) => {
   const row = await db.prepare('SELECT * FROM acta_uploads WHERE token = ?').get(req.params.token);
   if (!row || !row.filepath) return res.status(404).json({ error: 'Archivo no encontrado.' });

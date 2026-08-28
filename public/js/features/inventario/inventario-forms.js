@@ -171,6 +171,8 @@ export function equipoFormHTML(r, isDuplicate = false) {
             ${areaSelectField(v('area'))}
             ${bodegaInputField(v('ciudad'))}
             ${inputField('Responsable','responsable',v('responsable'))}
+            ${inputField('Nombre completo del destinatario','nombre_completo',v('nombre_completo'))}
+            ${inputField('Cédula del destinatario','cedula',v('cedula'))}
           </div>
           <div style="margin-top:12px;">
             ${inputField('Fecha de creacion','fecha_compra',v('fecha_compra'),'date')}
@@ -277,6 +279,8 @@ export function upsFormHTML(r, isDuplicate = false) {
             ${areaSelectField(v('area'))}
             ${bodegaInputField(v('ciudad'))}
             ${inputField('Voltaje','voltaje',v('voltaje'))}
+            ${inputField('Nombre completo del destinatario','nombre_completo',v('nombre_completo'))}
+            ${inputField('Cédula del destinatario','cedula',v('cedula'))}
           </div>
           <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:12px;">
             ${inputField('Fecha de compra','fecha_compra',v('fecha_compra'),'date')}

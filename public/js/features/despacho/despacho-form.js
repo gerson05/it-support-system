@@ -71,13 +71,15 @@ async function _searchInventario(q) {
   await Promise.allSettled([
     fetch(`/api/inventario/equipos?${params}`).then(r => r.json()).then(j => {
       (j.equipos || []).forEach(it => all.push({
-        nombre:      it.nombre_equipo || '',
-        marca:       it.marca || '',
-        modelo:      it.modelo || '',
-        serial:      it.serial || '',
-        descripcion: '',
-        label:       it.nombre_equipo || '—',
-        sub:         [it.placa ? `Placa: ${it.placa}` : '', it.marca || '', `Serial: ${it.serial || '—'}`].filter(Boolean).join(' · '),
+        nombre:          it.nombre_equipo || '',
+        marca:           it.marca || '',
+        modelo:          it.modelo || '',
+        serial:          it.serial || '',
+        descripcion:     '',
+        nombre_completo: it.nombre_completo || it.responsable || '',
+        cedula:          it.cedula || '',
+        label:           it.nombre_equipo || '—',
+        sub:             [it.placa ? `Placa: ${it.placa}` : '', it.marca || '', `Serial: ${it.serial || '—'}`].filter(Boolean).join(' · '),
       }));
     }).catch(() => {}),
     fetch(`/api/inventario/celulares?${params}`).then(r => r.json()).then(j => {
@@ -93,13 +95,15 @@ async function _searchInventario(q) {
     }).catch(() => {}),
     fetch(`/api/inventario/ups?${params}`).then(r => r.json()).then(j => {
       (j.ups || []).forEach(it => all.push({
-        nombre:      it.nombre_equipo || 'UPS',
-        marca:       it.marca || '',
-        modelo:      it.modelo || '',
-        serial:      it.serial || '',
-        descripcion: it.voltaje ? `Voltaje: ${it.voltaje}` : '',
-        label:       `${it.nombre_equipo || 'UPS'}`,
-        sub:         [it.marca || '', `Serial: ${it.serial || '—'}`, it.voltaje || ''].filter(Boolean).join(' · '),
+        nombre:          it.nombre_equipo || 'UPS',
+        marca:           it.marca || '',
+        modelo:          it.modelo || '',
+        serial:          it.serial || '',
+        descripcion:     it.voltaje ? `Voltaje: ${it.voltaje}` : '',
+        nombre_completo: it.nombre_completo || it.responsable || '',
+        cedula:          it.cedula || '',
+        label:           `${it.nombre_equipo || 'UPS'}`,
+        sub:             [it.marca || '', `Serial: ${it.serial || '—'}`, it.voltaje || ''].filter(Boolean).join(' · '),
       }));
     }).catch(() => {}),
   ]);
@@ -531,13 +535,11 @@ export async function openCreateModal(onSuccess) {
       const first = selected[0];
       const destInput   = overlay.querySelector('[name="destinatario"]');
       const cedulaInput = overlay.querySelector('[name="cedula"]');
-      const responsable = pickerTab.apiTab === 'celulares'
-        ? (first.nombre_completo || first.responsable || '')
-        : (first.responsable || '');
+      const responsable = first.nombre_completo || first.responsable || '';
       if (destInput && !destInput.value.trim() && responsable) {
         destInput.value = _tc(responsable);
       }
-      if (cedulaInput && !cedulaInput.value.trim() && pickerTab.apiTab === 'celulares' && first.cedula) {
+      if (cedulaInput && !cedulaInput.value.trim() && first.cedula) {
         cedulaInput.value = first.cedula;
       }
     }
