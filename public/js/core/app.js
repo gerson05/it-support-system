@@ -8,7 +8,7 @@ import { startWhatsAppMonitor }     from './whatsapp.js';
 import { initResponsiveTables }     from '../utils/responsive-tables.js';
 
 // ── Re-exports para backward compat (otros módulos importan de app.js) ──
-export { state }                                            from './state.js';
+export { state, can }                                       from './state.js';
 export {
   AREA_MAPPINGS, PRIORITY_LABELS, STATUS_LABELS,
   getAreaEmoji, getAreaName, getPriorityBadge, getStatusBadge,
