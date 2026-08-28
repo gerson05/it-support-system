@@ -526,6 +526,22 @@ export async function openCreateModal(onSuccess) {
       }
     });
 
+    // Auto-fill Destinatario / Cédula from first selected item if fields are empty
+    if (selected.length > 0) {
+      const first = selected[0];
+      const destInput   = overlay.querySelector('[name="destinatario"]');
+      const cedulaInput = overlay.querySelector('[name="cedula"]');
+      const responsable = pickerTab.apiTab === 'celulares'
+        ? (first.nombre_completo || first.responsable || '')
+        : (first.responsable || '');
+      if (destInput && !destInput.value.trim() && responsable) {
+        destInput.value = _tc(responsable);
+      }
+      if (cedulaInput && !cedulaInput.value.trim() && pickerTab.apiTab === 'celulares' && first.cedula) {
+        cedulaInput.value = first.cedula;
+      }
+    }
+
     invPicker.style.display = 'none';
     invSelected.clear();
     invItems = [];
