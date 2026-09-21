@@ -1,0 +1,91 @@
+name: Branch Guard
+
+on:
+  pull_request:
+    branches: [main, develop, stage]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  validate-pr:
+    name: Validate PR Requirements
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Check PR has description
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const body = context.payload.pull_request.body || '';
+            if (body.trim().length < 20) {
+              core.setFailed('PR description is required. Fill in the What / Why sections of the template.');
+            } else {
+              console.log('PR description is present.');
+            }
+
+      - name: Check base branch policy
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const base = context.payload.pull_request.base.ref;
+            const head = context.payload.pull_request.head.ref;
+
+            // Advisory only — warn when a branch targets stage/main
+            // without coming from the recommended upstream branch.
+            if (base === 'main' && head === 'develop') {
+              console.log('Promoting develop → main. OK.');
+            } else if (base === 'stage' && head !== 'develop') {
+              const allowedPrefixes = ['develop', 'hotfix/', 'claude/', 'dependabot/', 'release-please--'];
+              const ok = allowedPrefixes.some(p => head === p || head.startsWith(p));
+              if (!ok) {
+                core.warning(
+                  `Heads-up: PRs to 'stage' should normally come from 'develop'. ` +
+                  `Current head: '${head}'.`
+                );
+              }
+            }
+
+            console.log(`Base policy check passed: ${head} → ${base}`);
+
+  validate-commits:
+    name: Validate Commit Messages
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Check conventional commits
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const { data: commits } = await github.rest.pulls.listCommits({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+            });
+
+            const pattern = /^(feat|fix|docs|style|refactor|test|chore|ci|perf|build|revert)(\(.+\))?: .{1,100}/;
+            const mergePattern = /^Merge /;
+            const failures = [];
+
+            for (const { commit, sha } of commits) {
+              const msg = commit.message.split('\n')[0];
+              if (!pattern.test(msg) && !mergePattern.test(msg)) {
+                failures.push(`${sha.slice(0, 7)}: "${msg}"`);
+              }
+            }
+
+            if (failures.length > 0) {
+              core.setFailed(
+                'The following commits do not follow conventional commit format ' +
+                '(type(scope): description):\n' + failures.join('\n')
+              );
+            } else {
+              console.log(`All ${commits.length} commits follow conventional commit format.`);
+            }
