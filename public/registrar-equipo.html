@@ -623,7 +623,7 @@ async function openPhotoCaptureFallback() {
   const close = () => overlay.remove();
   document.getElementById('pfb-close').onclick  = close;
   document.getElementById('pfb-cancel').onclick = close;
-  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+  // El cierre por backdrop está deshabilitado; solo se cierra con la X o Cancelar.
 
   document.getElementById('pfb-apply').addEventListener('click', () => {
     for (const [f,v] of localDetected) detected.set(f, v);
@@ -736,7 +736,7 @@ async function openSmartScanner() {
 
   document.getElementById('sc-close').onclick  = close;
   document.getElementById('sc-cancel').onclick = close;
-  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+  // El cierre por backdrop está deshabilitado; solo se cierra con la X o Cancelar.
 
   document.getElementById('sc-apply').addEventListener('click', () => {
     for (const [f,v] of localDetected) { detected.set(f, v); }
@@ -882,7 +882,7 @@ async function openSingleScan(fieldName) {
   document.body.appendChild(overlay);
   const close = () => { if(rafId) cancelAnimationFrame(rafId); if(stream) stream.getTracks().forEach(t=>t.stop()); overlay.remove(); };
   document.getElementById('sf-close').onclick = close;
-  overlay.addEventListener('click', e => { if(e.target===overlay) close(); });
+  // El cierre por backdrop está deshabilitado; solo se cierra con la X.
   try {
     stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}}});
     const video = document.getElementById('sf-video');

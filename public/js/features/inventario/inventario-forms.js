@@ -41,7 +41,7 @@ export function openForm(row, activeTab, onSuccess, isDuplicate = false, default
   const errEl   = modalWrap.querySelector('#inv-form-err');
 
   const close = () => { overlay.style.display = 'none'; };
-  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+  // El cierre por backdrop está deshabilitado; solo se cierra con la X o Cancelar.
   modalWrap.querySelectorAll('#btn-inv-form-cancel').forEach(b => b.addEventListener('click', close));
 
   // ── Auto-placa por sede (solo Nuevo equipo) ────────────────────────────────
@@ -591,7 +591,7 @@ export async function openGenerarEnlaceModal() {
   const overlay = modalWrap.querySelector('#enlace-overlay');
   const close   = () => overlay.remove();
   document.getElementById('btn-enlace-close').addEventListener('click', close);
-  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+  // El cierre por backdrop está deshabilitado; solo se cierra con la X o botón Listo.
   document.getElementById('btn-enlace-done').addEventListener('click', close);
 
   document.getElementById('btn-enlace-nuevo').addEventListener('click', () => {

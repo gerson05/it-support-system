@@ -66,3 +66,5 @@ uploads/
 .env.linux
 .env.windows
 fix-noexport-async.cjs
+
+.wwebjs_auth/

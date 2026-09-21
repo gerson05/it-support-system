@@ -339,7 +339,7 @@ export async function openCreateModal(onSuccess) {
   const closeModal = () => overlay.remove();
   overlay.querySelector('#create-modal-close').onclick = closeModal;
   overlay.querySelector('#btn-cancel-create').onclick  = closeModal;
-  overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+  // El cierre por backdrop está deshabilitado; solo se cierra con la X o Cancelar.
 
   // Formatting
   overlay.querySelector('[name="observaciones"]').addEventListener('blur', e => { e.target.value = _sc(e.target.value); });

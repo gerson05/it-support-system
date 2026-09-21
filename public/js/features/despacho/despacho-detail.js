@@ -35,7 +35,7 @@ export function openDetailModal(id) {
 
   document.body.appendChild(overlay);
   overlay.querySelector('#modal-close').onclick = () => overlay.remove();
-  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  // El cierre por backdrop está deshabilitado; solo se cierra con la X.
 
   fetchDespacho(id).then(async d => {
     const [actaInfo, confInfo] = await Promise.all([

@@ -58,7 +58,7 @@ export async function openEmpleadoPerfil(cedula) {
   overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:3000;display:flex;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;';
   overlay.innerHTML = `<div style="background:var(--surface);border-radius:16px;padding:28px;max-width:780px;width:100%;margin:auto;"><div style="text-align:center;padding:40px;color:var(--text-3);">Cargando perfil…</div></div>`;
   document.body.appendChild(overlay);
-  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  // El cierre por backdrop está deshabilitado; solo se permite cerrar con la X.
 
   try {
     const res = await fetch(`/api/erp/empleado/${encodeURIComponent(cedula)}/historial`);

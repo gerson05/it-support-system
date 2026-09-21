@@ -137,7 +137,7 @@ function wireModalCommon(overlay, modal, modalItems) {
   const closeModal = () => { overlay.style.display = 'none'; };
   document.getElementById('tr-modal-close').addEventListener('click', closeModal);
   document.getElementById('tr-modal-cancel').addEventListener('click', closeModal);
-  overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+  // El cierre por backdrop está deshabilitado; solo cierra con la X o Cancelar.
 
   attachSedeSearch(document.getElementById('tr-f-sede'));
 
