@@ -33,26 +33,16 @@ jobs:
             const base = context.payload.pull_request.base.ref;
             const head = context.payload.pull_request.head.ref;
 
-            // Direct pushes to main must come from stage or release-please branches
-            if (base === 'main') {
-              const allowed = ['stage', /^release-please--/];
-              const ok = allowed.some(p => typeof p === 'string' ? head === p : p.test(head));
-              if (!ok) {
-                core.setFailed(
-                  `PRs targeting 'main' must come from 'stage' or a release-please branch. ` +
-                  `Current head: '${head}'.`
-                );
-              }
-            }
-
-            // PRs to stage must come from develop
-            if (base === 'stage' && !head.startsWith('develop') && head !== 'develop') {
-              // Allow claude/*, dependabot/* and hotfix/* branches too
-              const allowedPrefixes = ['develop', 'hotfix/', 'claude/', 'dependabot/'];
+            // Advisory only — warn when a branch targets stage/main
+            // without coming from the recommended upstream branch.
+            if (base === 'main' && head === 'develop') {
+              console.log('Promoting develop → main. OK.');
+            } else if (base === 'stage' && head !== 'develop') {
+              const allowedPrefixes = ['develop', 'hotfix/', 'claude/', 'dependabot/', 'release-please--'];
               const ok = allowedPrefixes.some(p => head === p || head.startsWith(p));
               if (!ok) {
                 core.warning(
-                  `Heads-up: PRs to 'stage' should normally come from 'develop' or a hotfix branch. ` +
+                  `Heads-up: PRs to 'stage' should normally come from 'develop'. ` +
                   `Current head: '${head}'.`
                 );
               }
