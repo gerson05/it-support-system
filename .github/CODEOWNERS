@@ -1,0 +1,3 @@
+# All files require owner review on protected branches (main, develop, stage).
+# GitHub will require at least one approved review from this list before merge.
+* @gerson05
