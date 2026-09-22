@@ -33,6 +33,28 @@ function pTxt(runs, extra = '') {
   return `<w:p><w:pPr><w:pStyle w:val="Textoindependiente"/><w:spacing w:before="11"/>${extra}</w:pPr>${runs}</w:p>`;
 }
 
+/** Fila de accesorios dentro de la tabla */
+function tablaAccesoriosFila(texto, totalW) {
+  return `<w:tr>
+    <w:tc>
+      <w:tcPr>
+        <w:tcW w:w="${totalW}" w:type="dxa"/>
+        <w:gridSpan w:val="6"/>
+        <w:tcBorders>
+          <w:top w:val="single" w:sz="4" w:color="CCCCCC"/>
+          <w:bottom w:val="single" w:sz="4" w:color="CCCCCC"/>
+          <w:left w:val="single" w:sz="4" w:color="CCCCCC"/>
+          <w:right w:val="single" w:sz="4" w:color="CCCCCC"/>
+        </w:tcBorders>
+        <w:shading w:val="clear" w:color="auto" w:fill="FFFFFF"/>
+      </w:tcPr>
+      <w:p><w:pPr><w:pStyle w:val="Textoindependiente"/></w:pPr>
+        <w:r><w:rPr><w:b/><w:bCs/><w:sz w:val="16"/><w:color w:val="000000"/></w:rPr><w:t xml:space="preserve">Accesorios - ${esc(texto || 'Ninguno')}</w:t></w:r>
+      </w:p>
+    </w:tc>
+  </w:tr>`;
+}
+
 /** Run de texto */
 function run(text, bold = false, color = '') {
   const rPr = (bold || color)
@@ -107,8 +129,8 @@ export async function generateActa(request, equipment, agentName = 'Jefe de Sopo
     day: '2-digit', month: '2-digit', year: 'numeric',
   });
 
-  const accesorios  = eqItems[0]?.accesorios    || '';
-  const observaciones = eqItems[0]?.observaciones || '';
+  const accesorios = '';
+  const observaciones = request?.observaciones || '';
 
   /* ── 1. Construir el cuerpo XML ───────────────────────────── */
   const colWidths = [600, 2400, 1800, 2000, 1800, 700]; // N°, Equipo, Marca, Modelo, Serial, Cant.
@@ -125,14 +147,19 @@ export async function generateActa(request, equipment, agentName = 'Jefe de Sopo
 
   const filasEquipos = (request.items?.length > 0 ? request.items : []).map((item, idx) => {
     const eq = eqItems[idx] || eqItems[0] || {};
-    return tablaFila([
+    const detalleAccesorios = eq.accesorios || eq.descripcion || '';
+    const filaItem = tablaFila([
       { text: `${idx + 1}`,              w: colWidths[0] },
-      { text: item.equipment_name || '', w: colWidths[1] },
+      { text: item.equipment_name || eq.nombre || '', w: colWidths[1] },
       { text: eq.marca   || '—',         w: colWidths[2] },
       { text: eq.modelo  || '—',         w: colWidths[3] },
       { text: eq.serial  || item.serial || '—', w: colWidths[4] },
       { text: String(item.quantity || 1), w: colWidths[5] },
     ]);
+
+    return detalleAccesorios
+      ? filaItem + tablaAccesoriosFila(detalleAccesorios, totalW)
+      : filaItem;
   });
 
   const tablaEquipos = `
@@ -223,9 +250,8 @@ export async function generateActa(request, equipment, agentName = 'Jefe de Sopo
     ${tablaEquipos}
     ${espXml()}
 
-    ${/* Accesorios */''}
-    ${campoXml('Accesorios que se asignan:', accesorios || 'Ninguno')}
-    ${observaciones ? campoXml('Observaciones:', observaciones) : ''}
+    ${/* Observaciones generales */''}
+    ${observaciones ? campoXml('Observación:', observaciones) : ''}
 
     ${espXml()}
 
