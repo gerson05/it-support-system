@@ -20,7 +20,8 @@ router.get('/webhook', (req, res) => {
   if (mode && token) {
     if (mode === 'subscribe' && token === verifyToken) {
       console.log('Webhook verificado exitosamente por Meta.');
-      res.status(200).send(challenge);
+      // Plain text: echoing the challenge as HTML would be a reflected XSS
+      res.status(200).type('text/plain').send(String(challenge ?? ''));
     } else {
       res.sendStatus(403);
     }
