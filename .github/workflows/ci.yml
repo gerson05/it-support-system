@@ -9,12 +9,11 @@ on:
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  # Only cancel superseded PR runs; never cancel CI on develop/stage/main pushes
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
-# Coverage comment needs write access to PR comments
 permissions:
   contents: read
-  pull-requests: write
 
 jobs:
   # ── 1. Unit tests + coverage enforcement ────────────────────────────────────
@@ -22,6 +21,10 @@ jobs:
     name: Unit Tests & Coverage
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    # Coverage comment needs write access to PR comments
+    permissions:
+      contents: read
+      pull-requests: write
 
     steps:
       - uses: actions/checkout@v7
@@ -176,7 +179,7 @@ jobs:
         run: npm audit --omit=dev --audit-level=critical
 
       - name: Trivy filesystem vulnerability scan
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           scan-type: fs
           scan-ref: .
