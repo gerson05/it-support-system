@@ -32,7 +32,7 @@ router.put('/api/admin/wp-messages/:key', async (req, res) => {
   const { key } = req.params;
   const { value } = req.body;
 
-  if (!DEFAULTS.hasOwnProperty(key)) return res.status(404).json({ error: 'Mensaje no existe' });
+  if (!Object.hasOwn(DEFAULTS, key)) return res.status(404).json({ error: 'Mensaje no existe' });
   if (typeof value !== 'string' || !value.trim()) return res.status(400).json({ error: 'Valor inválido' });
 
   await db.prepare(`
@@ -48,7 +48,7 @@ router.put('/api/admin/wp-messages/:key', async (req, res) => {
    Restaura el mensaje a su valor por defecto */
 router.delete('/api/admin/wp-messages/:key', async (req, res) => {
   const { key } = req.params;
-  if (!DEFAULTS.hasOwnProperty(key)) return res.status(404).json({ error: 'Mensaje no existe' });
+  if (!Object.hasOwn(DEFAULTS, key)) return res.status(404).json({ error: 'Mensaje no existe' });
   await db.prepare('DELETE FROM app_config WHERE key = ?').run(`wp_msg_${key}`);
   res.json({ ok: true, key, value: DEFAULTS[key] });
 });
