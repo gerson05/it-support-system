@@ -7,6 +7,16 @@ const TIPO_ABREV = {
 const PRIOR_EMOJI = { URGENTE: '🔴', ALTA: '🟠', NORMAL: '🟢' };
 const DEST = 'gestion.medivallesf@gmail.com';
 
+// Request fields are user input; escape before embedding in the HTML body
+function escHtml(s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 export async function sendReqEmail(data) {
   const { ticket_num, area, nombre, correo, punto, tipo,
           descripcion, fecha_requerida, observaciones, prioridad } = data;
@@ -43,7 +53,7 @@ Obs.: ${observaciones || '—'}
 ─────────────────────────────
 Sistema de Requerimientos MEDIVALLE SF SAS · ${fechaHora}`;
 
-  const html = `<pre style="font-family:monospace;font-size:13px;line-height:1.8;color:#111;background:#f8f9fa;padding:20px;border-radius:8px;border:1px solid #dee2e6;max-width:600px">${text}</pre>`;
+  const html = `<pre style="font-family:monospace;font-size:13px;line-height:1.8;color:#111;background:#f8f9fa;padding:20px;border-radius:8px;border:1px solid #dee2e6;max-width:600px">${escHtml(text)}</pre>`;
 
   await transporter.sendMail({
     from: `"Requerimientos Medivalle" <${user}>`,

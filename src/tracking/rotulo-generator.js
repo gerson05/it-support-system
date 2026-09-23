@@ -15,6 +15,16 @@ function getLogoB64() {
   return _logoB64Cache;
 }
 
+// Escape user/DB-supplied text before interpolating it into the rótulo HTML
+function esc(v) {
+  return String(v ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function labelHtml(destino, qrB64, numero, emite, tipo, cajasN, dd, mm, aaaa, responsable) {
   return `
   <div class="label">
@@ -235,12 +245,14 @@ export async function generateRotuloHtml(row, options = {}, trackingUrl, sedesAc
     destinations = [row.sede_destino || row.destinatario || '—'];
   }
 
-  const tipo        = (tipo_articulo || 'ARTÍCULO').toUpperCase();
-  const emiteBase   = (remite || 'DPTO. DE SISTEMAS').toUpperCase();
-  const emiteNombre = remitente ? remitente.toUpperCase() : '';
+  destinations = destinations.map(esc);
+  const tipo        = esc(String(tipo_articulo || 'ARTÍCULO').toUpperCase());
+  const emiteBase   = esc(String(remite || 'DPTO. DE SISTEMAS').toUpperCase());
+  const emiteNombre = remitente ? esc(String(remitente).toUpperCase()) : '';
   const emite       = emiteNombre ? `${emiteBase} · ${emiteNombre}` : emiteBase;
+  const recibe      = responsable ? esc(String(responsable).toUpperCase()) : '';
   const cajasN      = parseInt(cajas) || 1;
-  const numero      = row.numero || '';
+  const numero      = esc(row.numero || '');
   const isLabel     = printer === 'etiqueta';
 
   let wMM = 100, hMM = 80;
@@ -255,7 +267,7 @@ export async function generateRotuloHtml(row, options = {}, trackingUrl, sedesAc
   let bodyHtml;
   if (isLabel) {
     const labelsHtml = destinations.map(d =>
-      labelHtmlCompact(d, qrB64, numero, emite, tipo, cajasN, dd, mm, aaaa, wMM, hMM, responsable)
+      labelHtmlCompact(d, qrB64, numero, emite, tipo, cajasN, dd, mm, aaaa, wMM, hMM, recibe)
     ).join('\n');
     bodyHtml = `<div class="print-area">\n${labelsHtml}\n</div>`;
   } else {
@@ -270,7 +282,7 @@ export async function generateRotuloHtml(row, options = {}, trackingUrl, sedesAc
     }
     const pairsHtml = pairs.map(pair => {
       const inner = pair.map(d =>
-        labelHtml(d, qrB64, numero, emite, tipo, cajasN, dd, mm, aaaa, responsable)
+        labelHtml(d, qrB64, numero, emite, tipo, cajasN, dd, mm, aaaa, recibe)
       ).join('\n');
       return `  <div class="label-pair">\n${inner}\n  </div>`;
     }).join('\n');
