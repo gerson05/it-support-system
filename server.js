@@ -11,6 +11,7 @@ const _require = createRequire(import.meta.url);
 const APP_VERSION = _require('./package.json').version;
 import db from './src/config/database.js';
 import webhookRouter from './src/whatsapp/webhook.js';
+import { apiLimiter, publicPageLimiter } from './src/utils/rate-limit.js';
 import ticketRouter from './src/tickets/ticket-routes.js';
 import metricsRouter from './src/metrics/metrics-routes.js';
 import techRequestRouter from './src/tech-requests/tech-request-routes.js';
@@ -55,6 +56,9 @@ app.set('trust proxy', 1);
 app.use(express.json({ limit: '15mb' }));
 app.use(express.urlencoded({ extended: true, limit: '15mb' }));
 
+// Rate limiting por IP para la API
+app.use('/api', apiLimiter);
+
 // Servir el panel web de IT (Frontend vanilla JS)
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -84,17 +88,17 @@ app.use(wpConfigRouter);
 app.use(erpRouter);
 
 // Página pública de subida de acta firmada
-app.get('/firmar/:token', (_req, res) => {
+app.get('/firmar/:token', publicPageLimiter, (_req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'firmar.html'));
 });
 
 // Página móvil pública de registro de inventario
-app.get('/registrar/:token', (_req, res) => {
+app.get('/registrar/:token', publicPageLimiter, (_req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'registrar-equipo.html'));
 });
 
 // Página pública de seguimiento de paquetes
-app.get('/rastrear/:token', (_req, res) => {
+app.get('/rastrear/:token', publicPageLimiter, (_req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'rastrear.html'));
 });
 
@@ -286,7 +290,7 @@ app.use((err, req, res, _next) => {
 });
 
 // SPA fallback: cualquier ruta no coincidente sirve index.html (va al final)
-app.get('*', (req, res) => {
+app.get('*', publicPageLimiter, (req, res) => {
   if (req.path.startsWith('/api/')) {
     return res.status(404).json({ error: 'Endpoint no encontrado.' });
   }

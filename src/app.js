@@ -30,6 +30,7 @@ import Chatbot from './whatsapp/chatbot.js';
 import whatsappClient from './whatsapp/baileys-client.js';
 import { addSseClient, removeSseClient } from './events/broadcaster.js';
 import { requireAuth } from './auth/auth-middleware.js';
+import { apiLimiter, publicPageLimiter } from './utils/rate-limit.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);
@@ -40,6 +41,7 @@ export const app = express();
 app.set('trust proxy', 1);
 app.use(express.json({ limit: '15mb' }));
 app.use(express.urlencoded({ extended: true, limit: '15mb' }));
+app.use('/api', apiLimiter);
 app.use(express.static(PUBLIC_DIR));
 
 // Routers
@@ -68,9 +70,9 @@ app.use(wpConfigRouter);
 app.use(erpRouter);
 
 // Static pages
-app.get('/firmar/:token',   (_req, res) => res.sendFile(path.join(PUBLIC_DIR, 'firmar.html')));
-app.get('/registrar/:token',(_req, res) => res.sendFile(path.join(PUBLIC_DIR, 'registrar-equipo.html')));
-app.get('/rastrear/:token', (_req, res) => res.sendFile(path.join(PUBLIC_DIR, 'rastrear.html')));
+app.get('/firmar/:token',   publicPageLimiter, (_req, res) => res.sendFile(path.join(PUBLIC_DIR, 'firmar.html')));
+app.get('/registrar/:token',publicPageLimiter, (_req, res) => res.sendFile(path.join(PUBLIC_DIR, 'registrar-equipo.html')));
+app.get('/rastrear/:token', publicPageLimiter, (_req, res) => res.sendFile(path.join(PUBLIC_DIR, 'rastrear.html')));
 
 // Chatbot simulator
 const chatbotSimulator = new Chatbot();
@@ -193,7 +195,7 @@ app.use((err, _req, res, _next) => {
 });
 
 // SPA fallback
-app.get('*', (req, res) => {
+app.get('*', publicPageLimiter, (req, res) => {
   if (req.path.startsWith('/api/')) return res.status(404).json({ error: 'Endpoint no encontrado.' });
   res.sendFile(path.join(PUBLIC_DIR, 'index.html'));
 });
