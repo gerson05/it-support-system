@@ -202,7 +202,7 @@ router.get('/api/tracking/:token/rotulo', ...canRead, wrap(async (req, res) => {
   `).get(req.params.token);
   if (!row) return res.status(404).json({ error: 'No encontrado.' });
 
-  const trackingUrl  = `${getBaseUrl(req)}/rastrear/${req.params.token}`;
+  const trackingUrl  = `${getBaseUrl(req)}/rastrear/${encodeURIComponent(row.token)}`;
   const sedesActivas = req.query.modo === 'todos' ? await getSedesActivas(db) : [];
   const html         = await generateRotuloHtml(row, req.query, trackingUrl, sedesActivas);
 
