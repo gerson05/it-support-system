@@ -29,8 +29,22 @@ function uploadRateLimit(req, res, next) {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);
 
-const UPLOAD_DIR = path.join(__dirname, '../../uploads/actas-firmadas');
+const UPLOAD_DIR = path.resolve(__dirname, '../../uploads/actas-firmadas');
 if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+
+// Resolve a file name/path and return it only if it stays inside UPLOAD_DIR
+function insideUploadDir(p) {
+  if (!p) return null;
+  const resolved = path.resolve(UPLOAD_DIR, p);
+  return resolved.startsWith(UPLOAD_DIR + path.sep) ? resolved : null;
+}
+
+// Candidate on-disk locations for an acta: the stored path, then UPLOAD_DIR/<token><ext>
+// (stored path may be a Windows host path when uploads were done outside Docker)
+function actaFilePaths(row) {
+  const ext = path.extname(row.filepath || '') || path.extname(row.filename || '');
+  return [insideUploadDir(row.filepath), insideUploadDir(`${row.token}${ext}`)].filter(Boolean);
+}
 
 const ALLOWED_MIMES = new Set([
   'application/pdf',
@@ -43,7 +57,8 @@ const storage = multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, UPLOAD_DIR),
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();
-    cb(null, `${req.params.token}${ext}`);
+    // req.actaToken is the DB token, set by the upload route before multer runs
+    cb(null, `${req.actaToken}${ext}`);
   },
 });
 
@@ -194,13 +209,11 @@ router.post('/api/actas/upload/:token',
   async (req, res, next) => {
     const row = await db.prepare('SELECT * FROM acta_uploads WHERE token = ?').get(req.params.token);
     if (!row) return res.status(404).json({ error: 'Token no encontrado.' });
-    const prevPaths = [row.filepath];
+    req.actaToken = row.token;
     if (row.filepath) {
-      const ext = path.extname(row.filepath) || path.extname(row.filename || '');
-      prevPaths.push(path.join(UPLOAD_DIR, `${req.params.token}${ext}`));
-    }
-    for (const p of prevPaths) {
-      if (p && fs.existsSync(p)) { try { fs.unlinkSync(p); } catch (e) { console.error('Error al eliminar acta previa:', e); } break; }
+      for (const p of actaFilePaths(row)) {
+        if (fs.existsSync(p)) { try { fs.unlinkSync(p); } catch (e) { console.error('Error al eliminar acta previa:', e); } break; }
+      }
     }
     next();
   },
@@ -240,13 +253,10 @@ router.delete('/api/actas/:token/file', ...canEdit, wrap(async (req, res) => {
   if (!row) return res.status(404).json({ error: 'Token no encontrado.' });
 
   // Delete physical file
-  const prevPaths = [row.filepath];
   if (row.filepath || row.filename) {
-    const ext = path.extname(row.filepath || '') || path.extname(row.filename || '');
-    prevPaths.push(path.join(UPLOAD_DIR, `${req.params.token}${ext}`));
-  }
-  for (const p of prevPaths) {
-    if (p && fs.existsSync(p)) { try { fs.unlinkSync(p); } catch {} break; }
+    for (const p of actaFilePaths(row)) {
+      if (fs.existsSync(p)) { try { fs.unlinkSync(p); } catch {} break; }
+    }
   }
 
   await db.prepare(`
@@ -266,14 +276,8 @@ router.get('/api/actas/download/:token', wrap(async (req, res) => {
   const row = await db.prepare('SELECT * FROM acta_uploads WHERE token = ?').get(req.params.token);
   if (!row || !row.filepath) return res.status(404).json({ error: 'Archivo no encontrado.' });
 
-  // Stored path may be a Windows host path when uploads were done outside Docker.
-  // Fall back to reconstructing the path using UPLOAD_DIR + token + extension.
-  let resolvedPath = row.filepath;
-  if (!fs.existsSync(resolvedPath)) {
-    const ext = path.extname(row.filepath) || path.extname(row.filename || '');
-    resolvedPath = path.join(UPLOAD_DIR, `${req.params.token}${ext}`);
-  }
-  if (!fs.existsSync(resolvedPath)) return res.status(404).json({ error: 'Archivo no encontrado en disco.' });
+  const resolvedPath = actaFilePaths(row).find(p => fs.existsSync(p));
+  if (!resolvedPath) return res.status(404).json({ error: 'Archivo no encontrado en disco.' });
 
   const filename = row.filename || path.basename(resolvedPath);
   res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(filename)}"`);

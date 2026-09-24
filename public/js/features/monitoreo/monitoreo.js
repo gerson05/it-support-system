@@ -262,7 +262,7 @@ window.monPromptCmd = function(agentId, tipo, label) {
 window.monSendShell = function(agentId) {
   const input = document.getElementById(`mon-shell-${agentId}`);
   if (!input || !input.value.trim()) return;
-  monSendCmd(agentId, 'shell', input.value.trim());
+  window.monSendCmd(agentId, 'shell', input.value.trim());
   input.value = '';
 };
 
