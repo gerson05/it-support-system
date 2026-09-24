@@ -238,7 +238,7 @@ export function renderDespachoActasPanel(container, { focusId = null } = {}) {
 
     document.body.appendChild(overlay);
     const close = () => overlay.remove();
-    overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+    // El cierre por backdrop está deshabilitado; solo se cierra con la X.
     overlay.querySelector('#acta-modal-close').addEventListener('click', close);
     overlay.querySelector('#modal-btn-despacho')?.addEventListener('click', () => { close(); openDetailModal(Number(acta.entity_id)); });
     overlay.querySelector('#modal-btn-copy')?.addEventListener('click', async () => {

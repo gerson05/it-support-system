@@ -45,7 +45,7 @@ export function openTiposArticuloModal() {
 
   const close = () => overlay.remove();
   overlay.querySelector('#tipos-close').onclick = close;
-  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+  // El cierre por backdrop está deshabilitado; solo se cierra con la X.
 
   async function renderList() {
     const tipos = await loadTiposArticulo();
@@ -178,7 +178,7 @@ export async function openRotuloModal(token, numero, destinatario = '') {
   const close = () => overlay.remove();
   overlay.querySelector('#rotulo-close').onclick  = close;
   overlay.querySelector('#rotulo-cancel').onclick = close;
-  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+  // El cierre por backdrop está deshabilitado; solo se cierra con la X o Cancelar.
 
   overlay.querySelector('#rotulo-manage-tipos').onclick = async () => {
     openTiposArticuloModal();

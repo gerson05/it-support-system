@@ -107,7 +107,7 @@ export function openActaModal(req, onSuccess) {
   const modalCancel = document.getElementById('acta-modal-cancel');
   if (modalClose) modalClose.onclick = closeActa;
   if (modalCancel) modalCancel.onclick = closeActa;
-  actaOverlay.onclick = e => { if (e.target === actaOverlay) closeActa(); };
+  // El cierre por backdrop está deshabilitado; solo se cierra con la X o Cancelar.
 
   const downloadBtn = document.getElementById('acta-btn-download');
   if (downloadBtn) {

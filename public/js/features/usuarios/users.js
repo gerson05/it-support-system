@@ -74,9 +74,7 @@ export async function renderUsers(container) {
   document.getElementById('modal-close').addEventListener('click', closeModal);
   document.getElementById('btn-cancel').addEventListener('click', closeModal);
   document.getElementById('btn-save').addEventListener('click', saveUser);
-  document.getElementById('user-modal').addEventListener('click', (e) => {
-    if (e.target === e.currentTarget) closeModal();
-  });
+  // El backdrop no cierra el modal; solo se permite cerrar con la X o Cancelar.
 
   // Tab switching
   container.querySelectorAll('.users-tab-btn').forEach(btn => {

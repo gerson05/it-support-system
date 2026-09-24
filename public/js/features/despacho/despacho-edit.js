@@ -291,7 +291,7 @@ export async function openEditDespachoModal(id, onSuccess) {
   const closeEdit = () => overlay.remove();
   overlay.querySelector('#edit-modal-close').onclick  = closeEdit;
   overlay.querySelector('#btn-cancel-edit').onclick   = closeEdit;
-  overlay.addEventListener('click', e => { if (e.target === overlay) closeEdit(); });
+  // El cierre por backdrop está deshabilitado; solo se cierra con la X o Cancelar.
 
   const rowCountRef = { value: 0 };
   const artsList = overlay.querySelector('#arts-list-edit');

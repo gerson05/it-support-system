@@ -15,7 +15,7 @@ export async function openDetalleModal(token) {
       <div style="padding:30px;text-align:center;color:var(--text-3);">Cargando…</div>
     </div>`;
   document.body.appendChild(overlay);
-  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  // El cierre por backdrop está deshabilitado; solo se usa la X.
 
   try {
     const res  = await fetch(`/api/inventario/activo/${token}`);
@@ -108,7 +108,7 @@ export function openEtiquetaModal(token) {
   const close = () => overlay.remove();
   overlay.querySelector('#etq-close').onclick  = close;
   overlay.querySelector('#etq-cancel').onclick = close;
-  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+  // El cierre por backdrop está deshabilitado; solo se cierra con la X o Cancelar.
 
   overlay.querySelector('#etq-print').onclick = () => {
     const frame = overlay.querySelector('#etq-frame');

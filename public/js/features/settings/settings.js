@@ -263,7 +263,7 @@ function openWpMessagesModal() {
   document.body.appendChild(overlay);
 
   overlay.querySelector('#btn-close-wp-modal').onclick = () => overlay.remove();
-  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  // El cierre por backdrop está deshabilitado; solo cierra con la X.
 
   populateWpMessagesList();
 }

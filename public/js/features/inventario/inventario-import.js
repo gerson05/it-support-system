@@ -96,7 +96,7 @@ export function openImportModal(activeTab, onSuccess) {
   const overlay = modalWrap.querySelector('#import-overlay');
   const close   = () => overlay.remove();
   document.getElementById('btn-import-close').addEventListener('click', close);
-  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+  // El cierre por backdrop está deshabilitado; solo se cierra con la X.
 
   /* tipo selector */
   const setImportTipo = (t) => {

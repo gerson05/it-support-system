@@ -50,7 +50,7 @@ export async function openScanner(targetInputId) {
   };
 
   document.getElementById('btn-close-scan').addEventListener('click', close);
-  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+  // El cierre por backdrop está deshabilitado; solo se cierra con la X.
 
   try {
     const detector = new BarcodeDetector({
@@ -203,7 +203,7 @@ export async function openSmartScanner(activeTab, startTab = null) {
   };
   document.getElementById('ss-close').addEventListener('click', close);
   document.getElementById('ss-cancel').addEventListener('click', close);
-  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+  // El cierre por backdrop está deshabilitado; solo se cierra con la X o Cancelar.
 
   document.getElementById('ss-apply').addEventListener('click', () => {
     applyDetectedToForm(detectedFields);

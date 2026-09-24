@@ -236,16 +236,12 @@ export async function renderEmployees(container) {
   document.getElementById('emp-modal-close').addEventListener('click', _closeModal);
   document.getElementById('emp-btn-cancel').addEventListener('click', _closeModal);
   document.getElementById('emp-btn-save').addEventListener('click', _save);
-  document.getElementById('emp-modal').addEventListener('click', e => {
-    if (e.target === e.currentTarget) _closeModal();
-  });
+  // El cierre por backdrop está deshabilitado; solo cierra con la X o Cancelar.
   document.getElementById('emp-btn-new').addEventListener('click', () => _openModal(null));
 
   document.getElementById('emp-creds-close').addEventListener('click', _closeCredsModal);
   document.getElementById('emp-creds-done').addEventListener('click', _closeCredsModal);
-  document.getElementById('emp-creds-modal').addEventListener('click', e => {
-    if (e.target === e.currentTarget) _closeCredsModal();
-  });
+  // El cierre por backdrop está deshabilitado; solo cierra con la X o el botón de cierre.
   document.getElementById('emp-creds-copy-cedula').addEventListener('click', () =>
     _copyField('emp-creds-cedula', 'emp-creds-copy-cedula'));
   document.getElementById('emp-creds-copy-user').addEventListener('click', () =>
@@ -256,9 +252,7 @@ export async function renderEmployees(container) {
   document.getElementById('emp-complete-close').addEventListener('click', _closeCompleteModal);
   document.getElementById('emp-complete-cancel').addEventListener('click', _closeCompleteModal);
   document.getElementById('emp-complete-confirm').addEventListener('click', _confirmComplete);
-  document.getElementById('emp-complete-modal').addEventListener('click', e => {
-    if (e.target === e.currentTarget) _closeCompleteModal();
-  });
+  // El cierre por backdrop está deshabilitado; solo cierra con la X o Cancelar.
 
   document.querySelectorAll('.emp-tab-btn').forEach(btn => {
     btn.addEventListener('click', () => _switchTab(btn.dataset.tab));
