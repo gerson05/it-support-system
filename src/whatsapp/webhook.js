@@ -20,7 +20,12 @@ router.get('/webhook', (req, res) => {
   if (mode && token) {
     if (mode === 'subscribe' && token === verifyToken) {
       console.log('Webhook verificado exitosamente por Meta.');
-      res.status(200).send(challenge);
+      // Meta's challenge is an opaque alphanumeric token; reject anything else
+      // and echo it as plain text so it can never be rendered as HTML
+      const safeChallenge = /^[A-Za-z0-9_-]{1,256}$/.test(String(challenge ?? '')) ? String(challenge) : null;
+      if (!safeChallenge) return res.sendStatus(400);
+      res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+      res.status(200).send(safeChallenge);
     } else {
       res.sendStatus(403);
     }
