@@ -84,9 +84,9 @@ router.post('/api/inventario/:type/import/confirm', ...canCreate, wrap(async (re
     if (type === 'equipos') {
       const stmt = await db.prepare(`
         INSERT ${orClause} INTO inventario_equipos
-          (placa,marca,nombre_equipo,serial,procesador,ram,tipo_ram,cap_disco,
+          (placa,marca,nombre_equipo,serial,modelo,procesador,ram,tipo_ram,cap_disco,
            tipo_disco,serial_cargador,area,responsable,fecha_compra)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)
       `);
       for (const [i, r] of rows.entries()) {
         if (!r.placa?.trim() || !r.serial?.trim() || !r.marca?.trim() || !r.nombre_equipo?.trim()) {
@@ -96,7 +96,7 @@ router.post('/api/inventario/:type/import/confirm', ...canCreate, wrap(async (re
         try {
           const result = await stmt.run(
             r.placa?.trim()||null, r.marca?.trim()||null, r.nombre_equipo?.trim()||null,
-            r.serial?.trim()||null, r.procesador||null, r.ram||null, r.tipo_ram||null,
+            r.serial?.trim()||null, r.modelo||null, r.procesador||null, r.ram||null, r.tipo_ram||null,
             r.cap_disco||null, r.tipo_disco||null, r.serial_cargador||null,
             r.area||null, r.responsable||null, r.fecha_compra||null
           );

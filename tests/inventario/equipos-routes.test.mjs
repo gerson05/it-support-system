@@ -254,6 +254,30 @@ test('POST /api/inventario/equipos with optional fields', async () => {
   reset();
 });
 
+test('POST /api/inventario/equipos persists modelo field', async () => {
+  let capturedSql = '';
+  let capturedArgs = [];
+  _run = (...args) => {
+    capturedSql = args[0] || '';
+    capturedArgs = args.slice(1);
+    return { changes: 1, lastInsertRowid: 11 };
+  };
+
+  const res = await fetch(`${BASE}/api/inventario/equipos`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      placa: 'AF-BOG006', marca: 'Dell', nombre_equipo: 'Laptop', serial: 'SN6', modelo: 'Latitude 5420',
+      area: 'Sistemas', responsable: 'Juan', categoria: 'computadores',
+    }),
+  });
+
+  assert.equal(res.status, 201);
+  assert.match(capturedSql, /modelo/i);
+  assert.ok(capturedArgs.includes('Latitude 5420'));
+  reset();
+});
+
 // ── PUT /api/inventario/equipos/:id ──────────────────────────────────────────
 
 test('PUT /api/inventario/equipos/:id updates equipo successfully', async () => {

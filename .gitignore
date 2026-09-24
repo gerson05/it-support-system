@@ -68,3 +68,5 @@ uploads/
 fix-noexport-async.cjs
 
 .wwebjs_auth/
+
+exports/*.xlsx

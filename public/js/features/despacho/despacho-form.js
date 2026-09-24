@@ -299,8 +299,8 @@ export async function openCreateModal(onSuccess) {
         </div>
 
         <div style="margin-bottom:14px;">
-          <label style="display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:4px;">Accesorios</label>
-          <textarea name="observaciones" rows="2" placeholder="Notas adicionales…"
+          <label style="display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:4px;">Observación</label>
+          <textarea name="observaciones" rows="2" placeholder="Observación general…"
             style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:13px;resize:vertical;box-sizing:border-box;"></textarea>
         </div>
 

@@ -161,6 +161,7 @@ export function equipoFormHTML(r, isDuplicate = false) {
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
             ${selectField('Marca *','marca',v('marca'),['Lenovo','Dell','HP','Samsung','Toshiba','Acer','Asus','Apple','Kalley','Otro'])}
             ${inputField('Nombre del equipo *','nombre_equipo',v('nombre_equipo'))}
+            ${inputField('Modelo','modelo',v('modelo'))}
             ${scanField('Serial *','serial',v('serial'),true,!r)}
             ${selectField('Procesador','procesador',v('procesador'),['Intel Core i3','Intel Core i5','Intel Core i7','Intel Core i9','AMD Ryzen 3','AMD Ryzen 5','AMD Ryzen 7','Otro'])}
             ${selectField('RAM','ram',v('ram'),['4GB','8GB','16GB','32GB','64GB'])}

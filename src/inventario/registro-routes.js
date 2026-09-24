@@ -99,10 +99,10 @@ router.post('/api/inventario/registrar/:token', wrap(async (req, res) => {
         return res.status(400).json({ error: 'placa, marca, nombre_equipo y serial son requeridos.' });
       const r = await db.prepare(`
         INSERT OR IGNORE INTO inventario_equipos
-          (placa,marca,nombre_equipo,serial,procesador,ram,tipo_ram,cap_disco,tipo_disco,serial_cargador,area,responsable,fecha_compra)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
+          (placa,marca,nombre_equipo,serial,modelo,procesador,ram,tipo_ram,cap_disco,tipo_disco,serial_cargador,area,responsable,fecha_compra)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)
       `).run(b.placa.trim(),b.marca.trim(),b.nombre_equipo.trim(),b.serial.trim(),
-             b.procesador||null,b.ram||null,b.tipo_ram||null,b.cap_disco||null,
+             b.modelo||null,b.procesador||null,b.ram||null,b.tipo_ram||null,b.cap_disco||null,
              b.tipo_disco||null,b.serial_cargador||null,b.area||null,b.responsable||null,b.fecha_compra||null);
       if (!r.changes) return res.status(409).json({ error: 'Ya existe un equipo con esa placa o serial.' });
       id = r.lastInsertRowid;

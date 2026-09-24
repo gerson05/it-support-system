@@ -17,6 +17,7 @@ let _deleteBorrador         = () => {};
 let _getTiposArticulo       = () => [];
 let _upsertTipoArticulo     = () => ({ id: 1, nombre: 'LAPTOP', active: 1 });
 let _deactivateTipoArticulo = () => {};
+let _generateActa            = async () => Buffer.from('fake-docx');
 let _getConfirmacion        = () => null;
 let _createConfirmacion     = () => {};
 let _getConfirmacionByToken = () => null;
@@ -37,6 +38,7 @@ function reset() {
   _getTiposArticulo       = () => [];
   _upsertTipoArticulo     = () => ({ id: 1, nombre: 'LAPTOP', active: 1 });
   _deactivateTipoArticulo = () => {};
+  _generateActa            = async () => Buffer.from('fake-docx');
   _getConfirmacion        = () => null;
   _createConfirmacion     = () => {};
   _getConfirmacionByToken = () => null;
@@ -70,7 +72,7 @@ await mock.module('../../src/audit/audit-logger.js', {
 });
 
 await mock.module('../../src/tech-requests/acta-generator.js', {
-  exports: { generateActa: async () => Buffer.from('fake-docx') },
+  exports: { generateActa: (...a) => _generateActa(...a) },
 });
 
 await mock.module('../../src/excel/excel-logger.js', {
@@ -452,12 +454,30 @@ test('POST /api/despachos/:id/acta-word — 200 returns docx buffer', async () =
   assert.ok(ct.includes('wordprocessingml') || ct.includes('application/'));
 });
 
+test('POST /api/despachos/:id/acta-word — sends all article observations to the acta generator', async () => {
+  reset();
+  _generateActa = async (request, eqItems) => {
+    assert.equal(request.items.length, 2);
+    assert.equal(request.items[0].equipment_name, 'CABLE');
+    assert.equal(request.items[1].equipment_name, 'TECLADO');
+    assert.equal(eqItems[0].accesorios, 'Cable USB 2m');
+    assert.equal(eqItems[1].accesorios, 'Teclado inalámbrico');
+    return Buffer.from('fake-docx');
+  };
+  _getDespachoById = () => makeDespacho({
+    articulos: JSON.stringify([
+      { nombre: 'CABLE', cantidad: 1, descripcion: 'Cable USB 2m', marca: 'HP', modelo: 'USB', serial: 'CAB-1' },
+      { nombre: 'TECLADO', cantidad: 1, descripcion: 'Teclado inalámbrico', marca: 'Logitech', modelo: 'K120', serial: 'KEY-2' },
+    ]),
+  });
+
+  const res = await fetch(`${BASE}/api/despachos/1/acta-word`, { method: 'POST' });
+  assert.equal(res.status, 200);
+});
+
 test('POST /api/despachos/:id/acta-word — uses fallback item when articulos empty', async () => {
   reset();
-  let capturedItems;
   _getDespachoById = () => makeDespacho({ articulos: '[]' });
-  const { generateActa: orig } = await import('../../src/tech-requests/acta-generator.js');
-  // capture via the mock — just verify it returns 200 (fallback path runs)
   const res = await fetch(`${BASE}/api/despachos/1/acta-word`, { method: 'POST' });
   assert.equal(res.status, 200);
 });

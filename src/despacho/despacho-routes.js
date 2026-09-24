@@ -127,15 +127,36 @@ router.post('/api/despachos/:id/acta-word', ...canRead, wrap(async (req, res) =>
   if (!despacho) return res.status(404).json({ error: 'Despacho no encontrado.' });
 
   const articulos = JSON.parse(despacho.articulos || '[]');
-  const items     = articulos.length
-    ? articulos.map(a => ({ equipment_name: a.nombre || a.descripcion || a.articulo || 'Artículo', quantity: a.cantidad || a.qty || 1, serial: a.serial || '' }))
-    : [{ equipment_name: 'Ver observaciones', quantity: 1, serial: '' }];
+  const items = articulos.length
+    ? articulos.map((a, index) => ({
+        equipment_name: a.nombre || a.descripcion || a.articulo || `Artículo ${index + 1}`,
+        quantity: a.cantidad || a.qty || 1,
+        serial: a.serial || '',
+        observaciones: a.observaciones || a.nota || '',
+      }))
+    : [{ equipment_name: 'Ver observaciones', quantity: 1, serial: '', observaciones: despacho.observaciones || '' }];
 
   const eqItems = articulos.length
-    ? articulos.map(a => ({ marca: a.marca || '', modelo: a.modelo || '', serial: a.serial || '', accesorios: a.descripcion || '', observaciones: despacho.observaciones || '' }))
-    : [{ marca: '', modelo: '', serial: '', accesorios: '', observaciones: despacho.observaciones || '' }];
+    ? articulos.map((a, index) => ({
+        nombre: a.nombre || a.descripcion || a.articulo || `Artículo ${index + 1}`,
+        marca: a.marca || '',
+        modelo: a.modelo || '',
+        serial: a.serial || '',
+        accesorios: a.accesorios || a.descripcion || a.observaciones || a.nota || '',
+        observaciones: a.observaciones || a.nota || '',
+      }))
+    : [{ nombre: 'Ver observaciones', marca: '', modelo: '', serial: '', accesorios: '', observaciones: despacho.observaciones || '' }];
 
-  const buffer   = await generateActa({ request_number: despacho.acta_numero || despacho.numero, requester_name: despacho.destinatario || '', cedula: despacho.cedula || '', cargo: despacho.area || '', sede: despacho.sede || '', fecha: despacho.fecha || null, items }, eqItems, despacho.agente || 'Soporte IT');
+  const buffer   = await generateActa({
+    request_number: despacho.acta_numero || despacho.numero,
+    requester_name: despacho.destinatario || '',
+    cedula: despacho.cedula || '',
+    cargo: despacho.area || '',
+    sede: despacho.sede || '',
+    fecha: despacho.fecha || null,
+    items,
+    observaciones: despacho.observaciones || '',
+  }, eqItems, despacho.agente || 'Soporte IT');
   const filename = `Acta_${(despacho.acta_numero || despacho.numero).replace(/\//g, '-')}_${(despacho.destinatario || '').replace(/\s+/g, '_')}.docx`;
   res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
   res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(filename)}"`);
