@@ -19,7 +19,7 @@ const _esc = s => String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').repla
 
 export async function renderDespacho(container) {
   container.innerHTML = `
-    <div style="padding:24px;max-width:1100px;margin:0 auto;">
+    <div style="padding:24px;max-width:100%;margin:0 auto;width:100%;box-sizing:border-box;">
 
       <!-- Header -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:12px;">
