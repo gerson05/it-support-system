@@ -403,7 +403,9 @@ body {
   padding: 32px 36px;
   flex: 1;
   min-width: 0;
-  max-width: 100%;
+  width: 100%;
+  max-width: none;
+  margin: 0 auto;
   box-sizing: border-box;
   animation: pageIn 0.2s ease-out;
   display: flex;
@@ -1974,7 +1976,7 @@ body.sidebar-open .hamburger span:nth-child(3) { transform: translateY(-6px) rot
    24px on top via inline styles — inline styles can't be overridden by
    a media query, so mobile got double padding. Now it's a real class,
    zeroed out on mobile so page-container's padding is the only one. */
-.gestion-page { padding: 24px; max-width: 1200px; margin: 0 auto; width: 100%; }
+.gestion-page { padding: 24px; max-width: 100%; margin: 0 auto; width: 100%; box-sizing: border-box; }
 .gestion-header { margin-bottom: 22px; }
 .gestion-title { margin: 0 0 4px; font-size: 22px; font-weight: 800; letter-spacing: -.4px; color: var(--text); }
 .gestion-subtitle { margin: 0; font-size: 13px; color: var(--text-3); }

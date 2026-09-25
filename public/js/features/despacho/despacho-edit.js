@@ -42,7 +42,7 @@ function wireArtRow(row, rowCountRef) {
 
 function renderEditModalHTML(d, areaOptions) {
   return `
-    <div style="background:var(--surface);border-radius:16px;padding:32px;width:100%;max-width:680px;margin:auto 0;box-shadow:0 20px 60px rgba(0,0,0,.4);position:relative;">
+    <div style="background:var(--surface);border-radius:16px;padding:32px;width:100%;max-width:840px;margin:auto 0;box-shadow:0 20px 60px rgba(0,0,0,.4);position:relative;">
       <div id="edit-modal-close" style="position:absolute;top:14px;right:14px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);border-radius:8px;background:var(--surface-2);cursor:pointer;color:var(--text-2);font-size:16px;">✕</div>
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:22px;">
         <div style="width:40px;height:40px;background:linear-gradient(135deg,#f59e0b,#ea580c);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">✏️</div>
