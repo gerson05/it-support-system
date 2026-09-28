@@ -1,5 +1,29 @@
 # Changelog
 
+## [1.8.0](https://github.com/gerson05/it-support-system/compare/v1.7.0...v1.8.0) (2026-09-28)
+
+
+### Features
+
+* cédula/nombre en inventario + gestión de archivos en actas ([#63](https://github.com/gerson05/it-support-system/issues/63)) ([8bdd29b](https://github.com/gerson05/it-support-system/commit/8bdd29b5d23613b27015f9fcabb11e6dae2a6059))
+* **despacho:** autocomplete inventario + auto-fill destinatario ([#61](https://github.com/gerson05/it-support-system/issues/61)) ([64e24bc](https://github.com/gerson05/it-support-system/commit/64e24bc0ab2838322f3b87635a8e738c000c2734))
+* restringir Configuración con settings:read y corregir vulnerabilidades de seguridad ([3c0ba18](https://github.com/gerson05/it-support-system/commit/3c0ba18e4cc8847e03974fcd05aa7dc30e9ac749))
+
+
+### Bug Fixes
+
+* actualizar dependencias con vulnerabilidades de seguridad (Trivy) ([64548b9](https://github.com/gerson05/it-support-system/commit/64548b9fc8cdcc8732feee5d8e3b8b0a8a4f3b14))
+* assigned_to null debe filtrar IS NULL ([226a0a7](https://github.com/gerson05/it-support-system/commit/226a0a70a258628ec7ececac41ec2863afe31f2c))
+* **chatbot:** adapt to main ticket schema and replace polynomial regex ([f75ea9e](https://github.com/gerson05/it-support-system/commit/f75ea9e0dc660bd79c3d1641acd4087a67e4c918))
+* **chatbot:** mostrar datos del solicitante en el ticket ([94d6995](https://github.com/gerson05/it-support-system/commit/94d6995c99dfb3583b4eb1233150a39fa12b53a0))
+* **chatbot:** show requester data on ticket detail ([951aad7](https://github.com/gerson05/it-support-system/commit/951aad74ab6b2294488e9b2088884431d0f6f5b6))
+* **despacho:** ocultar dropdown sede sin resultados y agregar botón Eliminar ([30f9a43](https://github.com/gerson05/it-support-system/commit/30f9a43f58c810469ed2e9e7f38db3194e96bfc2))
+* escapar valores de URL en mensajes de error ([44acd1c](https://github.com/gerson05/it-support-system/commit/44acd1c2d3373385a0528c1f0c976c539d3d8051))
+* exportar can desde app.js ([#62](https://github.com/gerson05/it-support-system/issues/62)) ([c141a41](https://github.com/gerson05/it-support-system/commit/c141a410a7bc5fef6d75ece0edb3772b18e78848))
+* **roles:** agregar módulo Configuración a PERMISSION_MODULES ([3ffeb82](https://github.com/gerson05/it-support-system/commit/3ffeb8248f05509b886e46e5c9c8b998f8143cfa))
+* **security:** add per-IP rate limiting with express-rate-limit ([#77](https://github.com/gerson05/it-support-system/issues/77)) ([ebe7eef](https://github.com/gerson05/it-support-system/commit/ebe7eeffbf742534a7d422cfb6f11705369f30dd))
+* **security:** path injection and reflected XSS (CodeQL) ([#76](https://github.com/gerson05/it-support-system/issues/76)) ([797284e](https://github.com/gerson05/it-support-system/commit/797284e6815532b84b9e1dbf3c34f5c1006517c3))
+
 ## [1.7.0](https://github.com/gerson05/it-support-system/compare/v1.6.2...v1.7.0) (2026-08-04)
 
 
