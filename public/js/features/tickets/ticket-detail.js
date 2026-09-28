@@ -15,14 +15,23 @@ import { createEmpleadoSearch } from '../../core/empleado-search.js';
 import { openEmpleadoPerfil } from '../../core/cedula-lookup.js';
 import { escapeHtml } from '../../utils/sanitize.js';
 
-/** Fila de "Detalles del Caso" con un dato capturado por el chatbot; se omite si está vacío. */
-function datoSolicitante(label, value) {
-  if (!value) return '';
+/**
+ * Fila de "Detalles del Caso" con un dato capturado por el chatbot (escapado).
+ * Sin valor: muestra `placeholder`, o se omite si no se pasa placeholder.
+ */
+function datoSolicitante(label, value, placeholder = null) {
+  if (!value && !placeholder) return '';
   return `
                 <div class="info-details-item">
                   <span class="info-details-label">${label}:</span>
-                  <span class="info-details-val" style="white-space:pre-wrap;">${escapeHtml(String(value))}</span>
+                  <span class="info-details-val" style="white-space:pre-wrap;">${escapeHtml(String(value || placeholder))}</span>
                 </div>`;
+}
+
+/** "SEDE X — CIUDAD", sin repetir la ciudad si ya viene en el nombre de la sede. */
+function sedeConCiudad(sede, ciudad) {
+  if (!ciudad || (sede || '').toUpperCase().includes(String(ciudad).toUpperCase())) return sede;
+  return [sede, ciudad].filter(Boolean).join(' — ');
 }
 
 export async function renderTicketDetail(container, ticketId) {
@@ -170,10 +179,11 @@ export async function renderTicketDetail(container, ticketId) {
                   <span class="info-details-label">WhatsApp/Celular:</span>
                   <span class="info-details-val">${escapeHtml(ticket.phone || '')}</span>
                 </div>
-                ${datoSolicitante('Cédula', ticket.cedula)}
-                ${datoSolicitante('Cargo', ticket.cargo)}
-                ${datoSolicitante('Sede', [ticket.sede, ticket.ciudad && !(ticket.sede || '').toUpperCase().includes(ticket.ciudad.toUpperCase()) ? ticket.ciudad : null].filter(Boolean).join(' — '))}
-                ${datoSolicitante('Equipo', [ticket.equipment_name, ticket.equipment_serial ? `serial: ${ticket.equipment_serial}` : null].filter(Boolean).join(' · '))}
+                ${datoSolicitante('Cédula', ticket.cedula || ticket.metadata?.cedula, 'No registrada')}
+                ${datoSolicitante('Cargo', ticket.cargo || ticket.metadata?.cargo, 'No registrado')}
+                ${datoSolicitante('Sede', sedeConCiudad(ticket.sede || ticket.metadata?.sede, ticket.metadata?.ciudad), 'No registrada')}
+                ${datoSolicitante('Equipo', ticket.equipo || ticket.metadata?.equipo || ticket.metadata?.equipment_name, 'No registrado')}
+                ${datoSolicitante('Serial', ticket.serial || ticket.metadata?.serial || ticket.metadata?.equipment_serial, 'No registrado')}
                 ${datoSolicitante('Falla', ticket.description)}
                 <div class="info-details-item">
                   <span class="info-details-label">Categoría:</span>
@@ -593,8 +603,9 @@ export async function renderTicketDetail(container, ticketId) {
 
     } catch (err) {
       console.error(err);
+      const safeTicketId = String(ticketId).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
       container.innerHTML = `<div class="card" style="padding: 40px; text-align: center; color: var(--text-muted);">
-        <p style="font-size: 16px; margin-bottom: 15px;">Fallo al cargar el detalle del ticket ${ticketId}. Puede que no exista o haya un problema con el servidor.</p>
+        <p style="font-size: 16px; margin-bottom: 15px;">Fallo al cargar el detalle del ticket ${safeTicketId}. Puede que no exista o haya un problema con el servidor.</p>
         <a href="#tickets" class="btn btn-secondary">Regresar a tickets</a>
       </div>`;
     }

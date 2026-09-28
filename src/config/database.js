@@ -36,7 +36,7 @@ import { migrations as m031 } from './migrations/031-tipos-articulo-dedup.js';
 import { migrations as m032 } from './migrations/032-tipos-articulo-dedup-mariadb.js';
 import { migrations as m033 } from './migrations/033-inventario-cedula.js';
 import { migrations as m034 } from './migrations/034-inventario-modelo.js';
-import { migrations as m035 } from './migrations/035-tickets-datos-solicitante.js';
+import { migrations as m035 } from './migrations/035-whatsapp-ticket-metadata.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);

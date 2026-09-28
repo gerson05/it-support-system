@@ -7,6 +7,13 @@ import { wrap } from '../utils/async-handler.js';
 
 const router = express.Router();
 
+function normalizeInventoryFilter(value) {
+  if (value === undefined || value === null) return '';
+  const normalized = String(value).trim();
+  if (!normalized || /^(undefined|null|nan)$/i.test(normalized)) return '';
+  return normalized;
+}
+
 const canRead   = [requireAuth, requirePermission('inventario:read')];
 const canCreate = [requireAuth, requirePermission('inventario:create')];
 const canEdit   = [requireAuth, requirePermission('inventario:edit')];
@@ -21,15 +28,18 @@ router.get('/api/inventario/equipos/next-placa', ...canRead, wrap(async (req, re
 
 router.get('/api/inventario/equipos', ...canRead, wrap(async (req, res) => {
   const { search, area, categoria, page = 1, limit = 20 } = req.query;
+  const safeSearch = normalizeInventoryFilter(search);
+  const safeArea = normalizeInventoryFilter(area);
+  const safeCategoria = normalizeInventoryFilter(categoria);
   const where = [];
   const params = [];
-  if (search) {
-    where.push('(CAST(id AS TEXT) LIKE ? OR placa LIKE ? OR marca LIKE ? OR nombre_equipo LIKE ? OR modelo LIKE ? OR serial LIKE ? OR responsable LIKE ? OR area LIKE ?)');
-    const searchPattern = `%${search}%`;
+  if (safeSearch) {
+    where.push('(id LIKE ? OR placa LIKE ? OR marca LIKE ? OR nombre_equipo LIKE ? OR modelo LIKE ? OR serial LIKE ? OR responsable LIKE ? OR area LIKE ? OR categoria LIKE ?)');
+    const searchPattern = `%${safeSearch}%`;
     params.push(searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern);
   }
-  if (area)      { where.push('area LIKE ?');      params.push(`%${area}%`); }
-  if (categoria) { where.push('categoria = ?');    params.push(categoria); }
+  if (safeArea)      { where.push('area LIKE ?');      params.push(`%${safeArea}%`); }
+  if (safeCategoria) { where.push('categoria = ?');    params.push(safeCategoria); }
   const wc = where.length ? 'WHERE ' + where.join(' AND ') : '';
   const offset = (parseInt(page) - 1) * parseInt(limit);
   const rows  = await db.prepare(`SELECT * FROM inventario_equipos ${wc} ORDER BY created_at DESC LIMIT ? OFFSET ?`).all(...params, parseInt(limit), offset);

@@ -134,7 +134,7 @@ export function equipoFormHTML(r, isDuplicate = false) {
   const isEdit = !!r && !isDuplicate;
   return `
   <div class="modal-overlay" style="display:flex;">
-    <div class="modal-content" style="max-width:580px;max-height:90vh;overflow-y:auto;">
+    <div class="modal-content" style="max-width:820px;max-height:90vh;overflow-y:auto;">
       <div class="modal-header" style="flex-direction:column;align-items:flex-start;gap:8px;">
         <div style="display:flex;justify-content:space-between;align-items:center;width:100%;">
           <h3>${isDuplicate ? 'Duplicar equipo' : r ? 'Editar equipo' : 'Nuevo equipo'}</h3>
@@ -193,7 +193,7 @@ export function celularFormHTML(r, isDuplicate = false) {
   const isEdit = !!r && !isDuplicate;
   return `
   <div class="modal-overlay" style="display:flex;">
-    <div class="modal-content" style="max-width:580px;max-height:90vh;overflow-y:auto;">
+    <div class="modal-content" style="max-width:820px;max-height:90vh;overflow-y:auto;">
       <div class="modal-header" style="flex-direction:column;align-items:flex-start;gap:8px;">
         <div style="display:flex;justify-content:space-between;align-items:center;width:100%;">
           <h3>${isDuplicate ? 'Duplicar celular' : r ? 'Editar celular' : 'Nuevo celular'}</h3>

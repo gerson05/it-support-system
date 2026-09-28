@@ -14,8 +14,7 @@ export function getCtx(session) {
 
 export async function crearTicket(db, phone, area, description, {
   priority = 'media', requesterName = 'Empleado WhatsApp', imageCtx = null, chatId = null,
-  cedula = null, cargo = null, sede = null, ciudad = null,
-  equipmentName = null, equipmentSerial = null, techRequestId = null,
+  cedula = null, cargo = null, sede = null, equipo = null, serial = null, metadata = null,
 } = {}) {
   const dateStr      = new Date().toISOString().slice(0, 10).replace(/-/g, '');
   const like         = `TK-${dateStr}-%`;
@@ -24,13 +23,12 @@ export async function crearTicket(db, phone, area, description, {
   const ticketNumber = `TK-${dateStr}-${String(nextNum).padStart(3, '0')}`;
 
   const title = await generateTicketTitle(area, description);
+  const metadataJson = metadata && typeof metadata === 'object' ? JSON.stringify(metadata) : (metadata ? String(metadata) : null);
 
   const { lastInsertRowid: ticketId } = await db.prepare(`
-    INSERT INTO tickets (ticket_number, phone, chat_id, requester_name, area, description, title, status, priority,
-                         cedula, cargo, sede, ciudad, equipment_name, equipment_serial, tech_request_id)
-    VALUES (?, ?, ?, ?, ?, ?, ?, 'abierto', ?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(ticketNumber, phone, chatId || phone, requesterName || 'Empleado WhatsApp', area, description, title, priority,
-    cedula, cargo, sede, ciudad, equipmentName, equipmentSerial, techRequestId);
+    INSERT INTO tickets (ticket_number, phone, chat_id, requester_name, area, description, title, status, priority, cedula, cargo, sede, equipo, serial, metadata)
+    VALUES (?, ?, ?, ?, ?, ?, ?, 'abierto', ?, ?, ?, ?, ?, ?, ?)
+  `).run(ticketNumber, phone, chatId || phone, requesterName || 'Empleado WhatsApp', area, description, title, priority, cedula, cargo, sede, equipo, serial, metadataJson);
 
   if (imageCtx?.base64) {
     const attachment = JSON.stringify({ type: 'image', mimetype: imageCtx.mimetype || 'image/jpeg', base64: imageCtx.base64 });
@@ -57,13 +55,16 @@ export async function crearTicketVinculado(db, phone, chatId, ctx, techRequest, 
       priority:        detectPriority(description),
       requesterName:   ctx.name,
       chatId,
-      cedula:          ctx.cedula           || null,
-      cargo:           ctx.cargo            || null,
-      sede:            ctx.sede             || null,
-      ciudad:          ctx.ciudad           || null,
-      equipmentName:   ctx.equipment_name   || null,
-      equipmentSerial: ctx.equipment_serial || null,
-      techRequestId:   techRequest.id,
+      cedula:   ctx.cedula           || null,
+      cargo:    ctx.cargo            || null,
+      sede:     ctx.sede             || null,
+      equipo:   ctx.equipment_name   || null,
+      serial:   ctx.equipment_serial || null,
+      metadata: {
+        ciudad:          ctx.ciudad || null,
+        tech_request_id: techRequest.id,
+        request_number:  techRequest.request_number,
+      },
     });
   } catch (err) {
     console.error(`[Chatbot] No se pudo crear ticket vinculado a ${techRequest.request_number}:`, err.message);

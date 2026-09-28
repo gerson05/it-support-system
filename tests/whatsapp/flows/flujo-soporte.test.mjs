@@ -38,7 +38,29 @@ await mock.module('../../../src/events/broadcaster.js', {
   exports: { appEvents: { emit: mockEmit } },
 });
 
-const { handleSoporte } = await import('../../../src/whatsapp/flows/flujo-soporte.js');
+const { handleSoporte, parseEquipo } = await import('../../../src/whatsapp/flows/flujo-soporte.js');
+
+// ── parseEquipo ──────────────────────────────────────────────────────────────
+
+test('parseEquipo: splits name and labelled serial', () => {
+  assert.deepEqual(parseEquipo('PC HP EliteDesk - serial HP2024001'), { name: 'PC HP EliteDesk', serial: 'HP2024001' });
+  assert.deepEqual(parseEquipo('Monitor — inv. MON-77'), { name: 'Monitor', serial: 'MON-77' });
+  assert.deepEqual(parseEquipo('Impresora – ABC123'), { name: 'Impresora', serial: 'ABC123' });
+});
+
+test('parseEquipo: no separator → no serial', () => {
+  assert.deepEqual(parseEquipo('  Lenovo thinkbook '), { name: 'Lenovo thinkbook', serial: null });
+});
+
+test('parseEquipo: text after separator with spaces is not a serial', () => {
+  assert.deepEqual(parseEquipo('Equipo - no enciende bien'), { name: 'Equipo - no enciende bien', serial: null });
+});
+
+test('parseEquipo: adversarial input with many "--" finishes fast', () => {
+  const start = Date.now();
+  parseEquipo('-' + '--'.repeat(5000) + ' x!');
+  assert.ok(Date.now() - start < 1000);
+});
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -190,8 +212,9 @@ test('create_ticket: passes requester data to crearTicket', async () => {
   assert.equal(opts.cedula, '1007172156');
   assert.equal(opts.cargo, 'Gestor');
   assert.equal(opts.sede, 'MI FARMACIA - PEREIRA');
-  assert.equal(opts.ciudad, 'PEREIRA');
-  assert.equal(opts.equipmentName, 'Lenovo thinkbook');
+  assert.deepEqual(opts.metadata, { ciudad: 'PEREIRA' });
+  assert.equal(opts.equipo, 'Lenovo thinkbook');
+  assert.equal(opts.serial, null);
   assert.equal(mockCrearTicket.mock.calls[0].arguments[3], 'Se apaga solo');
 });
 

@@ -13,14 +13,34 @@ const SOPORTE_STEPS = new Set([
 /** Datos del solicitante acumulados en el contexto, para guardarlos en el ticket. */
 function datosSolicitante(ctx) {
   return {
-    requesterName:   ctx.requester_name,
-    cedula:          ctx.cedula          || null,
-    cargo:           ctx.cargo           || null,
-    sede:            ctx.sede            || null,
-    ciudad:          ctx.ciudad          || null,
-    equipmentName:   ctx.equipment_name  || null,
-    equipmentSerial: ctx.equipment_serial || null,
+    requesterName: ctx.requester_name,
+    cedula:        ctx.cedula           || null,
+    cargo:         ctx.cargo            || null,
+    sede:          ctx.sede             || null,
+    equipo:        ctx.equipment_name   || null,
+    serial:        ctx.equipment_serial || null,
+    metadata:      ctx.ciudad ? { ciudad: ctx.ciudad } : null,
   };
+}
+
+const SERIAL_SEPARATORS = new Set(['-', '—', '–']);
+const SERIAL_LABEL      = /^(?:serial|inventario|inv\.?)\s*/i;
+const SERIAL_TOKEN      = /^[A-Z0-9-]+$/i;
+
+/**
+ * Separa "PC HP EliteDesk - serial HP2024001" en nombre y serial.
+ * Recorre los separadores en vez de usar un regex con backtracking sobre texto del usuario.
+ */
+export function parseEquipo(raw) {
+  const text = raw.trim();
+  for (let i = 0; i < text.length; i++) {
+    if (!SERIAL_SEPARATORS.has(text[i])) continue;
+    const token = text.slice(i + 1).trim().replace(SERIAL_LABEL, '');
+    if (token && SERIAL_TOKEN.test(token)) {
+      return { name: text.slice(0, i).trim(), serial: token };
+    }
+  }
+  return { name: text, serial: null };
 }
 
 export async function handleSoporte(step, { text, cleanText, session, phone, db, chatId, media }) {
@@ -73,14 +93,9 @@ export async function handleSoporte(step, { text, cleanText, session, phone, db,
 
   /* ── Equipo ── */
   if (step === 'ask_ticket_equipo') {
-    const serialMatch = text.match(/[—\-–]\s*(?:serial|inv\.?|inventario)?\s*([A-Z0-9\-]+)\s*$/i);
-    if (serialMatch) {
-      ctx.equipment_name   = text.slice(0, text.lastIndexOf(serialMatch[0])).trim();
-      ctx.equipment_serial = serialMatch[1].trim();
-    } else {
-      ctx.equipment_name   = text.trim();
-      ctx.equipment_serial = null;
-    }
+    const { name, serial } = parseEquipo(text);
+    ctx.equipment_name   = name;
+    ctx.equipment_serial = serial;
     await setStep(db, phone, 'awaiting_description', area, JSON.stringify(ctx));
     const ejemplos = AREA_EXAMPLES[area] || '';
     return (

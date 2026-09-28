@@ -31,7 +31,7 @@ export function openImportModal(activeTab, onSuccess) {
 
   modalWrap.innerHTML = `
     <div class="modal-overlay" style="display:flex;" id="import-overlay">
-      <div class="modal-content" style="max-width:680px;max-height:90vh;overflow-y:auto;">
+      <div class="modal-content" style="max-width:840px;max-height:90vh;overflow-y:auto;">
         <div class="modal-header">
           <h3>${iconUpload(15)} Importar Excel</h3>
           <button class="modal-close" id="btn-import-close">&times;</button>

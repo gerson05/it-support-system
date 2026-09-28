@@ -13,7 +13,12 @@ export const apiService = {
   },
 
   async getTickets(filters = {}) {
-    const res = await fetch(`/api/tickets?${new URLSearchParams(filters)}`);
+    const cleanFilters = Object.fromEntries(
+      Object.entries(filters).filter(([, value]) =>
+        value !== undefined && value !== null && value !== 'undefined' && value !== 'null' && String(value).trim() !== ''
+      )
+    );
+    const res = await fetch(`/api/tickets?${new URLSearchParams(cleanFilters)}`);
     if (!res.ok) throw new Error(`tickets error ${res.status}`);
     return res.json();
   },

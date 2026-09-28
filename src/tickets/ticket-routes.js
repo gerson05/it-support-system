@@ -41,9 +41,9 @@ router.get('/api/tickets/:id', ...canRead, wrap(async (req, res) => {
 
 router.put('/api/tickets/:id', ...canEdit, wrap(async (req, res) => {
   const ticketId = parseInt(req.params.id);
-  const { status, priority, assigned_to, requester_name, category } = req.body;
+  const { status, priority, assigned_to, requester_name, category, cedula, cargo, sede, equipo, serial, metadata } = req.body;
 
-  const updated = await ticketService.update(ticketId, { status, priority, assigned_to, requester_name, category });
+  const updated = await ticketService.update(ticketId, { status, priority, assigned_to, requester_name, category, cedula, cargo, sede, equipo, serial, metadata });
 
   if (!updated) {
     return res.status(404).json({ error: 'Ticket no encontrado o sin cambios que aplicar.' });

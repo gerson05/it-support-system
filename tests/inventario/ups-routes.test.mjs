@@ -136,6 +136,26 @@ test('GET /api/inventario/ups with search param', async () => {
   reset();
 });
 
+test('GET /api/inventario/ups ignores literal undefined/null filter values', async () => {
+  _all = () => [{ id: 2, placa: 'AF-BOG002', marca: 'Eaton', nombre_equipo: 'UPS 1500VA', serial: 'EATONSN001' }];
+  _get = () => ({ total: 1 });
+  const res = await fetch(`${BASE}/api/inventario/ups?search=undefined&area=null`);
+  assert.equal(res.status, 200);
+  const data = await res.json();
+  assert.equal(data.ups.length, 1);
+  reset();
+});
+
+test('GET /api/inventario/ups searches by placa and serial', async () => {
+  _all = () => [{ id: 2, placa: 'AF-BOG002', marca: 'Eaton', nombre_equipo: 'UPS 1500VA', serial: 'EATONSN001' }];
+  _get = () => ({ total: 1 });
+  const res = await fetch(`${BASE}/api/inventario/ups?search=EATONSN001`);
+  assert.equal(res.status, 200);
+  const data = await res.json();
+  assert.equal(data.ups.length, 1);
+  reset();
+});
+
 test('GET /api/inventario/ups with area filter', async () => {
   _all = () => [{ id: 3, placa: 'AF-BOG003', marca: 'APC', nombre_equipo: 'UPS 900VA', serial: 'UPSSN003' }];
   _get = () => ({ total: 1 });
