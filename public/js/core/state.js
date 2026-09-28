@@ -10,16 +10,17 @@ export function can(permission) {
 }
 
 export function firstAccessibleHash() {
-  if (can('metrics:read'))       return '#dashboard';
-  if (can('tickets:read'))       return '#tickets';
-  if (can('tech-requests:read')) return '#tech-requests';
-  if (can('faqs:read'))          return '#faqs';
-  if (can('sedes:read'))         return '#sedes';
-  if (can('reuniones:read'))     return '#reuniones';
-  if (can('despacho:read'))      return '#despacho';
-  if (can('audit:read'))         return '#audit';
-  if (can('inventario:read'))    return '#inventario';
-  if (can('employees:read'))     return '#employees';
-  if (can('settings:read'))      return '#settings';
-  return '#dashboard';
+  if (can('full'))               return '#inicio';
+  if (can('metrics:read'))       return '#inicio';
+  if (can('tickets:read'))       return '#inicio';
+  if (can('tech-requests:read')) return '#inicio';
+  if (can('faqs:read'))          return '#inicio';
+  if (can('sedes:read'))         return '#inicio';
+  if (can('reuniones:read'))     return '#inicio';
+  if (can('despacho:read'))      return '#inicio';
+  if (can('audit:read'))         return '#inicio';
+  if (can('inventario:read'))    return '#inicio';
+  if (can('employees:read'))     return '#inicio';
+  if (can('settings:read'))      return '#inicio';
+  return '#inicio';
 }

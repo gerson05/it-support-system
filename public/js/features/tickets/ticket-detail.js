@@ -161,6 +161,26 @@ export async function renderTicketDetail(container, ticketId) {
                   <span class="info-details-val">${ticket.phone}</span>
                 </div>
                 <div class="info-details-item">
+                  <span class="info-details-label">Cédula:</span>
+                  <span class="info-details-val">${ticket.cedula || ticket.metadata?.cedula || 'No registrada'}</span>
+                </div>
+                <div class="info-details-item">
+                  <span class="info-details-label">Cargo:</span>
+                  <span class="info-details-val">${ticket.cargo || ticket.metadata?.cargo || 'No registrado'}</span>
+                </div>
+                <div class="info-details-item">
+                  <span class="info-details-label">Sede:</span>
+                  <span class="info-details-val">${ticket.sede || ticket.metadata?.sede || 'No registrada'}</span>
+                </div>
+                <div class="info-details-item">
+                  <span class="info-details-label">Equipo:</span>
+                  <span class="info-details-val">${ticket.equipo || ticket.metadata?.equipo || ticket.metadata?.equipment_name || 'No registrado'}</span>
+                </div>
+                <div class="info-details-item">
+                  <span class="info-details-label">Serial:</span>
+                  <span class="info-details-val">${ticket.serial || ticket.metadata?.serial || ticket.metadata?.equipment_serial || 'No registrado'}</span>
+                </div>
+                <div class="info-details-item">
                   <span class="info-details-label">Categoría:</span>
                   <span class="info-details-val" style="text-transform: capitalize;">${ticket.category || 'General'}</span>
                 </div>

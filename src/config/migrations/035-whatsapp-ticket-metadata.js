@@ -1,0 +1,8 @@
+export const migrations = [
+  `ALTER TABLE tickets ADD COLUMN cedula TEXT DEFAULT NULL`,
+  `ALTER TABLE tickets ADD COLUMN cargo TEXT DEFAULT NULL`,
+  `ALTER TABLE tickets ADD COLUMN sede TEXT DEFAULT NULL`,
+  `ALTER TABLE tickets ADD COLUMN equipo TEXT DEFAULT NULL`,
+  `ALTER TABLE tickets ADD COLUMN serial TEXT DEFAULT NULL`,
+  `ALTER TABLE tickets ADD COLUMN metadata TEXT DEFAULT NULL`,
+];

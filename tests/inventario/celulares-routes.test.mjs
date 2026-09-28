@@ -113,9 +113,32 @@ test('GET /api/inventario/celulares returns empty list', async () => {
 });
 
 test('GET /api/inventario/celulares with search param', async () => {
-  _all = () => [{ id: 2, nombre_completo: 'Maria Lopez', imei: '987654321098765', modelo: 'iPhone 12' }];
+  _all = (...args) => {
+    assert.equal(args.length, 14);
+    return [{ id: 2, nombre_completo: 'Maria Lopez', imei: '987654321098765', modelo: 'iPhone 12' }];
+  };
   _get = () => ({ total: 1 });
   const res = await fetch(`${BASE}/api/inventario/celulares?search=Maria`);
+  assert.equal(res.status, 200);
+  const data = await res.json();
+  assert.equal(data.celulares.length, 1);
+  reset();
+});
+
+test('GET /api/inventario/celulares ignores literal undefined/null filter values', async () => {
+  _all = () => [{ id: 2, nombre_completo: 'Maria Lopez', imei: '987654321098765', modelo: 'iPhone 12' }];
+  _get = () => ({ total: 1 });
+  const res = await fetch(`${BASE}/api/inventario/celulares?search=undefined&area=null`);
+  assert.equal(res.status, 200);
+  const data = await res.json();
+  assert.equal(data.celulares.length, 1);
+  reset();
+});
+
+test('GET /api/inventario/celulares searches by placa and serial', async () => {
+  _all = () => [{ id: 2, nombre_completo: 'Maria Lopez', imei: '987654321098765', modelo: 'iPhone 12', placa: 'CEL-2024', serial: 'SN-ABC-2024' }];
+  _get = () => ({ total: 1 });
+  const res = await fetch(`${BASE}/api/inventario/celulares?search=SN-ABC-2024`);
   assert.equal(res.status, 200);
   const data = await res.json();
   assert.equal(data.celulares.length, 1);

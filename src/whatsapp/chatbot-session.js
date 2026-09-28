@@ -13,6 +13,7 @@ export function getCtx(session) {
 
 export async function crearTicket(db, phone, area, description, {
   priority = 'media', requesterName = 'Empleado WhatsApp', imageCtx = null, chatId = null,
+  cedula = null, cargo = null, sede = null, equipo = null, serial = null, metadata = null,
 } = {}) {
   const dateStr      = new Date().toISOString().slice(0, 10).replace(/-/g, '');
   const like         = `TK-${dateStr}-%`;
@@ -21,11 +22,12 @@ export async function crearTicket(db, phone, area, description, {
   const ticketNumber = `TK-${dateStr}-${String(nextNum).padStart(3, '0')}`;
 
   const title = await generateTicketTitle(area, description);
+  const metadataJson = metadata && typeof metadata === 'object' ? JSON.stringify(metadata) : (metadata ? String(metadata) : null);
 
   const { lastInsertRowid: ticketId } = await db.prepare(`
-    INSERT INTO tickets (ticket_number, phone, chat_id, requester_name, area, description, title, status, priority)
-    VALUES (?, ?, ?, ?, ?, ?, ?, 'abierto', ?)
-  `).run(ticketNumber, phone, chatId || phone, requesterName, area, description, title, priority);
+    INSERT INTO tickets (ticket_number, phone, chat_id, requester_name, area, description, title, status, priority, cedula, cargo, sede, equipo, serial, metadata)
+    VALUES (?, ?, ?, ?, ?, ?, ?, 'abierto', ?, ?, ?, ?, ?, ?, ?)
+  `).run(ticketNumber, phone, chatId || phone, requesterName, area, description, title, priority, cedula, cargo, sede, equipo, serial, metadataJson);
 
   if (imageCtx?.base64) {
     const attachment = JSON.stringify({ type: 'image', mimetype: imageCtx.mimetype || 'image/jpeg', base64: imageCtx.base64 });

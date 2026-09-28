@@ -23,6 +23,7 @@ function _applyUserUI(user) {
   if (label) { label.textContent = user.username; label.style.display = 'inline'; }
   const avatar = document.getElementById('current-agent-avatar');
   if (avatar) avatar.textContent = user.username.charAt(0).toUpperCase();
+  window.__APP_USER_PERMISSIONS__ = Array.isArray(user.permissions) ? user.permissions : [];
 
   document.getElementById('btn-logout')?.addEventListener('click', async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
@@ -31,6 +32,7 @@ function _applyUserUI(user) {
   const btn = document.getElementById('btn-logout');
   if (btn) btn.style.display = 'inline-block';
 
+  show('nav-inicio');
   if (can('metrics:read'))       show('nav-dashboard');
   if (can('tickets:read'))       show('nav-tickets');
   if (can('tech-requests:read')) show('nav-tech-requests');
@@ -76,6 +78,7 @@ async function init() {
   }
 
   if (isOfflineMode) {
+    window.__APP_USER_PERMISSIONS__ = ['full'];
     document.querySelectorAll('.menu-item').forEach(el => el.style.display = 'flex');
     const pulseInd = document.querySelector('.pulse-indicator');
     if (pulseInd) {

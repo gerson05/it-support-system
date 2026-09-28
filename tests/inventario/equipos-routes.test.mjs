@@ -124,9 +124,33 @@ test('GET /api/inventario/equipos returns empty list', async () => {
 });
 
 test('GET /api/inventario/equipos with search param', async () => {
-  _all = () => [{ id: 2, placa: 'AF-BOG002', marca: 'HP', nombre_equipo: 'Desktop', serial: 'SN2', categoria: 'computadores' }];
+  _all = (...args) => {
+    assert.equal(args.length, 12);
+    assert.ok(!String(args[0]).includes('CAST(id AS TEXT)'));
+    return [{ id: 2, placa: 'AF-BOG002', marca: 'HP', nombre_equipo: 'Desktop', serial: 'SN2', categoria: 'computadores' }];
+  };
   _get = () => ({ total: 1 });
   const res = await fetch(`${BASE}/api/inventario/equipos?search=HP`);
+  assert.equal(res.status, 200);
+  const data = await res.json();
+  assert.equal(data.equipos.length, 1);
+  reset();
+});
+
+test('GET /api/inventario/equipos ignores literal undefined/null filter values', async () => {
+  _all = () => [{ id: 2, placa: 'AF-BOG002', marca: 'HP', nombre_equipo: 'Desktop', serial: 'SN2', categoria: 'computadores' }];
+  _get = () => ({ total: 1 });
+  const res = await fetch(`${BASE}/api/inventario/equipos?search=undefined&area=null`);
+  assert.equal(res.status, 200);
+  const data = await res.json();
+  assert.equal(data.equipos.length, 1);
+  reset();
+});
+
+test('GET /api/inventario/equipos searches by placa and serial', async () => {
+  _all = () => [{ id: 2, placa: 'AF-BOG002', marca: 'HP', nombre_equipo: 'Desktop', serial: 'SN-HP-2024', categoria: 'computadores' }];
+  _get = () => ({ total: 1 });
+  const res = await fetch(`${BASE}/api/inventario/equipos?search=SN-HP-2024`);
   assert.equal(res.status, 200);
   const data = await res.json();
   assert.equal(data.equipos.length, 1);

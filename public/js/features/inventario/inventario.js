@@ -36,6 +36,7 @@ const TABS = [
 let _activeTabId      = null;
 let _page             = 1;
 const _limit          = 20;
+const _SEARCH_DEBOUNCE_MS = 120;
 let _search           = '';
 let _filterArea       = '';
 let _sidebarCollapsed = false;
@@ -204,11 +205,11 @@ function bindInventarioEvents(loadTable, loadCounts) {
   let debounce;
   document.getElementById('inv-search').addEventListener('input', e => {
     clearTimeout(debounce);
-    debounce = setTimeout(() => { _search = e.target.value.trim(); _page = 1; updateClearBtn(); loadTable(); }, 300);
+    debounce = setTimeout(() => { _search = e.target.value.trim(); _page = 1; updateClearBtn(); loadTable(); }, _SEARCH_DEBOUNCE_MS);
   });
   document.getElementById('inv-area').addEventListener('input', e => {
     clearTimeout(debounce);
-    debounce = setTimeout(() => { _filterArea = e.target.value.trim(); _page = 1; updateClearBtn(); loadTable(); }, 300);
+    debounce = setTimeout(() => { _filterArea = e.target.value.trim(); _page = 1; updateClearBtn(); loadTable(); }, _SEARCH_DEBOUNCE_MS);
   });
   document.getElementById('btn-inv-clear').addEventListener('click', () => {
     _search = ''; _filterArea = ''; _page = 1;

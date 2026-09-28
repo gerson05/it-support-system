@@ -24,6 +24,7 @@ function buildArtRow(art = {}, rowCountRef, isFirst = false) {
   </div>`;
 }
 
+
 function wireArtRow(row, rowCountRef) {
   row.querySelector('.btn-rem-art')?.addEventListener('click', function () { this.closest('.art-row-edit').remove(); });
   row.querySelector('.btn-dup-art')?.addEventListener('click', function () {
