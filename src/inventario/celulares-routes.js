@@ -7,6 +7,13 @@ import { wrap } from '../utils/async-handler.js';
 
 const router = express.Router();
 
+function normalizeInventoryFilter(value) {
+  if (value === undefined || value === null) return '';
+  const normalized = String(value).trim();
+  if (!normalized || /^(undefined|null|nan)$/i.test(normalized)) return '';
+  return normalized;
+}
+
 const canRead   = [requireAuth, requirePermission('inventario:read')];
 const canCreate = [requireAuth, requirePermission('inventario:create')];
 const canEdit   = [requireAuth, requirePermission('inventario:edit')];
@@ -21,15 +28,18 @@ router.get('/api/inventario/celulares/next-placa', ...canRead, wrap(async (req, 
 
 router.get('/api/inventario/celulares', ...canRead, wrap(async (req, res) => {
   const { search, area, estado, page = 1, limit = 20 } = req.query;
+  const safeSearch = normalizeInventoryFilter(search);
+  const safeArea = normalizeInventoryFilter(area);
+  const safeEstado = normalizeInventoryFilter(estado);
   const where = [];
   const params = [];
-  if (search) {
-    where.push('(CAST(id AS TEXT) LIKE ? OR nombre_completo LIKE ? OR cedula LIKE ? OR imei LIKE ? OR modelo LIKE ? OR equipo LIKE ? OR area LIKE ? OR ciudad LIKE ?)');
-    const s = `%${search}%`;
-    params.push(s, s, s, s, s, s, s, s);
+  if (safeSearch) {
+    where.push('(id LIKE ? OR nombre_completo LIKE ? OR cedula LIKE ? OR imei LIKE ? OR imei2 LIKE ? OR placa LIKE ? OR serial LIKE ? OR modelo LIKE ? OR equipo LIKE ? OR area LIKE ? OR ciudad LIKE ?)');
+    const s = `%${safeSearch}%`;
+    params.push(s, s, s, s, s, s, s, s, s, s, s);
   }
-  if (area)   { where.push('area LIKE ?');   params.push(`%${area}%`); }
-  if (estado) { where.push('estado = ?');    params.push(estado); }
+  if (safeArea)   { where.push('area LIKE ?');   params.push(`%${safeArea}%`); }
+  if (safeEstado) { where.push('estado = ?');    params.push(safeEstado); }
   const wc = where.length ? 'WHERE ' + where.join(' AND ') : '';
   const offset = (parseInt(page) - 1) * parseInt(limit);
   const rows  = await db.prepare(`SELECT * FROM inventario_celulares ${wc} ORDER BY created_at DESC LIMIT ? OFFSET ?`).all(...params, parseInt(limit), offset);

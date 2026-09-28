@@ -1,3 +1,4 @@
+import { renderInicio }            from '../features/inicio/inicio.js';
 import { renderDashboard }         from '../features/dashboard/dashboard.js';
 import { renderInventario }         from '../features/inventario/inventario.js';
 import { renderTicketList }         from '../features/tickets/ticket-list.js';
@@ -32,7 +33,7 @@ function activate(navId, page) {
 }
 
 export function router() {
-  const hash = window.location.hash || '#dashboard';
+  const hash = window.location.hash || '#inicio';
   const app  = document.getElementById('app');
 
   document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
@@ -66,11 +67,12 @@ export function router() {
     }
 
     const ROUTES = {
+      '#inicio':       { perm: null,                  nav: 'nav-inicio',        page: 'inicio',               render: () => renderInicio(app) },
       '#dashboard':    { perm: 'metrics:read',       nav: 'nav-dashboard',     page: 'dashboard',            render: () => renderDashboard(app) },
       '#tickets':      { perm: 'tickets:read',        nav: 'nav-tickets',       page: 'tickets',              render: () => renderTicketList(app) },
       '#tech-requests':{ perm: 'tech-requests:read',  nav: 'nav-tech-requests', page: 'tech-requests',        render: () => renderTechRequests(app) },
       '#faqs':         { perm: 'faqs:read',           nav: 'nav-faqs',          page: 'faqs',                 render: () => renderFaqs(app) },
-      '#settings':     { perm: 'settings:read',         nav: 'nav-settings',      page: 'settings',             render: () => renderSettings(app) },
+      '#settings':     { perm: 'settings:read',       nav: 'nav-settings',      page: 'settings',             render: () => renderSettings(app) },
       '#sedes':        { perm: 'sedes:read',          nav: 'nav-sedes',         page: 'sedes',                render: () => renderSedesAdmin(app) },
       '#reuniones':    { perm: 'reuniones:read',      nav: 'nav-reuniones',     page: 'reuniones',            render: () => renderReuniones(app) },
       '#despacho':     { perm: 'despacho:read',       nav: 'nav-despacho',      page: 'despacho',             render: () => renderDespacho(app) },
@@ -80,22 +82,23 @@ export function router() {
       '#inventario':   { perm: 'inventario:read',     nav: 'nav-inventario',    page: 'inventario',           render: () => renderInventario(app) },
       '#monitoreo':    { perm: 'full',                nav: 'nav-monitoreo',     page: 'monitoreo',            render: () => renderMonitoreo(app) },
       '#users':        { perm: 'full',                nav: 'nav-users',         page: 'users',                render: () => renderUsers(app) },
-      '#employees':    { perm: 'employees:read',       nav: 'nav-employees',     page: 'employees',            render: () => renderEmployees(app) },
+      '#employees':    { perm: 'employees:read',      nav: 'nav-employees',     page: 'employees',            render: () => renderEmployees(app) },
     };
 
-    const route = ROUTES[hash] || ROUTES['#dashboard'];
+    const route = ROUTES[hash] || ROUTES['#inicio'];
     if (route.perm && !guard(route.perm)) return;
     activate(route.nav, route.page);
     try {
       const result = route.render();
+      if (window.lucide) window.lucide.createIcons();
       if (result && typeof result.catch === 'function') {
         result.catch(err => {
-          console.error(`[Router] Error rendering ${hash}:`, err);
-          if (app) app.innerHTML = `<div style="padding:24px;color:red;"><h3>Error rendering ${hash}</h3><pre>${_esc(err.message)}</pre></div>`;
+          console.error('[Router] Error rendering %s:', hash, err);
+          if (app) app.innerHTML = `<div style="padding:24px;color:red;"><h3>Error rendering ${_esc(hash)}</h3><pre>${_esc(err.message)}</pre></div>`;
         });
       }
     } catch (err) {
-      console.error(`[Router] Sync error rendering ${hash}:`, err);
+      console.error('[Router] Sync error rendering %s:', hash, err);
       if (app) app.innerHTML = `<div style="padding:24px;color:red;"><h3>Error</h3><pre>${_esc(err.message)}</pre></div>`;
     }
   }

@@ -20,6 +20,31 @@ const AREA_LABELS = {
 const ACTIVE_STATUSES   = ['abierto', 'en_progreso', 'en_espera', 'siguiente_dia'];
 const ARCHIVE_STATUSES  = ['resuelto', 'cerrado'];
 
+function normalizeTicketMetadata(ticket = {}) {
+  if (!ticket) return ticket;
+
+  let parsedMetadata = null;
+  if (ticket.metadata) {
+    try {
+      parsedMetadata = typeof ticket.metadata === 'string' ? JSON.parse(ticket.metadata) : ticket.metadata;
+    } catch {
+      parsedMetadata = null;
+    }
+  }
+
+  if (parsedMetadata && typeof parsedMetadata === 'object') {
+    ticket.metadata = parsedMetadata;
+    ticket.cedula = ticket.cedula ?? parsedMetadata.cedula ?? null;
+    ticket.cargo = ticket.cargo ?? parsedMetadata.cargo ?? null;
+    ticket.sede = ticket.sede ?? parsedMetadata.sede ?? null;
+    ticket.equipo = ticket.equipo ?? parsedMetadata.equipo ?? parsedMetadata.equipment_name ?? null;
+    ticket.serial = ticket.serial ?? parsedMetadata.serial ?? parsedMetadata.equipment_serial ?? null;
+    if (!ticket.requester_name && parsedMetadata.requester_name) ticket.requester_name = parsedMetadata.requester_name;
+  }
+
+  return ticket;
+}
+
 export async function getAllTickets(db, filters = {}) {
   const {
     status,
@@ -31,6 +56,9 @@ export async function getAllTickets(db, filters = {}) {
     page = 1,
     limit = 10
   } = filters;
+
+  const safeSearch = typeof search === 'string' ? search.trim() : '';
+  const safeAssignedTo = (assigned_to === 'undefined' || assigned_to === undefined) ? '' : assigned_to;
 
   const offset = (page - 1) * limit;
   let query = 'SELECT t.*, a.name as agent_name FROM tickets t LEFT JOIN agents a ON t.assigned_to = a.id WHERE 1=1';
@@ -71,20 +99,20 @@ export async function getAllTickets(db, filters = {}) {
     countParams.push(area);
   }
 
-  if (assigned_to !== undefined && assigned_to !== '') {
-    if (assigned_to === 'null' || assigned_to === null) {
+  if (safeAssignedTo !== '') {
+    if (safeAssignedTo === 'null' || safeAssignedTo === null) {
       query += ' AND t.assigned_to IS NULL';
       countQuery += ' AND t.assigned_to IS NULL';
     } else {
       query += ' AND t.assigned_to = ?';
       countQuery += ' AND t.assigned_to = ?';
-      params.push(parseInt(assigned_to));
-      countParams.push(parseInt(assigned_to));
+      params.push(parseInt(safeAssignedTo));
+      countParams.push(parseInt(safeAssignedTo));
     }
   }
 
-  if (search) {
-    const searchPattern = `%${search}%`;
+  if (safeSearch && !/^(undefined|null|nan)$/i.test(safeSearch)) {
+    const searchPattern = `%${safeSearch}%`;
     query += ' AND (t.ticket_number LIKE ? OR t.description LIKE ? OR t.phone LIKE ? OR t.requester_name LIKE ?)';
     countQuery += ' AND (t.ticket_number LIKE ? OR t.description LIKE ? OR t.phone LIKE ? OR t.requester_name LIKE ?)';
     params.push(searchPattern, searchPattern, searchPattern, searchPattern);
@@ -102,10 +130,13 @@ export async function getAllTickets(db, filters = {}) {
     const tickets = await db.prepare(query).all(...params);
     
     // Formatear nombres de áreas legibles
-    const formattedTickets = tickets.map(ticket => ({
-      ...ticket,
-      area_label: AREA_LABELS[ticket.area] || ticket.area
-    }));
+    const formattedTickets = tickets.map(ticket => {
+      const normalized = normalizeTicketMetadata({ ...ticket });
+      return {
+        ...normalized,
+        area_label: AREA_LABELS[normalized.area] || normalized.area,
+      };
+    });
 
     return {
       tickets: formattedTickets,
@@ -134,7 +165,8 @@ export async function getTicketById(db, id) {
 
     if (!ticket) return null;
 
-    ticket.area_label = AREA_LABELS[ticket.area] || ticket.area;
+    const normalizedTicket = normalizeTicketMetadata(ticket);
+    normalizedTicket.area_label = AREA_LABELS[normalizedTicket.area] || normalizedTicket.area;
 
     // Obtener los mensajes del ticket (historial del chat)
     const messages = await db.prepare(`
@@ -151,7 +183,7 @@ export async function getTicketById(db, id) {
     `).all(id);
 
     return {
-      ...ticket,
+      ...normalizedTicket,
       messages,
       notes
     };
@@ -198,6 +230,19 @@ export async function updateTicket(db, id, data) {
   if (data.category !== undefined) {
     fields.push('category = ?');
     params.push(data.category);
+  }
+
+  const metadataFields = ['cedula', 'cargo', 'sede', 'equipo', 'serial'];
+  for (const key of metadataFields) {
+    if (data[key] !== undefined) {
+      fields.push(`${key} = ?`);
+      params.push(data[key] === '' ? null : data[key]);
+    }
+  }
+
+  if (data.metadata !== undefined) {
+    fields.push('metadata = ?');
+    params.push(typeof data.metadata === 'string' ? data.metadata : JSON.stringify(data.metadata));
   }
 
   if (fields.length === 0) return false;

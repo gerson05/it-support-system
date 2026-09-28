@@ -7,6 +7,13 @@ import { wrap } from '../utils/async-handler.js';
 
 const router = express.Router();
 
+function normalizeInventoryFilter(value) {
+  if (value === undefined || value === null) return '';
+  const normalized = String(value).trim();
+  if (!normalized || /^(undefined|null|nan)$/i.test(normalized)) return '';
+  return normalized;
+}
+
 const canRead   = [requireAuth, requirePermission('inventario:read')];
 const canCreate = [requireAuth, requirePermission('inventario:create')];
 const canEdit   = [requireAuth, requirePermission('inventario:edit')];
@@ -21,13 +28,15 @@ router.get('/api/inventario/ups/next-placa', ...canRead, wrap(async (req, res) =
 
 router.get('/api/inventario/ups', ...canRead, wrap(async (req, res) => {
   const { search, area, page = 1, limit = 20 } = req.query;
+  const safeSearch = normalizeInventoryFilter(search);
+  const safeArea = normalizeInventoryFilter(area);
   const where = [], params = [];
-  if (search) {
-    where.push('(CAST(id AS TEXT) LIKE ? OR placa LIKE ? OR marca LIKE ? OR nombre_equipo LIKE ? OR modelo LIKE ? OR serial LIKE ? OR area LIKE ? OR voltaje LIKE ?)');
-    const searchPattern = `%${search}%`;
-    params.push(searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern);
+  if (safeSearch) {
+    where.push('(id LIKE ? OR placa LIKE ? OR marca LIKE ? OR nombre_equipo LIKE ? OR modelo LIKE ? OR serial LIKE ? OR area LIKE ? OR voltaje LIKE ? OR ciudad LIKE ?)');
+    const searchPattern = `%${safeSearch}%`;
+    params.push(searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern);
   }
-  if (area) { where.push('area LIKE ?'); params.push(`%${area}%`); }
+  if (safeArea) { where.push('area LIKE ?'); params.push(`%${safeArea}%`); }
   const wc = where.length ? 'WHERE ' + where.join(' AND ') : '';
   const offset = (parseInt(page) - 1) * parseInt(limit);
   const rows = await db.prepare(`SELECT * FROM inventario_ups ${wc} ORDER BY created_at DESC LIMIT ? OFFSET ?`).all(...params, parseInt(limit), offset);

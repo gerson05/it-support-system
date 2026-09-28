@@ -76,6 +76,14 @@ test('getAllTickets: search filter adds LIKE clauses', () => {
   assert.ok(call.sql.includes('LIKE ?'));
 });
 
+test('getAllTickets: undefined search and assigned values are ignored', () => {
+  const db = makeMockDb({ get: async () => ({ total: 0 }), all: async () => [] });
+  getAllTickets(db, { search: 'undefined', assigned_to: 'undefined' });
+  const call = db._calls.find(c => c.op === 'get');
+  assert.doesNotMatch(call.sql, /LIKE \?/);
+  assert.doesNotMatch(call.sql, /assigned_to = \?/);
+});
+
 test('getAllTickets: assigned_to=null → IS NULL clause', () => {
   const db = makeMockDb({ get: async () => ({ total: 0 }), all: async () => [] });
   getAllTickets(db, { assigned_to: 'null' });
@@ -122,6 +130,28 @@ test('getTicketById: found → returns ticket with messages and notes', async ()
   assert.equal(ticket.notes.length, 1);
 });
 
+test('getTicketById: metadata JSON expands into flat fields', async () => {
+  const db = makeMockDb({
+    get: async (sql) => sql.includes('WHERE t.id') ? {
+      id: 1,
+      area: 'farmacia',
+      ticket_number: 'TK-001',
+      requester_name: 'Andrés',
+      cedula: '1007172156',
+      cargo: 'Gestor',
+      sede: 'MI FARMACIA - PEREIRA',
+      equipo: 'Lenovo thinkbook',
+      metadata: '{"equipo":"Lenovo thinkbook","falla":"Se apaga solo de la nada"}'
+    } : null,
+    all: async () => [],
+  });
+  const ticket = await getTicketById(db, 1);
+  assert.equal(ticket.cedula, '1007172156');
+  assert.equal(ticket.sede, 'MI FARMACIA - PEREIRA');
+  assert.equal(ticket.equipo, 'Lenovo thinkbook');
+  assert.equal(ticket.metadata?.falla, 'Se apaga solo de la nada');
+});
+
 test('getTicketById: not found → null', async () => {
   const db = makeMockDb({ get: async () => null });
   assert.equal(await getTicketById(db, 999), null);
@@ -164,6 +194,22 @@ test('updateTicket: assigned_to=null → stores NULL', () => {
   const call = db._calls.find(c => c.op === 'run');
   assert.ok(call.sql.includes('assigned_to = ?'));
   assert.ok(call.args.includes(null));
+});
+
+test('updateTicket: extra metadata fields are persisted', async () => {
+  const db = makeMockDb({ run: async () => ({ changes: 1 }) });
+  const result = await updateTicket(db, 1, {
+    cedula: '1007172156',
+    cargo: 'Gestor',
+    sede: 'MI FARMACIA - PEREIRA',
+    equipo: 'Lenovo thinkbook',
+    metadata: { falla: 'Se apaga solo de la nada' },
+  });
+  assert.equal(result, true);
+  const call = db._calls.find(c => c.op === 'run');
+  assert.ok(call.sql.includes('cedula = ?'));
+  assert.ok(call.sql.includes('cargo = ?'));
+  assert.ok(call.sql.includes('metadata = ?'));
 });
 
 test('updateTicket: changes=0 → returns false', async () => {

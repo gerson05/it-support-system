@@ -161,6 +161,26 @@ export async function renderTicketDetail(container, ticketId) {
                   <span class="info-details-val">${ticket.phone}</span>
                 </div>
                 <div class="info-details-item">
+                  <span class="info-details-label">Cédula:</span>
+                  <span class="info-details-val">${ticket.cedula || ticket.metadata?.cedula || 'No registrada'}</span>
+                </div>
+                <div class="info-details-item">
+                  <span class="info-details-label">Cargo:</span>
+                  <span class="info-details-val">${ticket.cargo || ticket.metadata?.cargo || 'No registrado'}</span>
+                </div>
+                <div class="info-details-item">
+                  <span class="info-details-label">Sede:</span>
+                  <span class="info-details-val">${ticket.sede || ticket.metadata?.sede || 'No registrada'}</span>
+                </div>
+                <div class="info-details-item">
+                  <span class="info-details-label">Equipo:</span>
+                  <span class="info-details-val">${ticket.equipo || ticket.metadata?.equipo || ticket.metadata?.equipment_name || 'No registrado'}</span>
+                </div>
+                <div class="info-details-item">
+                  <span class="info-details-label">Serial:</span>
+                  <span class="info-details-val">${ticket.serial || ticket.metadata?.serial || ticket.metadata?.equipment_serial || 'No registrado'}</span>
+                </div>
+                <div class="info-details-item">
                   <span class="info-details-label">Categoría:</span>
                   <span class="info-details-val" style="text-transform: capitalize;">${ticket.category || 'General'}</span>
                 </div>
@@ -578,8 +598,9 @@ export async function renderTicketDetail(container, ticketId) {
 
     } catch (err) {
       console.error(err);
+      const safeTicketId = String(ticketId).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
       container.innerHTML = `<div class="card" style="padding: 40px; text-align: center; color: var(--text-muted);">
-        <p style="font-size: 16px; margin-bottom: 15px;">Fallo al cargar el detalle del ticket ${ticketId}. Puede que no exista o haya un problema con el servidor.</p>
+        <p style="font-size: 16px; margin-bottom: 15px;">Fallo al cargar el detalle del ticket ${safeTicketId}. Puede que no exista o haya un problema con el servidor.</p>
         <a href="#tickets" class="btn btn-secondary">Regresar a tickets</a>
       </div>`;
     }
