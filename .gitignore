@@ -70,3 +70,6 @@ fix-noexport-async.cjs
 .wwebjs_auth/
 
 exports/*.xlsx
+
+# Variables de entorno de docker-compose (env_file) — contiene secretos
+/env

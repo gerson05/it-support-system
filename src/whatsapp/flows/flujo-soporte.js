@@ -6,9 +6,22 @@ import { searchFaqsAll }  from '../../knowledge/faq-service.js';
 import { appEvents }      from '../../events/broadcaster.js';
 
 const SOPORTE_STEPS = new Set([
-  'menu_area', 'menu_area_simple', 'ask_ticket_name',
+  'menu_area', 'menu_area_simple', 'ask_ticket_name', 'ask_ticket_cedula', 'ask_ticket_cargo', 'ask_ticket_equipo',
   'awaiting_description', 'ask_resolved', 'confirm_dup_ticket', 'create_ticket',
 ]);
+
+/** Datos del solicitante acumulados en el contexto, para guardarlos en el ticket. */
+function datosSolicitante(ctx) {
+  return {
+    requesterName:   ctx.requester_name,
+    cedula:          ctx.cedula          || null,
+    cargo:           ctx.cargo           || null,
+    sede:            ctx.sede            || null,
+    ciudad:          ctx.ciudad          || null,
+    equipmentName:   ctx.equipment_name  || null,
+    equipmentSerial: ctx.equipment_serial || null,
+  };
+}
 
 export async function handleSoporte(step, { text, cleanText, session, phone, db, chatId, media }) {
   if (!SOPORTE_STEPS.has(step)) return null;
@@ -20,7 +33,7 @@ export async function handleSoporte(step, { text, cleanText, session, phone, db,
   if (step === 'menu_area') {
     const a = AREA_MAP_FULL[cleanText];
     if (!a) return `⚠️ Opción no válida. Selecciona tu área (1–7):\n\n*1* Cartera\n*2* Compra\n*3* Gestión Humana\n*4* PQRS\n*5* Contabilidad\n*6* Farmacia\n*7* Cuentas Médicas`;
-    await setStep(db, phone, 'ask_ticket_name', a, '{}');
+    await setStep(db, phone, 'ask_ticket_name', a, JSON.stringify({ ...ctx, area: a }));
     return `👍 Área: *${AREA_NAMES[a]}*\n\n👤 *¿Cuál es tu nombre completo?*`;
   }
 
@@ -28,17 +41,51 @@ export async function handleSoporte(step, { text, cleanText, session, phone, db,
   if (step === 'menu_area_simple') {
     const a = AREA_MAP_SIMPLE[cleanText];
     if (!a) return `⚠️ Opción no válida. Responde con:\n\n*1* — Administrativo\n*2* — Farmacia`;
-    await setStep(db, phone, 'ask_ticket_name', a, '{}');
+    await setStep(db, phone, 'ask_ticket_name', a, JSON.stringify({ ...ctx, area: a }));
     return `👍 Área: *${AREA_NAMES[a]}*\n\n*¿Cuál es tu nombre completo?*`;
   }
 
   /* ── Nombre del solicitante ── */
   if (step === 'ask_ticket_name') {
     ctx.requester_name = text.trim();
+    await setStep(db, phone, 'ask_ticket_cedula', area, JSON.stringify(ctx));
+    return `✅ Gracias, *${ctx.requester_name}*.\n\n🪪 *¿Cuál es tu número de cédula?*`;
+  }
+
+  /* ── Cédula ── */
+  if (step === 'ask_ticket_cedula') {
+    ctx.cedula = text.trim();
+    await setStep(db, phone, 'ask_ticket_cargo', area, JSON.stringify(ctx));
+    return `✅ Cédula: *${ctx.cedula}*\n\n💼 *¿Cuál es tu cargo dentro de la empresa?*`;
+  }
+
+  /* ── Cargo ── */
+  if (step === 'ask_ticket_cargo') {
+    ctx.cargo = text.trim();
+    await setStep(db, phone, 'ask_ticket_equipo', area, JSON.stringify(ctx));
+    return (
+      `✅ Cargo: *${ctx.cargo}*\n\n` +
+      `🖥️ *¿En qué equipo se presenta el problema?*\n\n` +
+      `Si conoces el serial o número de inventario, inclúyelo separado con un guión\n` +
+      `(ej: _"PC HP EliteDesk - serial HP2024001"_).`
+    );
+  }
+
+  /* ── Equipo ── */
+  if (step === 'ask_ticket_equipo') {
+    const serialMatch = text.match(/[—\-–]\s*(?:serial|inv\.?|inventario)?\s*([A-Z0-9\-]+)\s*$/i);
+    if (serialMatch) {
+      ctx.equipment_name   = text.slice(0, text.lastIndexOf(serialMatch[0])).trim();
+      ctx.equipment_serial = serialMatch[1].trim();
+    } else {
+      ctx.equipment_name   = text.trim();
+      ctx.equipment_serial = null;
+    }
     await setStep(db, phone, 'awaiting_description', area, JSON.stringify(ctx));
     const ejemplos = AREA_EXAMPLES[area] || '';
     return (
-      `✅ Gracias, *${ctx.requester_name}*.\n\n` +
+      `✅ Equipo: *${ctx.equipment_name}*` +
+      (ctx.equipment_serial ? `\n✅ Serial: *${ctx.equipment_serial}*` : '') + `\n\n` +
       `📝 *¿Qué problema tienes hoy?*\n\n` +
       (ejemplos ? `Casos frecuentes en tu área:\n${ejemplos}\n\n` : '') +
       `Descríbeme el problema con el mayor detalle posible _(programa, mensaje de error, qué hacías)_.\n\n` +
@@ -77,7 +124,7 @@ export async function handleSoporte(step, { text, cleanText, session, phone, db,
     }
 
     if (aiSolution) {
-      const nextCtx = { description, area, faq_shown_id: faqId };
+      const nextCtx = { ...ctx, description, area, faq_shown_id: faqId };
       if (ctx._imageBase64) { nextCtx._imageBase64 = ctx._imageBase64; nextCtx._imageMimetype = ctx._imageMimetype; }
       await setStep(db, phone, 'ask_resolved', area, JSON.stringify(nextCtx));
       return (
@@ -86,7 +133,7 @@ export async function handleSoporte(step, { text, cleanText, session, phone, db,
         `*1️⃣* ✅ Sí, se solucionó\n*2️⃣* ❌ No, el problema continúa\n*3️⃣* 🔄 Mi problema es diferente`
       );
     }
-    const nextCtx = { description, area };
+    const nextCtx = { ...ctx, description, area };
     if (ctx._imageBase64) { nextCtx._imageBase64 = ctx._imageBase64; nextCtx._imageMimetype = ctx._imageMimetype; }
     await setStep(db, phone, 'create_ticket', area, JSON.stringify(nextCtx));
     return `No encontré solución automática para este caso. 🤔\n\nVoy a crear un *ticket de soporte* directamente.\n¿Tienes algún detalle adicional que agregar?\n\n_(O responde *no* para crear el ticket ahora)_`;
@@ -118,7 +165,7 @@ export async function handleSoporte(step, { text, cleanText, session, phone, db,
       }
       const priority = detectPriority(ctx.description);
       const imageCtx = ctx._imageBase64 ? { base64: ctx._imageBase64, mimetype: ctx._imageMimetype } : null;
-      const { ticket_number } = await crearTicket(db, phone, area, ctx.description || '(sin descripción)', { priority, requesterName: ctx.requester_name, imageCtx, chatId });
+      const { ticket_number } = await crearTicket(db, phone, area, ctx.description || '(sin descripción)', { priority, imageCtx, chatId, ...datosSolicitante(ctx) });
       await setStep(db, phone, 'idle', null, '{}');
       return (
         `😔 Entendido. El equipo de IT tomará el caso directamente.\n\n` +
@@ -129,7 +176,10 @@ export async function handleSoporte(step, { text, cleanText, session, phone, db,
     }
 
     if (cleanText === '3' || /diferente|otro|distint/i.test(cleanText)) {
-      await setStep(db, phone, 'awaiting_description', area, JSON.stringify({ faq_tried: true }));
+      await setStep(db, phone, 'awaiting_description', area, JSON.stringify({
+        ...ctx, description: undefined, faq_shown_id: undefined,
+        _imageBase64: undefined, _imageMimetype: undefined, faq_tried: true,
+      }));
       return `Entendido. 🔄\n\n📝 *Descríbeme tu problema con más detalle:*\n\nIncluye el programa o equipo, el mensaje de error exacto y qué acción realizabas.\n\n📸 También puedes enviar una *captura de pantalla* del error.`;
     }
 
@@ -141,7 +191,7 @@ export async function handleSoporte(step, { text, cleanText, session, phone, db,
     if (cleanText === '1') {
       const priority = detectPriority(ctx.description);
       const imageCtx = ctx._imageBase64 ? { base64: ctx._imageBase64, mimetype: ctx._imageMimetype } : null;
-      const { ticket_number } = await crearTicket(db, phone, area, ctx.description || '(sin descripción)', { priority, requesterName: ctx.requester_name, imageCtx, chatId });
+      const { ticket_number } = await crearTicket(db, phone, area, ctx.description || '(sin descripción)', { priority, imageCtx, chatId, ...datosSolicitante(ctx) });
       await setStep(db, phone, 'idle', null, '{}');
       return `✅ Nuevo ticket creado: *${ticket_number}*\n📍 Área: ${AREA_NAMES[area] || area}\n\nUn técnico se comunicará contigo a la brevedad.`;
     }
@@ -159,10 +209,12 @@ export async function handleSoporte(step, { text, cleanText, session, phone, db,
   }
 
   /* ── Ticket directo (sin IA) ── */
-  const detail   = /^no$/i.test(cleanText) ? (ctx.description || text) : text;
+  const detail   = /^no$/i.test(cleanText)
+    ? (ctx.description || text)
+    : (ctx.description ? `${ctx.description}\n\nDetalle adicional: ${text}` : text);
   const priority = detectPriority(detail);
   const imageCtx = ctx._imageBase64 ? { base64: ctx._imageBase64, mimetype: ctx._imageMimetype } : null;
-  const { ticket_number } = await crearTicket(db, phone, area, detail, { priority, requesterName: ctx.requester_name, imageCtx, chatId });
+  const { ticket_number } = await crearTicket(db, phone, area, detail, { priority, imageCtx, chatId, ...datosSolicitante(ctx) });
   await setStep(db, phone, 'idle', null, '{}');
   return `🎟️ *¡Ticket creado exitosamente!*\nNúmero de caso: *${ticket_number}*\n\nEl equipo de IT fue notificado. ¡Gracias por tu paciencia!`;
 }

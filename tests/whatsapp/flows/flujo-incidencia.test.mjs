@@ -3,16 +3,17 @@ import assert from 'node:assert/strict';
 
 const mockSetStep = mock.fn();
 const mockGetCtx  = mock.fn(() => ({}));
+const mockVinculado = mock.fn(async () => ({ id: 7, ticket_number: 'TK-20260928-007' }));
 
 await mock.module('../../../src/whatsapp/chatbot-session.js', {
-  exports: { setStep: mockSetStep, getCtx: mockGetCtx },
+  exports: { setStep: mockSetStep, getCtx: mockGetCtx, crearTicketVinculado: mockVinculado },
 });
 
 await mock.module('../../../src/whatsapp/chatbot-utils.js', {
   exports: { detectPriority: () => 'media' },
 });
 
-const mockCreateTechRequest = mock.fn(() => ({ id: 1, request_number: 'REQ-20260721-001' }));
+const mockCreateTechRequest = mock.fn(async () => ({ id: 1, request_number: 'REQ-20260721-001' }));
 await mock.module('../../../src/tech-requests/tech-request-model.js', {
   exports: { createTechRequest: mockCreateTechRequest },
 });
@@ -34,7 +35,9 @@ function reset() {
   mockCreateTechRequest.mock.resetCalls();
   mockEmit.mock.resetCalls();
   mockGetCtx.mock.mockImplementation(() => ({}));
-  mockCreateTechRequest.mock.mockImplementation(() => ({ id: 1, request_number: 'REQ-001' }));
+  mockCreateTechRequest.mock.mockImplementation(async () => ({ id: 1, request_number: 'REQ-001' }));
+  mockVinculado.mock.resetCalls();
+  mockVinculado.mock.mockImplementation(async () => ({ id: 7, ticket_number: 'TK-20260928-007' }));
 }
 
 function call(step, text, ctx = {}) {
@@ -173,4 +176,34 @@ test('handleIncidencia: inc_desc includes sede in createTechRequest args', async
   await call('inc_desc', 'Fallo', { name: 'A', cedula: '1', cargo: 'B', sede: 'DOSQUEBRADAS', equipment_name: 'PC', equipment_serial: null });
   assert.equal(mockCreateTechRequest.mock.calls[0].arguments[1].sede, 'DOSQUEBRADAS');
   reset();
+});
+
+// ── ticket vinculado ─────────────────────────────────────────────────────────
+
+test('handleIncidencia: inc_desc shows real request number (no undefined)', async () => {
+  reset();
+  const result = await call('inc_desc', 'Se apaga solo', { name: 'Andrés', cedula: '1', cargo: 'Gestor', sede: 'S' });
+  assert.ok(result.includes('REQ-001'));
+  assert.ok(!result.includes('undefined'));
+});
+
+test('handleIncidencia: inc_desc creates linked ticket with requester data', async () => {
+  reset();
+  const ctx = { name: 'Andrés Parra', cedula: '1007172156', cargo: 'Gestor', sede: 'MI FARMACIA - PEREIRA', equipment_name: 'Lenovo thinkbook' };
+  const result = await call('inc_desc', 'Se apaga solo', ctx);
+  assert.equal(mockVinculado.mock.calls.length, 1);
+  const [, , , passedCtx, techRequest, desc] = mockVinculado.mock.calls[0].arguments;
+  assert.equal(passedCtx.cedula, '1007172156');
+  assert.equal(passedCtx.sede, 'MI FARMACIA - PEREIRA');
+  assert.deepEqual(techRequest, { id: 1, request_number: 'REQ-001' });
+  assert.equal(desc, 'Se apaga solo');
+  assert.ok(result.includes('TK-20260928-007'));
+});
+
+test('handleIncidencia: inc_desc still confirms when linked ticket fails', async () => {
+  reset();
+  mockVinculado.mock.mockImplementation(async () => null);
+  const result = await call('inc_desc', 'Se apaga solo', { name: 'A' });
+  assert.ok(result.includes('REQ-001'));
+  assert.ok(!result.includes('Ticket:'));
 });

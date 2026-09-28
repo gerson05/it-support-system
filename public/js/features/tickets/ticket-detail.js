@@ -13,7 +13,17 @@ import { openFaqFromTicket } from '../herramientas/faqs.js';
 import { initAiTab } from './ticket-ai-panel.js';
 import { createEmpleadoSearch } from '../../core/empleado-search.js';
 import { openEmpleadoPerfil } from '../../core/cedula-lookup.js';
+import { escapeHtml } from '../../utils/sanitize.js';
 
+/** Fila de "Detalles del Caso" con un dato capturado por el chatbot; se omite si está vacío. */
+function datoSolicitante(label, value) {
+  if (!value) return '';
+  return `
+                <div class="info-details-item">
+                  <span class="info-details-label">${label}:</span>
+                  <span class="info-details-val" style="white-space:pre-wrap;">${escapeHtml(String(value))}</span>
+                </div>`;
+}
 
 export async function renderTicketDetail(container, ticketId) {
   container.innerHTML = createLoadingSpinner();
@@ -58,7 +68,7 @@ export async function renderTicketDetail(container, ticketId) {
                 ${getPriorityBadge(ticket.priority)}
               </div>
               <p style="color: var(--text-muted); font-size: 14px;">
-                Creado por <strong>${ticket.requester_name || 'Empleado'}</strong>
+                Creado por <strong>${escapeHtml(ticket.requester_name || 'Empleado')}</strong>
               </p>
             </div>
             
@@ -142,7 +152,7 @@ export async function renderTicketDetail(container, ticketId) {
                   <span class="info-details-label">Solicitante:</span>
                   <div style="display:flex;flex-direction:column;gap:6px;flex:1;">
                     <div style="display:flex;align-items:center;gap:8px;">
-                      <span class="info-details-val" id="requester-display">${ticket.requester_name || 'Sin registrar'}</span>
+                      <span class="info-details-val" id="requester-display">${escapeHtml(ticket.requester_name || 'Sin registrar')}</span>
                       <button id="btn-edit-requester" style="background:none;border:none;cursor:pointer;color:var(--text-3);padding:2px 4px;border-radius:4px;font-size:11px;line-height:1;" title="Editar solicitante">✏️</button>
                       <button id="btn-ver-perfil" style="background:none;border:none;cursor:pointer;color:var(--text-3);padding:2px 4px;border-radius:4px;font-size:11px;line-height:1;" title="Ver perfil del empleado">👤</button>
                     </div>
@@ -158,8 +168,13 @@ export async function renderTicketDetail(container, ticketId) {
                 </div>
                 <div class="info-details-item">
                   <span class="info-details-label">WhatsApp/Celular:</span>
-                  <span class="info-details-val">${ticket.phone}</span>
+                  <span class="info-details-val">${escapeHtml(ticket.phone || '')}</span>
                 </div>
+                ${datoSolicitante('Cédula', ticket.cedula)}
+                ${datoSolicitante('Cargo', ticket.cargo)}
+                ${datoSolicitante('Sede', [ticket.sede, ticket.ciudad && !(ticket.sede || '').toUpperCase().includes(ticket.ciudad.toUpperCase()) ? ticket.ciudad : null].filter(Boolean).join(' — '))}
+                ${datoSolicitante('Equipo', [ticket.equipment_name, ticket.equipment_serial ? `serial: ${ticket.equipment_serial}` : null].filter(Boolean).join(' · '))}
+                ${datoSolicitante('Falla', ticket.description)}
                 <div class="info-details-item">
                   <span class="info-details-label">Categoría:</span>
                   <span class="info-details-val" style="text-transform: capitalize;">${ticket.category || 'General'}</span>

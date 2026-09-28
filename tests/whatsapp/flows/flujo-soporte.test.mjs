@@ -114,11 +114,94 @@ test('handleSoporte: menu_area_simple valid "1" → setStep ask_ticket_name', as
 
 // ── ask_ticket_name ──────────────────────────────────────────────────────────
 
-test('handleSoporte: ask_ticket_name → stores name, sets awaiting_description', async () => {
+test('handleSoporte: menu_area keeps sede/ciudad from previous steps in context', async () => {
+  resetAll();
+  mockGetCtx.mock.mockImplementation(() => ({ sede: 'MI FARMACIA - PEREIRA', ciudad: 'PEREIRA' }));
+  await handleSoporte('menu_area', makeCtx({ cleanText: '1' }));
+  const ctx = JSON.parse(mockSetStep.mock.calls[0].arguments[4]);
+  assert.equal(ctx.sede, 'MI FARMACIA - PEREIRA');
+  assert.equal(ctx.ciudad, 'PEREIRA');
+  assert.equal(ctx.area, 'cartera');
+});
+
+test('handleSoporte: ask_ticket_name → stores name, asks cédula', async () => {
   resetAll();
   const result = await handleSoporte('ask_ticket_name', makeCtx({ text: 'Juan Pérez', cleanText: 'Juan Pérez' }));
+  assert.equal(mockSetStep.mock.calls[0].arguments[2], 'ask_ticket_cedula');
+  assert.equal(JSON.parse(mockSetStep.mock.calls[0].arguments[4]).requester_name, 'Juan Pérez');
+  assert.ok(result.includes('cédula'));
+});
+
+test('handleSoporte: ask_ticket_cedula → stores cédula, asks cargo', async () => {
+  resetAll();
+  const result = await handleSoporte('ask_ticket_cedula', makeCtx({ text: '1007172156', cleanText: '1007172156' }));
+  assert.equal(mockSetStep.mock.calls[0].arguments[2], 'ask_ticket_cargo');
+  assert.equal(JSON.parse(mockSetStep.mock.calls[0].arguments[4]).cedula, '1007172156');
+  assert.ok(result.includes('cargo'));
+});
+
+test('handleSoporte: ask_ticket_cargo → stores cargo, asks equipo', async () => {
+  resetAll();
+  const result = await handleSoporte('ask_ticket_cargo', makeCtx({ text: 'Gestor', cleanText: 'Gestor' }));
+  assert.equal(mockSetStep.mock.calls[0].arguments[2], 'ask_ticket_equipo');
+  assert.equal(JSON.parse(mockSetStep.mock.calls[0].arguments[4]).cargo, 'Gestor');
+  assert.ok(result.includes('equipo'));
+});
+
+test('handleSoporte: ask_ticket_equipo → parses serial, sets awaiting_description', async () => {
+  resetAll();
+  const result = await handleSoporte('ask_ticket_equipo', makeCtx({ text: 'PC HP EliteDesk - serial HP2024001' }));
   assert.equal(mockSetStep.mock.calls[0].arguments[2], 'awaiting_description');
+  const ctx = JSON.parse(mockSetStep.mock.calls[0].arguments[4]);
+  assert.equal(ctx.equipment_name, 'PC HP EliteDesk');
+  assert.equal(ctx.equipment_serial, 'HP2024001');
   assert.ok(result.includes('problema'));
+});
+
+test('handleSoporte: ask_ticket_equipo without serial → serial null', async () => {
+  resetAll();
+  await handleSoporte('ask_ticket_equipo', makeCtx({ text: 'Lenovo thinkbook' }));
+  const ctx = JSON.parse(mockSetStep.mock.calls[0].arguments[4]);
+  assert.equal(ctx.equipment_name, 'Lenovo thinkbook');
+  assert.equal(ctx.equipment_serial, null);
+});
+
+test('awaiting_description: keeps requester data in context when AI answers', async () => {
+  resetAll();
+  mockGetAISolution.mock.mockImplementation(async () => 'Reinicia el equipo');
+  mockGetCtx.mock.mockImplementation(() => ({ requester_name: 'Andrés', cedula: '123', sede: 'SEDE X' }));
+  await handleSoporte('awaiting_description', makeCtx({ text: 'no prende', cleanText: 'no prende' }));
+  const ctx = JSON.parse(mockSetStep.mock.calls[0].arguments[4]);
+  assert.equal(ctx.requester_name, 'Andrés');
+  assert.equal(ctx.cedula, '123');
+  assert.equal(ctx.sede, 'SEDE X');
+  assert.equal(ctx.description, 'no prende');
+});
+
+test('create_ticket: passes requester data to crearTicket', async () => {
+  resetAll();
+  mockGetCtx.mock.mockImplementation(() => ({
+    area: 'cartera', description: 'Se apaga solo', requester_name: 'Andrés Parra', cedula: '1007172156',
+    cargo: 'Gestor', sede: 'MI FARMACIA - PEREIRA', ciudad: 'PEREIRA', equipment_name: 'Lenovo thinkbook',
+  }));
+  await handleSoporte('create_ticket', makeCtx({ text: 'no', cleanText: 'no' }));
+  const opts = mockCrearTicket.mock.calls[0].arguments[4];
+  assert.equal(opts.requesterName, 'Andrés Parra');
+  assert.equal(opts.cedula, '1007172156');
+  assert.equal(opts.cargo, 'Gestor');
+  assert.equal(opts.sede, 'MI FARMACIA - PEREIRA');
+  assert.equal(opts.ciudad, 'PEREIRA');
+  assert.equal(opts.equipmentName, 'Lenovo thinkbook');
+  assert.equal(mockCrearTicket.mock.calls[0].arguments[3], 'Se apaga solo');
+});
+
+test('create_ticket: extra detail is appended to original description', async () => {
+  resetAll();
+  mockGetCtx.mock.mockImplementation(() => ({ area: 'cartera', description: 'Se apaga solo' }));
+  await handleSoporte('create_ticket', makeCtx({ text: 'Pasa desde ayer', cleanText: 'Pasa desde ayer' }));
+  const desc = mockCrearTicket.mock.calls[0].arguments[3];
+  assert.ok(desc.includes('Se apaga solo'));
+  assert.ok(desc.includes('Pasa desde ayer'));
 });
 
 // ── awaiting_description ─────────────────────────────────────────────────────
