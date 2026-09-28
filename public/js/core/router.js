@@ -93,12 +93,12 @@ export function router() {
       if (window.lucide) window.lucide.createIcons();
       if (result && typeof result.catch === 'function') {
         result.catch(err => {
-          console.error(`[Router] Error rendering ${hash}:`, err);
-          if (app) app.innerHTML = `<div style="padding:24px;color:red;"><h3>Error rendering ${hash}</h3><pre>${_esc(err.message)}</pre></div>`;
+          console.error('[Router] Error rendering %s:', hash, err);
+          if (app) app.innerHTML = `<div style="padding:24px;color:red;"><h3>Error rendering ${_esc(hash)}</h3><pre>${_esc(err.message)}</pre></div>`;
         });
       }
     } catch (err) {
-      console.error(`[Router] Sync error rendering ${hash}:`, err);
+      console.error('[Router] Sync error rendering %s:', hash, err);
       if (app) app.innerHTML = `<div style="padding:24px;color:red;"><h3>Error</h3><pre>${_esc(err.message)}</pre></div>`;
     }
   }

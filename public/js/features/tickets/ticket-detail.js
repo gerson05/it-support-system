@@ -598,8 +598,9 @@ export async function renderTicketDetail(container, ticketId) {
 
     } catch (err) {
       console.error(err);
+      const safeTicketId = String(ticketId).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
       container.innerHTML = `<div class="card" style="padding: 40px; text-align: center; color: var(--text-muted);">
-        <p style="font-size: 16px; margin-bottom: 15px;">Fallo al cargar el detalle del ticket ${ticketId}. Puede que no exista o haya un problema con el servidor.</p>
+        <p style="font-size: 16px; margin-bottom: 15px;">Fallo al cargar el detalle del ticket ${safeTicketId}. Puede que no exista o haya un problema con el servidor.</p>
         <a href="#tickets" class="btn btn-secondary">Regresar a tickets</a>
       </div>`;
     }
