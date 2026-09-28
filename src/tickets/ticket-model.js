@@ -58,9 +58,7 @@ export async function getAllTickets(db, filters = {}) {
   } = filters;
 
   const safeSearch = typeof search === 'string' ? search.trim() : '';
-  const safeAssignedTo = assigned_to === 'undefined' || assigned_to === 'null' || assigned_to === undefined || assigned_to === null
-    ? ''
-    : assigned_to;
+  const safeAssignedTo = (assigned_to === 'undefined' || assigned_to === undefined) ? '' : assigned_to;
 
   const offset = (page - 1) * limit;
   let query = 'SELECT t.*, a.name as agent_name FROM tickets t LEFT JOIN agents a ON t.assigned_to = a.id WHERE 1=1';
@@ -101,7 +99,7 @@ export async function getAllTickets(db, filters = {}) {
     countParams.push(area);
   }
 
-  if (safeAssignedTo !== undefined && safeAssignedTo !== '' && safeAssignedTo !== 'undefined' && safeAssignedTo !== 'null') {
+  if (safeAssignedTo !== '') {
     if (safeAssignedTo === 'null' || safeAssignedTo === null) {
       query += ' AND t.assigned_to IS NULL';
       countQuery += ' AND t.assigned_to IS NULL';
