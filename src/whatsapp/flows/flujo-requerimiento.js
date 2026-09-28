@@ -1,11 +1,11 @@
-import { setStep, getCtx, crearTicket } from '../chatbot-session.js';
+import { setStep, getCtx, crearTicketVinculado } from '../chatbot-session.js';
 import { detectPriority }               from '../chatbot-utils.js';
 import { createTechRequest }            from '../../tech-requests/tech-request-model.js';
 import { appEvents }                    from '../../events/broadcaster.js';
 
 const REQ_STEPS = new Set(['req_name', 'req_cedula', 'req_cargo', 'req_desc']);
 
-export async function handleRequerimiento(step, { text, session, phone, db }) {
+export async function handleRequerimiento(step, { text, session, phone, db, chatId }) {
   if (!REQ_STEPS.has(step)) return null;
 
   const ctx = getCtx(session);
@@ -38,7 +38,7 @@ export async function handleRequerimiento(step, { text, session, phone, db }) {
   ctx.description = text;
   ctx.quantity    = qtyMatch ? parseInt(qtyMatch[1]) : 1;
 
-  const result = createTechRequest(db, {
+  const result = await createTechRequest(db, {
     type:           'requerimiento',
     requester_name: ctx.name,
     cedula:         ctx.cedula,
@@ -50,11 +50,13 @@ export async function handleRequerimiento(step, { text, session, phone, db }) {
   });
 
   appEvents.emit('tech-request:created', { id: result.id, request_number: result.request_number, type: 'requerimiento' });
+  const ticket = await crearTicketVinculado(db, phone, chatId, ctx, result, text);
   await setStep(db, phone, 'idle', null, '{}');
 
   return (
     `✅ *¡Requerimiento registrado exitosamente!*\n\n` +
-    `📋 *N.º de solicitud:* ${result.request_number}\n\n` +
+    `📋 *N.º de solicitud:* ${result.request_number}\n` +
+    (ticket ? `🎟️ *Ticket:* ${ticket.ticket_number}\n` : '') + `\n` +
     `• 👤 *Nombre:* ${ctx.name}\n` +
     `• 🪪 *Cédula:* ${ctx.cedula}\n` +
     `• 💼 *Cargo:* ${ctx.cargo}\n` +

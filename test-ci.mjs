@@ -82,6 +82,9 @@ async function main() {
     { phone: '573001234567', message: '1' },
     { phone: '573001234567', message: '1' },
     { phone: '573001234567', message: 'Juan Test' },
+    { phone: '573001234567', message: '1007172156' },
+    { phone: '573001234567', message: 'Analista' },
+    { phone: '573001234567', message: 'PC HP EliteDesk - serial HP2024001' },
     { phone: '573001234567', message: 'Software contable no abre' },
     { phone: '573001234567', message: 'no' },
   ];
@@ -95,6 +98,11 @@ async function main() {
 
   const tickets = await get('/api/tickets').catch(e => ({ status: 0, body: { error: e.message } }));
   check('Ticket was created', (tickets.body?.total ?? 0) > 0, `total=${tickets.body?.total}`);
+
+  const created = tickets.body?.tickets?.[0];
+  check('Ticket has requester data',
+    created?.cedula === '1007172156' && created?.cargo === 'Analista' && created?.equipo === 'PC HP EliteDesk' && created?.serial === 'HP2024001',
+    `cedula=${created?.cedula} cargo=${created?.cargo} equipo=${created?.equipo} serial=${created?.serial}`);
 
   server.kill();
   console.log('\n' + (failed ? '✗ Some tests FAILED' : '✓ All tests passed'));

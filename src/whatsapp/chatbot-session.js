@@ -1,6 +1,7 @@
 import { generateTicketTitle } from './gemini-service.js';
 import { appEvents }           from '../events/broadcaster.js';
 import { logAudit }            from '../audit/audit-logger.js';
+import { detectPriority }      from './chatbot-utils.js';
 
 export async function setStep(db, phone, step, area = null, ctx = '{}') {
   await db.prepare(`UPDATE conversations SET current_step=?, area=?, context=? WHERE phone=?`)
@@ -27,7 +28,7 @@ export async function crearTicket(db, phone, area, description, {
   const { lastInsertRowid: ticketId } = await db.prepare(`
     INSERT INTO tickets (ticket_number, phone, chat_id, requester_name, area, description, title, status, priority, cedula, cargo, sede, equipo, serial, metadata)
     VALUES (?, ?, ?, ?, ?, ?, ?, 'abierto', ?, ?, ?, ?, ?, ?, ?)
-  `).run(ticketNumber, phone, chatId || phone, requesterName, area, description, title, priority, cedula, cargo, sede, equipo, serial, metadataJson);
+  `).run(ticketNumber, phone, chatId || phone, requesterName || 'Empleado WhatsApp', area, description, title, priority, cedula, cargo, sede, equipo, serial, metadataJson);
 
   if (imageCtx?.base64) {
     const attachment = JSON.stringify({ type: 'image', mimetype: imageCtx.mimetype || 'image/jpeg', base64: imageCtx.base64 });
@@ -41,4 +42,32 @@ export async function crearTicket(db, phone, area, description, {
   logAudit('Bot WhatsApp', 'Ticket creado', 'ticket', ticketId, ticketNumber, { area, phone });
   appEvents.emit('ticket:created', { id: ticketId, ticket_number: ticketNumber, area, phone });
   return { id: ticketId, ticket_number: ticketNumber };
+}
+
+/**
+ * Crea el ticket que acompaña a una solicitud técnica (incidencia / requerimiento),
+ * para que sus datos aparezcan en la pantalla de Tickets. Si falla, la solicitud
+ * ya quedó registrada: se loguea el error y se devuelve null.
+ */
+export async function crearTicketVinculado(db, phone, chatId, ctx, techRequest, description) {
+  try {
+    return await crearTicket(db, phone, 'general', `[${techRequest.request_number}] ${description}`, {
+      priority:        detectPriority(description),
+      requesterName:   ctx.name,
+      chatId,
+      cedula:   ctx.cedula           || null,
+      cargo:    ctx.cargo            || null,
+      sede:     ctx.sede             || null,
+      equipo:   ctx.equipment_name   || null,
+      serial:   ctx.equipment_serial || null,
+      metadata: {
+        ciudad:          ctx.ciudad || null,
+        tech_request_id: techRequest.id,
+        request_number:  techRequest.request_number,
+      },
+    });
+  } catch (err) {
+    console.error(`[Chatbot] No se pudo crear ticket vinculado a ${techRequest.request_number}:`, err.message);
+    return null;
+  }
 }

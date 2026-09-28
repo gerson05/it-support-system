@@ -13,7 +13,26 @@ import { openFaqFromTicket } from '../herramientas/faqs.js';
 import { initAiTab } from './ticket-ai-panel.js';
 import { createEmpleadoSearch } from '../../core/empleado-search.js';
 import { openEmpleadoPerfil } from '../../core/cedula-lookup.js';
+import { escapeHtml } from '../../utils/sanitize.js';
 
+/**
+ * Fila de "Detalles del Caso" con un dato capturado por el chatbot (escapado).
+ * Sin valor: muestra `placeholder`, o se omite si no se pasa placeholder.
+ */
+function datoSolicitante(label, value, placeholder = null) {
+  if (!value && !placeholder) return '';
+  return `
+                <div class="info-details-item">
+                  <span class="info-details-label">${label}:</span>
+                  <span class="info-details-val" style="white-space:pre-wrap;">${escapeHtml(String(value || placeholder))}</span>
+                </div>`;
+}
+
+/** "SEDE X — CIUDAD", sin repetir la ciudad si ya viene en el nombre de la sede. */
+function sedeConCiudad(sede, ciudad) {
+  if (!ciudad || (sede || '').toUpperCase().includes(String(ciudad).toUpperCase())) return sede;
+  return [sede, ciudad].filter(Boolean).join(' — ');
+}
 
 export async function renderTicketDetail(container, ticketId) {
   container.innerHTML = createLoadingSpinner();
@@ -58,7 +77,7 @@ export async function renderTicketDetail(container, ticketId) {
                 ${getPriorityBadge(ticket.priority)}
               </div>
               <p style="color: var(--text-muted); font-size: 14px;">
-                Creado por <strong>${ticket.requester_name || 'Empleado'}</strong>
+                Creado por <strong>${escapeHtml(ticket.requester_name || 'Empleado')}</strong>
               </p>
             </div>
             
@@ -142,7 +161,7 @@ export async function renderTicketDetail(container, ticketId) {
                   <span class="info-details-label">Solicitante:</span>
                   <div style="display:flex;flex-direction:column;gap:6px;flex:1;">
                     <div style="display:flex;align-items:center;gap:8px;">
-                      <span class="info-details-val" id="requester-display">${ticket.requester_name || 'Sin registrar'}</span>
+                      <span class="info-details-val" id="requester-display">${escapeHtml(ticket.requester_name || 'Sin registrar')}</span>
                       <button id="btn-edit-requester" style="background:none;border:none;cursor:pointer;color:var(--text-3);padding:2px 4px;border-radius:4px;font-size:11px;line-height:1;" title="Editar solicitante">✏️</button>
                       <button id="btn-ver-perfil" style="background:none;border:none;cursor:pointer;color:var(--text-3);padding:2px 4px;border-radius:4px;font-size:11px;line-height:1;" title="Ver perfil del empleado">👤</button>
                     </div>
@@ -158,28 +177,14 @@ export async function renderTicketDetail(container, ticketId) {
                 </div>
                 <div class="info-details-item">
                   <span class="info-details-label">WhatsApp/Celular:</span>
-                  <span class="info-details-val">${ticket.phone}</span>
+                  <span class="info-details-val">${escapeHtml(ticket.phone || '')}</span>
                 </div>
-                <div class="info-details-item">
-                  <span class="info-details-label">Cédula:</span>
-                  <span class="info-details-val">${ticket.cedula || ticket.metadata?.cedula || 'No registrada'}</span>
-                </div>
-                <div class="info-details-item">
-                  <span class="info-details-label">Cargo:</span>
-                  <span class="info-details-val">${ticket.cargo || ticket.metadata?.cargo || 'No registrado'}</span>
-                </div>
-                <div class="info-details-item">
-                  <span class="info-details-label">Sede:</span>
-                  <span class="info-details-val">${ticket.sede || ticket.metadata?.sede || 'No registrada'}</span>
-                </div>
-                <div class="info-details-item">
-                  <span class="info-details-label">Equipo:</span>
-                  <span class="info-details-val">${ticket.equipo || ticket.metadata?.equipo || ticket.metadata?.equipment_name || 'No registrado'}</span>
-                </div>
-                <div class="info-details-item">
-                  <span class="info-details-label">Serial:</span>
-                  <span class="info-details-val">${ticket.serial || ticket.metadata?.serial || ticket.metadata?.equipment_serial || 'No registrado'}</span>
-                </div>
+                ${datoSolicitante('Cédula', ticket.cedula || ticket.metadata?.cedula, 'No registrada')}
+                ${datoSolicitante('Cargo', ticket.cargo || ticket.metadata?.cargo, 'No registrado')}
+                ${datoSolicitante('Sede', sedeConCiudad(ticket.sede || ticket.metadata?.sede, ticket.metadata?.ciudad), 'No registrada')}
+                ${datoSolicitante('Equipo', ticket.equipo || ticket.metadata?.equipo || ticket.metadata?.equipment_name, 'No registrado')}
+                ${datoSolicitante('Serial', ticket.serial || ticket.metadata?.serial || ticket.metadata?.equipment_serial, 'No registrado')}
+                ${datoSolicitante('Falla', ticket.description)}
                 <div class="info-details-item">
                   <span class="info-details-label">Categoría:</span>
                   <span class="info-details-val" style="text-transform: capitalize;">${ticket.category || 'General'}</span>

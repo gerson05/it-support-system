@@ -3,16 +3,17 @@ import assert from 'node:assert/strict';
 
 const mockSetStep = mock.fn();
 const mockGetCtx  = mock.fn(() => ({}));
+const mockVinculado = mock.fn(async () => ({ id: 8, ticket_number: 'TK-20260928-008' }));
 
 await mock.module('../../../src/whatsapp/chatbot-session.js', {
-  exports: { setStep: mockSetStep, getCtx: mockGetCtx, crearTicket: mock.fn() },
+  exports: { setStep: mockSetStep, getCtx: mockGetCtx, crearTicketVinculado: mockVinculado },
 });
 
 await mock.module('../../../src/whatsapp/chatbot-utils.js', {
   exports: { detectPriority: () => 'media' },
 });
 
-const mockCreateTechRequest = mock.fn(() => ({ id: 1, request_number: 'REQ-001' }));
+const mockCreateTechRequest = mock.fn(async () => ({ id: 1, request_number: 'REQ-001' }));
 await mock.module('../../../src/tech-requests/tech-request-model.js', {
   exports: { createTechRequest: mockCreateTechRequest },
 });
@@ -34,7 +35,9 @@ function reset() {
   mockCreateTechRequest.mock.resetCalls();
   mockEmit.mock.resetCalls();
   mockGetCtx.mock.mockImplementation(() => ({}));
-  mockCreateTechRequest.mock.mockImplementation(() => ({ id: 1, request_number: 'REQ-001' }));
+  mockCreateTechRequest.mock.mockImplementation(async () => ({ id: 1, request_number: 'REQ-001' }));
+  mockVinculado.mock.resetCalls();
+  mockVinculado.mock.mockImplementation(async () => ({ id: 8, ticket_number: 'TK-20260928-008' }));
 }
 
 function call(step, text, ctx = {}) {
@@ -112,7 +115,7 @@ test('handleRequerimiento: req_desc emits tech-request:created event', async () 
 
 test('handleRequerimiento: req_desc response includes request number', async () => {
   reset();
-  mockCreateTechRequest.mock.mockImplementation(() => ({ id: 5, request_number: 'REQ-20260721-005' }));
+  mockCreateTechRequest.mock.mockImplementation(async () => ({ id: 5, request_number: 'REQ-20260721-005' }));
   const result = await call('req_desc', '1 teclado', { name: 'M', cedula: '1', cargo: 'G', sede: 'C' });
   assert.ok(result.includes('REQ-20260721-005'));
   reset();
@@ -144,4 +147,13 @@ test('handleRequerimiento: req_desc passes type=requerimiento to createTechReque
   await call('req_desc', 'materiales', { name: 'A', cedula: '1', cargo: 'B', sede: 'C' });
   assert.equal(mockCreateTechRequest.mock.calls[0].arguments[1].type, 'requerimiento');
   reset();
+});
+
+test('handleRequerimiento: req_desc creates linked ticket and shows its number', async () => {
+  reset();
+  const result = await call('req_desc', '2 mouses', { name: 'Ana', cedula: '9', cargo: 'Aux', sede: 'SEDE X' });
+  assert.equal(mockVinculado.mock.calls.length, 1);
+  assert.equal(mockVinculado.mock.calls[0].arguments[3].sede, 'SEDE X');
+  assert.ok(result.includes('TK-20260928-008'));
+  assert.ok(!result.includes('undefined'));
 });
