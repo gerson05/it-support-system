@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.8.1](https://github.com/gerson05/it-support-system/compare/v1.8.0...v1.8.1) (2026-09-29)
+
+
+### Bug Fixes
+
+* **docker:** pin watchtower Docker API version to 1.44 ([dae6752](https://github.com/gerson05/it-support-system/commit/dae67528e23fb1dd88510f2182131e36554e58a5))
+* **docker:** watchtower no actualizaba producción (API de Docker) ([96cc7bf](https://github.com/gerson05/it-support-system/commit/96cc7bfe69f49d21035a79adc615b86422e16d87))
+* **whatsapp:** guardar el número real del celular (no el LID) ([89fe9ab](https://github.com/gerson05/it-support-system/commit/89fe9abf43a6662a4f9699ea1102dfc4931bcba4))
+* **whatsapp:** save real phone number instead of LID ([d67db4b](https://github.com/gerson05/it-support-system/commit/d67db4b4010da77345948801f94ffa920415d104))
+
 ## [1.8.0](https://github.com/gerson05/it-support-system/compare/v1.7.0...v1.8.0) (2026-09-28)
 
 
