@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   # ── Aplicación principal ──────────────────────────────
   it-support:
@@ -153,6 +151,8 @@ services:
       WATCHTOWER_CLEANUP: "true"
       WATCHTOWER_INCLUDE_STOPPED: "false"
       WATCHTOWER_SCOPE: it-tickets
+      # Docker 25+ rechaza la API 1.25 que usa watchtower por defecto
+      DOCKER_API_VERSION: "1.44"
 
     command: it-support-system
 
