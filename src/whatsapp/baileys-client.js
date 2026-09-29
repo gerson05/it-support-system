@@ -12,6 +12,7 @@ import fs from 'fs';
 
 import { fileURLToPath } from 'url';
 import Chatbot from './chatbot.js';
+import { resolvePhone } from './resolve-phone.js';
 import db from '../config/database.js';
 import { broadcast } from '../events/broadcaster.js';
 
@@ -190,17 +191,10 @@ class WhatsAppClient {
       if (msg.fromMe) return;
 
       // En WhatsApp multi-device msg.from puede ser LID ("237...@lid").
-      // Usamos msg.from como chatId para responder siempre correctamente.
-      // Para el número de teléfono intentamos getContact() con timeout de 2s.
+      // Usamos msg.from como chatId para responder siempre correctamente,
+      // y resolvePhone traduce el LID al número real para guardarlo.
       const chatId = msg.from;
-      let phone = chatId.split('@')[0].split(':')[0].replace(/\D/g, '') || chatId;
-      try {
-        const contact = await Promise.race([
-          msg.getContact(),
-          new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 2000)),
-        ]);
-        if (contact?.number) phone = contact.number;
-      } catch {}
+      const phone  = await resolvePhone(this.client, msg);
       console.log(`[WhatsApp] chatId="${chatId}" phone="${phone}"`);
 
       // ── Imagen recibida → pasar a chatbot para análisis con Gemini Vision ──
