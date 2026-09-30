@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.9.0](https://github.com/gerson05/it-support-system/compare/v1.8.1...v1.9.0) (2026-09-30)
+
+
+### Features
+
+* **tickets:** delete ticket with typed double confirmation ([86e95db](https://github.com/gerson05/it-support-system/commit/86e95db9a18f0ba3332ab0bb5664e590932c9258))
+* **tickets:** eliminar tickets con doble confirmación ([6fe346b](https://github.com/gerson05/it-support-system/commit/6fe346b230bd144e83b9444df082f24954aada74))
+
+
+### Bug Fixes
+
+* **deps:** patch HIGH vulnerabilities flagged by Trivy ([72bfe7b](https://github.com/gerson05/it-support-system/commit/72bfe7bdd26ecbed06178251caa75ad3735531f9))
+* **docker:** drop watchtower registry config mount ([7b944c2](https://github.com/gerson05/it-support-system/commit/7b944c20f465dfa4f362c38eef731b12fda8d0d6))
+* **docker:** watchtower no podía actualizar (config.json) ([d84df48](https://github.com/gerson05/it-support-system/commit/d84df48445bf5c279d8004feaa2d154f0525a2c9))
+
 ## [1.8.1](https://github.com/gerson05/it-support-system/compare/v1.8.0...v1.8.1) (2026-09-29)
 
 
