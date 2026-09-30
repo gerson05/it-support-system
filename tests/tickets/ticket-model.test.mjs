@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  getAllTickets, getTicketById, updateTicket, addMessage, addInternalNote,
+  getAllTickets, getTicketById, updateTicket, addMessage, addInternalNote, deleteTicket,
 } from '../../src/tickets/ticket-model.js';
 
 // ── Mock DB factory ───────────────────────────────────────────────────────────
@@ -306,4 +306,34 @@ test('addMessage: db error propagates', async () => {
 test('addInternalNote: db error propagates', async () => {
   const db = { prepare: () => ({ run: async () => { throw new Error('DB fail'); } }) };
   await assert.rejects(async () => { await addInternalNote(db, 1, 1, 'Admin', 'note'); }, /DB fail/);
+});
+
+// ── deleteTicket ──────────────────────────────────────────────────────────────
+
+test('deleteTicket: returns null and deletes nothing when ticket does not exist', async () => {
+  const db = makeMockDb();
+  assert.equal(await deleteTicket(db, 99), null);
+  assert.equal(db._calls.filter(c => c.op === 'run').length, 0);
+});
+
+test('deleteTicket: unlinks despachos, removes children, then the ticket', async () => {
+  const row = { id: 5, ticket_number: 'TK-005' };
+  const db = makeMockDb({ get: async (sql) => sql.includes('FROM tickets') ? row : null });
+  assert.deepEqual(await deleteTicket(db, 5), row);
+
+  const runs = db._calls.filter(c => c.op === 'run').map(c => c.sql.replace(/\s+/g, ' ').trim());
+  assert.deepEqual(runs, [
+    'UPDATE despachos SET ticket_id = NULL WHERE ticket_id = ?',
+    'UPDATE despacho_borradores SET ticket_id = NULL WHERE ticket_id = ?',
+    'DELETE FROM ai_ticket_analysis WHERE ticket_id = ?',
+    'DELETE FROM internal_notes WHERE ticket_id = ?',
+    'DELETE FROM messages WHERE ticket_id = ?',
+    'DELETE FROM tickets WHERE id = ?',
+  ]);
+  assert.ok(db._calls.filter(c => c.op === 'run').every(c => c.args[0] === 5));
+});
+
+test('deleteTicket: db error propagates', async () => {
+  const db = makeMockDb({ get: async () => { throw new Error('DB fail'); } });
+  await assert.rejects(() => deleteTicket(db, 1), /DB fail/);
 });

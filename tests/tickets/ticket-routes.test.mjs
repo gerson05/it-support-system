@@ -14,6 +14,10 @@ let _tsGetById   = (id) => id === 1 ? { id: 1, area: 'farmacia', ticket_number: 
 let _tsUpdate    = () => true;
 let _tsAddMessage = () => true;
 let _tsAddNote   = () => true;
+let _tsDelete    = () => null;
+const _audit = [];
+const _events = [];
+const _permNames = [];
 
 await mock.module('../../src/config/database.js', {
   exports: {
@@ -36,6 +40,7 @@ await mock.module('../../src/tickets/ticket-service.js', {
       update:      (...a)    => _tsUpdate(...a),
       addMessage:  (...a)    => _tsAddMessage(...a),
       addNote:     (...a)    => _tsAddNote(...a),
+      delete:      (id)      => _tsDelete(id),
     },
   },
 });
@@ -49,14 +54,14 @@ await mock.module('../../src/whatsapp/messenger.js', {
 
 await mock.module('../../src/events/broadcaster.js', {
   exports: {
-    appEvents:       { emit: () => {} },
+    appEvents:       { emit: (name, data) => _events.push({ name, data }) },
     addSseClient:    () => {},
     removeSseClient: () => {},
   },
 });
 
 await mock.module('../../src/audit/audit-logger.js', {
-  exports: { logAudit: () => {} },
+  exports: { logAudit: (...a) => { _audit.push(a); } },
 });
 
 await mock.module('../../src/auth/auth-middleware.js', {
@@ -66,7 +71,7 @@ await mock.module('../../src/auth/auth-middleware.js', {
       req.permissions = ['tickets:read', 'tickets:edit'];
       next();
     },
-    requirePermission: () => (_req, _res, next) => next(),
+    requirePermission: (name) => { _permNames.push(name); return (_req, _res, next) => next(); },
   },
 });
 
@@ -451,4 +456,41 @@ test('PUT /api/agents/999 – 404 when agent not found (0 changes)', async () =>
   const { status, body } = await req('PUT', '/api/agents/999', { name: 'Nadie' });
   assert.equal(status, 404);
   assert.match(body.error, /no encontrado/i);
+});
+
+// ── DELETE /api/tickets/:id ─────────────────────────────────────────────────
+
+test('DELETE /api/tickets/:id – route requires tickets:delete permission', () => {
+  assert.ok(_permNames.includes('tickets:delete'));
+});
+
+test('DELETE /api/tickets/999 – 404 when ticket not found', async () => {
+  const { status } = await req('DELETE', '/api/tickets/999', { confirm: 'TK-999' });
+  assert.equal(status, 404);
+});
+
+test('DELETE /api/tickets/1 – 400 when confirmation missing or wrong', async () => {
+  let called = false;
+  _tsDelete = () => { called = true; return null; };
+  for (const body of [undefined, {}, { confirm: 'TK-002' }, { confirm: '' }]) {
+    const { status, body: res } = await req('DELETE', '/api/tickets/1', body);
+    assert.equal(status, 400);
+    assert.match(res.error, /confirmación/);
+  }
+  assert.equal(called, false, 'must not delete without matching confirmation');
+});
+
+test('DELETE /api/tickets/1 – 200 deletes, audits and emits event', async () => {
+  _audit.length = 0; _events.length = 0;
+  let deletedId = null;
+  _tsDelete = (id) => { deletedId = id; return { id, ticket_number: 'TK-001', requester_name: 'Ana', phone: '573', area: 'farmacia', status: 'abierto', description: 'x' }; };
+  const { status, body } = await req('DELETE', '/api/tickets/1', { confirm: ' tk-001 ' });
+  assert.equal(status, 200);
+  assert.equal(body.ticket_number, 'TK-001');
+  assert.equal(deletedId, 1);
+  assert.equal(_audit.length, 1);
+  assert.equal(_audit[0][0], 'agent');
+  assert.equal(_audit[0][1], 'Ticket eliminado');
+  assert.equal(_audit[0][4], 'TK-001');
+  assert.deepEqual(_events.find(e => e.name === 'ticket:deleted')?.data, { id: 1, ticket_number: 'TK-001' });
 });

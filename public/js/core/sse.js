@@ -61,6 +61,20 @@ export function startRealTimeUpdates() {
     }
   });
 
+  evtSource.addEventListener('ticket-deleted', (e) => {
+    const data = safeParse(e); if (!data) return;
+    if (window.__deletingTicketId === data.id) { window.__deletingTicketId = null; return; }
+    if (state.currentPage === 'dashboard' || state.currentPage === 'tickets') {
+      setTimeout(router, 400);
+    } else if (state.currentPage === 'ticket-detail') {
+      const currentId = window.location.hash.split('/')[1];
+      if (currentId && parseInt(currentId) === data.id) {
+        showToast(`El ticket ${data.ticket_number} fue eliminado.`, 'info');
+        window.location.hash = '#tickets';
+      }
+    }
+  });
+
   evtSource.addEventListener('tech-request-created', (e) => {
     const data = safeParse(e); if (!data) return;
     playChime([660, 880]);

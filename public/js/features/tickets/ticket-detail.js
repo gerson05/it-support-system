@@ -4,8 +4,10 @@ import {
   getStatusBadge,
   getAreaEmoji,
   getAreaName,
-  state
+  state,
+  can
 } from '../../core/app.js';
+import { openDeleteTicketModal } from './ticket-delete.js';
 import { showToast, createLoadingSpinner } from '../../ui/components.js';
 import { iconChevronLeft, iconAlert, iconSend, iconMessage, iconSparkle } from '../../utils/icons.js';
 import DataService from '../../core/api.js';
@@ -246,6 +248,7 @@ export async function renderTicketDetail(container, ticketId) {
 
                 <button class="btn btn-primary" id="btn-save-actions" style="margin-top: 5px;">Guardar Cambios</button>
                 <button class="btn btn-secondary" id="btn-add-to-faq" title="Convertir este caso en una FAQ reutilizable">Agregar a Base de Conocimiento</button>
+                ${can('tickets:delete') ? `<button class="btn btn-danger" id="btn-delete-ticket" style="margin-top:10px;">Eliminar ticket</button>` : ''}
               </div>
             </div>
 
@@ -570,6 +573,9 @@ export async function renderTicketDetail(container, ticketId) {
         openFaqFromTicket(ticket.description || '', agentMessages);
         showToast('Abriendo editor de FAQ con los datos del ticket...', 'info');
       });
+
+      // === EVENTO: ELIMINAR TICKET (doble confirmación) ===
+      document.getElementById('btn-delete-ticket')?.addEventListener('click', () => openDeleteTicketModal(ticket));
 
       // Exponer switchTab en window para los onclick del HTML
       let _aiTabInitialized = false;

@@ -308,3 +308,27 @@ export async function addInternalNote(db, ticketId, agentId, agentName, content)
     throw error;
   }
 }
+
+/**
+ * Eliminar un ticket definitivamente junto con su conversación, notas y análisis IA.
+ * Los despachos que lo referencian se conservan, solo se desvinculan.
+ * Devuelve la fila del ticket eliminado (para auditoría) o null si no existía.
+ */
+export async function deleteTicket(db, id) {
+  try {
+    const ticket = await db.prepare('SELECT * FROM tickets WHERE id = ?').get(id);
+    if (!ticket) return null;
+
+    await db.prepare('UPDATE despachos SET ticket_id = NULL WHERE ticket_id = ?').run(id);
+    await db.prepare('UPDATE despacho_borradores SET ticket_id = NULL WHERE ticket_id = ?').run(id);
+    await db.prepare('DELETE FROM ai_ticket_analysis WHERE ticket_id = ?').run(id);
+    await db.prepare('DELETE FROM internal_notes WHERE ticket_id = ?').run(id);
+    await db.prepare('DELETE FROM messages WHERE ticket_id = ?').run(id);
+    await db.prepare('DELETE FROM tickets WHERE id = ?').run(id);
+
+    return ticket;
+  } catch (error) {
+    console.error('Error en deleteTicket:', error);
+    throw error;
+  }
+}
