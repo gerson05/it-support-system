@@ -184,6 +184,9 @@ export async function matchCiudad(input, db = null) {
     }
   }
 
+  // Coincidencia exacta ("Cali" → CALI): no preguntar entre CALI NORTE, AIC CALI, CALIMA…
+  if (exact.length) return [...new Set(exact)];
+
   const seen = new Set();
   return [...exact, ...contains, ...partial].filter(c => {
     if (seen.has(c)) return false;

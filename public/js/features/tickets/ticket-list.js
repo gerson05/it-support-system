@@ -174,6 +174,7 @@ export async function renderTicketList(container) {
               <tr>
                 <th>Ticket ID</th>
                 <th>Área</th>
+                <th>Punto de atención</th>
                 <th>Asunto / Solicitante</th>
                 <th>Prioridad</th>
                 <th>Estado</th>

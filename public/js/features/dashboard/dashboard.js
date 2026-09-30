@@ -297,6 +297,7 @@ export async function renderDashboard(container) {
               <tr>
                 <th>ID</th>
                 <th>Área</th>
+                <th>Punto de atención</th>
                 <th>Asunto / Solicitante</th>
                 <th>Prioridad</th>
                 <th>Estado</th>
@@ -441,7 +442,7 @@ export async function renderDashboard(container) {
       /* ── 6. Tickets recientes ── */
       const tbody = document.getElementById('recent-tickets-tbody');
       if (data.recent_tickets.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px 0;">${createEmptyState('Sin tickets recientes.')}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:40px 0;">${createEmptyState('Sin tickets recientes.')}</td></tr>`;
       } else {
         tbody.innerHTML = data.recent_tickets.map(t => createTicketRow(t)).join('');
       }
