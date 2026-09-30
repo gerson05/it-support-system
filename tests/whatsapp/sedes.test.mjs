@@ -111,6 +111,22 @@ test('matchCiudad: uses db when provided', async () => {
   assert.ok(result.includes('CALI'));
 });
 
+test('matchCiudad: exact match returns only that city (no ambiguity prompt)', async () => {
+  const db = {
+    prepare: () => ({ all: async () => ['AIC CALI', 'CALI', 'CALI NORTE', 'CALI SUR', 'CALIMA'].map(ciudad => ({ ciudad })) }),
+  };
+  assert.deepEqual(await matchCiudad('cali', db), ['CALI']);
+  assert.deepEqual(await matchCiudad('  Cali ', db), ['CALI']);
+});
+
+test('matchCiudad: partial input still lists candidates', async () => {
+  const db = {
+    prepare: () => ({ all: async () => ['CALI', 'CALI NORTE', 'CALIMA'].map(ciudad => ({ ciudad })) }),
+  };
+  const result = await matchCiudad('cal', db);
+  assert.ok(result.length > 1);
+});
+
 test('matchCiudad: falls back to static map on db error', async () => {
   const badDb = {
     prepare: () => ({ all: async () => { throw new Error('db fail'); } }),

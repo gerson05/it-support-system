@@ -2,6 +2,7 @@ import { generateTicketTitle } from './gemini-service.js';
 import { appEvents }           from '../events/broadcaster.js';
 import { logAudit }            from '../audit/audit-logger.js';
 import { detectPriority }      from './chatbot-utils.js';
+import { nextTicketNumber }    from '../tickets/ticket-number.js';
 
 export async function setStep(db, phone, step, area = null, ctx = '{}') {
   await db.prepare(`UPDATE conversations SET current_step=?, area=?, context=? WHERE phone=?`)
@@ -16,11 +17,7 @@ export async function crearTicket(db, phone, area, description, {
   priority = 'media', requesterName = 'Empleado WhatsApp', imageCtx = null, chatId = null,
   cedula = null, cargo = null, sede = null, equipo = null, serial = null, metadata = null,
 } = {}) {
-  const dateStr      = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-  const like         = `TK-${dateStr}-%`;
-  const last         = await db.prepare('SELECT ticket_number FROM tickets WHERE ticket_number LIKE ? ORDER BY id DESC LIMIT 1').get(like);
-  const nextNum      = last ? parseInt(last.ticket_number.split('-')[2]) + 1 : 1;
-  const ticketNumber = `TK-${dateStr}-${String(nextNum).padStart(3, '0')}`;
+  const ticketNumber = await nextTicketNumber(db);
 
   const title = await generateTicketTitle(area, description);
   const metadataJson = metadata && typeof metadata === 'object' ? JSON.stringify(metadata) : (metadata ? String(metadata) : null);

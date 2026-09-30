@@ -6,6 +6,7 @@ import {
   getAreaName
 } from '../core/app.js';
 import { iconDocument, iconMonitor, iconAlert, iconCheck, iconZap } from '../utils/icons.js';
+import { escapeHtml } from '../utils/sanitize.js';
 
 /* ── Iconos SVG inline (Lucide) ──────────────────────────────────────── */
 const AREA_ICONS = {
@@ -79,12 +80,16 @@ export function createTicketRow(ticket) {
           ${areaName}
         </span>
       </td>
+      <td style="max-width:180px;font-size:12px;color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"
+          title="${escapeHtml(ticket.sede || '')}">
+        ${ticket.sede ? escapeHtml(ticket.sede) : '<span style="color:var(--text-3);font-style:italic;">Sin punto</span>'}
+      </td>
       <td style="max-width:300px;">
         <div style="font-weight:500;font-size:13px;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text);"
              title="${(ticket.title||'').replace(/"/g,'&quot;')}">${title}</div>
         <div style="font-size:11px;color:var(--text-3);display:flex;align-items:center;gap:5px;">
           <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-          ${ticket.requester_name || 'Sin nombre'} · ${ticket.phone}
+          ${escapeHtml(ticket.requester_name || 'Sin nombre')} · ${escapeHtml(ticket.phone || '')}
         </div>
       </td>
       <td>${getPriorityBadge(ticket.priority)}</td>

@@ -77,10 +77,9 @@ async function main() {
   const flow = [
     { phone: '573001234567', message: 'hola' },
     { phone: '573001234567', message: '1' },
-    { phone: '573001234567', message: 'Cali' },
-    { phone: '573001234567', message: '1' },
-    { phone: '573001234567', message: '1' },
-    { phone: '573001234567', message: '1' },
+    { phone: '573001234567', message: 'Cali' },  // coincidencia exacta: pasa directo a puntos
+    { phone: '573001234567', message: '1' },     // punto de atención
+    { phone: '573001234567', message: '1' },     // área
     { phone: '573001234567', message: 'Juan Test' },
     { phone: '573001234567', message: '1007172156' },
     { phone: '573001234567', message: 'Analista' },
