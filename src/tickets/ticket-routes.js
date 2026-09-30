@@ -9,6 +9,7 @@ import { wrap } from '../utils/async-handler.js';
 
 const canRead  = [requireAuth, requirePermission('tickets:read')];
 const canEdit  = [requireAuth, requirePermission('tickets:edit')];
+const canDelete = [requireAuth, requirePermission('tickets:delete')];
 
 const router = express.Router();
 
@@ -161,6 +162,37 @@ router.post('/api/tickets/:id/send-image', ...canEdit, wrap(async (req, res) => 
 router.get('/api/agents', ...canRead, wrap(async (req, res) => {
   const agents = await db.prepare('SELECT * FROM agents WHERE active = 1').all();
   res.json(agents);
+}));
+
+/**
+ * Eliminación definitiva. Doble confirmación: además del diálogo en el panel,
+ * el body debe traer `confirm` igual al número del ticket (p. ej. "TK-20260929-004").
+ */
+router.delete('/api/tickets/:id', ...canDelete, wrap(async (req, res) => {
+  const ticketId = parseInt(req.params.id);
+  const ticket = await ticketService.getById(ticketId);
+  if (!ticket) return res.status(404).json({ error: 'Ticket no encontrado.' });
+
+  const confirmText = String(req.body?.confirm ?? '').trim().toUpperCase();
+  if (confirmText !== ticket.ticket_number) {
+    return res.status(400).json({ error: 'La confirmación no coincide con el número del ticket.' });
+  }
+
+  const deleted = await ticketService.delete(ticketId);
+  if (!deleted) return res.status(404).json({ error: 'Ticket no encontrado.' });
+
+  await logAudit(req.user?.username || 'IT', 'Ticket eliminado', 'ticket', ticketId, deleted.ticket_number, {
+    requester_name: deleted.requester_name,
+    phone:          deleted.phone,
+    area:           deleted.area,
+    status:         deleted.status,
+    created_at:     deleted.created_at,
+    description:    String(deleted.description || '').slice(0, 500),
+    messages:       ticket.messages?.length ?? 0,
+  });
+  appEvents.emit('ticket:deleted', { id: ticketId, ticket_number: deleted.ticket_number });
+
+  res.json({ success: true, ticket_number: deleted.ticket_number });
 }));
 
 router.put('/api/tickets/:id/requester', ...canEdit, wrap(async (req, res) => {

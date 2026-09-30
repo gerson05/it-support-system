@@ -34,6 +34,7 @@ export async function broadcast(eventName, data) {
 appEvents.on('ticket:created',         (data) => broadcast('ticket-created', data));
 appEvents.on('ticket:updated',         (data) => broadcast('ticket-updated', data));
 appEvents.on('ticket:message',         (data) => broadcast('ticket-message', data));
+appEvents.on('ticket:deleted',         (data) => broadcast('ticket-deleted', data));
 appEvents.on('tech-request:created',   (data) => broadcast('tech-request-created', data));
 appEvents.on('tech-request:updated',   (data) => broadcast('tech-request-updated', data));
 appEvents.on('tracking:evento',        (data) => broadcast('tracking-evento', data));
