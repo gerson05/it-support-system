@@ -2,6 +2,7 @@ import { setStep, getCtx } from '../chatbot-session.js';
 import { nextBusinessDay }  from '../chatbot-utils.js';
 import { appEvents }        from '../../events/broadcaster.js';
 import { generateTicketTitle } from '../gemini-service.js';
+import { nextTicketNumber } from '../../tickets/ticket-number.js';
 
 const OOS_STEPS = new Set(['oos_name', 'oos_desc']);
 
@@ -22,10 +23,7 @@ export async function handleOOS(step, { text, session, phone, db }) {
   // oos_desc — crea ticket y cierra
   const ctx      = getCtx(session);
   const title    = await generateTicketTitle('general', text);
-  const dateStr  = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-  const last     = await db.prepare(`SELECT ticket_number FROM tickets WHERE ticket_number LIKE ? ORDER BY id DESC LIMIT 1`).get(`TK-${dateStr}-%`);
-  const nextNum  = last ? parseInt(last.ticket_number.split('-')[2]) + 1 : 1;
-  const ticketNumber = `TK-${dateStr}-${String(nextNum).padStart(3, '0')}`;
+  const ticketNumber = await nextTicketNumber(db);
 
   const { lastInsertRowid: ticketId } = await db.prepare(`
     INSERT INTO tickets (ticket_number, phone, requester_name, area, description, title, status, priority)

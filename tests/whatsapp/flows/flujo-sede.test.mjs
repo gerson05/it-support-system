@@ -188,6 +188,13 @@ test('handleSede: ask_punto valid index sets step', async () => {
   reset();
 });
 
+test('handleSede: ask_punto confirms the punto only once', async () => {
+  const ctx = { flowType: '1', punto_options: ['MEDIVALLE - SEDE PRINCIPAL', 'MI FARMACIA - CALI NORTE'] };
+  const result = await handleSede('ask_punto', makeArgs('ask_punto', '1', '1', ctx));
+  assert.equal(result.split('Punto:').length - 1, 1);
+  reset();
+});
+
 test('handleSede: ask_ciudad_confirm single punto routes directly without asking punto', async () => {
   mockGetPuntosCiudad.mock.mockImplementation(() => ['MI FARMACIA - MANIZALES']);
   const result = await handleSede('ask_ciudad_confirm', makeArgs('ask_ciudad_confirm', '1', '1', {
