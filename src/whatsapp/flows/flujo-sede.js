@@ -138,5 +138,6 @@ export async function handleSede(step, { text, cleanText, session, phone, db }) 
   delete ctx.punto_options;
   const { step: ns, msg } = routeAfterSede(ctx.flowType, displaySede(ctx.sede), ctx.sede);
   await setStep(db, phone, ns, null, JSON.stringify(ctx));
-  return `✅ Punto: *${displaySede(ctx.sede)}*\n\n` + msg;
+  // routeAfterSede ya incluye la línea "✅ Punto: …"
+  return msg;
 }
