@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.10.0](https://github.com/gerson05/it-support-system/compare/v1.9.0...v1.10.0) (2026-09-30)
+
+
+### Features
+
+* **tickets:** columna Punto de atención + ajustes del chatbot ([8f5cb32](https://github.com/gerson05/it-support-system/commit/8f5cb321ba714207685e914869d45a66240ea87d))
+* **tickets:** show punto de atención column; chatbot exact city match ([044c340](https://github.com/gerson05/it-support-system/commit/044c340ac0a3c427a539423f890a2f9e3dbf348e))
+
+
+### Bug Fixes
+
+* **chatbot:** single punto confirmation and never reuse deleted ticket numbers ([ebfe113](https://github.com/gerson05/it-support-system/commit/ebfe1130e303ce1da9b393f8069156999cc55a0b))
+
 ## [1.9.0](https://github.com/gerson05/it-support-system/compare/v1.8.1...v1.9.0) (2026-09-30)
 
 
