@@ -32,6 +32,7 @@ import aiRouter from './src/ai/ai-routes.js';
 import reqRouter from './src/requerimientos/req-routes.js';
 import reunionesRouter from './src/reuniones/reuniones-routes.js';
 import employeesRouter from './src/employees/employees-routes.js';
+import mantisRouter from './src/mantis/mantis-routes.js';
 import wpConfigRouter from './src/config/wp-config-routes.js';
 import erpRouter from './src/erp/erp-routes.js';
 import { initAdminUser } from './src/auth/auth-service.js';
@@ -84,6 +85,7 @@ app.use(aiRouter);
 app.use(reqRouter);
 app.use(reunionesRouter);
 app.use(employeesRouter);
+app.use(mantisRouter);
 app.use(wpConfigRouter);
 app.use(erpRouter);
 

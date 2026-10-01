@@ -50,16 +50,33 @@ let _modelPending   = 0;
 let _modelCreateErr = null;
 let _modelUpdateErr = null;
 let _modelDeleteErr = null;
+let _lastCreateData = null;
+let _mantisResults  = [];
+let _mantisConfigured = false;
+let _mantisCreateErr  = null;
+
+await mock.module('../../src/mantis/mantis-client.js', {
+  exports: {
+    buildMantisPayload: (emp) => ({ usuario: emp.usuario }),
+    isMantisConfigured: () => _mantisConfigured,
+    createUser: async () => { if (_mantisCreateErr) throw _mantisCreateErr; return { ok: true }; },
+  },
+});
 
 await mock.module('../../src/employees/employees-model.js', {
   exports: {
     getAllEmployees:  () => _modelEmployees,
     getEmployeeById: (_id) => _modelEmployee,
-    createEmployee:  (_data) => {
+    createEmployee:  (data) => {
       if (_modelCreateErr) throw _modelCreateErr;
-      return _modelCreateId;
+      _lastCreateData = data;
+      _modelEmployee ??= { id: _modelCreateId, nombre_completo: data.nombre_completo, cargo: data.cargo || 'PERFIL', area: data.area || 'SEDE' };
+      return { id: _modelCreateId, ...(data.perfil_codigo ? { usuario: 'GGOSORIO', contraseña: '4821' } : {}) };
     },
     completeEmployee: (_id, _fecha, _userId) => ({ usuario: 'UTEST', contraseña: '1234' }),
+    setMantisResult:  (id, result) => { _mantisResults.push({ id, ...result }); },
+    suggestUsername:  (nombre) => `SUG-${nombre}`,
+    suggestPassword:  () => '0042',
     updateEmployee:   (_id, _data, _userId) => {
       if (_modelUpdateErr) throw _modelUpdateErr;
     },
@@ -130,7 +147,15 @@ function reset() {
   _modelCreateErr = null;
   _modelUpdateErr = null;
   _modelDeleteErr = null;
+  _lastCreateData = null;
+  _mantisResults  = [];
+  _mantisConfigured = false;
+  _mantisCreateErr  = null;
 }
+
+const post = (path, body) => fetch(`${BASE}${path}`, {
+  method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body ?? {}),
+});
 
 // ── Tests ────────────────────────────────────────────────────────────────────
 
@@ -377,4 +402,105 @@ test('GET /api/employees-data/areas returns areas list', async () => {
   const body = await res.json();
   assert.equal(body.length, 1);
   assert.equal(body[0].nombre, 'Oficina Norte');
+});
+
+// ── Flujo Mantis ─────────────────────────────────────────────────────────────
+
+test('GET /api/employees/sugerir-usuario returns suggestion', async () => {
+  reset();
+  const body = await (await fetch(`${BASE}/api/employees/sugerir-usuario?nombre=${encodeURIComponent('Gladys Garcia Osorio')}`)).json();
+  assert.equal(body.usuario, 'SUG-Gladys Garcia Osorio');
+});
+
+test('GET /api/employees/sugerir-usuario empty name → empty usuario', async () => {
+  reset();
+  const body = await (await fetch(`${BASE}/api/employees/sugerir-usuario`)).json();
+  assert.equal(body.usuario, '');
+});
+
+test('GET /api/employees/sugerir-clave returns 4 digits', async () => {
+  reset();
+  const body = await (await fetch(`${BASE}/api/employees/sugerir-clave`)).json();
+  assert.equal(body.clave, '0042');
+});
+
+test('GET /api/employees/mantis-status reports configuration', async () => {
+  reset();
+  _mantisConfigured = true;
+  const body = await (await fetch(`${BASE}/api/employees/mantis-status`)).json();
+  assert.equal(body.configured, true);
+});
+
+test('POST /api/employees (Mantis) requires sede', async () => {
+  reset();
+  const res = await post('/api/employees', { cedula: '12345678', nombre_completo: 'Gladys Garcia Osorio', perfil_codigo: 10 });
+  assert.equal(res.status, 400);
+  assert.match((await res.json()).error, /sede/i);
+});
+
+test('POST /api/employees (Mantis) creates without cargo/area and returns credentials', async () => {
+  reset();
+  const res = await post('/api/employees', {
+    cedula: '12345678', nombre_completo: 'Gladys Garcia Osorio', perfil_codigo: 10, bodega_codigo: 581, comprobante: 'PAS',
+  });
+  assert.equal(res.status, 201);
+  const body = await res.json();
+  assert.equal(body.usuario, 'GGOSORIO');
+  assert.equal(body.contraseña, '4821');
+  assert.ok(body.empleado);
+  assert.equal(_lastCreateData.perfil_codigo, 10);
+  assert.equal(_lastCreateData.bodega_codigo, 581);
+  assert.equal(_lastCreateData.comprobante, 'PAS');
+});
+
+test('POST /api/employees maps model validation errors to 400/409', async () => {
+  reset();
+  _modelCreateErr = Object.assign(new Error('El usuario GGOSORIO ya existe.'), { code: 'USERNAME_TAKEN' });
+  let res = await post('/api/employees', { cedula: '12345678', nombre_completo: 'Gladys Garcia Osorio', perfil_codigo: 10, bodega_codigo: 581 });
+  assert.equal(res.status, 409);
+  assert.match((await res.json()).error, /ya existe/);
+
+  _modelCreateErr = Object.assign(new Error('Selecciona un cargo de la lista.'), { code: 'BAD_PERFIL' });
+  res = await post('/api/employees', { cedula: '12345678', nombre_completo: 'Gladys Garcia Osorio', perfil_codigo: 99, bodega_codigo: 581 });
+  assert.equal(res.status, 400);
+});
+
+test('POST /api/employees unexpected model error → 500', async () => {
+  reset();
+  _modelCreateErr = new Error('db down');
+  const res = await post('/api/employees', { cedula: '12345678', nombre_completo: 'Ana Gomez', cargo: 'Aux', area: 'TI' });
+  assert.equal(res.status, 500);
+});
+
+test('PUT /api/employees/:id maps validation error', async () => {
+  reset();
+  _modelEmployee = { id: 5, nombre_completo: 'Carlos', mantis_estado: 'pendiente' };
+  _modelUpdateErr = Object.assign(new Error('La clave debe tener exactamente 4 dígitos.'), { code: 'BAD_PASSWORD' });
+  const res = await fetch(`${BASE}/api/employees/5`, {
+    method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contraseña: '12' }),
+  });
+  assert.equal(res.status, 400);
+});
+
+test('POST /api/employees/:id/mantis → 404 / 400 / 501 / 502 / 200', async () => {
+  reset();
+  assert.equal((await post('/api/employees/9/mantis')).status, 404);
+
+  _modelEmployee = { id: 9, usuario: 'X' };
+  assert.equal((await post('/api/employees/9/mantis')).status, 400);
+
+  _modelEmployee = { id: 9, usuario: 'GGOSORIO', mantis_estado: 'pendiente' };
+  _mantisCreateErr = Object.assign(new Error('no configurado'), { code: 'MANTIS_NOT_CONFIGURED' });
+  assert.equal((await post('/api/employees/9/mantis')).status, 501);
+  assert.equal(_mantisResults.length, 0);
+
+  _mantisCreateErr = Object.assign(new Error('perfil inválido'), { code: 'X' });
+  const r502 = await post('/api/employees/9/mantis');
+  assert.equal(r502.status, 502);
+  assert.deepEqual(_mantisResults.at(-1), { id: 9, ok: false, error: 'perfil inválido' });
+
+  _mantisCreateErr = null;
+  const ok = await post('/api/employees/9/mantis');
+  assert.equal(ok.status, 200);
+  assert.deepEqual(_mantisResults.at(-1), { id: 9, ok: true });
 });

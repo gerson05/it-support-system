@@ -37,6 +37,7 @@ import { migrations as m032 } from './migrations/032-tipos-articulo-dedup-mariad
 import { migrations as m033 } from './migrations/033-inventario-cedula.js';
 import { migrations as m034 } from './migrations/034-inventario-modelo.js';
 import { migrations as m035 } from './migrations/035-whatsapp-ticket-metadata.js';
+import { migrations as m036 } from './migrations/036-mantis-catalogos.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);
@@ -168,7 +169,7 @@ if (useMariaDB) {
   const allMigrations = [
     ...m001, ...m002, ...m003, ...m004, ...m005,
     ...m006, ...m007, ...m008, ...m009, ...m010, ...m011, ...m012, ...m013, ...m014, ...m015, ...m016, ...m017,
-    ...m018, ...m019, ...m020, ...m021, ...m022, ...m023, ...m024, ...m025, ...m026, ...m027, ...m028, ...m029, ...m030, ...m031, ...m032, ...m033, ...m034, ...m035,
+    ...m018, ...m019, ...m020, ...m021, ...m022, ...m023, ...m024, ...m025, ...m026, ...m027, ...m028, ...m029, ...m030, ...m031, ...m032, ...m033, ...m034, ...m035, ...m036,
   ];
   for (const sql of allMigrations) {
     try { await db.exec(sql); } catch { /* column/table already exists */ }
@@ -227,7 +228,7 @@ if (useMariaDB) {
   const allMigrations = [
     ...m001, ...m002, ...m003, ...m004, ...m005,
     ...m006, ...m007, ...m008, ...m009, ...m010, ...m011, ...m012, ...m013, ...m014, ...m015, ...m016, ...m017,
-    ...m018, ...m019, ...m020, ...m021, ...m022, ...m023, ...m024, ...m025, ...m026, ...m027, ...m028, ...m029, ...m030, ...m031, ...m032, ...m033, ...m034, ...m035,
+    ...m018, ...m019, ...m020, ...m021, ...m022, ...m023, ...m024, ...m025, ...m026, ...m027, ...m028, ...m029, ...m030, ...m031, ...m032, ...m033, ...m034, ...m035, ...m036,
   ];
   for (const sql of allMigrations) {
     try { sqlite.exec(sql); } catch { /* column/table already exists */ }
