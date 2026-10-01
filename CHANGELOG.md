@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.11.0](https://github.com/gerson05/it-support-system/compare/v1.10.0...v1.11.0) (2026-10-01)
+
+
+### Features
+
+* **tickets:** more visible requester name; phone without 57 prefix ([b48c820](https://github.com/gerson05/it-support-system/commit/b48c820de2623dd34ceabef9869b46531591aabd))
+* **tickets:** nombre más visible y celular sin indicativo 57 ([72eb934](https://github.com/gerson05/it-support-system/commit/72eb93442f340bb9559c860b466453610891d1f6))
+
 ## [1.10.0](https://github.com/gerson05/it-support-system/compare/v1.9.0...v1.10.0) (2026-09-30)
 
 
