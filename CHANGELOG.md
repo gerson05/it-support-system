@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.12.0](https://github.com/gerson05/it-support-system/compare/v1.11.0...v1.12.0) (2026-10-01)
+
+
+### Features
+
+* **empleados:** crear usuarios para Mantis (perfil, sede, comprobante) ([552239f](https://github.com/gerson05/it-support-system/commit/552239ff8489babc8335ce6822fc9accbc2bfade))
+* **employees:** create users for Mantis with profile, sede and comprobante ([b03bdd9](https://github.com/gerson05/it-support-system/commit/b03bdd9cfe997463bc51c87618f427a930bc7253))
+
+
+### Bug Fixes
+
+* **deps:** override basic-ftp to 6.2.1 (CVE-2026-102990) ([b4af77b](https://github.com/gerson05/it-support-system/commit/b4af77b45be182ddfbc7e5065e9b27e546756842))
+
 ## [1.11.0](https://github.com/gerson05/it-support-system/compare/v1.10.0...v1.11.0) (2026-10-01)
 
 
