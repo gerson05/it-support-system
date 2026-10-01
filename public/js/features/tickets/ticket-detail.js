@@ -4,6 +4,7 @@ import {
   getStatusBadge,
   getAreaEmoji,
   getAreaName,
+  formatPhone,
   state,
   can
 } from '../../core/app.js';
@@ -179,7 +180,7 @@ export async function renderTicketDetail(container, ticketId) {
                 </div>
                 <div class="info-details-item">
                   <span class="info-details-label">WhatsApp/Celular:</span>
-                  <span class="info-details-val">${escapeHtml(ticket.phone || '')}</span>
+                  <span class="info-details-val">${escapeHtml(formatPhone(ticket.phone))}</span>
                 </div>
                 ${datoSolicitante('Cédula', ticket.cedula || ticket.metadata?.cedula, 'No registrada')}
                 ${datoSolicitante('Cargo', ticket.cargo || ticket.metadata?.cargo, 'No registrado')}

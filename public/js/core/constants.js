@@ -62,6 +62,15 @@ export function formatDate(dateStr) {
   return `${d}/${m}/${y} ${h}:${min}`;
 }
 
+/**
+ * Celular colombiano sin indicativo: "573011758498" → "3011758498".
+ * Cualquier otro valor (IDs internos de WhatsApp, números extranjeros) se deja igual.
+ */
+export function formatPhone(phone) {
+  const s = String(phone || '').trim();
+  return /^57\d{10}$/.test(s) ? s.slice(2) : s;
+}
+
 export function formatTimeAgo(dateStr) {
   if (!dateStr) return 'Hace un momento';
   const date = new Date(dateStr);
