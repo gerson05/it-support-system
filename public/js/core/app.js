@@ -12,7 +12,7 @@ export { state, can }                                       from './state.js';
 export {
   AREA_MAPPINGS, PRIORITY_LABELS, STATUS_LABELS,
   getAreaEmoji, getAreaName, getPriorityBadge, getStatusBadge,
-  formatDate, formatTimeAgo,
+  formatDate, formatTimeAgo, formatPhone,
 }                                                           from './constants.js';
 
 /* ── Inicialización ─────────────────────────────────────────────────── */
