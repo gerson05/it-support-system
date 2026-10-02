@@ -4,7 +4,7 @@ import {
   getAllEmployees, getEmployeeById,
   createEmployee, completeEmployee, updateEmployee, deleteEmployee, setMantisResult,
   getCargos, createCargo, getAreas, getPendingCount,
-  suggestUsername, suggestPassword,
+  suggestUsername, claveDesdeCedula,
 } from './employees-model.js';
 import { buildMantisPayload, createUser as createMantisUser, isMantisConfigured } from '../mantis/mantis-client.js';
 import { appEvents } from '../events/broadcaster.js';
@@ -21,7 +21,6 @@ const canDelete = [requireAuth, requirePermission('employees:delete')];
 /** Errores de validación del modelo → respuesta HTTP. */
 const MODEL_ERRORS = {
   BAD_PERFIL: 400, BAD_BODEGA: 400, NO_COMPROBANTE: 400, BAD_COMPROBANTE: 400,
-  BAD_USERNAME: 400, BAD_PASSWORD: 400, USERNAME_TAKEN: 409, PASSWORD_TAKEN: 409,
   MISSING_FIELDS: 400, CEDULA_EXISTS: 409, NOT_FOUND: 404, FECHA_REQUIRED: 400,
 };
 const MODEL_MESSAGES = {
@@ -51,9 +50,10 @@ router.get('/api/employees/sugerir-usuario', ...canCreate, wrap(async (req, res)
   res.json({ usuario: nombre ? await suggestUsername(nombre) : '' });
 }));
 
-/** Clave aleatoria de 4 dígitos no usada por otro empleado. */
+/** Clave = últimos 4 dígitos de la cédula. */
 router.get('/api/employees/sugerir-clave', ...canCreate, wrap(async (req, res) => {
-  res.json({ clave: await suggestPassword() });
+  const cedula = String(req.query.cedula || '').replace(/\D/g, '');
+  res.json({ clave: cedula ? claveDesdeCedula(cedula) : '' });
 }));
 
 router.get('/api/employees/mantis-status', ...canRead, wrap(async (req, res) => {
@@ -67,7 +67,7 @@ router.get('/api/employees/:id', ...canRead, wrap(async (req, res) => {
 }));
 
 router.post('/api/employees', ...canCreate, wrap(async (req, res) => {
-  const { cedula, nombre_completo, cargo, area, usuario, contraseña, perfil_codigo, bodega_codigo, comprobante } = req.body;
+  const { cedula, nombre_completo, cargo, area, perfil_codigo, bodega_codigo, comprobante } = req.body;
   const mantis = hasValue(perfil_codigo);
 
   if (!cedula || !/^\d{8,12}$/.test(String(cedula).trim())) {
@@ -89,7 +89,7 @@ router.post('/api/employees', ...canCreate, wrap(async (req, res) => {
       nombre_completo: nombre_completo.trim(),
       cargo: cargo?.trim(),
       area: area?.trim(),
-      usuario, contraseña, perfil_codigo, bodega_codigo, comprobante,
+      perfil_codigo, bodega_codigo, comprobante,
       created_by: req.user.id,
     });
     const emp = await getEmployeeById(created.id);
@@ -115,8 +115,8 @@ router.put('/api/employees/:id', ...canEdit, wrap(async (req, res) => {
   if (!await getEmployeeById(id)) return res.status(404).json({ error: 'Empleado no encontrado.' });
 
   const { fecha_respuesta_soporte, nombre_completo, cargo, area,
-    perfil_codigo, bodega_codigo, comprobante, usuario, contraseña } = req.body;
-  const data = { nombre_completo, cargo, area, perfil_codigo, bodega_codigo, comprobante, usuario, contraseña };
+    perfil_codigo, bodega_codigo, comprobante } = req.body;
+  const data = { nombre_completo, cargo, area, perfil_codigo, bodega_codigo, comprobante };
 
   try {
     if (fecha_respuesta_soporte) {

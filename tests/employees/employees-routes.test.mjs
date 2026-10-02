@@ -76,7 +76,7 @@ await mock.module('../../src/employees/employees-model.js', {
     completeEmployee: (_id, _fecha, _userId) => ({ usuario: 'UTEST', contraseña: '1234' }),
     setMantisResult:  (id, result) => { _mantisResults.push({ id, ...result }); },
     suggestUsername:  (nombre) => `SUG-${nombre}`,
-    suggestPassword:  () => '0042',
+    claveDesdeCedula: (c) => String(c).slice(-4),
     updateEmployee:   (_id, _data, _userId) => {
       if (_modelUpdateErr) throw _modelUpdateErr;
     },
@@ -418,10 +418,10 @@ test('GET /api/employees/sugerir-usuario empty name → empty usuario', async ()
   assert.equal(body.usuario, '');
 });
 
-test('GET /api/employees/sugerir-clave returns 4 digits', async () => {
+test('GET /api/employees/sugerir-clave uses the cédula', async () => {
   reset();
-  const body = await (await fetch(`${BASE}/api/employees/sugerir-clave`)).json();
-  assert.equal(body.clave, '0042');
+  assert.equal((await (await fetch(`${BASE}/api/employees/sugerir-clave?cedula=1.130.658.563`)).json()).clave, '8563');
+  assert.equal((await (await fetch(`${BASE}/api/employees/sugerir-clave`)).json()).clave, '');
 });
 
 test('GET /api/employees/mantis-status reports configuration', async () => {
@@ -455,10 +455,9 @@ test('POST /api/employees (Mantis) creates without cargo/area and returns creden
 
 test('POST /api/employees maps model validation errors to 400/409', async () => {
   reset();
-  _modelCreateErr = Object.assign(new Error('El usuario GGOSORIO ya existe.'), { code: 'USERNAME_TAKEN' });
+  _modelCreateErr = Object.assign(new Error('Cédula ya registrada'), { code: 'CEDULA_EXISTS' });
   let res = await post('/api/employees', { cedula: '12345678', nombre_completo: 'Gladys Garcia Osorio', perfil_codigo: 10, bodega_codigo: 581 });
   assert.equal(res.status, 409);
-  assert.match((await res.json()).error, /ya existe/);
 
   _modelCreateErr = Object.assign(new Error('Selecciona un cargo de la lista.'), { code: 'BAD_PERFIL' });
   res = await post('/api/employees', { cedula: '12345678', nombre_completo: 'Gladys Garcia Osorio', perfil_codigo: 99, bodega_codigo: 581 });
@@ -475,9 +474,9 @@ test('POST /api/employees unexpected model error → 500', async () => {
 test('PUT /api/employees/:id maps validation error', async () => {
   reset();
   _modelEmployee = { id: 5, nombre_completo: 'Carlos', mantis_estado: 'pendiente' };
-  _modelUpdateErr = Object.assign(new Error('La clave debe tener exactamente 4 dígitos.'), { code: 'BAD_PASSWORD' });
+  _modelUpdateErr = Object.assign(new Error('Selecciona una sede activa de la lista.'), { code: 'BAD_BODEGA' });
   const res = await fetch(`${BASE}/api/employees/5`, {
-    method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contraseña: '12' }),
+    method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ bodega_codigo: 700 }),
   });
   assert.equal(res.status, 400);
 });

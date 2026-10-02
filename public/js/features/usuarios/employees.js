@@ -77,6 +77,17 @@ export async function renderEmployees(container) {
                       border-radius:8px;padding:14px 16px;margin-bottom:16px;">
             <div style="font-size:11px;font-weight:600;color:var(--success);text-transform:uppercase;
                         letter-spacing:0.5px;margin-bottom:12px;">Gestión Humana</div>
+            <!-- Flujo Mantis: usuario y clave se generan solos (no editables) -->
+            <div id="emp-mantis-creds" style="display:none;grid-template-columns:1fr 1fr;gap:12px;">
+              <div class="form-group">
+                <label>🔒 Usuario <span style="color:var(--text-3);font-weight:400;">(según el nombre)</span></label>
+                <input type="text" id="emp-m-usuario" class="form-control emp-locked" readonly tabindex="-1" placeholder="Se genera con el nombre">
+              </div>
+              <div class="form-group">
+                <label>🔒 Clave <span style="color:var(--text-3);font-weight:400;">(últimos 4 de la cédula)</span></label>
+                <input type="text" id="emp-m-clave" class="form-control emp-locked" readonly tabindex="-1" placeholder="Se genera con la cédula">
+              </div>
+            </div>
             <div class="form-group">
               <label>Cédula <span style="color:var(--danger)">*</span></label>
               <input type="text" id="emp-cedula" class="form-control" placeholder="Ej: 1130658563"
@@ -118,51 +129,30 @@ export async function renderEmployees(container) {
 
             <!-- Flujo Mantis: usuario/clave automáticos + catálogos -->
             <div id="emp-mantis-fields" style="display:none;">
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-                <div class="form-group">
-                  <label>Usuario <span style="color:var(--text-3);font-weight:400;">(automático)</span></label>
-                  <div style="display:flex;gap:6px;">
-                    <input type="text" id="emp-m-usuario" class="form-control" autocomplete="off"
-                           style="font-family:monospace;text-transform:uppercase;">
-                    <button type="button" id="emp-m-usuario-regen" class="btn btn-secondary" title="Volver a generar"
-                            style="padding:0 10px;">↻</button>
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label>Clave (4 dígitos) <span style="color:var(--text-3);font-weight:400;">(automática)</span></label>
-                  <div style="display:flex;gap:6px;">
-                    <input type="text" id="emp-m-clave" class="form-control" autocomplete="off" maxlength="4"
-                           inputmode="numeric" style="font-family:monospace;">
-                    <button type="button" id="emp-m-clave-regen" class="btn btn-secondary" title="Generar otra"
-                            style="padding:0 10px;">↻</button>
-                  </div>
-                </div>
-              </div>
-
               <div class="form-group">
                 <label>Cargo <span style="color:var(--danger)">*</span></label>
-                <div style="display:flex;gap:8px;align-items:center;">
+                <div style="display:flex;gap:8px;align-items:flex-end;">
                   <div style="position:relative;flex:1;">
                     <input type="text" id="emp-m-cargo" class="form-control" placeholder="Escribe para buscar…" autocomplete="off">
                     <div id="emp-m-cargo-list" class="emp-async-list"></div>
                   </div>
-                  <span title="Código de perfil en Mantis" class="emp-code-badge" id="emp-m-perfil">—</span>
+                  <div class="emp-code-box"><small>Cód. perfil</small><span title="Código de perfil en Mantis" class="emp-code-badge" id="emp-m-perfil">—</span></div>
                 </div>
               </div>
 
               <div class="form-group">
                 <label>Sede <span style="color:var(--danger)">*</span></label>
-                <div style="display:flex;gap:8px;align-items:center;">
+                <div style="display:flex;gap:8px;align-items:flex-end;">
                   <div style="position:relative;flex:1;">
                     <input type="text" id="emp-m-sede" class="form-control" placeholder="Escribe para buscar…" autocomplete="off">
                     <div id="emp-m-sede-list" class="emp-async-list"></div>
                   </div>
-                  <span title="Número de bodega" class="emp-code-badge" id="emp-m-bodega">—</span>
+                  <div class="emp-code-box"><small>Bodega</small><span title="Número de bodega" class="emp-code-badge" id="emp-m-bodega">—</span></div>
                 </div>
               </div>
 
               <div class="form-group" style="margin-bottom:0;">
-                <label>Comprobante <span style="color:var(--text-3);font-weight:400;">(automático según la sede)</span></label>
+                <label>Cód. comprobante <span style="color:var(--text-3);font-weight:400;">(automático según la sede)</span></label>
                 <input type="text" id="emp-m-comprobante" class="form-control" autocomplete="off" maxlength="20"
                        style="font-family:monospace;text-transform:uppercase;max-width:160px;">
               </div>
@@ -322,6 +312,9 @@ export async function renderEmployees(container) {
     .emp-async-opt .code { font-family:monospace;color:var(--primary);font-weight:600;white-space:nowrap; }
     .emp-code-badge { min-width:58px;text-align:center;padding:7px 10px;border:1px solid var(--border);
       border-radius:6px;font-family:monospace;font-weight:700;color:var(--primary);background:var(--surface-2); }
+    .emp-code-box { display:flex;flex-direction:column;align-items:center;gap:3px; }
+    .emp-code-box small { font-size:10.5px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.3px;white-space:nowrap; }
+    .emp-locked { background:var(--surface-2) !important;color:var(--text-2);font-family:monospace;font-weight:600;cursor:not-allowed; }
     .emp-mantis-badge { display:inline-block;margin-top:3px;padding:1px 7px;border-radius:99px;font-size:10.5px;font-weight:600; }
   </style>`;
 
@@ -376,22 +369,14 @@ export async function renderEmployees(container) {
   document.getElementById('emp-btn-catalogos').addEventListener('click', _openCatalogos);
   document.getElementById('emp-cat-close').addEventListener('click', _closeCatalogos);
   document.getElementById('emp-cat-done').addEventListener('click', _closeCatalogos);
-  document.getElementById('emp-m-usuario-regen').addEventListener('click', () => _suggestUsuario(true));
-  document.getElementById('emp-m-clave-regen').addEventListener('click', _suggestClave);
-  document.getElementById('emp-m-usuario').addEventListener('input', e => {
-    e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
-    _usuarioTouched = true;
-  });
-  document.getElementById('emp-m-clave').addEventListener('input', e => {
-    e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4);
-  });
+  document.getElementById('emp-cedula').addEventListener('input', _actualizarClave);
   document.getElementById('emp-m-comprobante').addEventListener('input', e => {
     e.target.value = e.target.value.toUpperCase();
   });
   let _nombreTimer = null;
   document.getElementById('emp-nombre').addEventListener('input', () => {
     clearTimeout(_nombreTimer);
-    _nombreTimer = setTimeout(() => _suggestUsuario(false), 350);
+    _nombreTimer = setTimeout(_suggestUsuario, 350);
   });
   _asyncCombo('emp-m-cargo', 'emp-m-cargo-list', '/api/mantis/perfiles',
     p => ({ label: p.nombre, code: p.codigo }),
@@ -411,7 +396,7 @@ export async function renderEmployees(container) {
   await Promise.all([_loadCargos(), _loadAreas(), _loadEmployees(), _loadMantisStatus()]);
 }
 
-let _usuarioTouched = false;
+let _editandoMantis = false;
 let _mantisConfigured = false;
 const _mantisSel = { perfil: null, bodega: null };
 
@@ -633,7 +618,7 @@ async function _openModal(id) {
     document.getElementById('emp-form').reset();
     itSection.style.display = 'none';
     _resetMantisFields();
-    _suggestClave();
+    _editandoMantis = false;
   } else if (emp?.mantis_estado) {
     document.getElementById('emp-modal-title').textContent = 'Editar empleado';
     document.getElementById('emp-cedula').value    = emp.cedula;
@@ -645,7 +630,7 @@ async function _openModal(id) {
       perfil: emp.perfil_codigo != null ? { codigo: emp.perfil_codigo, nombre: emp.cargo } : null,
       bodega: emp.bodega_codigo != null ? { codigo: emp.bodega_codigo, nombre: emp.sede || emp.area, comprobante: emp.comprobante } : null,
     });
-    _usuarioTouched = true;
+    _editandoMantis = true; // usuario y clave ya creados: no se recalculan
   } else {
     document.getElementById('emp-modal-title').textContent = 'Editar empleado';
     if (emp) {
@@ -1012,6 +997,7 @@ function _clearError() {
 // ─── Flujo Mantis: formulario ────────────────────────────────────────────────
 function _setMantisMode(on) {
   document.getElementById('emp-mantis-fields').style.display = on ? 'block' : 'none';
+  document.getElementById('emp-mantis-creds').style.display = on ? 'grid' : 'none';
   document.getElementById('emp-legacy-fields').style.display = on ? 'none' : 'grid';
 }
 
@@ -1020,7 +1006,6 @@ function _isMantisMode() {
 }
 
 function _resetMantisFields({ usuario = '', clave = '', comprobante = '', perfil = null, bodega = null } = {}) {
-  _usuarioTouched = false;
   _mantisSel.perfil = perfil;
   _mantisSel.bodega = bodega;
   document.getElementById('emp-m-usuario').value     = usuario || '';
@@ -1032,40 +1017,35 @@ function _resetMantisFields({ usuario = '', clave = '', comprobante = '', perfil
   document.getElementById('emp-m-bodega').textContent = bodega ? bodega.codigo : '—';
 }
 
-/** Usuario según la regla de Mantis. No pisa uno escrito a mano salvo que se pida (botón ↻). */
-async function _suggestUsuario(force) {
-  if (!_isMantisMode() || (_usuarioTouched && !force)) return;
+/** Usuario según la regla de Mantis, en vivo mientras se escribe el nombre (solo al crear). */
+async function _suggestUsuario() {
+  if (!_isMantisMode() || _editandoMantis) return;
   const nombre = document.getElementById('emp-nombre').value.trim();
-  if (nombre.split(/\s+/).length < 2) return;
+  const campo = document.getElementById('emp-m-usuario');
+  if (nombre.split(/\s+/).length < 2) { campo.value = ''; return; }
   try {
     const r = await fetch(`/api/employees/sugerir-usuario?nombre=${encodeURIComponent(nombre)}`);
-    if (!r.ok) return;
-    const { usuario } = await r.json();
-    document.getElementById('emp-m-usuario').value = usuario || '';
-    if (force) _usuarioTouched = false;
+    if (r.ok) campo.value = (await r.json()).usuario || '';
   } catch { /* silencioso */ }
 }
 
-async function _suggestClave() {
-  try {
-    const r = await fetch('/api/employees/sugerir-clave');
-    if (!r.ok) return;
-    document.getElementById('emp-m-clave').value = (await r.json()).clave || '';
-  } catch { /* silencioso */ }
+/** Clave = últimos 4 dígitos de la cédula, en vivo mientras se escribe (solo al crear). */
+function _actualizarClave() {
+  if (!_isMantisMode() || _editandoMantis) return;
+  const d = document.getElementById('emp-cedula').value.replace(/\D/g, '');
+  document.getElementById('emp-m-clave').value = d.length >= 4 ? d.slice(-4) : '';
 }
 
 async function _saveMantis(cedula, nombre) {
-  const usuario     = document.getElementById('emp-m-usuario').value.trim();
-  const contraseña  = document.getElementById('emp-m-clave').value.trim();
   const comprobante = document.getElementById('emp-m-comprobante').value.trim();
 
   if (!_mantisSel.perfil)        return _showError('Selecciona el cargo de la lista.');
   if (!_mantisSel.bodega)        return _showError('Selecciona la sede de la lista.');
   if (!comprobante)              return _showError('Falta el comprobante de la sede.');
-  if (contraseña && !/^\d{4}$/.test(contraseña)) return _showError('La clave debe tener 4 dígitos.');
 
+  // Usuario y clave los genera el servidor (no se envían)
   const payload = {
-    nombre_completo: nombre, usuario, contraseña, comprobante,
+    nombre_completo: nombre, comprobante,
     perfil_codigo: _mantisSel.perfil.codigo,
     bodega_codigo: _mantisSel.bodega.codigo,
   };

@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  nameWords, usernameCandidates, suggestUsername, suggestPassword, isValidUsername, isValidPassword,
+  nameWords, usernameCandidates, suggestUsername, claveDesdeCedula,
 } from '../../src/employees/credentials.js';
 
 const taken = (...names) => async (u) => names.includes(u);
@@ -43,25 +43,10 @@ test('suggestUsername: gives up after many collisions', async () => {
   await assert.rejects(() => suggestUsername('Juan Perez', async () => true), { code: 'USERNAME_EXHAUSTED' });
 });
 
-test('suggestPassword: 4 digits, skips taken ones, keeps leading zeros', async () => {
-  const seq = [1234, 7, 9999];
-  const pw = await suggestPassword(taken('1234'), () => seq.shift());
-  assert.equal(pw, '0007');
-  const random = await suggestPassword(taken());
-  assert.match(random, /^\d{4}$/);
-});
-
-test('suggestPassword: gives up when everything is taken', async () => {
-  await assert.rejects(() => suggestPassword(async () => true, () => 1), { code: 'PASSWORD_EXHAUSTED' });
-});
-
-test('isValidUsername / isValidPassword', () => {
-  assert.equal(isValidUsername('GGOSORIO'), true);
-  assert.equal(isValidUsername('GGOSORIO2'), true);
-  assert.equal(isValidUsername('gg'), false);
-  assert.equal(isValidUsername('G'), false);
-  assert.equal(isValidUsername('GG OSORIO'), false);
-  assert.equal(isValidPassword('0042'), true);
-  assert.equal(isValidPassword('42'), false);
-  assert.equal(isValidPassword('abcd'), false);
+test('claveDesdeCedula: last 4 digits, padded when shorter', () => {
+  assert.equal(claveDesdeCedula('1130658563'), '8563');
+  assert.equal(claveDesdeCedula('1.130.658.563'), '8563');
+  assert.equal(claveDesdeCedula(1107095763), '5763');
+  assert.equal(claveDesdeCedula('123'), '0123');
+  assert.equal(claveDesdeCedula(''), '0000');
 });
