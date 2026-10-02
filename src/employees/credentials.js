@@ -10,9 +10,8 @@
  *        LISETH DAYANA HERRERA ROSERO      → LDHERRERA
  *   3. si también existe, se agrega un número al usuario de la regla 1 (GGOSORIO2, GGOSORIO3…).
  *
- * Clave: 4 dígitos aleatorios, sin repetir entre los empleados registrados.
+ * Clave: los últimos 4 dígitos de la cédula (puede repetirse: el usuario siempre es distinto).
  */
-import { randomInt } from 'node:crypto';
 
 export function nameWords(fullName) {
   return String(fullName || '')
@@ -55,22 +54,8 @@ export async function suggestUsername(fullName, isTaken) {
   throw Object.assign(new Error('No se pudo generar un usuario disponible.'), { code: 'USERNAME_EXHAUSTED' });
 }
 
-/**
- * Clave aleatoria de 4 dígitos que nadie más tenga.
- * @param {(clave: string) => Promise<boolean>} isTaken
- */
-export async function suggestPassword(isTaken, random = () => randomInt(0, 10000)) {
-  for (let i = 0; i < 200; i++) {
-    const pw = String(random()).padStart(4, '0');
-    if (!(await isTaken(pw))) return pw;
-  }
-  throw Object.assign(new Error('No se pudo generar una clave disponible.'), { code: 'PASSWORD_EXHAUSTED' });
-}
-
-export function isValidUsername(u) {
-  return /^[A-Z]{2,30}\d{0,3}$/.test(String(u || ''));
-}
-
-export function isValidPassword(p) {
-  return /^\d{4}$/.test(String(p || ''));
+/** Últimos 4 dígitos de la cédula (con ceros a la izquierda si tiene menos). */
+export function claveDesdeCedula(cedula) {
+  const d = String(cedula ?? '').replace(/\D/g, '');
+  return d.length >= 4 ? d.slice(-4) : d.padStart(4, '0');
 }

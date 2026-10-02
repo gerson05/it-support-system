@@ -1,7 +1,6 @@
 import db from '../config/database.js';
 import {
-  suggestUsername as _suggestUsername, suggestPassword as _suggestPassword,
-  isValidUsername, isValidPassword,
+  suggestUsername as _suggestUsername, claveDesdeCedula,
 } from './credentials.js';
 import { getPerfil, getBodega, getComprobante } from '../mantis/catalog-model.js';
 import { registrarAlta } from '../hr/personal-model.js';
@@ -17,11 +16,8 @@ async function _altaPersonal(cedula, nombre, cargo) {
 const usernameTaken = async (u, exceptId = null) =>
   Boolean(await db.prepare('SELECT id FROM employees WHERE UPPER(usuario) = ? AND id <> ?').get(String(u).toUpperCase(), exceptId ?? -1));
 
-const passwordTaken = async (p, exceptId = null) =>
-  Boolean(await db.prepare('SELECT id FROM employees WHERE contraseña = ? AND id <> ?').get(String(p), exceptId ?? -1));
-
 export const suggestUsername = (fullName) => _suggestUsername(fullName, (u) => usernameTaken(u));
-export const suggestPassword = () => _suggestPassword((p) => passwordTaken(p));
+export { claveDesdeCedula };
 
 const fail = (message, code) => { throw Object.assign(new Error(message), { code }); };
 
@@ -103,24 +99,15 @@ export async function getAreas() {
 
 // ─── CRUD ─────────────────────────────────────────────────────────────────────
 
-/** Valida un usuario/clave escrito a mano, o genera uno si viene vacío. */
-async function resolveCredentials({ nombre_completo, usuario, contraseña }, exceptId = null) {
-  let u = String(usuario || '').trim().toUpperCase();
-  if (u) {
-    if (!isValidUsername(u)) fail('El usuario solo puede tener letras (y hasta 3 números al final).', 'BAD_USERNAME');
-    if (await usernameTaken(u, exceptId)) fail(`El usuario ${u} ya existe.`, 'USERNAME_TAKEN');
-  } else {
-    u = await suggestUsername(nombre_completo);
-  }
-
-  let p = String(contraseña || '').trim();
-  if (p) {
-    if (!isValidPassword(p)) fail('La clave debe tener exactamente 4 dígitos.', 'BAD_PASSWORD');
-    if (await passwordTaken(p, exceptId)) fail('Esa clave ya la tiene otro usuario.', 'PASSWORD_TAKEN');
-  } else {
-    p = await suggestPassword();
-  }
-  return { usuario: u, contraseña: p };
+/**
+ * Usuario y clave se generan siempre (no se editan): usuario según la regla de Mantis
+ * a partir del nombre, clave = últimos 4 dígitos de la cédula.
+ */
+async function resolveCredentials({ nombre_completo, cedula }, exceptId = null) {
+  return {
+    usuario:    await _suggestUsername(nombre_completo, (u) => usernameTaken(u, exceptId)),
+    contraseña: claveDesdeCedula(cedula),
+  };
 }
 
 /**
@@ -131,7 +118,7 @@ async function resolveCredentials({ nombre_completo, usuario, contraseña }, exc
  * Devuelve { id, usuario?, contraseña? }.
  */
 export async function createEmployee({ cedula, nombre_completo, cargo, area, created_by,
-  usuario, contraseña, perfil_codigo, bodega_codigo, comprobante }) {
+  perfil_codigo, bodega_codigo, comprobante }) {
   const mantis = perfil_codigo !== undefined && perfil_codigo !== null && perfil_codigo !== '';
   if (!cedula || !nombre_completo || (!mantis && (!cargo || !area))) fail('Campos requeridos faltantes', 'MISSING_FIELDS');
   if (await db.prepare('SELECT id FROM employees WHERE cedula = ?').get(cedula)) fail('Cédula ya registrada', 'CEDULA_EXISTS');
@@ -147,7 +134,7 @@ export async function createEmployee({ cedula, nombre_completo, cargo, area, cre
   }
 
   const f     = await resolveMantisFields({ perfil_codigo, bodega_codigo, comprobante });
-  const creds = await resolveCredentials({ nombre_completo, usuario, contraseña });
+  const creds = await resolveCredentials({ nombre_completo, cedula });
 
   const result = await db.prepare(`
     INSERT INTO employees (cedula, nombre_completo, cargo, area, created_by,
@@ -183,7 +170,7 @@ export async function completeEmployee(id, fecha, userId) {
     return { usuario: emp.usuario, contraseña: emp.contraseña };
   }
 
-  const { usuario, contraseña } = await resolveCredentials({ nombre_completo: emp.nombre_completo }, Number(id));
+  const { usuario, contraseña } = await resolveCredentials({ nombre_completo: emp.nombre_completo, cedula: emp.cedula }, Number(id));
   await db.prepare(`
     UPDATE employees
     SET usuario = ?, contraseña = ?, fecha_respuesta_soporte = ?,
@@ -210,7 +197,7 @@ export async function updateEmployee(id, data, userId) {
   const emp = await getEmployeeById(id);
   if (!emp?.mantis_estado) {
     // Empleados del flujo anterior: solo datos básicos (las credenciales las genera "Completar")
-    for (const k of ['perfil_codigo', 'bodega_codigo', 'sede', 'comprobante', 'usuario', 'contraseña']) delete data[k];
+    for (const k of ['perfil_codigo', 'bodega_codigo', 'sede', 'comprobante']) delete data[k];
   }
   if (emp?.mantis_estado &&(data.perfil_codigo || data.bodega_codigo || data.comprobante !== undefined)) {
     const f = await resolveMantisFields({
@@ -220,17 +207,9 @@ export async function updateEmployee(id, data, userId) {
     });
     Object.assign(data, f);
   }
-  if (emp?.mantis_estado && (data.usuario !== undefined || data.contraseña !== undefined)) {
-    const creds = await resolveCredentials({
-      nombre_completo: data.nombre_completo ?? emp.nombre_completo,
-      usuario:         data.usuario ?? emp.usuario,
-      contraseña:      data.contraseña ?? emp.contraseña,
-    }, Number(id));
-    Object.assign(data, creds);
-  }
 
-  const allowed = ['nombre_completo', 'cargo', 'area',
-    'perfil_codigo', 'bodega_codigo', 'sede', 'comprobante', 'usuario', 'contraseña'];
+  // Usuario y clave no se editan: se generan al crear el empleado
+  const allowed = ['nombre_completo', 'cargo', 'area', 'perfil_codigo', 'bodega_codigo', 'sede', 'comprobante'];
   const fields = [], vals = [];
   for (const k of allowed) {
     if (data[k] !== undefined) { fields.push(`${k} = ?`); vals.push(data[k]); }

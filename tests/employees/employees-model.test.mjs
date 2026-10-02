@@ -55,20 +55,17 @@ test('createEmployee (Mantis): resolves catalogs and generates credentials', asy
   assert.equal(await M.getPendingCount(), 1);
 });
 
-test('createEmployee (Mantis): username collision uses first surname, password never repeats', async () => {
-  const a = await M.createEmployee({ cedula: '1001', nombre_completo: 'Liseth Dayana Herrera Rosero', ...MANTIS });
-  const b = await M.createEmployee({ cedula: '1002', nombre_completo: 'Luis David Herrera Rosero', ...MANTIS });
-  const c = await M.createEmployee({ cedula: '1003', nombre_completo: 'Laura Diana Herrera Rosero', ...MANTIS });
+test('createEmployee (Mantis): username collision uses first surname; password = last 4 of cédula (may repeat)', async () => {
+  const a = await M.createEmployee({ cedula: '10011234', nombre_completo: 'Liseth Dayana Herrera Rosero', ...MANTIS });
+  const b = await M.createEmployee({ cedula: '20021234', nombre_completo: 'Luis David Herrera Rosero', ...MANTIS });
+  const c = await M.createEmployee({ cedula: '30035678', nombre_completo: 'Laura Diana Herrera Rosero', ...MANTIS });
   assert.deepEqual([a.usuario, b.usuario, c.usuario], ['LHROSERO', 'LDHERRERA', 'LHROSERO2']);
-  assert.equal(new Set([a.contraseña, b.contraseña, c.contraseña]).size, 3);
+  assert.deepEqual([a.contraseña, b.contraseña, c.contraseña], ['1234', '1234', '5678']);
 });
 
-test('createEmployee (Mantis): manual usuario/clave are validated', async () => {
-  await M.createEmployee({ cedula: '1001', nombre_completo: 'Gladys Garcia Osorio', ...MANTIS, usuario: 'ggosorio', contraseña: '1234' });
-  await assert.rejects(() => M.createEmployee({ cedula: '1002', nombre_completo: 'Otra Persona', ...MANTIS, usuario: 'GGOSORIO' }), { code: 'USERNAME_TAKEN' });
-  await assert.rejects(() => M.createEmployee({ cedula: '1002', nombre_completo: 'Otra Persona', ...MANTIS, contraseña: '1234' }), { code: 'PASSWORD_TAKEN' });
-  await assert.rejects(() => M.createEmployee({ cedula: '1002', nombre_completo: 'Otra Persona', ...MANTIS, usuario: 'G G' }), { code: 'BAD_USERNAME' });
-  await assert.rejects(() => M.createEmployee({ cedula: '1002', nombre_completo: 'Otra Persona', ...MANTIS, contraseña: '12' }), { code: 'BAD_PASSWORD' });
+test('createEmployee (Mantis): usuario/clave sent by the client are ignored', async () => {
+  const r = await M.createEmployee({ cedula: '1130658563', nombre_completo: 'Gladys Garcia Osorio', ...MANTIS, usuario: 'HACK', contraseña: '0000' });
+  assert.deepEqual([r.usuario, r.contraseña], ['GGOSORIO', '8563']);
 });
 
 test('createEmployee (Mantis): invalid catalog selections', async () => {
@@ -95,7 +92,7 @@ test('legacy flow: create pending, complete generates credentials with the new r
 
   const creds = await M.completeEmployee(id, '2026-10-01', 1);
   assert.equal(creds.usuario, 'AOCASTANEDA');
-  assert.match(creds.contraseña, /^\d{4}$/);
+  assert.equal(creds.contraseña, '2001');
   const emp = await M.getEmployeeById(id);
   assert.equal(emp.usuario, 'AOCASTANEDA');
   assert.equal(emp.mantis_estado, null);
@@ -124,18 +121,17 @@ test('setMantisResult: error then success', async () => {
   assert.equal(emp.mantis_error, null);
 });
 
-test('updateEmployee (Mantis): changes catalogs and credentials with validation', async () => {
-  const a = await M.createEmployee({ cedula: '1001', nombre_completo: 'Gladys Garcia Osorio', ...MANTIS });
-  const b = await M.createEmployee({ cedula: '1002', nombre_completo: 'Alba Lucia Ospina Castañeda', ...MANTIS });
+test('updateEmployee (Mantis): changes catalogs; usuario and clave cannot be edited', async () => {
+  const a = await M.createEmployee({ cedula: '10011234', nombre_completo: 'Gladys Garcia Osorio', ...MANTIS });
 
-  await M.updateEmployee(a.id, { perfil_codigo: 15, bodega_codigo: 648, comprobante: 'SFE', usuario: 'GGOSORIO', contraseña: '0001' }, 1);
+  await M.updateEmployee(a.id, { perfil_codigo: 15, bodega_codigo: 648, comprobante: 'SFE', usuario: 'OTRO', contraseña: '0001', nombre_completo: 'Gladys G Osorio' }, 1);
   let emp = await M.getEmployeeById(a.id);
   assert.equal(emp.cargo, 'ADMIN BODEGA');
   assert.equal(emp.bodega_codigo, 648);
   assert.equal(emp.comprobante, 'SFE');
-  assert.equal(emp.contraseña, '0001');
-
-  await assert.rejects(() => M.updateEmployee(b.id, { usuario: 'GGOSORIO' }, 1), { code: 'USERNAME_TAKEN' });
+  assert.equal(emp.usuario, 'GGOSORIO');
+  assert.equal(emp.contraseña, '1234');
+  assert.equal(emp.nombre_completo, 'Gladys G Osorio');
 
   // Cambiar solo la sede toma el comprobante de la nueva sede
   await M.updateEmployee(a.id, { bodega_codigo: 581 }, 1);
@@ -153,10 +149,10 @@ test('updateEmployee (legacy): ignores Mantis fields and credentials', async () 
   await M.updateEmployee(id, {}, 1); // sin cambios: no falla
 });
 
-test('suggestUsername / suggestPassword use registered employees', async () => {
+test('suggestUsername uses registered employees; claveDesdeCedula re-exported', async () => {
   await M.createEmployee({ cedula: '1001', nombre_completo: 'Gladys Garcia Osorio', ...MANTIS });
   assert.equal(await M.suggestUsername('Gladys Garcia Osorio'), 'GOGARCIA');
-  assert.match(await M.suggestPassword(), /^\d{4}$/);
+  assert.equal(M.claveDesdeCedula('1130658563'), '8563');
 });
 
 test('deleteEmployee: removes and reports missing', async () => {
