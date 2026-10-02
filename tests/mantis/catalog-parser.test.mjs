@@ -89,3 +89,8 @@ test('readSheetRows: empty workbook gives no rows', () => {
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([]), 'S');
   assert.deepEqual(readSheetRows(XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' })), []);
 });
+
+test('readSheetRows: CSV is read as UTF-8 and dates stay as typed (day/month)', () => {
+  const csv = Buffer.from('﻿Documento,Salario básico,Fecha de ingreso\n9990002,2400000,01/02/2019\n', 'utf-8');
+  assert.deepEqual(readSheetRows(csv), [['Documento', 'Salario básico', 'Fecha de ingreso'], ['9990002', '2400000', '01/02/2019']]);
+});

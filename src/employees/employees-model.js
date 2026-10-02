@@ -4,6 +4,13 @@ import {
   isValidUsername, isValidPassword,
 } from './credentials.js';
 import { getPerfil, getBodega, getComprobante } from '../mantis/catalog-model.js';
+import { registrarAlta } from '../hr/personal-model.js';
+
+/** Cada alta también queda en los datos de personal de Gestión Humana (no bloquea si falla). */
+async function _altaPersonal(cedula, nombre, cargo) {
+  try { await registrarAlta(db, { cedula, nombre, cargo }); }
+  catch (e) { console.error('[employees] no se pudo registrar en personal:', e.message); }
+}
 
 // ─── Usuario / clave (regla en credentials.js) ──────────────────────────────
 
@@ -135,6 +142,7 @@ export async function createEmployee({ cedula, nombre_completo, cargo, area, cre
       VALUES (?, ?, ?, ?, ?)
     `).run(cedula, nombre_completo, cargo, area, created_by ?? null);
     await _log(result.lastInsertRowid, created_by, 'create');
+    await _altaPersonal(cedula, nombre_completo, cargo);
     return { id: result.lastInsertRowid };
   }
 
@@ -149,6 +157,7 @@ export async function createEmployee({ cedula, nombre_completo, cargo, area, cre
     creds.usuario, creds.contraseña, f.perfil_codigo, f.bodega_codigo, f.sede, f.comprobante);
 
   await _log(result.lastInsertRowid, created_by, 'create', `usuario=${creds.usuario}`);
+  await _altaPersonal(cedula, nombre_completo, f.cargo);
   return { id: result.lastInsertRowid, ...creds };
 }
 

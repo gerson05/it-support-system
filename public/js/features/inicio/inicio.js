@@ -31,6 +31,7 @@ const modules = [
     items: [
       { title: 'Usuarios', href: '#users', permission: 'full', icon: 'users' },
       { title: 'Crear usuarios', href: '#employees', permission: 'employees:read', icon: 'user-plus' },
+      { title: 'Certificados laborales', href: '#certificados', permission: 'hr:read', icon: 'file-badge' },
     ],
   },
   {
