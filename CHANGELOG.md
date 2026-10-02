@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.14.0](https://github.com/gerson05/it-support-system/compare/v1.13.1...v1.14.0) (2026-10-02)
+
+
+### Features
+
+* **crear usuarios:** usuario y clave bloqueados; clave = últimos 4 de la cédula ([998152c](https://github.com/gerson05/it-support-system/commit/998152c36c34fabf2be1bfce9337613410548643))
+* **employees:** locked auto usuario/clave; clave = last 4 of cédula ([d0ee422](https://github.com/gerson05/it-support-system/commit/d0ee42294e69d162fe9562c6cfee29ac0c4102d3))
+
 ## [1.13.1](https://github.com/gerson05/it-support-system/compare/v1.13.0...v1.13.1) (2026-10-02)
 
 
