@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.13.0](https://github.com/gerson05/it-support-system/compare/v1.12.0...v1.13.0) (2026-10-02)
+
+
+### Features
+
+* **gestión humana:** certificados laborales desde Excel de personal ([7fbf03a](https://github.com/gerson05/it-support-system/commit/7fbf03a68d5eb56e3134c0532c03c3253ce6554a))
+* **hr:** certificados laborales from uploaded personnel Excel files ([a6036fb](https://github.com/gerson05/it-support-system/commit/a6036fb2934e908bcca2f5964fbd9e7203892460))
+
 ## [1.12.0](https://github.com/gerson05/it-support-system/compare/v1.11.0...v1.12.0) (2026-10-01)
 
 
