@@ -82,10 +82,20 @@ export async function renderCertificados(container) {
     </div>
   </div>` : ''}
 
-  <div class="card" style="padding:18px;margin-top:18px;">
-    <h3 style="margin:0 0 10px;font-size:15px;">Últimos certificados generados</h3>
-    <div id="hr-ultimos" style="font-size:13px;"></div>
-  </div>
+  <details class="card hr-historial" style="padding:12px 18px;margin-top:18px;">
+    <summary>Historial de certificados <span id="hr-ultimos-n"></span></summary>
+    <div id="hr-ultimos" class="hr-historial-lista"></div>
+  </details>
+
+  <style>
+    .hr-historial > summary { cursor:pointer;font-size:13px;font-weight:600;color:var(--text-2);list-style:revert; }
+    .hr-historial > summary span { font-weight:400;color:var(--text-3); }
+    .hr-historial-lista { margin-top:8px;max-height:220px;overflow-y:auto;font-size:12px;color:var(--text-2); }
+    .hr-historial-lista table { width:100%;border-collapse:collapse; }
+    .hr-historial-lista td { padding:4px 6px;border-bottom:1px solid var(--border);white-space:nowrap; }
+    .hr-historial-lista td.n { white-space:normal; }
+    .hr-historial-lista .muted { color:var(--text-3); }
+  </style>
 
   <div id="hr-map-modal" class="modal-overlay" style="display:none;">
     <div class="modal-content" style="max-width:620px;">
@@ -279,23 +289,26 @@ async function _cargarResumen() {
   try { _resumen = await (await fetch('/api/hr/resumen')).json(); } catch { return; }
   const r = _resumen;
 
-  const ult = document.getElementById('hr-ultimos');
-  ult.innerHTML = r.certificados?.length ? `<table style="width:100%;border-collapse:collapse;">${r.certificados.map(c => `
-    <tr style="border-bottom:1px solid var(--border);">
-      <td style="padding:5px 4px;font-family:monospace;">${esc(c.cedula)}</td><td style="padding:5px 4px;">${esc(c.nombre || '')}</td>
-      <td style="padding:5px 4px;">${c.tipo === 'retirado' ? 'Retirado' : 'Activo'}</td>
-      <td style="padding:5px 4px;color:var(--text-3);">${esc(c.usuario || '')}</td>
-      <td style="padding:5px 4px;color:var(--text-3);white-space:nowrap;">${esc(String(c.created_at || '').slice(0, 16))}</td></tr>`).join('')}</table>`
-    : '<span style="color:var(--text-3);">Aún no se han generado certificados.</span>';
+  const fecha = (d) => esc(String(d || '').slice(0, 16));
+  document.getElementById('hr-ultimos-n').textContent = r.certificados?.length ? `(últimos ${r.certificados.length})` : '';
+  document.getElementById('hr-ultimos').innerHTML = r.certificados?.length ? `<table>${r.certificados.map(c => `
+    <tr><td class="muted">${fecha(c.created_at)}</td><td style="font-family:monospace;">${esc(c.cedula)}</td>
+      <td class="n">${esc(c.nombre || '')}</td><td>${c.tipo === 'retirado' ? 'Retirado' : 'Activo'}</td>
+      <td class="muted">${esc(c.usuario || '')}</td></tr>`).join('')}</table>`
+    : '<span class="muted">Aún no se han generado certificados.</span>';
 
   if (!can('hr:edit')) return;
   document.getElementById('hr-resumen').innerHTML = `
     <strong>${r.empleados}</strong> empleados (${r.activos} activos · ${r.retirados} retirados) ·
     <strong>${r.con_genero}</strong> con sexo registrado`;
   document.getElementById('hr-cargas').innerHTML = r.cargas?.length ? `
-    <div style="font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:4px;">Últimas cargas</div>
-    ${r.cargas.map(c => `<div style="font-size:12px;color:var(--text-3);padding:2px 0;">
-      ${esc(String(c.created_at || '').slice(0, 16))} · ${esc(c.archivo)} · ${c.creados} nuevos, ${c.actualizados} actualizados · ${esc(c.usuario || '')}</div>`).join('')}`
+    <details class="hr-historial">
+      <summary>Historial de cargas <span>(últimas ${r.cargas.length})</span></summary>
+      <div class="hr-historial-lista" style="max-height:170px;"><table>${r.cargas.map(c => `
+        <tr><td class="muted">${fecha(c.created_at)}</td><td class="n">${esc(c.archivo)}</td>
+          <td>${c.creados} nuevos · ${c.actualizados} actualizados</td><td class="muted">${esc(c.usuario || '')}</td></tr>`).join('')}
+      </table></div>
+    </details>`
     : '<span style="font-size:12px;color:var(--text-3);">Aún no se ha cargado ningún archivo.</span>';
   document.getElementById('hr-plantilla').innerHTML = r.plantilla
     ? `Plantilla: <strong>${esc(r.plantilla.archivo)}</strong> <span style="color:var(--text-3);">(${esc(String(r.plantilla.updated_at || '').slice(0, 16))} · ${esc(r.plantilla.usuario || '')})</span>`

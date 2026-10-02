@@ -105,7 +105,7 @@ export async function resumenPersonal(db) {
     retirados: await n(`SELECT COUNT(*) AS n FROM hr_empleados WHERE es_empleado = 1 AND estado = 'I'`),
     con_genero: await n('SELECT COUNT(*) AS n FROM hr_empleados WHERE es_empleado = 1 AND genero IS NOT NULL'),
     cargas: await db.prepare(
-      'SELECT archivo, filas, creados, actualizados, campos, usuario, created_at FROM hr_cargas ORDER BY id DESC LIMIT 10'
+      'SELECT archivo, filas, creados, actualizados, campos, usuario, created_at FROM hr_cargas ORDER BY id DESC LIMIT 30'
     ).all(),
   };
 }
@@ -173,6 +173,6 @@ export async function registrarCertificado(db, { cedula, nombre, tipo, usuario }
     .run(cedula, nombre, tipo, usuario || null);
 }
 
-export async function ultimosCertificados(db, limit = 15) {
+export async function ultimosCertificados(db, limit = 50) {
   return db.prepare('SELECT cedula, nombre, tipo, usuario, created_at FROM hr_certificados ORDER BY id DESC LIMIT ?').all(limit);
 }
