@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.13.1](https://github.com/gerson05/it-support-system/compare/v1.13.0...v1.13.1) (2026-10-02)
+
+
+### Bug Fixes
+
+* **certificados:** historial compacto y mensaje de plantilla más claro ([cf971e7](https://github.com/gerson05/it-support-system/commit/cf971e7a603abf62eacb8c984d104520cdd3389f))
+* **hr:** compact collapsible history and clearer template error ([827af8b](https://github.com/gerson05/it-support-system/commit/827af8bc4b6fc55ab893afcf24b8de44a3400a51))
+
 ## [1.13.0](https://github.com/gerson05/it-support-system/compare/v1.12.0...v1.13.0) (2026-10-02)
 
 
