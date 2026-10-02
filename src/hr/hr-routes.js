@@ -193,7 +193,10 @@ router.post('/api/hr/plantilla', ...canEdit, upload.single('file'), wrap(async (
     return res.status(400).json({ error: 'El archivo no es un Word (.docx) válido.' });
   }
   if (!marcadores.includes('nombre') || !marcadores.includes('cedula')) {
-    return res.status(400).json({ error: 'La plantilla debe tener al menos los campos {{nombre}} y {{cedula}}.' });
+    return res.status(400).json({
+      error: 'Este Word no tiene los campos marcados. Sube la plantilla con campos (ej. "plantilla certificado laboral (con campos).docx"), '
+        + 'donde los espacios a llenar están escritos como {{nombre}}, {{cedula}}, etc. — no el formato con rayas.',
+    });
   }
   const desconocidos = marcadores.filter(m => !MARCADORES[m]);
   await guardarPlantilla(db, req.file.buffer, { archivo: req.file.originalname, usuario: actor(req) });
