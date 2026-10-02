@@ -16,6 +16,7 @@ import { renderTrazabilidad }       from '../features/tracking/trazabilidad.js';
 import { renderMonitoreo }          from '../features/monitoreo/monitoreo.js';
 import { renderUsers }              from '../features/usuarios/users.js';
 import { renderEmployees }          from '../features/usuarios/employees.js';
+import { renderCertificados }       from '../features/gestion-humana/certificados.js';
 import { state, can, firstAccessibleHash } from './state.js';
 const _esc = s => String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
@@ -83,6 +84,7 @@ export function router() {
       '#monitoreo':    { perm: 'full',                nav: 'nav-monitoreo',     page: 'monitoreo',            render: () => renderMonitoreo(app) },
       '#users':        { perm: 'full',                nav: 'nav-users',         page: 'users',                render: () => renderUsers(app) },
       '#employees':    { perm: 'employees:read',      nav: 'nav-employees',     page: 'employees',            render: () => renderEmployees(app) },
+      '#certificados': { perm: 'hr:read',             nav: 'nav-certificados',  page: 'certificados',         render: () => renderCertificados(app) },
     };
 
     const route = ROUTES[hash] || ROUTES['#inicio'];

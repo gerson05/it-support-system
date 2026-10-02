@@ -25,6 +25,7 @@ import reqRouter from './requerimientos/req-routes.js';
 import reunionesRouter from './reuniones/reuniones-routes.js';
 import employeesRouter from './employees/employees-routes.js';
 import mantisRouter from './mantis/mantis-routes.js';
+import hrRouter from './hr/hr-routes.js';
 import wpConfigRouter from './config/wp-config-routes.js';
 import erpRouter from './erp/erp-routes.js';
 import Chatbot from './whatsapp/chatbot.js';
@@ -68,6 +69,7 @@ app.use(reqRouter);
 app.use(reunionesRouter);
 app.use(employeesRouter);
 app.use(mantisRouter);
+app.use(hrRouter);
 app.use(wpConfigRouter);
 app.use(erpRouter);
 

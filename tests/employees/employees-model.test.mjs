@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { createMemoryDb } from '../helpers/sqlite-memory-db.mjs';
 import { migrations as m015 } from '../../src/config/migrations/015-employees-fix.js';
 import { migrations as m036 } from '../../src/config/migrations/036-mantis-catalogos.js';
+import { migrations as m037 } from '../../src/config/migrations/037-gestion-humana-certificados.js';
 
 // La base real en memoria reemplaza a src/config/database.js
 let db;
@@ -21,7 +22,10 @@ beforeEach(async () => {
   db = createMemoryDb([
     'CREATE TABLE users (id INTEGER PRIMARY KEY, username TEXT)',
     "INSERT INTO users (id, username) VALUES (1, 'gh')",
-    ...m015, ...m036,
+    'CREATE TABLE permissions (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE)',
+    'CREATE TABLE roles (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)',
+    'CREATE TABLE role_permissions (role_id INTEGER, permission_id INTEGER, UNIQUE(role_id, permission_id))',
+    ...m015, ...m036, ...m037,
   ]);
   await importCatalog(db, 'perfiles', [{ codigo: 10, nombre: 'AUXILIAR DE DISPENSACION' }, { codigo: 15, nombre: 'ADMIN BODEGA' }]);
   await importCatalog(db, 'comprobantes', [
@@ -167,4 +171,20 @@ test('getAllEmployees lists newest first', async () => {
   await M.createEmployee({ cedula: '1002', nombre_completo: 'Pedro Perez', cargo: 'Aux', area: 'Cali' });
   const all = await M.getAllEmployees();
   assert.deepEqual(all.map(e => e.cedula), ['1002', '1001']);
+});
+
+test('new employees are also registered as active personnel for certificates', async () => {
+  await M.createEmployee({ cedula: '3001', nombre_completo: 'Gladys Garcia Osorio', ...MANTIS });
+  await M.createEmployee({ cedula: '3002', nombre_completo: 'Pedro Perez', cargo: 'Aux', area: 'Cali' });
+  const rows = await db.prepare('SELECT cedula, cargo, estado, es_empleado FROM hr_empleados ORDER BY cedula').all();
+  assert.deepEqual(rows, [
+    { cedula: '3001', cargo: 'AUXILIAR DE DISPENSACION', estado: 'A', es_empleado: 1 },
+    { cedula: '3002', cargo: 'Aux', estado: 'A', es_empleado: 1 },
+  ]);
+});
+
+test('a failure registering personnel does not block creating the employee', async () => {
+  db.raw.exec('DROP TABLE hr_empleados');
+  const r = await M.createEmployee({ cedula: '3003', nombre_completo: 'Gladys Garcia Osorio', ...MANTIS });
+  assert.ok(await M.getEmployeeById(r.id));
 });

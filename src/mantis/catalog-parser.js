@@ -16,7 +16,13 @@ export function norm(s) {
 
 /** Filas de la primera hoja como arreglos de celdas. */
 export function readSheetRows(buffer) {
-  const wb = XLSX.read(buffer, { type: 'buffer' });
+  // raw: no interpretar textos (SheetJS lee "01/02/2019" como fecha de EE. UU. → 2 de enero);
+  // las fechas en texto se interpretan después como día/mes/año.
+  // .xlsx empieza con "PK" (zip) y .xls con D0 CF 11 E0 (OLE); lo demás es texto (CSV/HTML) y se decodifica como UTF-8
+  const binario = buffer.length > 4 && (buffer.readUInt16BE(0) === 0x504b || buffer.readUInt32BE(0) === 0xd0cf11e0);
+  const wb = binario
+    ? XLSX.read(buffer, { type: 'buffer', raw: true })
+    : XLSX.read(buffer.toString('utf-8').replace(/^﻿/, ''), { type: 'string', raw: true });
   const sheet = wb.Sheets[wb.SheetNames[0]];
   if (!sheet) return [];
   return XLSX.utils.sheet_to_json(sheet, { header: 1, blankrows: false, defval: '' });

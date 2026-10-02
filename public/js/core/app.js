@@ -47,6 +47,7 @@ function _applyUserUI(user) {
   if (can('farmacias:read'))     show('nav-farmacias');
   if (can('full'))               show('nav-users');
   if (can('employees:read'))     show('nav-employees');
+  if (can('hr:read'))            show('nav-certificados');
   if (can('monitoreo:read'))     show('nav-monitoreo');
   if (can('settings:read'))      show('nav-settings');
 }
