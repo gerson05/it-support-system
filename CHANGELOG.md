@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.15.0](https://github.com/gerson05/it-support-system/compare/v1.14.0...v1.15.0) (2026-10-07)
+
+
+### Features
+
+* **hr:** protect minimum wage / transport allowance behind a confirmation dialog ([17547b0](https://github.com/gerson05/it-support-system/commit/17547b001853dc50a57fc4f8043cf245dabd022f))
+* **hr:** protected editing of minimum wage and transport allowance ([78d6b8c](https://github.com/gerson05/it-support-system/commit/78d6b8c8fe4d5a42802d473901d651c7ecc5dba6))
+
+
+### Bug Fixes
+
+* **deps:** npm audit fix (proxy-addr critical, sharp) ([3f060f2](https://github.com/gerson05/it-support-system/commit/3f060f23ed976ab6f0ba261f9901d4ba081ff51e))
+
 ## [1.14.0](https://github.com/gerson05/it-support-system/compare/v1.13.1...v1.14.0) (2026-10-02)
 
 
