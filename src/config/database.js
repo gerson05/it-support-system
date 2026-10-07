@@ -39,6 +39,7 @@ import { migrations as m034 } from './migrations/034-inventario-modelo.js';
 import { migrations as m035 } from './migrations/035-whatsapp-ticket-metadata.js';
 import { migrations as m036 } from './migrations/036-mantis-catalogos.js';
 import { migrations as m037 } from './migrations/037-gestion-humana-certificados.js';
+import { APP_UTC_OFFSET } from './timezone.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);
@@ -69,7 +70,8 @@ function fixSql(sql) {
     // plain datetime('now', 'localtime') or datetime('now')
     .replace(/datetime\s*\(\s*'now'\s*(?:,\s*'localtime'\s*)?\)/gi, 'NOW()')
     // specific session expiry comparisons (must come before generic datetime(col))
-    .replace(/datetime\s*\(\s*s\.expires_at\s*\)\s*>/gi, 's.expires_at >')
+    // las sesiones vencen en UTC (toISOString); NOW() ya es hora de Colombia
+    .replace(/datetime\s*\(\s*s\.expires_at\s*\)\s*>\s*NOW\(\)/gi, 's.expires_at > UTC_TIMESTAMP()')
     .replace(/datetime\s*\(\s*expires_at\s*\)\s*<=/gi, 'expires_at <=')
     // datetime(column) → just the column; MariaDB compares ISO datetime strings natively
     .replace(/datetime\s*\(\s*([\w.]+)\s*\)/gi, '$1')
@@ -106,12 +108,15 @@ if (useMariaDB) {
     password:           process.env.DB_PASS     || '',
     database:           process.env.DB_NAME     || 'it_tickets',
     charset:            'utf8mb4',
-    timezone:           'local',
+    timezone:           APP_UTC_OFFSET,
     waitForConnections: true,
     connectionLimit:    10,
     multipleStatements: true,
     decimalNumbers:     true,
   });
+
+  // Cada conexión usa la hora de Colombia: NOW() y DEFAULT (NOW()) guardan hora local
+  pool.pool.on('connection', (conn) => { conn.query(`SET time_zone = '${APP_UTC_OFFSET}'`); });
 
   const execOne = async (sql, params = []) => {
     const conn = txStorage.getStore();
@@ -187,7 +192,8 @@ if (useMariaDB) {
   } catch {}
 
   // Clean expired sessions
-  try { await pool.execute('DELETE FROM sessions WHERE expires_at <= NOW()'); } catch {}
+  // Las sesiones guardan el vencimiento en UTC (toISOString)
+  try { await pool.execute('DELETE FROM sessions WHERE expires_at <= UTC_TIMESTAMP()'); } catch {}
 
   // Initialize sedes if empty
   try {

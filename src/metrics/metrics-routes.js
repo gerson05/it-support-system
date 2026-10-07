@@ -2,6 +2,7 @@ import express from 'express';
 import db from '../config/database.js';
 import { requireAuth, requirePermission } from '../auth/auth-middleware.js';
 import { wrap } from '../utils/async-handler.js';
+import { fechaLocal } from '../utils/fecha-local.js';
 
 const router = express.Router();
 
@@ -113,7 +114,7 @@ router.get('/api/metrics/trend', requireAuth, requirePermission('metrics:read'),
   for (let i = 6; i >= 0; i--) {
     const d = new Date();
     d.setDate(d.getDate() - i);
-    const dayIso   = d.toISOString().slice(0, 10);
+    const dayIso   = fechaLocal(d);
     const dayLabel = `${DAYS_ES[d.getDay()]} ${d.getDate()}`;
     const found    = trendRows.find(r => r.day === dayIso);
     trend.push({ day: dayLabel, count: found ? found.count : 0 });

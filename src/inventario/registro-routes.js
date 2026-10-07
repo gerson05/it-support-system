@@ -6,6 +6,7 @@ import { requireAuth, requirePermission } from '../auth/auth-middleware.js';
 import { getBaseUrl } from './import-service.js';
 import { getSedeCode, nextConsecutivo } from './sede-codes.js';
 import { wrap } from '../utils/async-handler.js';
+import { fechaHoraLocal } from '../utils/fecha-local.js';
 
 const router = express.Router();
 
@@ -18,7 +19,7 @@ router.post('/api/inventario/registro-token', ...canCreate, wrap(async (req, res
 
   const token     = crypto.randomUUID();
   const expiresAt = expires_hours
-    ? new Date(Date.now() + Number(expires_hours) * 3600000).toISOString().replace('T',' ').slice(0,19)
+    ? fechaHoraLocal(new Date(Date.now() + Number(expires_hours) * 3600000))
     : null;
   const maxUses   = max_uses ? Number(max_uses) : null;
   const createdBy = req.session?.username || req.user?.username || null;

@@ -1,10 +1,11 @@
+import { fechaCompacta } from '../utils/fecha-local.js';
 /**
  * Siguiente número de ticket del día (TK-YYYYMMDD-NNN).
  * Tiene en cuenta los tickets eliminados (registrados en auditoría) para no
  * reutilizar sus números.
  */
 export async function nextTicketNumber(db) {
-  const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+  const dateStr = fechaCompacta();
   const like    = `TK-${dateStr}-%`;
   const seq     = (n) => parseInt(String(n || '').split('-')[2]) || 0;
 

@@ -1,3 +1,4 @@
+import { fechaCompacta } from '../utils/fecha-local.js';
 /**
  * Modelo de datos para Requerimientos Tecnológicos e Incidencias.
  */
@@ -5,7 +6,7 @@
 /** Genera el número correlativo: RQ-YYYYMMDD-001 / IN-YYYYMMDD-001 */
 async function generateNumber(db, type) {
   const prefix  = type === 'requerimiento' ? 'RQ' : 'IN';
-  const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+  const dateStr = fechaCompacta();
   const like    = `${prefix}-${dateStr}-%`;
   const last    = await db.prepare(
     'SELECT request_number FROM tech_requests WHERE request_number LIKE ? ORDER BY id DESC LIMIT 1'
