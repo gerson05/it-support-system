@@ -15,6 +15,7 @@ import {
   registrarCertificado, ultimosCertificados,
 } from './personal-model.js';
 import { camposFaltantes, valoresCertificado, generarDocx, marcadoresEnPlantilla, MARCADORES } from './certificado.js';
+import { fechaHoraLocal } from '../utils/fecha-local.js';
 import {
   normTexto, normGenero, normEstado, normSalario, normFecha, normTipoContrato,
 } from './formato.js';
@@ -184,7 +185,7 @@ router.put('/api/hr/config', ...canEdit, wrap(async (req, res) => {
   const anterior = await getConfig(db);
   const config = await setConfig(db,
     { auxilio_transporte: b.auxilio_transporte, salario_minimo: b.salario_minimo ?? '', vigencia },
-    { actualizado_por: actor(req), actualizado_at: new Date().toISOString() });
+    { actualizado_por: actor(req), actualizado_at: fechaHoraLocal() });
   await logAudit(actor(req), 'Valores de certificados actualizados', 'hr_config', null, vigencia, {
     antes: { auxilio_transporte: anterior.auxilio_transporte, salario_minimo: anterior.salario_minimo, vigencia: anterior.vigencia },
     despues: { auxilio_transporte: config.auxilio_transporte, salario_minimo: config.salario_minimo, vigencia: config.vigencia },

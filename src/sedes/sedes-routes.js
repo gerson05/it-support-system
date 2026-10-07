@@ -3,11 +3,12 @@ import db from '../config/database.js';
 import { requireAuth, requirePermission } from '../auth/auth-middleware.js';
 import { createTracking, addEvento } from '../tracking/tracking-model.js';
 import { wrap } from '../utils/async-handler.js';
+import { fechaCompacta } from '../utils/fecha-local.js';
 
 const router = express.Router();
 
 async function generateDespachoNumero() {
-  const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+  const dateStr = fechaCompacta();
   const like = `DES-${dateStr}-%`;
   const last = await db.prepare('SELECT numero FROM despachos WHERE numero LIKE ? ORDER BY id DESC LIMIT 1').get(like);
   const next = last ? parseInt(last.numero.split('-')[2]) + 1 : 1;

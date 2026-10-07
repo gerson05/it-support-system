@@ -1,7 +1,8 @@
+import { fechaCompacta } from '../utils/fecha-local.js';
 /* ── Numbering ───────────────────────────────────────────────────────── */
 
 export async function generateNumero(db) {
-  const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+  const dateStr = fechaCompacta();
   const like    = `DES-${dateStr}-%`;
   const last    = await db.prepare('SELECT numero FROM despachos WHERE numero LIKE ? ORDER BY id DESC LIMIT 1').get(like);
   const next    = last ? parseInt(last.numero.split('-')[2]) + 1 : 1;

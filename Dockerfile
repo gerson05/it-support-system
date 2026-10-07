@@ -34,7 +34,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
     PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium \
     CHROME_BIN=/usr/bin/chromium \
-    NODE_ENV=production
+    NODE_ENV=production \
+    TZ=America/Bogota
 
 # ── Crear usuario no-root para seguridad ──────────────
 RUN groupadd -r appuser && useradd -r -g appuser -m appuser

@@ -1,3 +1,4 @@
+import './src/config/timezone.js'; // primero: hora de Colombia
 import express from 'express';
 import dotenv from 'dotenv';
 import path from 'path';
