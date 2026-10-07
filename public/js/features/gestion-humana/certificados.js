@@ -65,20 +65,11 @@ export async function renderCertificados(container) {
         </label>
         <button class="btn btn-secondary" id="hr-plantilla-descargar">Descargar plantilla actual</button>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-        <div class="form-group" style="margin:0;">
-          <label>Auxilio de transporte</label>
-          <input type="text" id="hr-aux" class="form-control" inputmode="numeric">
-        </div>
-        <div class="form-group" style="margin:0;">
-          <label>Salario mínimo <span style="color:var(--text-3);font-weight:400;">(opcional)</span></label>
-          <input type="text" id="hr-smmlv" class="form-control" inputmode="numeric" placeholder="Vacío = siempre incluir auxilio">
-        </div>
-      </div>
+      <div id="hr-valores" class="hr-valores"></div>
       <p style="font-size:11.5px;color:var(--text-3);margin:6px 0 10px;">
-        El auxilio se incluye a quien gane hasta 2 salarios mínimos. Actualiza ambos valores cada año.
+        El auxilio se incluye a quien gane hasta 2 salarios mínimos. Estos valores se cambian una vez al año.
       </p>
-      <button class="btn btn-secondary" id="hr-config-guardar">Guardar valores</button>
+      <button class="btn btn-secondary" id="hr-config-cambiar">Cambiar valores…</button>
     </div>
   </div>` : ''}
 
@@ -95,6 +86,13 @@ export async function renderCertificados(container) {
     .hr-historial-lista td { padding:4px 6px;border-bottom:1px solid var(--border);white-space:nowrap; }
     .hr-historial-lista td.n { white-space:normal; }
     .hr-historial-lista .muted { color:var(--text-3); }
+    .hr-valores { display:grid;grid-template-columns:1fr 1fr;gap:10px; }
+    .hr-valores .v { background:var(--bg-2, rgba(127,127,127,.08));border:1px solid var(--border);border-radius:8px;padding:8px 10px; }
+    .hr-valores .v small { display:block;font-size:11px;color:var(--text-3); }
+    .hr-valores .v strong { font-size:15px; }
+    .hr-valores .meta { grid-column:1 / -1;font-size:11.5px;color:var(--text-3); }
+    .hr-cambio { font-size:13px;margin:12px 0;padding:10px;border-radius:8px;background:var(--bg-2, rgba(127,127,127,.08)); }
+    .hr-cambio div { margin:2px 0; }
   </style>
 
   <div id="hr-map-modal" class="modal-overlay" style="display:none;">
@@ -107,6 +105,41 @@ export async function renderCertificados(container) {
       <div class="modal-footer">
         <button class="btn btn-secondary" id="hr-map-cancel">Cancelar</button>
         <button class="btn btn-primary" id="hr-map-ok">Cargar datos</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="hr-config-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-content" style="max-width:460px;">
+      <div class="modal-header">
+        <h3>Cambiar salario mínimo y auxilio</h3>
+        <button class="modal-close" id="hr-config-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:12.5px;color:var(--text-2);margin:0 0 12px;">
+          Solo cámbialos cuando el Gobierno publique los valores del nuevo año. Afectan todos los certificados que se generen desde ahora.
+        </p>
+        <div class="form-group">
+          <label>Año de vigencia</label>
+          <input type="text" id="hr-cfg-vigencia" class="form-control" inputmode="numeric" maxlength="4">
+        </div>
+        <div class="form-group">
+          <label>Auxilio de transporte</label>
+          <input type="text" id="hr-cfg-aux" class="form-control" inputmode="numeric">
+        </div>
+        <div class="form-group">
+          <label>Salario mínimo <span style="color:var(--text-3);font-weight:400;">(opcional)</span></label>
+          <input type="text" id="hr-cfg-smmlv" class="form-control" inputmode="numeric" placeholder="Vacío = siempre incluir auxilio">
+        </div>
+        <div id="hr-cfg-cambio" class="hr-cambio"></div>
+        <label style="display:flex;gap:8px;align-items:flex-start;font-size:13px;cursor:pointer;">
+          <input type="checkbox" id="hr-cfg-confirmo" style="margin-top:3px;">
+          <span id="hr-cfg-confirmo-txt"></span>
+        </label>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="hr-config-cancel">Cancelar</button>
+        <button class="btn btn-primary" id="hr-config-ok" disabled>Guardar cambios</button>
       </div>
     </div>
   </div>`;
@@ -313,15 +346,30 @@ async function _cargarResumen() {
   document.getElementById('hr-plantilla').innerHTML = r.plantilla
     ? `Plantilla: <strong>${esc(r.plantilla.archivo)}</strong> <span style="color:var(--text-3);">(${esc(String(r.plantilla.updated_at || '').slice(0, 16))} · ${esc(r.plantilla.usuario || '')})</span>`
     : '<span style="color:var(--danger);">Aún no hay plantilla cargada: no se pueden generar certificados.</span>';
-  document.getElementById('hr-aux').value = r.config.auxilio_transporte || '';
-  document.getElementById('hr-smmlv').value = r.config.salario_minimo || '';
+  _pintarValores(r.config);
+}
+
+function _pintarValores(c) {
+  const quien = c.actualizado_at
+    ? `Actualizado por ${esc(c.actualizado_por || '—')} el ${esc(String(c.actualizado_at).slice(0, 10))}`
+    : 'Valores iniciales (aún nadie los ha cambiado)';
+  document.getElementById('hr-valores').innerHTML = `
+    <div class="v"><small>Auxilio de transporte</small><strong>${esc(fmtPesos(c.auxilio_transporte) || '—')}</strong></div>
+    <div class="v"><small>Salario mínimo</small><strong>${esc(fmtPesos(c.salario_minimo) || 'No definido')}</strong></div>
+    <div class="meta">Vigencia: <strong>${esc(c.vigencia || 'sin indicar')}</strong> · ${quien}</div>`;
 }
 
 function _bindAdmin() {
   document.getElementById('hr-file').addEventListener('change', e => { const f = e.target.files[0]; e.target.value = ''; if (f) _previewExcel(f); });
   document.getElementById('hr-plantilla-file').addEventListener('change', e => { const f = e.target.files[0]; e.target.value = ''; if (f) _subirPlantilla(f); });
   document.getElementById('hr-plantilla-descargar').addEventListener('click', _descargarPlantilla);
-  document.getElementById('hr-config-guardar').addEventListener('click', _guardarConfig);
+  document.getElementById('hr-config-cambiar').addEventListener('click', _abrirCambioValores);
+  const cerrarCfg = () => { document.getElementById('hr-config-modal').style.display = 'none'; };
+  document.getElementById('hr-config-close').addEventListener('click', cerrarCfg);
+  document.getElementById('hr-config-cancel').addEventListener('click', cerrarCfg);
+  document.getElementById('hr-config-ok').addEventListener('click', _guardarConfig);
+  for (const id of ['hr-cfg-vigencia', 'hr-cfg-aux', 'hr-cfg-smmlv']) document.getElementById(id).addEventListener('input', _revisarCambio);
+  document.getElementById('hr-cfg-confirmo').addEventListener('change', _revisarCambio);
   const cerrar = () => { document.getElementById('hr-map-modal').style.display = 'none'; };
   document.getElementById('hr-map-close').addEventListener('click', cerrar);
   document.getElementById('hr-map-cancel').addEventListener('click', cerrar);
@@ -398,14 +446,51 @@ async function _descargarPlantilla() {
   document.body.appendChild(a); a.click(); a.remove();
 }
 
+const _soloDigitos = (v) => String(v ?? '').replace(/\D/g, '');
+
+function _abrirCambioValores() {
+  const c = _resumen?.config || {};
+  document.getElementById('hr-cfg-vigencia').value = c.vigencia || String(new Date().getFullYear());
+  document.getElementById('hr-cfg-aux').value = c.auxilio_transporte || '';
+  document.getElementById('hr-cfg-smmlv').value = c.salario_minimo || '';
+  document.getElementById('hr-cfg-confirmo').checked = false;
+  _revisarCambio();
+  document.getElementById('hr-config-modal').style.display = 'flex';
+}
+
+/** Muestra el resumen "antes → después" y solo habilita guardar si hay cambio y está confirmado. */
+function _revisarCambio() {
+  const c = _resumen?.config || {};
+  const vig = _soloDigitos(document.getElementById('hr-cfg-vigencia').value);
+  const aux = _soloDigitos(document.getElementById('hr-cfg-aux').value);
+  const smm = _soloDigitos(document.getElementById('hr-cfg-smmlv').value);
+  const fila = (txt, antes, despues) => antes === despues
+    ? `<div>${txt}: ${esc(despues || '—')} <span style="color:var(--text-3);">(sin cambio)</span></div>`
+    : `<div>${txt}: <s style="color:var(--text-3);">${esc(antes || '—')}</s> → <strong>${esc(despues || '—')}</strong></div>`;
+  const hayCambio = vig !== _soloDigitos(c.vigencia) || aux !== _soloDigitos(c.auxilio_transporte) || smm !== _soloDigitos(c.salario_minimo);
+  document.getElementById('hr-cfg-cambio').innerHTML =
+    fila('Auxilio', fmtPesos(c.auxilio_transporte), fmtPesos(aux)) +
+    fila('Salario mínimo', fmtPesos(c.salario_minimo), fmtPesos(smm)) +
+    fila('Vigencia', c.vigencia || '', vig);
+  document.getElementById('hr-cfg-confirmo-txt').textContent = `Confirmo que son los valores vigentes para ${vig || '…'}`;
+  const valido = /^20\d{2}$/.test(vig) && Number(aux) > 0;
+  document.getElementById('hr-config-ok').disabled = !(valido && hayCambio && document.getElementById('hr-cfg-confirmo').checked);
+}
+
 async function _guardarConfig() {
   try {
     const r = await fetch('/api/hr/config', {
       method: 'PUT', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ auxilio_transporte: document.getElementById('hr-aux').value, salario_minimo: document.getElementById('hr-smmlv').value }),
+      body: JSON.stringify({
+        vigencia: _soloDigitos(document.getElementById('hr-cfg-vigencia').value),
+        auxilio_transporte: _soloDigitos(document.getElementById('hr-cfg-aux').value),
+        salario_minimo: _soloDigitos(document.getElementById('hr-cfg-smmlv').value),
+        confirmar: document.getElementById('hr-cfg-confirmo').checked,
+      }),
     });
-    if (!r.ok) { showToast('No se pudo guardar.', 'error'); return; }
-    showToast('Valores guardados.', 'success');
+    if (!r.ok) { const e = await r.json().catch(() => ({})); showToast(e.error || 'No se pudo guardar.', 'error'); return; }
+    document.getElementById('hr-config-modal').style.display = 'none';
+    showToast('Valores actualizados.', 'success');
     await _cargarResumen();
     if (_empleado) _abrirEmpleado(_empleado.empleado.cedula);
   } catch { showToast('Error de conexión.', 'error'); }

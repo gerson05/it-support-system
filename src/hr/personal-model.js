@@ -129,17 +129,21 @@ export async function guardarMapeo(db, firma, mapeo) {
 
 // ── Configuración (salario mínimo, auxilio de transporte) ──────────────────
 
-export const CONFIG_DEFAULT = { auxilio_transporte: '249095', salario_minimo: '' };
+export const CONFIG_DEFAULT = { auxilio_transporte: '249095', salario_minimo: '', vigencia: '' };
+/** Quién y cuándo cambió los valores (los pone el servidor, no el formulario). */
+const CONFIG_META = ['actualizado_por', 'actualizado_at'];
 
 export async function getConfig(db) {
   const rows = await db.prepare('SELECT clave, valor FROM hr_config').all();
   return { ...CONFIG_DEFAULT, ...Object.fromEntries(rows.map(r => [r.clave, r.valor])) };
 }
 
-export async function setConfig(db, datos) {
-  for (const clave of Object.keys(CONFIG_DEFAULT)) {
-    if (datos[clave] === undefined) continue;
-    const valor = String(datos[clave] ?? '').replace(/\D/g, '');
+export async function setConfig(db, datos, meta = {}) {
+  const valores = [
+    ...Object.keys(CONFIG_DEFAULT).filter(c => datos[c] !== undefined).map(c => [c, String(datos[c] ?? '').replace(/\D/g, '')]),
+    ...CONFIG_META.filter(c => meta[c] !== undefined).map(c => [c, String(meta[c] ?? '').slice(0, 255)]),
+  ];
+  for (const [clave, valor] of valores) {
     if (await db.prepare('SELECT clave FROM hr_config WHERE clave = ?').get(clave)) {
       await db.prepare('UPDATE hr_config SET valor = ? WHERE clave = ?').run(valor, clave);
     } else {

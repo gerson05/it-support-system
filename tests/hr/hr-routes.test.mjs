@@ -176,9 +176,29 @@ test('plantilla: rejects missing, invalid or incomplete files; 404 before upload
   assert.match(incompleta.body.error, /\{\{cedula\}\}/);
 });
 
-test('config: saves allowance and minimum wage', async () => {
-  const r = await json('/api/hr/config', 'PUT', { auxilio_transporte: '260.000', salario_minimo: '1.750.905' });
-  assert.deepEqual(r.body, { auxilio_transporte: '260000', salario_minimo: '1750905' });
-  const vacio = await json('/api/hr/config', 'PUT');
-  assert.equal(vacio.status, 200);
+test('config: requires year and confirmation, records who changed it', async () => {
+  const valores = { auxilio_transporte: '260.000', salario_minimo: '1.750.905', vigencia: '2027' };
+  const sinConfirmar = await json('/api/hr/config', 'PUT', valores);
+  assert.equal(sinConfirmar.status, 400);
+  assert.match(sinConfirmar.body.error, /confirmar/);
+  assert.equal((await json('/api/hr/config', 'PUT')).status, 400);
+  const sinAnio = await json('/api/hr/config', 'PUT', { ...valores, vigencia: '27', confirmar: true });
+  assert.match(sinAnio.body.error, /año/);
+  const sinAux = await json('/api/hr/config', 'PUT', { ...valores, auxilio_transporte: '0', confirmar: true });
+  assert.match(sinAux.body.error, /auxilio/);
+
+  audits.length = 0;
+  const r = await json('/api/hr/config', 'PUT', { ...valores, confirmar: true });
+  assert.equal(r.status, 200);
+  assert.equal(r.body.auxilio_transporte, '260000');
+  assert.equal(r.body.salario_minimo, '1750905');
+  assert.equal(r.body.vigencia, '2027');
+  assert.equal(r.body.actualizado_por, 'gh');
+  assert.ok(r.body.actualizado_at);
+  assert.equal(audits.length, 1);
+  assert.equal(audits[0][4], '2027');
+  assert.equal(audits[0][5].despues.auxilio_transporte, '260000');
+
+  const sinSmmlv = await json('/api/hr/config', 'PUT', { auxilio_transporte: '260000', vigencia: '2027', confirmar: true });
+  assert.equal(sinSmmlv.body.salario_minimo, '');
 });

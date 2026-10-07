@@ -115,7 +115,11 @@ test('mapeos, config, plantilla and certificate log', async () => {
   assert.deepEqual(await getConfig(db), CONFIG_DEFAULT);
   await setConfig(db, { salario_minimo: '$1.750.905' });
   const cfg = await setConfig(db, { auxilio_transporte: '260.000', salario_minimo: '1750905', otro: 'x' });
-  assert.deepEqual(cfg, { auxilio_transporte: '260000', salario_minimo: '1750905' });
+  assert.deepEqual(cfg, { auxilio_transporte: '260000', salario_minimo: '1750905', vigencia: '' });
+  const conMeta = await setConfig(db, { vigencia: '2027' }, { actualizado_por: 'gh', actualizado_at: '2027-01-02T10:00:00Z' });
+  assert.equal(conMeta.vigencia, '2027');
+  assert.equal(conMeta.actualizado_por, 'gh');
+  assert.equal(conMeta.auxilio_transporte, '260000');
 
   assert.equal(await getPlantilla(db), null);
   await guardarPlantilla(db, Buffer.from('v1'), { archivo: 'a.docx', usuario: 'gh' });
