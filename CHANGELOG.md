@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.15.1](https://github.com/gerson05/it-support-system/compare/v1.15.0...v1.15.1) (2026-10-07)
+
+
+### Bug Fixes
+
+* **time:** run the whole app on Colombia time ([f25297a](https://github.com/gerson05/it-support-system/commit/f25297ac3c2d9206755d7e559f29589b53f07d18))
+* **time:** run the whole app on Colombia time (America/Bogota) ([691d8f0](https://github.com/gerson05/it-support-system/commit/691d8f0a2b43246eaf8b736b5921bfcdd42633ac))
+
 ## [1.15.0](https://github.com/gerson05/it-support-system/compare/v1.14.0...v1.15.0) (2026-10-07)
 
 
