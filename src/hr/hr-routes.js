@@ -169,9 +169,26 @@ router.post('/api/hr/personal/importar', ...canEdit, upload.single('file'), wrap
 
 // ── Configuración y plantilla ──────────────────────────────────────────────
 
+/**
+ * Cambio de salario mínimo / auxilio de transporte. Protegido: exige año de vigencia
+ * y confirmación explícita (se hace una vez al año desde una ventana aparte).
+ */
 router.put('/api/hr/config', ...canEdit, wrap(async (req, res) => {
-  const config = await setConfig(db, req.body || {});
-  await logAudit(actor(req), 'Configuración de certificados actualizada', 'hr_config', null, null, config);
+  const b = req.body || {};
+  if (b.confirmar !== true) return res.status(400).json({ error: 'Debes confirmar el cambio de valores.' });
+  const vigencia = String(b.vigencia || '').trim();
+  if (!/^20\d{2}$/.test(vigencia)) return res.status(400).json({ error: 'Indica el año de vigencia (ej. 2027).' });
+  const auxilio = Number(String(b.auxilio_transporte ?? '').replace(/\D/g, ''));
+  if (!auxilio) return res.status(400).json({ error: 'El auxilio de transporte debe ser mayor que cero.' });
+
+  const anterior = await getConfig(db);
+  const config = await setConfig(db,
+    { auxilio_transporte: b.auxilio_transporte, salario_minimo: b.salario_minimo ?? '', vigencia },
+    { actualizado_por: actor(req), actualizado_at: new Date().toISOString() });
+  await logAudit(actor(req), 'Valores de certificados actualizados', 'hr_config', null, vigencia, {
+    antes: { auxilio_transporte: anterior.auxilio_transporte, salario_minimo: anterior.salario_minimo, vigencia: anterior.vigencia },
+    despues: { auxilio_transporte: config.auxilio_transporte, salario_minimo: config.salario_minimo, vigencia: config.vigencia },
+  });
   res.json(config);
 }));
 
