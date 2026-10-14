@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.15.2](https://github.com/gerson05/it-support-system/compare/v1.15.1...v1.15.2) (2026-10-14)
+
+
+### Bug Fixes
+
+* **whatsapp:** chatbot only answers individual chats ([dfbe3f9](https://github.com/gerson05/it-support-system/commit/dfbe3f911e5c248ce135cb95a3aaddf95f0a1526))
+* **whatsapp:** chatbot only answers individual chats ([9abba20](https://github.com/gerson05/it-support-system/commit/9abba20e5060b383dc9bbab814f404d5ede1c057))
+
 ## [1.15.1](https://github.com/gerson05/it-support-system/compare/v1.15.0...v1.15.1) (2026-10-07)
 
 
