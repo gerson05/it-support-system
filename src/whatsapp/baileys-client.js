@@ -13,6 +13,7 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import Chatbot from './chatbot.js';
 import { resolvePhone } from './resolve-phone.js';
+import { esChatIndividual } from './chat-filter.js';
 import db from '../config/database.js';
 import { broadcast } from '../events/broadcaster.js';
 
@@ -186,9 +187,8 @@ class WhatsAppClient {
 
     // ── Mensaje entrante ──
     this.client.on('message', async (msg) => {
-      if (msg.isGroupMsg || msg.from?.endsWith('@g.us')) return;
-      if (msg.from === 'status@broadcast') return;
-      if (msg.fromMe) return;
+      // Solo chats individuales: grupos, difusiones, estados y canales se ignoran
+      if (!(await esChatIndividual(msg))) return;
 
       // En WhatsApp multi-device msg.from puede ser LID ("237...@lid").
       // Usamos msg.from como chatId para responder siempre correctamente,
@@ -266,6 +266,10 @@ class WhatsAppClient {
     try {
       // Usar chatId real si está disponible; si no, reconstruir desde phone
       const target = chatId || (phone.includes('@') ? phone : `${phone}@c.us`);
+      if (target.endsWith('@g.us')) {
+        console.log(`[WhatsApp] Envío a grupo omitido (solo chats individuales) → ${target}`);
+        return { success: false, error: 'Solo se envían mensajes a chats individuales.' };
+      }
       await this.client.sendMessage(target, text);
       console.log(`[WhatsApp] Mensaje enviado → ${target}`);
       return { success: true, simulation: false };
