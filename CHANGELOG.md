@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.15.3](https://github.com/gerson05/it-support-system/compare/v1.15.2...v1.15.3) (2026-10-21)
+
+
+### Bug Fixes
+
+* **inventario:** remove duplicated fields in equipment and phone forms ([4b48e95](https://github.com/gerson05/it-support-system/commit/4b48e952c26b71333d451162d40a97180d6e459b))
+* **inventario:** remove duplicated fields in equipment and phone forms ([45437a8](https://github.com/gerson05/it-support-system/commit/45437a8d055c3ed9c5ef8e254ca501cdc7e55c12))
+
 ## [1.15.2](https://github.com/gerson05/it-support-system/compare/v1.15.1...v1.15.2) (2026-10-14)
 
 
