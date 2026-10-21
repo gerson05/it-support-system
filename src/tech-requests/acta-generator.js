@@ -19,7 +19,7 @@ const TEMPLATE   = path.join(ASSETS, 'template-acta-base.docx');
 /* ── Utilidades XML ───────────────────────────────────────────── */
 
 /** Escapa caracteres especiales para XML */
-function esc(str) {
+export function esc(str) {
   return String(str || '')
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -29,7 +29,7 @@ function esc(str) {
 }
 
 /** Párrafo con estilo "Textoindependiente" (estilo base de la plantilla) */
-function pTxt(runs, extra = '') {
+export function pTxt(runs, extra = '') {
   return `<w:p><w:pPr><w:pStyle w:val="Textoindependiente"/><w:spacing w:before="11"/>${extra}</w:pPr>${runs}</w:p>`;
 }
 
@@ -56,7 +56,7 @@ function tablaAccesoriosFila(texto, totalW) {
 }
 
 /** Run de texto */
-function run(text, bold = false, color = '') {
+export function run(text, bold = false, color = '') {
   const rPr = (bold || color)
     ? `<w:rPr>${bold ? '<w:b/><w:bCs/>' : ''}${color ? `<w:color w:val="${color}"/>` : ''}</w:rPr>`
     : '';
@@ -64,7 +64,7 @@ function run(text, bold = false, color = '') {
 }
 
 /** Línea etiqueta + valor con tabulación */
-function campoXml(label, valor) {
+export function campoXml(label, valor) {
   return pTxt(
     run(label) +
     `<w:r><w:tab/></w:r>` +
@@ -73,17 +73,17 @@ function campoXml(label, valor) {
 }
 
 /** Párrafo vacío */
-function espXml() {
+export function espXml() {
   return `<w:p><w:pPr><w:pStyle w:val="Textoindependiente"/><w:spacing w:before="11"/></w:pPr></w:p>`;
 }
 
 /** Título de sección en MAYÚSCULAS, negrita */
-function seccionXml(texto) {
+export function seccionXml(texto) {
   return pTxt(run(texto.toUpperCase(), true), '<w:spacing w:before="200"/>');
 }
 
 /** Fila de tabla XML */
-function tablaFila(celdas, cabecera = false) {
+export function tablaFila(celdas, cabecera = false) {
   const celdasXml = celdas.map(({ text, w }) => `
     <w:tc>
       <w:tcPr>
@@ -106,6 +106,69 @@ function tablaFila(celdas, cabecera = false) {
     </w:tc>`).join('');
 
   return `<w:tr${cabecera ? ' w:rsidTrPr="00000000"' : ''}>${celdasXml}</w:tr>`;
+}
+
+/** Firma del jefe de soporte (rId8 = image1.png embebida en la plantilla). */
+export const FIRMA_JEFE_XML = `
+    <w:r>
+      <w:rPr><w:noProof/></w:rPr>
+      <w:drawing>
+        <wp:inline xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing">
+          <wp:extent cx="1244600" cy="594360"/>
+          <wp:docPr id="1001" name="firma-jefe"/>
+          <wp:cNvGraphicFramePr>
+            <a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/>
+          </wp:cNvGraphicFramePr>
+          <a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
+            <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">
+              <pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
+                <pic:nvPicPr>
+                  <pic:cNvPr id="1002" name="firma-jefe"/>
+                  <pic:cNvPicPr/>
+                </pic:nvPicPr>
+                <pic:blipFill>
+                  <a:blip r:embed="rId8" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"/>
+                  <a:stretch><a:fillRect/></a:stretch>
+                </pic:blipFill>
+                <pic:spPr>
+                  <a:xfrm><a:off x="0" y="0"/><a:ext cx="1244600" cy="594360"/></a:xfrm>
+                  <a:prstGeom prst="rect"><a:avLst/></a:prstGeom>
+                </pic:spPr>
+              </pic:pic>
+            </a:graphicData>
+          </a:graphic>
+        </wp:inline>
+      </w:drawing>
+    </w:r>`;
+
+/**
+ * Reemplaza el cuerpo de la plantilla corporativa por `bodyXml` (debe terminar en <w:sectPr/>)
+ * conservando encabezado, logo, marca de agua y estilos. Devuelve el .docx como Buffer.
+ */
+export function aplicarPlantilla(bodyXml) {
+  if (!fs.existsSync(TEMPLATE)) {
+    throw new Error(`Plantilla no encontrada: ${TEMPLATE}`);
+  }
+
+  const templateZip    = new AdmZip(TEMPLATE);
+  let   templateDocXml = templateZip.readAsText('word/document.xml');
+
+  // Extraer el <w:sectPr> original para preservar referencias a headers/footers
+  // (logo, marca de agua VML en header2.xml, etc.)
+  const sectPrMatch = templateDocXml.match(/<w:sectPr[\s\S]*?<\/w:sectPr>/);
+  const originalSectPr = sectPrMatch ? sectPrMatch[0] : '<w:sectPr/>';
+
+  // Reemplazar el cuerpo manteniendo namespaces y reutilizando el sectPr original
+  const bodyXmlFinal = bodyXml.replace('<w:sectPr/>', () => originalSectPr);
+
+  templateDocXml = templateDocXml.replace(
+    /<w:body>[\s\S]*<\/w:body>/,
+    () => `<w:body>${bodyXmlFinal}</w:body>` // función: evita que "$" en los datos se interprete
+  );
+
+  templateZip.updateFile('word/document.xml', Buffer.from(templateDocXml, 'utf-8'));
+
+  return templateZip.toBuffer();
 }
 
 /* ── Función principal ─────────────────────────────────────────── */
@@ -188,37 +251,7 @@ export async function generateActa(request, equipment, agentName = 'Jefe de Sopo
 
   // Sección de firma: imagen del jefe (rId8 = image1.png de la plantilla) + línea para quien recibe
   // La firma del jefe está embebida en la plantilla como rId8 (image1.png, 312x149)
-  const firmaJefeImgXml = `
-    <w:r>
-      <w:rPr><w:noProof/></w:rPr>
-      <w:drawing>
-        <wp:inline xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing">
-          <wp:extent cx="1244600" cy="594360"/>
-          <wp:docPr id="1001" name="firma-jefe"/>
-          <wp:cNvGraphicFramePr>
-            <a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/>
-          </wp:cNvGraphicFramePr>
-          <a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
-            <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">
-              <pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
-                <pic:nvPicPr>
-                  <pic:cNvPr id="1002" name="firma-jefe"/>
-                  <pic:cNvPicPr/>
-                </pic:nvPicPr>
-                <pic:blipFill>
-                  <a:blip r:embed="rId8" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"/>
-                  <a:stretch><a:fillRect/></a:stretch>
-                </pic:blipFill>
-                <pic:spPr>
-                  <a:xfrm><a:off x="0" y="0"/><a:ext cx="1244600" cy="594360"/></a:xfrm>
-                  <a:prstGeom prst="rect"><a:avLst/></a:prstGeom>
-                </pic:spPr>
-              </pic:pic>
-            </a:graphicData>
-          </a:graphic>
-        </wp:inline>
-      </w:drawing>
-    </w:r>`;
+  const firmaJefeImgXml = FIRMA_JEFE_XML;
 
   const bodyXml = `
     ${/* Ciudad y fecha */''}
@@ -309,28 +342,5 @@ export async function generateActa(request, equipment, agentName = 'Jefe de Sopo
     <w:sectPr/>
   `;
 
-  /* ── 2. Inyectar en la plantilla ──────────────────────────── */
-  if (!fs.existsSync(TEMPLATE)) {
-    throw new Error(`Plantilla no encontrada: ${TEMPLATE}`);
-  }
-
-  const templateZip    = new AdmZip(TEMPLATE);
-  let   templateDocXml = templateZip.readAsText('word/document.xml');
-
-  // Extraer el <w:sectPr> original para preservar referencias a headers/footers
-  // (logo, marca de agua VML en header2.xml, etc.)
-  const sectPrMatch = templateDocXml.match(/<w:sectPr[\s\S]*?<\/w:sectPr>/);
-  const originalSectPr = sectPrMatch ? sectPrMatch[0] : '<w:sectPr/>';
-
-  // Reemplazar el cuerpo manteniendo namespaces y reutilizando el sectPr original
-  const bodyXmlFinal = bodyXml.replace('<w:sectPr/>', originalSectPr);
-
-  templateDocXml = templateDocXml.replace(
-    /<w:body>[\s\S]*<\/w:body>/,
-    `<w:body>${bodyXmlFinal}</w:body>`
-  );
-
-  templateZip.updateFile('word/document.xml', Buffer.from(templateDocXml, 'utf-8'));
-
-  return templateZip.toBuffer();
+  return aplicarPlantilla(bodyXml);
 }
