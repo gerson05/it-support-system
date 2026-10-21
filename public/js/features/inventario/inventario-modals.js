@@ -34,10 +34,10 @@ export async function openDetalleModal(token) {
           row('RAM', d.ram ? `${d.ram}${d.tipo_ram ? ' ' + d.tipo_ram : ''}` : null),
           row('Disco', d.cap_disco ? `${d.cap_disco}${d.tipo_disco ? ' ' + d.tipo_disco : ''}` : null),
           row('Fecha compra', d.fecha_compra)]) +
-        sec('Asignación', [row('Área', d.area), row('Responsable', d.responsable)]);
+        sec('Asignación', [row('Área', d.area), row('Destinatario', d.nombre_completo || d.responsable)]);
     } else if (_meta.tabla === 'inventario_celulares') {
       fields =
-        sec('Identificación', [row('Placa', d.placa), row('IMEI', d.imei), row('IMEI 2', d.imei2), row('Serial', d.serial), row('Línea', d.linea), row('Operador', d.operador)]) +
+        sec('Identificación', [row('Placa', d.placa), row('IMEI', d.imei), row('IMEI 2', d.imei2), row('Serial', d.serial), row('Teléfono', d.numero_telefono || d.linea), row('Operador', d.operador)]) +
         sec('Equipo', [row('Modelo', d.modelo), row('Equipo', d.equipo), row('Almacenamiento', d.almacenamiento),
           row('RAM', d.ram), row('Accesorio', d.accesorio), row('Estado', d.estado)]) +
         sec('Asignación', [row('Usuario', d.nombre_completo), row('Cédula', d.cedula),

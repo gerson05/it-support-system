@@ -61,7 +61,7 @@ export async function doExport(formato, btn) {
   }
 }
 
-const _EQUIPO_THEAD = `<tr><th>Placa</th><th>Equipo</th><th>Serial</th><th>Procesador</th><th>RAM</th><th>Disco</th><th>S/N Cargador</th><th>Área</th><th>Responsable</th><th>F. Compra</th></tr>`;
+const _EQUIPO_THEAD = `<tr><th>Placa</th><th>Equipo</th><th>Serial</th><th>Procesador</th><th>RAM</th><th>Disco</th><th>S/N Cargador</th><th>Área</th><th>Destinatario</th><th>F. Compra</th></tr>`;
 
 function _equipoRow(e) {
   return `<tr>
@@ -73,7 +73,7 @@ function _equipoRow(e) {
     <td>${e.cap_disco ? `${esc(e.cap_disco)} <span class="sub">${esc(e.tipo_disco||'')}</span>` : '—'}</td>
     <td class="mono" style="font-size:9px">${esc(e.serial_cargador||'—')}</td>
     <td>${esc(e.area||'—')}</td>
-    <td>${esc(e.responsable||'—')}</td>
+    <td>${esc(e.nombre_completo||e.responsable||'—')}</td>
     <td>${esc(e.fecha_compra||'—')}</td>
   </tr>`;
 }
@@ -193,8 +193,8 @@ async function _exportExcel(data) {
   ];
   window.XLSX.utils.book_append_sheet(wb, window.XLSX.utils.aoa_to_sheet(resumenAOA), 'Resumen');
 
-  const _ECOLS = ['Placa','Marca','Equipo','Serial','Procesador','RAM','Tipo RAM','Disco','Tipo Disco','S/N Cargador','Área','Responsable','F. Compra'];
-  const _erow  = e => [e.placa,e.marca,e.nombre_equipo,e.serial,e.procesador,e.ram,e.tipo_ram,e.cap_disco,e.tipo_disco,e.serial_cargador,e.area,e.responsable,e.fecha_compra];
+  const _ECOLS = ['Placa','Marca','Equipo','Serial','Procesador','RAM','Tipo RAM','Disco','Tipo Disco','S/N Cargador','Área','Destinatario','F. Compra'];
+  const _erow  = e => [e.placa,e.marca,e.nombre_equipo,e.serial,e.procesador,e.ram,e.tipo_ram,e.cap_disco,e.tipo_disco,e.serial_cargador,e.area,e.nombre_completo||e.responsable,e.fecha_compra];
   const _CAT_SHEET = { computadores:'Computadores', impresoras:'Impresoras', escaner:'Escaneres',
     televisores:'Televisores', monitores:'Monitores', tablets:'Tablets', perifericos:'Perifericos', otros:'Otros' };
   const byCat = {};

@@ -4,6 +4,7 @@ import db from '../config/database.js';
 import { requireAuth, requirePermission } from '../auth/auth-middleware.js';
 import { getSedeCode, nextConsecutivo } from './sede-codes.js';
 import { wrap } from '../utils/async-handler.js';
+import { destinatarioDe } from './campos-unificados.js';
 
 const router = express.Router();
 
@@ -48,10 +49,11 @@ router.get('/api/inventario/equipos', ...canRead, wrap(async (req, res) => {
 }));
 
 router.post('/api/inventario/equipos', ...canCreate, wrap(async (req, res) => {
-  const { placa, marca, nombre_equipo, serial, modelo, procesador, ram, tipo_ram, cap_disco, tipo_disco, serial_cargador, area, responsable, fecha_compra, categoria, ciudad, nombre_completo, cedula } = req.body;
+  const { placa, marca, nombre_equipo, serial, modelo, procesador, ram, tipo_ram, cap_disco, tipo_disco, serial_cargador, area, fecha_compra, categoria, ciudad, cedula } = req.body;
   if (!placa?.trim() || !marca?.trim() || !nombre_equipo?.trim() || !serial?.trim()) {
     return res.status(400).json({ error: 'placa, marca, nombre_equipo y serial son requeridos.' });
   }
+  const destinatario = destinatarioDe(req.body);
   const qr_token = randomUUID();
   try {
     const result = await db.prepare(`
@@ -61,8 +63,8 @@ router.post('/api/inventario/equipos', ...canCreate, wrap(async (req, res) => {
     `).run(placa.trim(), marca.trim(), nombre_equipo.trim(), serial.trim(),
            modelo||null, procesador||null, ram||null, tipo_ram||null, cap_disco||null,
            tipo_disco||null, serial_cargador||null, area||null,
-           responsable||null, fecha_compra||null, qr_token, categoria||'computadores', ciudad||null,
-           nombre_completo||null, cedula||null);
+           destinatario, fecha_compra||null, qr_token, categoria||'computadores', ciudad||null,
+           destinatario, cedula||null);
     res.status(201).json({ ok: true, id: result.lastInsertRowid, qr_token });
   } catch (err) {
     if (err.message?.includes('UNIQUE')) return res.status(409).json({ error: 'Ya existe un equipo con esa placa o serial.' });
@@ -75,7 +77,8 @@ router.put('/api/inventario/equipos/:id', ...canEdit, wrap(async (req, res) => {
   if (!await db.prepare('SELECT id FROM inventario_equipos WHERE id = ?').get(id)) {
     return res.status(404).json({ error: 'Equipo no encontrado.' });
   }
-  const { placa, marca, nombre_equipo, serial, modelo, procesador, ram, tipo_ram, cap_disco, tipo_disco, serial_cargador, area, responsable, fecha_compra, categoria, ciudad, nombre_completo, cedula } = req.body;
+  const { placa, marca, nombre_equipo, serial, modelo, procesador, ram, tipo_ram, cap_disco, tipo_disco, serial_cargador, area, fecha_compra, categoria, ciudad, cedula } = req.body;
+  const destinatario = destinatarioDe(req.body);
   try {
     await db.prepare(`
       UPDATE inventario_equipos SET
@@ -86,9 +89,9 @@ router.put('/api/inventario/equipos/:id', ...canEdit, wrap(async (req, res) => {
     `).run(placa, marca, nombre_equipo, serial,
            modelo||null, procesador||null, ram||null, tipo_ram||null,
            cap_disco||null, tipo_disco||null, serial_cargador||null,
-           area||null, responsable||null, fecha_compra||null,
+           area||null, destinatario, fecha_compra||null,
            categoria||'computadores', ciudad||null,
-           nombre_completo||null, cedula||null, id);
+           destinatario, cedula||null, id);
     res.json({ ok: true });
   } catch (err) {
     if (err.message?.includes('UNIQUE')) return res.status(409).json({ error: 'Placa o serial ya existe en otro equipo.' });
