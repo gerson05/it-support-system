@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.16.0](https://github.com/gerson05/it-support-system/compare/v1.15.3...v1.16.0) (2026-10-21)
+
+
+### Features
+
+* **inventario:** paz y salvo — assets assigned to a person + exit clearance acta ([e697d98](https://github.com/gerson05/it-support-system/commit/e697d98685b0cfb1aa9671db8130287e762b8d48))
+* **inventario:** paz y salvo for employees leaving the company ([0644869](https://github.com/gerson05/it-support-system/commit/0644869c72f06ffb6802699a638f2756bbdc9354))
+
 ## [1.15.3](https://github.com/gerson05/it-support-system/compare/v1.15.2...v1.15.3) (2026-10-21)
 
 
