@@ -82,14 +82,14 @@ router.get('/activo/:token', async (req, res) => {
       ]) +
       section('Asignación', [
         fieldRow('Área', item.area),
-        fieldRow('Responsable', item.responsable),
+        fieldRow('Destinatario', item.nombre_completo || item.responsable),
       ]);
   } else if (_meta.tabla === 'inventario_celulares') {
     sections =
       section('Identificación', [
         fieldRow('IMEI', item.imei),
         fieldRow('IMEI 2', item.imei2),
-        fieldRow('Línea', item.linea),
+        fieldRow('Teléfono', item.numero_telefono || item.linea),
         fieldRow('Operador', item.operador),
       ]) +
       section('Equipo', [

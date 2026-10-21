@@ -67,7 +67,7 @@ export function openForm(row, activeTab, onSuccess, isDuplicate = false, default
   form.querySelectorAll('input[type=text]').forEach(inp => {
     inp.addEventListener('blur', e => {
       // Excluir identificadores técnicos y valores numéricos/especiales
-      const skip = ['placa','serial','imei','imei2','serial_cargador','cedula','linea','voltaje'];
+      const skip = ['placa','serial','imei','imei2','serial_cargador','cedula','numero_telefono','voltaje'];
       if (!skip.includes(e.target.name)) e.target.value = toTitleCase(e.target.value.trim());
     });
   });
@@ -171,8 +171,7 @@ export function equipoFormHTML(r, isDuplicate = false) {
             ${inputField('Serial Cargador','serial_cargador',v('serial_cargador'))}
             ${areaSelectField(v('area'))}
             ${bodegaInputField(v('ciudad'))}
-            ${inputField('Responsable','responsable',v('responsable'))}
-            ${inputField('Nombre completo del destinatario','nombre_completo',v('nombre_completo'))}
+            ${inputField('Nombre completo del destinatario','nombre_completo',v('nombre_completo') || v('responsable'))}
             ${inputField('Cédula del destinatario','cedula',v('cedula'))}
           </div>
           <div style="margin-top:12px;">
@@ -223,8 +222,7 @@ export function celularFormHTML(r, isDuplicate = false) {
             ${selectField('Almacenamiento','almacenamiento',v('almacenamiento'),['32GB','64GB','128GB','256GB','512GB'])}
             ${selectField('RAM','ram',v('ram'),['2GB','3GB','4GB','6GB','8GB','12GB','16GB'])}
             ${selectField('Operador','operador',v('operador'),['CLARO','TIGO','MOVISTAR','WOM','ETB','AVANTEL'])}
-            ${inputField('Línea','linea',v('linea'))}
-            ${inputField('Número de teléfono','numero_telefono',v('numero_telefono'),'tel')}
+            ${inputField('Número de teléfono','numero_telefono',v('numero_telefono') || v('linea'),'tel')}
             ${areaSelectField(v('area'))}
             ${bodegaInputField(v('ciudad'))}
             ${inputField('Nombre completo *','nombre_completo',v('nombre_completo'))}
