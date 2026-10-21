@@ -8,6 +8,7 @@
  *   - ups-routes.js        → CRUD for UPS units
  *   - import-routes.js     → Excel .xlsx import (parse + confirm)
  *   - registro-routes.js   → Shareable registration tokens + mobile self-registration
+ *   - paz-salvo-routes.js  → Assets assigned to a person + exit clearance (paz y salvo) .docx
  */
 
 import express         from 'express';
@@ -16,6 +17,7 @@ import celularesRouter from './celulares-routes.js';
 import upsRouter       from './ups-routes.js';
 import importRouter    from './import-routes.js';
 import registroRouter  from './registro-routes.js';
+import pazSalvoRouter  from './paz-salvo-routes.js';
 
 const router = express.Router();
 
@@ -24,5 +26,6 @@ router.use(celularesRouter);
 router.use(upsRouter);
 router.use(importRouter);
 router.use(registroRouter);
+router.use(pazSalvoRouter);
 
 export default router;

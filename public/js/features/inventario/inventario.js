@@ -17,6 +17,7 @@ import { openForm, openGenerarEnlaceModal } from './inventario-forms.js';
 import { openImportModal } from './inventario-import.js';
 import { openExportPanel, closeExportPanel, doExport } from './inventario-export.js';
 import { openDetalleModal, openEtiquetaModal, confirmDelete } from './inventario-modals.js';
+import { openPazSalvoModal } from './inventario-paz-salvo.js';
 
 const _esc = s => String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
@@ -72,6 +73,10 @@ function renderInventarioShell() {
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
         <button id="btn-inv-hamburger" class="inv-hamburger">
           ${iconMenu(16)} Categorías
+        </button>
+        <button id="btn-inv-paz-salvo" title="Equipos asignados a una persona que se retira y acta de paz y salvo"
+          style="display:flex;align-items:center;gap:7px;padding:10px 16px;background:var(--surface);border:1px solid var(--border-2);border-radius:10px;color:var(--text-2);font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;">
+          ${iconCheck(14)} Paz y salvo
         </button>
         <button id="btn-inv-enlace"
           style="display:flex;align-items:center;gap:7px;padding:10px 16px;background:var(--surface);border:1px solid var(--border-2);border-radius:10px;color:var(--text-2);font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;">
@@ -230,6 +235,7 @@ function bindInventarioEvents(loadTable, loadCounts) {
     openImportModal(t.apiTab, () => { loadTable(); loadCounts(); });
   });
   document.getElementById('btn-inv-enlace').addEventListener('click', () => openGenerarEnlaceModal());
+  document.getElementById('btn-inv-paz-salvo').addEventListener('click', openPazSalvoModal);
 
   document.getElementById('inv-sidebar-toggle').addEventListener('click', _toggleSidebar);
   document.getElementById('btn-inv-hamburger').addEventListener('click', () => _toggleDrawer(true));
