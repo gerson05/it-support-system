@@ -12,12 +12,13 @@
 import { showToast } from '../../ui/components.js';
 import { iconPlus, iconUpload, iconMonitor, iconSmartphone, iconCheck, iconZap, iconQrCode,
          iconCpu, iconTv, iconTablet, iconScan, iconMouse, iconPrinter,
-         iconChevronLeft, iconClose, iconMenu, iconDownload, iconDocument, iconBarChart } from '../../utils/icons.js';
+         iconChevronLeft, iconClose, iconMenu, iconDownload, iconDocument, iconBarChart, iconUser } from '../../utils/icons.js';
 import { openForm, openGenerarEnlaceModal } from './inventario-forms.js';
 import { openImportModal } from './inventario-import.js';
 import { openExportPanel, closeExportPanel, doExport } from './inventario-export.js';
 import { openDetalleModal, openEtiquetaModal, confirmDelete } from './inventario-modals.js';
 import { openPazSalvoModal } from './inventario-paz-salvo.js';
+import { loadPersonas } from './inventario-personas.js';
 
 const _esc = s => String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
@@ -32,7 +33,10 @@ const TABS = [
   { id:'perifericos',  label:'Periféricos',  apiTab:'equipos', categoria:'perifericos',  icon: s => iconMouse(s)      },
   { id:'celulares',    label:'Celulares',    apiTab:'celulares', categoria:'',           icon: s => iconSmartphone(s) },
   { id:'ups',          label:'UPS',          apiTab:'ups',     categoria:'',             icon: s => iconZap(s)        },
+  // Vista de personas con equipos asignados (no es una tabla de inventario)
+  { id:'personas',     label:'Personas',     apiTab:'personas', categoria:'', unidad:'personas', icon: s => iconUser(s) },
 ];
+const _esPersonas = t => t?.apiTab === 'personas';
 
 let _activeTabId      = null;
 let _page             = 1;
@@ -130,7 +134,7 @@ function renderInventarioShell() {
               <label class="inv-export-label">Tipo de equipo</label>
               <select id="inv-exp-tipo" class="inv-export-select">
                 <option value="">Todos</option>
-                ${TABS.map(t => `<option value="${t.apiTab}:${t.categoria}">${t.label}</option>`).join('')}
+                ${TABS.filter(t => !_esPersonas(t)).map(t => `<option value="${t.apiTab}:${t.categoria}">${t.label}</option>`).join('')}
               </select>
             </div>
             <div class="inv-export-field">
@@ -226,12 +230,12 @@ function bindInventarioEvents(loadTable, loadCounts) {
 
   document.getElementById('btn-inv-new').addEventListener('click', () => {
     const t = activeTab();
-    if (!t) { showToast('Selecciona una categoría primero.', 'error'); return; }
+    if (!t || _esPersonas(t)) { showToast('Selecciona una categoría de equipos primero.', 'error'); return; }
     openForm(null, t.apiTab, () => { loadTable(); loadCounts(); }, false, t.categoria);
   });
   document.getElementById('btn-inv-import').addEventListener('click', () => {
     const t = activeTab();
-    if (!t) { showToast('Selecciona una categoría primero.', 'error'); return; }
+    if (!t || _esPersonas(t)) { showToast('Selecciona una categoría de equipos primero.', 'error'); return; }
     openImportModal(t.apiTab, () => { loadTable(); loadCounts(); });
   });
   document.getElementById('btn-inv-enlace').addEventListener('click', () => openGenerarEnlaceModal());
@@ -275,7 +279,7 @@ function showWelcome(wrap) {
             <div class="inv-welcome-card-icon">${t.icon(26)}</div>
             <div class="inv-welcome-card-name">${t.label}</div>
             <div class="inv-welcome-card-count" id="wc-count-${t.id}">…</div>
-            <div class="inv-welcome-card-label">equipos</div>
+            <div class="inv-welcome-card-label">${t.unidad || 'equipos'}</div>
           </button>`).join('')}
       </div>
     </div>`;
@@ -308,6 +312,12 @@ async function loadTable() {
   if (tab.categoria) params.set('categoria', tab.categoria);
 
   try {
+    if (_esPersonas(tab)) {
+      const data = await loadPersonas(wrap, { page: _page, limit: _limit, search: _search, area: _filterArea },
+        (desdeInicio) => { if (desdeInicio) _page = 1; loadTable(); });
+      renderPagination(data.total, data.total_pages);
+      return;
+    }
     const res  = await fetch(`/api/inventario/${tab.apiTab}?${params}`);
     if (!res.ok) throw new Error(res.statusText);
     const data = await res.json();

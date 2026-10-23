@@ -5,44 +5,91 @@
  */
 
 const TABLAS = {
-  inventario_equipos:   { tipo: 'equipos',   nombre: "COALESCE(NULLIF(TRIM(nombre_completo), ''), TRIM(responsable))" },
-  inventario_celulares: { tipo: 'celulares', nombre: 'TRIM(nombre_completo)' },
-  inventario_ups:       { tipo: 'ups',       nombre: 'TRIM(nombre_completo)' },
+  inventario_equipos:   { tipo: 'equipos',   nombre: "COALESCE(NULLIF(TRIM(nombre_completo), ''), TRIM(responsable))",
+    categoria: 'categoria', serial: 'serial' },
+  inventario_celulares: { tipo: 'celulares', nombre: 'TRIM(nombre_completo)', categoria: "'celulares'",
+    serial: "COALESCE(NULLIF(imei, ''), serial)" },
+  inventario_ups:       { tipo: 'ups',       nombre: 'TRIM(nombre_completo)', categoria: "'ups'", serial: 'serial' },
 };
 
 const CATEGORIA = {
   computadores: 'Computador', impresoras: 'Impresora', escaner: 'Escáner', televisores: 'Televisor',
   monitores: 'Monitor', tablets: 'Tablet', perifericos: 'Periférico',
 };
+/** Nombre en singular de cada tipo (para resúmenes y filtros). */
+export const TIPOS = { ...CATEGORIA, celulares: 'Celular', ups: 'UPS' };
 
 const limpio = (v) => String(v ?? '').trim();
 const normCedula = (v) => limpio(v).replace(/[^0-9A-Za-z]/g, '');
 const normNombre = (v) => limpio(v).toLowerCase().replace(/\s+/g, ' ');
 
-/** Personas (cédula + nombre) con algo asignado que coincidan con el texto buscado. */
-export async function buscarPersonas(db, texto, limite = 20) {
-  const q = limpio(texto);
-  if (q.length < 3) return [];
-  const patron = `%${q.toLowerCase()}%`;
+/**
+ * Todas las personas con algo asignado, agrupadas por cédula (o por nombre si no hay cédula).
+ * Filtros: q (nombre, cédula, placa o serial/IMEI de algo que tenga), area (área o sede) y tipo
+ * (categoría de equipo, 'celulares' o 'ups').
+ */
+export async function listarPersonas(db, { q, area, tipo } = {}) {
+  const texto = limpio(q).toLowerCase();
+  const zona = limpio(area).toLowerCase();
+  const filtroTipo = limpio(tipo);
+  // celulares / ups son tablas propias; cualquier otro tipo es una categoría de inventario_equipos
+  const tablaDelTipo = filtroTipo === 'celulares' || filtroTipo === 'ups' ? filtroTipo : 'equipos';
   const personas = new Map();
 
   for (const [tabla, t] of Object.entries(TABLAS)) {
+    if (filtroTipo && t.tipo !== tablaDelTipo) continue;
+    const cond = [`(COALESCE(${t.nombre}, '') <> '' OR COALESCE(TRIM(cedula), '') <> '')`], params = [];
+    if (texto) {
+      cond.push(`(LOWER(COALESCE(${t.nombre}, '')) LIKE ? OR LOWER(COALESCE(cedula, '')) LIKE ?
+        OR LOWER(COALESCE(placa, '')) LIKE ? OR LOWER(COALESCE(${t.serial}, '')) LIKE ?)`);
+      params.push(...Array(4).fill(`%${texto}%`));
+    }
+    if (zona) {
+      cond.push("(LOWER(COALESCE(area, '')) LIKE ? OR LOWER(COALESCE(ciudad, '')) LIKE ?)");
+      params.push(`%${zona}%`, `%${zona}%`);
+    }
+    if (filtroTipo && t.tipo === 'equipos') { cond.push('categoria = ?'); params.push(filtroTipo); }
+
     const rows = await db.prepare(`
-      SELECT ${t.nombre} AS nombre, TRIM(cedula) AS cedula, COUNT(*) AS n
-      FROM ${tabla}
-      WHERE LOWER(${t.nombre}) LIKE ? OR LOWER(TRIM(cedula)) LIKE ?
-      GROUP BY ${t.nombre}, TRIM(cedula)
-    `).all(patron, patron);
+      SELECT ${t.nombre} AS nombre, TRIM(cedula) AS cedula, ${t.categoria} AS categoria, area, ciudad
+      FROM ${tabla} WHERE ${cond.join(' AND ')}
+    `).all(...params);
     for (const r of rows) {
-      if (!limpio(r.nombre) && !limpio(r.cedula)) continue;
       const clave = normCedula(r.cedula) || `n:${normNombre(r.nombre)}`;
-      const p = personas.get(clave) || { cedula: normCedula(r.cedula), nombre: limpio(r.nombre), elementos: 0 };
+      const p = personas.get(clave) || { cedula: normCedula(r.cedula), nombre: limpio(r.nombre), elementos: 0, resumen: {}, areas: [] };
       if (!p.nombre && r.nombre) p.nombre = limpio(r.nombre);
-      p.elementos += Number(r.n) || 0;
+      p.elementos += 1;
+      const etiqueta = TIPOS[r.categoria] || 'Equipo';
+      p.resumen[etiqueta] = (p.resumen[etiqueta] || 0) + 1;
+      for (const a of [limpio(r.area), limpio(r.ciudad)]) if (a && !p.areas.includes(a)) p.areas.push(a);
       personas.set(clave, p);
     }
   }
+  // Registros antiguos sin cédula se suman a la persona con cédula del mismo nombre (si es única),
+  // igual que hace asignadosA() al mostrar lo asignado.
+  const conCedula = new Map();
+  for (const p of personas.values()) {
+    if (!p.cedula) continue;
+    const n = normNombre(p.nombre);
+    conCedula.set(n, conCedula.has(n) ? null : p);
+  }
+  for (const [clave, p] of personas) {
+    const destino = !p.cedula && conCedula.get(normNombre(p.nombre));
+    if (!destino) continue;
+    destino.elementos += p.elementos;
+    for (const [t, n] of Object.entries(p.resumen)) destino.resumen[t] = (destino.resumen[t] || 0) + n;
+    for (const a of p.areas) if (!destino.areas.includes(a)) destino.areas.push(a);
+    personas.delete(clave);
+  }
+
   return [...personas.values()]
+    .sort((a, b) => (a.nombre || '~').localeCompare(b.nombre || '~', 'es') || a.cedula.localeCompare(b.cedula));
+}
+
+/** Búsqueda rápida (ventana de paz y salvo): mínimo 3 caracteres, los que más tienen primero. */
+export async function buscarPersonas(db, texto, limite = 20) {
+  if (limpio(texto).length < 3) return [];
+  return (await listarPersonas(db, { q: texto }))
     .sort((a, b) => b.elementos - a.elementos || a.nombre.localeCompare(b.nombre))
     .slice(0, limite);
 }
