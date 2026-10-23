@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.17.0](https://github.com/gerson05/it-support-system/compare/v1.16.0...v1.17.0) (2026-10-23)
+
+
+### Features
+
+* **inventario:** "Personas" category listing who has assets assigned ([41935cc](https://github.com/gerson05/it-support-system/commit/41935ccfe0b356b94ceb11198459182318743990))
+* **inventario:** Personas category — who has assets assigned ([745d699](https://github.com/gerson05/it-support-system/commit/745d69966ecbdacd18e5c60f90aaa72e2e2c029d))
+
 ## [1.16.0](https://github.com/gerson05/it-support-system/compare/v1.15.3...v1.16.0) (2026-10-21)
 
 
