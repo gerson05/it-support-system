@@ -3,13 +3,24 @@ import db from '../config/database.js';
 import { requireAuth, requirePermission } from '../auth/auth-middleware.js';
 import { wrap } from '../utils/async-handler.js';
 import { logAudit } from '../audit/audit-logger.js';
-import { buscarPersonas, asignadosA, elementosPorId } from './paz-salvo-model.js';
+import { buscarPersonas, listarPersonas, asignadosA, elementosPorId } from './paz-salvo-model.js';
 import { generarActaPazSalvo, textoCertificacion } from './paz-salvo-acta.js';
 
 const router = express.Router();
 const canRead = [requireAuth, requirePermission('inventario:read')];
 const actor = (req) => req.user?.username || req.session?.username || 'sistema';
 const texto = (v, max = 200) => String(v ?? '').trim().slice(0, max);
+
+/** Listado paginado de personas con equipos asignados (categoría "Personas" de Inventario). */
+router.get('/api/inventario/personas', ...canRead, wrap(async (req, res) => {
+  const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+  const limit = Math.min(100, Math.max(1, parseInt(req.query.limit, 10) || 20));
+  const todas = await listarPersonas(db, { q: req.query.search, area: req.query.area, tipo: req.query.tipo });
+  res.json({
+    personas: todas.slice((page - 1) * limit, page * limit),
+    total: todas.length, page, limit, total_pages: Math.ceil(todas.length / limit),
+  });
+}));
 
 router.get('/api/inventario/paz-salvo/personas', ...canRead, wrap(async (req, res) => {
   res.json({ personas: await buscarPersonas(db, req.query.q) });

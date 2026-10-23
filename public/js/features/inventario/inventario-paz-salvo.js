@@ -10,7 +10,8 @@ const hoy = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.
 
 let _elementos = [];
 
-export function openPazSalvoModal() {
+/** @param {{cedula, nombre}} [persona] si se indica, abre directo con lo asignado a esa persona. */
+export function openPazSalvoModal(persona = null) {
   document.getElementById('inv-paz-salvo-modal')?.remove();
   _elementos = [];
 
@@ -61,7 +62,8 @@ export function openPazSalvoModal() {
   const q = overlay.querySelector('#ps-q');
   let t;
   q.addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => _buscar(q.value.trim()), 350); });
-  q.focus();
+  if (persona) { q.value = persona.cedula || persona.nombre || ''; _seleccionar(persona); }
+  else q.focus();
 }
 
 async function _buscar(texto) {

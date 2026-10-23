@@ -27,7 +27,7 @@ await mock.module('../../src/utils/async-handler.js', {
   exports: { wrap: (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next) },
 });
 
-const { buscarPersonas, asignadosA, elementosPorId, _test } = await import('../../src/inventario/paz-salvo-model.js');
+const { buscarPersonas, listarPersonas, asignadosA, elementosPorId, _test } = await import('../../src/inventario/paz-salvo-model.js');
 const { textoCertificacion } = await import('../../src/inventario/paz-salvo-acta.js');
 const router = (await import('../../src/inventario/paz-salvo-routes.js')).default;
 const app = express();
@@ -62,8 +62,8 @@ test('buscarPersonas: groups by cédula across tables; requires 3 chars', async 
   const r = await buscarPersonas(db, 'ana');
   const ana = r.find(p => p.cedula === '1144555');
   assert.equal(ana.nombre, 'Ana Gómez');
-  assert.equal(ana.elementos, 4);                       // 2 equipos + celular + UPS
-  assert.ok(r.find(p => !p.cedula && /ana/i.test(p.nombre)));  // registro antiguo sin cédula
+  assert.equal(ana.elementos, 5);                       // 3 equipos (uno antiguo sin cédula) + celular + UPS
+  assert.ok(!r.find(p => !p.cedula));                   // el registro sin cédula se unió por nombre
   assert.equal((await buscarPersonas(db, '999'))[0].nombre, 'Luis Pérez');
 });
 
@@ -151,4 +151,44 @@ test('acta de entrega (shared template code) still renders', async () => {
     [{ marca: 'Lenovo', modelo: 'T14', serial: 'S1', accesorios: 'Cargador $2' }]);
   const t = textoDocx(buf).join('\n');
   for (const s of ['ACTA DE ENTREGA', 'REQ-1', 'Ana Gómez', 'Lenovo', 'Cargador $2']) assert.ok(t.includes(s), `falta "${s}"`);
+});
+
+test('listarPersonas: all people with assets, summary by type, filters', async () => {
+  const todas = await listarPersonas(db);
+  assert.deepEqual(todas.map(p => p.nombre), ['Ana Gómez', 'Luis Pérez']);
+  const ana = todas.find(p => p.cedula === '1144555');
+  assert.equal(ana.cedula, '1144555');
+  assert.deepEqual(ana.resumen, { Computador: 2, Monitor: 1, Celular: 1, UPS: 1 });
+  assert.deepEqual(ana.areas, ['Sistemas', 'Cali']);
+  // búsqueda por placa o IMEI encuentra al dueño
+  assert.deepEqual((await listarPersonas(db, { q: 'af-4' })).map(p => p.nombre), ['Luis Pérez']);
+  assert.deepEqual((await listarPersonas(db, { q: '3560000' })).map(p => p.cedula), ['1144555']);
+  // por tipo
+  assert.deepEqual((await listarPersonas(db, { tipo: 'celulares' })).map(p => p.resumen), [{ Celular: 1 }]);
+  assert.deepEqual((await listarPersonas(db, { tipo: 'monitores' })).map(p => p.resumen), [{ Monitor: 1 }]);
+  assert.equal((await listarPersonas(db, { tipo: 'ups' }))[0].resumen.UPS, 1);
+  // por área / sede
+  assert.equal((await listarPersonas(db, { area: 'cali' })).length, 2);
+  assert.equal((await listarPersonas(db, { area: 'bogotá' })).length, 0);
+  // equipos sin persona no aparecen
+  await db.prepare("INSERT INTO inventario_equipos (placa, marca, nombre_equipo, serial) VALUES ('AF-9', 'HP', 'Bodega', 'S9')").run();
+  assert.equal((await listarPersonas(db)).length, 2);
+  // sin cédula y sin homónimo con cédula: queda como persona aparte
+  await db.prepare("INSERT INTO inventario_ups (placa, nombre_completo) VALUES ('UPS-2', 'Marta Díaz')").run();
+  assert.ok((await listarPersonas(db)).find(p => p.nombre === 'Marta Díaz' && !p.cedula));
+  // dos personas con cédula y el mismo nombre: no se adivina a quién sumar
+  await db.prepare("INSERT INTO inventario_ups (placa, nombre_completo, cedula) VALUES ('UPS-3', 'Ana Gómez', '777')").run();
+  assert.ok((await listarPersonas(db)).find(p => p.nombre.toLowerCase() === 'ana gómez' && !p.cedula));
+});
+
+test('GET /api/inventario/personas: paginated list', async () => {
+  const r = await (await fetch(`${BASE}/api/inventario/personas?page=2&limit=1`)).json();
+  assert.equal(r.total, 2);
+  assert.equal(r.total_pages, 2);
+  assert.equal(r.page, 2);
+  assert.deepEqual(r.personas.map(p => p.nombre), ['Luis Pérez']);
+  const f = await (await fetch(`${BASE}/api/inventario/personas?search=luis&page=x&limit=999`)).json();
+  assert.equal(f.total, 1);
+  assert.equal(f.limit, 100);
+  assert.equal(f.page, 1);
 });
