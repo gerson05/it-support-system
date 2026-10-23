@@ -1,5 +1,5 @@
 /**
- * Categoría "Personas" de Inventario: listado de quienes tienen equipos o dispositivos asignados,
+ * Categoría "Asignaciones" de Inventario: listado de quienes tienen equipos o dispositivos asignados,
  * con filtro por tipo, detalle de lo asignado y acceso directo al acta de paz y salvo.
  * La búsqueda y el filtro de área usan la barra de filtros común de Inventario.
  */

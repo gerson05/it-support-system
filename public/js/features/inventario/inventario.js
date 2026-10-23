@@ -34,9 +34,15 @@ const TABS = [
   { id:'celulares',    label:'Celulares',    apiTab:'celulares', categoria:'',           icon: s => iconSmartphone(s) },
   { id:'ups',          label:'UPS',          apiTab:'ups',     categoria:'',             icon: s => iconZap(s)        },
   // Vista de personas con equipos asignados (no es una tabla de inventario)
-  { id:'personas',     label:'Personas',     apiTab:'personas', categoria:'', unidad:'personas', icon: s => iconUser(s) },
+  { id:'personas',     label:'Asignaciones', apiTab:'personas', categoria:'', unidad:'personas', icon: s => iconUser(s) },
 ];
 const _esPersonas = t => t?.apiTab === 'personas';
+const _PH_EQUIPOS  = 'Buscar por nombre, cédula, placa o serial…';
+const _PH_PERSONAS = 'Nombre o cédula de la persona (también placa o serial)…';
+function _placeholderBusqueda() {
+  const el = document.getElementById('inv-search');
+  if (el) el.placeholder = _esPersonas(activeTab()) ? _PH_PERSONAS : _PH_EQUIPOS;
+}
 
 let _activeTabId      = null;
 let _page             = 1;
@@ -152,10 +158,10 @@ function renderInventarioShell() {
         <div class="inv-filter-bar">
           <div class="inv-search-wrap">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="search" id="inv-search" placeholder="Buscar placa, serial, nombre, área…" value="">
+            <input type="search" id="inv-search" placeholder="${_PH_EQUIPOS}" value="">
           </div>
           <div class="inv-filter-sep"></div>
-          <input type="text" id="inv-area" class="inv-area-input" placeholder="Área">
+          <input type="text" id="inv-area" class="inv-area-input" placeholder="Área o sede">
           <button id="btn-inv-clear" class="inv-clear-btn" title="Limpiar filtros">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
@@ -296,6 +302,7 @@ function showWelcome(wrap) {
 
 async function loadTable() {
   const wrap = document.getElementById('inv-table-wrap');
+  _placeholderBusqueda();
 
   if (!_activeTabId) {
     showWelcome(wrap);

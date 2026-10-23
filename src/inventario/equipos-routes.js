@@ -35,11 +35,11 @@ router.get('/api/inventario/equipos', ...canRead, wrap(async (req, res) => {
   const where = [];
   const params = [];
   if (safeSearch) {
-    where.push('(id LIKE ? OR placa LIKE ? OR marca LIKE ? OR nombre_equipo LIKE ? OR modelo LIKE ? OR serial LIKE ? OR responsable LIKE ? OR area LIKE ? OR categoria LIKE ?)');
+    where.push('(id LIKE ? OR placa LIKE ? OR marca LIKE ? OR nombre_equipo LIKE ? OR modelo LIKE ? OR serial LIKE ? OR responsable LIKE ? OR nombre_completo LIKE ? OR cedula LIKE ? OR area LIKE ? OR ciudad LIKE ? OR categoria LIKE ?)');
     const searchPattern = `%${safeSearch}%`;
-    params.push(searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern);
+    params.push(...Array(12).fill(searchPattern));
   }
-  if (safeArea)      { where.push('area LIKE ?');      params.push(`%${safeArea}%`); }
+  if (safeArea)      { where.push('(area LIKE ? OR ciudad LIKE ?)'); params.push(`%${safeArea}%`, `%${safeArea}%`); }
   if (safeCategoria) { where.push('categoria = ?');    params.push(safeCategoria); }
   const wc = where.length ? 'WHERE ' + where.join(' AND ') : '';
   const offset = (parseInt(page) - 1) * parseInt(limit);

@@ -39,7 +39,7 @@ router.get('/api/inventario/celulares', ...canRead, wrap(async (req, res) => {
     const s = `%${safeSearch}%`;
     params.push(s, s, s, s, s, s, s, s, s, s, s);
   }
-  if (safeArea)   { where.push('area LIKE ?');   params.push(`%${safeArea}%`); }
+  if (safeArea)   { where.push('(area LIKE ? OR ciudad LIKE ?)'); params.push(`%${safeArea}%`, `%${safeArea}%`); }
   if (safeEstado) { where.push('estado = ?');    params.push(safeEstado); }
   const wc = where.length ? 'WHERE ' + where.join(' AND ') : '';
   const offset = (parseInt(page) - 1) * parseInt(limit);
