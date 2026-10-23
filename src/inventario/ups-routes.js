@@ -32,11 +32,11 @@ router.get('/api/inventario/ups', ...canRead, wrap(async (req, res) => {
   const safeArea = normalizeInventoryFilter(area);
   const where = [], params = [];
   if (safeSearch) {
-    where.push('(id LIKE ? OR placa LIKE ? OR marca LIKE ? OR nombre_equipo LIKE ? OR modelo LIKE ? OR serial LIKE ? OR area LIKE ? OR voltaje LIKE ? OR ciudad LIKE ?)');
+    where.push('(id LIKE ? OR placa LIKE ? OR marca LIKE ? OR nombre_equipo LIKE ? OR modelo LIKE ? OR serial LIKE ? OR nombre_completo LIKE ? OR cedula LIKE ? OR area LIKE ? OR voltaje LIKE ? OR ciudad LIKE ?)');
     const searchPattern = `%${safeSearch}%`;
-    params.push(searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern);
+    params.push(...Array(11).fill(searchPattern));
   }
-  if (safeArea) { where.push('area LIKE ?'); params.push(`%${safeArea}%`); }
+  if (safeArea) { where.push('(area LIKE ? OR ciudad LIKE ?)'); params.push(`%${safeArea}%`, `%${safeArea}%`); }
   const wc = where.length ? 'WHERE ' + where.join(' AND ') : '';
   const offset = (parseInt(page) - 1) * parseInt(limit);
   const rows = await db.prepare(`SELECT * FROM inventario_ups ${wc} ORDER BY created_at DESC LIMIT ? OFFSET ?`).all(...params, parseInt(limit), offset);

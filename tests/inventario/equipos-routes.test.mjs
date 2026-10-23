@@ -125,7 +125,7 @@ test('GET /api/inventario/equipos returns empty list', async () => {
 
 test('GET /api/inventario/equipos with search param', async () => {
   _all = (...args) => {
-    assert.equal(args.length, 12);
+    assert.equal(args.length, 15); // +3 campos de búsqueda: nombre, cédula y sede
     assert.ok(!String(args[0]).includes('CAST(id AS TEXT)'));
     return [{ id: 2, placa: 'AF-BOG002', marca: 'HP', nombre_equipo: 'Desktop', serial: 'SN2', categoria: 'computadores' }];
   };
