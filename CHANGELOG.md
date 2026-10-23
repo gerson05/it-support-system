@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.18.0](https://github.com/gerson05/it-support-system/compare/v1.17.0...v1.18.0) (2026-10-23)
+
+
+### Features
+
+* **inventario:** search by person everywhere; rename Personas to Asignaciones ([388f46e](https://github.com/gerson05/it-support-system/commit/388f46ee57bf3a424cccdff8a91ffd48a890aef0))
+* **inventario:** search by person everywhere; rename to Asignaciones ([5d04f6e](https://github.com/gerson05/it-support-system/commit/5d04f6e750d0a5880ba716565955a622ed149a9c))
+
 ## [1.17.0](https://github.com/gerson05/it-support-system/compare/v1.16.0...v1.17.0) (2026-10-23)
 
 
