@@ -284,7 +284,7 @@ export async function openEditDespachoModal(id, onSuccess) {
   overlay.innerHTML = renderEditModalHTML(d, areaOptions);
 
   document.body.appendChild(overlay);
-  attachPuntoSearch(overlay.querySelector('input[name="sede"]'));
+  attachPuntoSearch(overlay.querySelector('input[name="sede"]'), { permitirCrear: true });
 
   overlay.querySelector('[name="destinatario"]').addEventListener('blur', e => { e.target.value = e.target.value.trim().toUpperCase(); });
   overlay.querySelector('[name="observaciones"]').addEventListener('blur', e => { e.target.value = _sc(e.target.value); });
