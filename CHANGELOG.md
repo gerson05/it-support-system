@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.20.0](https://github.com/gerson05/it-support-system/compare/v1.19.0...v1.20.0) (2026-11-10)
+
+
+### Features
+
+* **despacho:** visible + button in the Sede field to create a sede ([9997b39](https://github.com/gerson05/it-support-system/commit/9997b39933923ce5aa693910e82ffdda946ebfba))
+* **despacho:** visible + button to create a sede ([44dcd52](https://github.com/gerson05/it-support-system/commit/44dcd52bde49e11d9572b0cad646226b9db04c73))
+
 ## [1.19.0](https://github.com/gerson05/it-support-system/compare/v1.18.0...v1.19.0) (2026-11-10)
 
 
