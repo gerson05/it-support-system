@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.19.0](https://github.com/gerson05/it-support-system/compare/v1.18.0...v1.19.0) (2026-11-10)
+
+
+### Features
+
+* **despacho:** create a sede from the Sede field ([52fe563](https://github.com/gerson05/it-support-system/commit/52fe5633358876a5084e7c174786be36af258ca2))
+* **despacho:** create a sede from the Sede field ([ffd7e97](https://github.com/gerson05/it-support-system/commit/ffd7e97dbf237aca6ba9c505053e784c98b1b57e))
+
+
+### Bug Fixes
+
+* **deps:** bump body-parser 1.20.9, multer 2.5.0, agent systeminformation 5.33.19 (Trivy HIGH) ([2041241](https://github.com/gerson05/it-support-system/commit/2041241aaa204c616fe2ff9e595d0e3a0c7bac53))
+
 ## [1.18.0](https://github.com/gerson05/it-support-system/compare/v1.17.0...v1.18.0) (2026-10-23)
 
 
