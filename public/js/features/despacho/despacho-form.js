@@ -351,7 +351,7 @@ export async function openCreateModal(onSuccess) {
   );
 
   // Sede autocomplete
-  attachPuntoSearch(overlay.querySelector('input[name="sede"]'));
+  attachPuntoSearch(overlay.querySelector('input[name="sede"]'), { permitirCrear: true });
 
   // Acta toggle
   const checkAcata = overlay.querySelector('#check-requiere-acta');

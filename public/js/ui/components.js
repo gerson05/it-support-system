@@ -203,7 +203,67 @@ async function _fetchPuntos() {
 }
 export function invalidatePuntosCache() { _puntosCache = null; }
 
-export function attachPuntoSearch(inputEl) {
+/**
+ * Ventana para crear una sede (punto o bodega) y guardarla en la tabla de puntos.
+ * Devuelve la sede creada (o la existente con el mismo nombre y ciudad), o null si se cancela.
+ */
+function _crearSedeModal(nombreInicial) {
+  return new Promise((resolve) => {
+    const ciudades = Object.keys(_puntosCache || {}).sort();
+    const ov = document.createElement('div');
+    ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100000;display:flex;align-items:center;justify-content:center;padding:20px;';
+    const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+    ov.innerHTML = `
+      <div style="background:var(--surface);border-radius:14px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.4);">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--border);font-weight:700;font-size:15px;">Crear sede</div>
+        <div style="padding:16px 20px;display:flex;flex-direction:column;gap:12px;">
+          <label style="font-size:12px;font-weight:600;color:var(--text-2);">Nombre *
+            <input id="cs-nombre" class="form-control" style="margin-top:4px;" maxlength="120" value="${esc(nombreInicial)}"></label>
+          <label style="font-size:12px;font-weight:600;color:var(--text-2);">Ciudad *
+            <input id="cs-ciudad" class="form-control" style="margin-top:4px;" maxlength="60" list="cs-ciudades" placeholder="Ej. CALI"></label>
+          <datalist id="cs-ciudades">${ciudades.map(c => `<option value="${esc(c)}">`).join('')}</datalist>
+          <label style="font-size:12px;font-weight:600;color:var(--text-2);">Tipo
+            <select id="cs-tipo" class="form-control" style="margin-top:4px;">
+              <option value="punto">Punto</option><option value="bodega">Bodega</option>
+            </select></label>
+          <div id="cs-err" style="display:none;font-size:12px;color:var(--danger);"></div>
+        </div>
+        <div style="padding:12px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;">
+          <button type="button" class="btn btn-secondary" id="cs-cancel">Cancelar</button>
+          <button type="button" class="btn btn-primary" id="cs-ok">Crear sede</button>
+        </div>
+      </div>`;
+    document.body.appendChild(ov);
+    const $ = (id) => ov.querySelector(id);
+    const cerrar = (v) => { ov.remove(); resolve(v); };
+    $('#cs-cancel').onclick = () => cerrar(null);
+    $(nombreInicial ? '#cs-ciudad' : '#cs-nombre').focus();
+    $('#cs-ok').onclick = async () => {
+      const nombre = $('#cs-nombre').value.trim();
+      const ciudad = $('#cs-ciudad').value.trim();
+      const err = $('#cs-err');
+      if (!nombre || !ciudad) { err.textContent = 'Escribe el nombre y la ciudad.'; err.style.display = ''; return; }
+      $('#cs-ok').disabled = true;
+      try {
+        const r = await fetch('/api/despachos/puntos', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nombre, ciudad, tipo: $('#cs-tipo').value }),
+        });
+        const data = await r.json().catch(() => ({}));
+        if (!r.ok) { err.textContent = data.error || 'No se pudo crear la sede.'; err.style.display = ''; $('#cs-ok').disabled = false; return; }
+        _puntosCache = null;
+        showToast(data.existia ? `La sede "${data.nombre}" ya existía; se seleccionó.` : `Sede "${data.nombre}" creada.`, 'success');
+        cerrar(data);
+      } catch { err.textContent = 'Error de conexión.'; err.style.display = ''; $('#cs-ok').disabled = false; }
+    };
+  });
+}
+
+/**
+ * Buscador de sedes (puntos y bodegas) sobre un input de texto.
+ * Con { permitirCrear: true } muestra al final "+ Crear sede" para registrar una nueva.
+ */
+export function attachPuntoSearch(inputEl, { permitirCrear = false } = {}) {
   if (!inputEl) return;
 
   const wrapper = document.createElement('div');
@@ -278,6 +338,25 @@ export function attachPuntoSearch(inputEl) {
       });
     });
 
+    const exacta = Object.values(_puntosCache || {}).flat()
+      .some(p => p.activo !== 0 && (p.nombre || '').toLowerCase().trim() === query);
+    if (permitirCrear && !exacta) {
+      const crear = document.createElement('div');
+      crear.style.cssText = 'padding:9px 12px;font-size:13px;font-weight:600;color:var(--primary);cursor:pointer;' +
+        (hasAny ? 'border-top:1px solid var(--border);margin-top:4px;' : '');
+      crear.textContent = query ? `+ Crear sede "${(q || '').trim()}"` : '+ Crear sede nueva';
+      crear.addEventListener('mouseenter', () => { crear.style.background = 'var(--surface-2)'; });
+      crear.addEventListener('mouseleave', () => { crear.style.background = ''; });
+      crear.addEventListener('mousedown', async e => {
+        e.preventDefault();
+        dropdown.style.display = 'none';
+        const sede = await _crearSedeModal((q || '').trim());
+        if (sede) { inputEl.value = sede.nombre; inputEl.dispatchEvent(new Event('change', { bubbles: true })); }
+      });
+      dropdown.appendChild(crear);
+      hasAny = true;
+    }
+
     if (!hasAny) {
       dropdown.style.display = 'none';
       return;
@@ -293,7 +372,7 @@ export function attachPuntoSearch(inputEl) {
   });
 
   inputEl.addEventListener('input', () => {
-    if (dropdown.style.display !== 'none') { positionDropdown(); renderDropdown(inputEl.value); }
+    if (permitirCrear || dropdown.style.display !== 'none') { positionDropdown(); renderDropdown(inputEl.value); }
   });
 
   inputEl.addEventListener('blur', () => {
