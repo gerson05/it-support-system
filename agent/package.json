@@ -8,7 +8,7 @@
     "build": "npx pkg agent.js --targets node18-win-x64 --output dist/agente-it.exe"
   },
   "dependencies": {
-    "systeminformation": "^5.22.0"
+    "systeminformation": "^5.33.19"
   },
   "pkg": {
     "targets": [
