@@ -277,6 +277,27 @@ export function attachPuntoSearch(inputEl, { permitirCrear = false } = {}) {
   wrapper.appendChild(icon);
   inputEl.style.paddingRight = '28px';
 
+  // Botón visible "+" para crear una sede sin tener que buscarla primero
+  if (permitirCrear) {
+    icon.style.right = '40px';
+    inputEl.style.paddingRight = '62px';
+    const btnCrear = document.createElement('button');
+    btnCrear.type = 'button';
+    btnCrear.title = 'Crear sede nueva';
+    btnCrear.setAttribute('aria-label', 'Crear sede nueva');
+    btnCrear.textContent = '+';
+    btnCrear.style.cssText =
+      'position:absolute;right:5px;top:50%;transform:translateY(-50%);width:26px;height:24px;' +
+      'border:none;border-radius:6px;background:var(--primary);color:#fff;font-size:17px;font-weight:700;' +
+      'line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;';
+    btnCrear.addEventListener('click', async () => {
+      await _fetchPuntos();
+      const sede = await _crearSedeModal(inputEl.value.trim());
+      if (sede) { inputEl.value = sede.nombre; inputEl.dispatchEvent(new Event('change', { bubbles: true })); }
+    });
+    wrapper.appendChild(btnCrear);
+  }
+
   const dropdown = document.createElement('div');
   dropdown.style.cssText =
     'display:none;position:fixed;' +
