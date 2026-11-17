@@ -440,7 +440,7 @@ function renderCelularesTable(rows) {
           <th>Dispositivo</th>
           <th>Asignado a</th>
           <th>Área</th>
-          <th>Ciudad</th>
+          <th>Sede</th>
           <th>Estado</th>
           <th>Operador</th>
           <th>F. Entrega</th>

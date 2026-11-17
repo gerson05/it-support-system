@@ -6,12 +6,13 @@ import { createMemoryDb } from '../helpers/sqlite-memory-db.mjs';
 import { migrations as m020 } from '../../src/config/migrations/020-puntos-unificados.js';
 
 let db;
+let permisos = ['despacho:create'];
 await mock.module('../../src/config/database.js', {
   exports: { default: { prepare: (sql) => db.prepare(sql), exec: (sql) => db.exec(sql) } },
 });
 await mock.module('../../src/auth/auth-middleware.js', {
   exports: {
-    requireAuth: (req, _res, next) => { req.user = { id: 1, username: 'soporte' }; next(); },
+    requireAuth: (req, _res, next) => { req.user = { id: 1, username: 'soporte' }; req.permissions = permisos; next(); },
     requirePermission: () => (_req, _res, next) => next(),
   },
 });
@@ -50,7 +51,7 @@ test('creates a new sede in puntos (city uppercased, spaces cleaned) and audits 
   const row = await db.prepare('SELECT nombre, ciudad, tipo, activo FROM puntos WHERE id = ?').get(r.body.id);
   assert.deepEqual(row, { nombre: 'Sede Norte', ciudad: 'CALI', tipo: 'punto', activo: 1 });
   assert.equal(audits.length, 1);
-  assert.equal(audits[0][1], 'Sede creada desde Despachos');
+  assert.equal(audits[0][1], 'Sede creada desde Despachos/Inventario');
 });
 
 test('bodega type; anything else becomes punto', async () => {
@@ -85,4 +86,16 @@ test('requires nombre and ciudad', async () => {
   assert.equal((await crear({ nombre: 'X' })).status, 400);
   assert.equal((await crear({ ciudad: 'Cali' })).status, 400);
   assert.match((await crear({})).body.error, /obligatorios/);
+});
+
+test('permissions: despacho:create, inventario:create/edit or full; others get 403', async () => {
+  for (const p of [['inventario:create'], ['inventario:edit'], ['full']]) {
+    permisos = p;
+    assert.equal((await crear({ nombre: 'S ' + p[0], ciudad: 'Cali' })).status, 201);
+  }
+  permisos = ['inventario:read'];
+  assert.equal((await crear({ nombre: 'X', ciudad: 'Cali' })).status, 403);
+  permisos = [];
+  assert.equal((await crear({ nombre: 'X', ciudad: 'Cali' })).status, 403);
+  permisos = ['despacho:create'];
 });

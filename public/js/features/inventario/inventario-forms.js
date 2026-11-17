@@ -32,9 +32,9 @@ export function openForm(row, activeTab, onSuccess, isDuplicate = false, default
     if (catSel) catSel.value = defaultCategoria;
   }
 
-  // Bodega autocomplete para campo ciudad en celulares
+  // Sede: los mismos puntos/bodegas de Despachos (se guarda en la columna "ciudad"); "+" crea una nueva
   const ciudadInput = modalWrap.querySelector('#inv-input-ciudad');
-  if (ciudadInput) attachPuntoSearch(ciudadInput);
+  if (ciudadInput) attachPuntoSearch(ciudadInput, { permitirCrear: true });
 
   const overlay = modalWrap.querySelector('.modal-overlay');
   const form    = modalWrap.querySelector('#inv-form');
@@ -307,14 +307,14 @@ function placaBlock(currentPlaca = '', required = true, isEdit = false) {
   }
   return `
   <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:12px;">
-    <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Sede — genera la placa automáticamente</div>
+    <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Ciudad — genera la placa automáticamente</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:end;">
       ${sedeSelectField('')}
       <div class="form-group">
         <label style="font-size:12px;font-weight:500;color:var(--text-muted);margin-bottom:4px;display:block;">Placa${required ? ' *' : ''}</label>
         <div style="display:flex;gap:6px;">
           <input type="text" name="placa" id="inv-placa" class="form-control" value="${esc(currentPlaca)}" ${req}
-            placeholder="${currentPlaca ? '' : 'Selecciona sede…'}"
+            placeholder="${currentPlaca ? '' : 'Selecciona ciudad…'}"
             style="flex:1;font-family:monospace;font-weight:700;color:var(--primary);letter-spacing:1px;">
           <button type="button" id="btn-refresh-placa"
             title="Recalcular consecutivo"
@@ -435,9 +435,9 @@ function sedeSelectField(value = '') {
 
   return `
   <div class="form-group">
-    <label style="font-size:12px;font-weight:500;color:var(--text-muted);margin-bottom:4px;display:block;">Sede *</label>
+    <label style="font-size:12px;font-weight:500;color:var(--text-muted);margin-bottom:4px;display:block;">Ciudad *</label>
     <select name="sede_placa" id="inv-sede-placa" class="form-control" required>
-      <option value="">— Seleccionar sede —</option>
+      <option value="">— Seleccionar ciudad —</option>
       ${optionsHTML}
     </select>
   </div>`;
@@ -460,7 +460,7 @@ function areaSelectField(value = '') {
 function bodegaInputField(value = '') {
   return `
   <div class="form-group">
-    <label style="font-size:12px;font-weight:500;color:var(--text-muted);margin-bottom:4px;display:block;">Sede / Bodega</label>
+    <label style="font-size:12px;font-weight:500;color:var(--text-muted);margin-bottom:4px;display:block;">Sede</label>
     <input type="text" name="ciudad" id="inv-input-ciudad" class="form-control" value="${esc(value)}" placeholder="Buscar sede…">
   </div>`;
 }
