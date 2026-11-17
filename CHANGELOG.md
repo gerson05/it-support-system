@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.21.0](https://github.com/gerson05/it-support-system/compare/v1.20.0...v1.21.0) (2026-11-17)
+
+
+### Features
+
+* **inventario:** same Sede as Despachos; carry sede/área into despacho ([7ba2697](https://github.com/gerson05/it-support-system/commit/7ba2697d54d3edd0a611cfde0e8f88e6d15c4244))
+* **inventario:** same Sede as Despachos; carry sede/área into despacho ([4fd95ef](https://github.com/gerson05/it-support-system/commit/4fd95ef34e74159d6bd7a80900a513d0ed13bdd0))
+
 ## [1.20.0](https://github.com/gerson05/it-support-system/compare/v1.19.0...v1.20.0) (2026-11-10)
 
 
