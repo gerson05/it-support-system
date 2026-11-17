@@ -1,19 +1,22 @@
 /**
- * Crear sede (punto o bodega) desde Despachos.
+ * Crear sede (punto o bodega) desde Despachos o Inventario.
  * Queda en la misma tabla `puntos` que administra "Red de Puntos", así aparece
- * en todos los buscadores de sede. Basta con poder crear despachos.
+ * en todos los buscadores de sede. Basta con poder crear despachos o registrar/editar inventario.
  */
 import express from 'express';
 import db from '../config/database.js';
-import { requireAuth, requirePermission } from '../auth/auth-middleware.js';
+import { requireAuth } from '../auth/auth-middleware.js';
 import { logAudit } from '../audit/audit-logger.js';
 import { wrap } from '../utils/async-handler.js';
 
 const router = express.Router();
-const canCreate = [requireAuth, requirePermission('despacho:create')];
+const PERMISOS = ['full', 'despacho:create', 'inventario:create', 'inventario:edit'];
+const puedeCrear = (req, res, next) => ((req.permissions ?? []).some(p => PERMISOS.includes(p))
+  ? next() : res.status(403).json({ error: 'Acceso denegado.' }));
+const canCreate = [requireAuth, puedeCrear];
 const limpio = (v, max = 120) => String(v ?? '').trim().replace(/\s+/g, ' ').slice(0, max);
 /** Para comparar: sin tildes, sin mayúsculas y sin espacios repetidos ("Jamundí" = "JAMUNDI"). */
-const clave = (v) => limpio(v).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+const clave = (v) => limpio(v).normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
 
 router.post('/api/despachos/puntos', ...canCreate, wrap(async (req, res) => {
   const nombre = limpio(req.body?.nombre);
@@ -34,7 +37,7 @@ router.post('/api/despachos/puntos', ...canCreate, wrap(async (req, res) => {
 
   const r = await db.prepare('INSERT INTO puntos (nombre, ciudad, tipo) VALUES (?, ?, ?)').run(nombre, ciudad, tipo);
   const actor = req.user?.username || 'sistema';
-  await logAudit(actor, 'Sede creada desde Despachos', 'punto', r.lastInsertRowid, nombre, { ciudad, tipo });
+  await logAudit(actor, 'Sede creada desde Despachos/Inventario', 'punto', r.lastInsertRowid, nombre, { ciudad, tipo });
   res.status(201).json({ id: r.lastInsertRowid, nombre, ciudad, tipo, activo: 1, existia: false });
 }));
 

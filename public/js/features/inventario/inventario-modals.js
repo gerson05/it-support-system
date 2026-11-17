@@ -41,7 +41,7 @@ export async function openDetalleModal(token) {
         sec('Equipo', [row('Modelo', d.modelo), row('Equipo', d.equipo), row('Almacenamiento', d.almacenamiento),
           row('RAM', d.ram), row('Accesorio', d.accesorio), row('Estado', d.estado)]) +
         sec('Asignación', [row('Usuario', d.nombre_completo), row('Cédula', d.cedula),
-          row('Área', d.area), row('Ciudad', d.ciudad), row('Entregado por', d.entregado_por), row('Fecha entrega', d.fecha_entrega)]);
+          row('Área', d.area), row('Sede', d.ciudad), row('Entregado por', d.entregado_por), row('Fecha entrega', d.fecha_entrega)]);
     } else {
       fields =
         sec('Identificación', [row('Placa', d.placa), row('Serial', d.serial)]) +

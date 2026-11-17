@@ -258,6 +258,13 @@ function attachEditInvPicker(overlay, artsList, rowCountRef) {
         wireArtRow(row, rowCountRef);
       }
     });
+      // Sede y Área del inventario (solo si están vacías en el despacho)
+      const sedeInput  = overlay.querySelector('[name="sede"]');
+      const areaSelect = overlay.querySelector('[name="area"]');
+      const conSede = selected.find(it => (it.ciudad || '').trim());
+      if (sedeInput && !sedeInput.value.trim() && conSede) sedeInput.value = conSede.ciudad.trim();
+      const conArea = selected.find(it => it.area && areaSelect?.querySelector(`option[value="${CSS.escape(it.area)}"]`));
+      if (areaSelect && !areaSelect.value && conArea) areaSelect.value = conArea.area;
 
     invPicker.style.display = 'none';
     invSelected.clear();

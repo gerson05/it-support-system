@@ -104,7 +104,7 @@ router.get('/activo/:token', async (req, res) => {
         fieldRow('Usuario', item.nombre_completo),
         fieldRow('Cédula', item.cedula),
         fieldRow('Área', item.area),
-        fieldRow('Ciudad', item.ciudad),
+        fieldRow('Sede', item.ciudad),
         fieldRow('Entregado por', item.entregado_por),
         fieldRow('Fecha entrega', item.fecha_entrega),
       ]);
