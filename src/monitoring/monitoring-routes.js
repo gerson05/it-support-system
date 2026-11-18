@@ -2,7 +2,7 @@ import { Router } from 'express';
 import crypto from 'crypto';
 import db from '../config/database.js';
 import { requireAuth, requirePermission } from '../auth/auth-middleware.js';
-import { getSedeCode, nextConsecutivo } from '../inventario/sede-codes.js';
+import { codigoPlaca, nextConsecutivo } from '../inventario/sede-codes.js';
 import { wrap } from '../utils/async-handler.js';
 
 const router = Router();
@@ -62,7 +62,7 @@ async function linkInventory(agentId, hw) {
 
     if (!equipo) {
       const qr_token = crypto.randomUUID();
-      const code     = getSedeCode(hw.sede);
+      const code     = await codigoPlaca(db, hw.sede);
       const num      = await nextConsecutivo(db, code);
       const placa    = `AF-${code}${num}`;
       const marca    = hw.manufacturer?.trim() || 'Sin marca';

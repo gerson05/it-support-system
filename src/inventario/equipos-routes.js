@@ -2,7 +2,7 @@ import express from 'express';
 import { randomUUID } from 'crypto';
 import db from '../config/database.js';
 import { requireAuth, requirePermission } from '../auth/auth-middleware.js';
-import { getSedeCode, nextConsecutivo } from './sede-codes.js';
+import { codigoPlaca, nextConsecutivo } from './sede-codes.js';
 import { wrap } from '../utils/async-handler.js';
 import { destinatarioDe } from './campos-unificados.js';
 
@@ -22,7 +22,7 @@ const canDelete = [requireAuth, requirePermission('inventario:delete')];
 
 router.get('/api/inventario/equipos/next-placa', ...canRead, wrap(async (req, res) => {
   const sede = req.query.sede || '';
-  const code = getSedeCode(sede);
+  const code = await codigoPlaca(db, sede);
   const num  = await nextConsecutivo(db, code);
   res.json({ placa: `AF-${code}${num}`, code, num });
 }));

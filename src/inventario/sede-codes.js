@@ -229,3 +229,47 @@ export async function nextConsecutivo(db, code) {
   }
   return String(max + 1).padStart(3, '0');
 }
+
+// ── Ciudades / puntos creados desde Inventario (tabla placa_ciudades) ──────
+
+/** Código de placa de una ciudad/punto: primero las creadas en Inventario, luego el mapa fijo. */
+export async function codigoPlaca(db, sede) {
+  const valor = normSede(sede);
+  if (valor) {
+    try {
+      const row = await db.prepare('SELECT codigo FROM placa_ciudades WHERE valor = ?').get(valor);
+      if (row?.codigo) return row.codigo;
+    } catch { /* tabla aún no creada */ }
+  }
+  return getSedeCode(sede);
+}
+
+const VOCALES = new Set(['A', 'E', 'I', 'O', 'U']);
+
+/**
+ * Propone un código de 3 caracteres a partir del nombre ("Manizales" → MNZ),
+ * saltando los que ya están ocupados.
+ */
+export function sugerirCodigo(nombre, ocupados = new Set()) {
+  const palabras = normSede(nombre).replace(/[^A-Z0-9 ]/g, '').split(' ').filter(Boolean);
+  const plano = palabras.join('');
+  if (!plano) return null;
+  const consonantes = (w) => [...w.slice(1)].filter(c => !VOCALES.has(c)).join('');
+
+  const candidatos = [];
+  candidatos.push(plano[0] + consonantes(plano));                 // MANIZALES → MNZ
+  if (palabras.length > 1) {
+    const iniciales = palabras.map(w => w[0]).join('');
+    candidatos.push(iniciales.length >= 3 ? iniciales : iniciales + consonantes(palabras.at(-1)) + palabras.at(-1).slice(1));
+  }
+  candidatos.push(plano);                                          // primeras 3 letras
+  for (let i = 1; i < plano.length; i++)
+    for (let j = i + 1; j < plano.length; j++) candidatos.push(plano[0] + plano[i] + plano[j]);
+  for (let d = 1; d <= 9; d++) candidatos.push(plano.slice(0, 2).padEnd(2, 'X') + d);
+
+  for (const c of candidatos) {
+    const code = c.slice(0, 3);
+    if (code.length === 3 && !ocupados.has(code)) return code;
+  }
+  return null;
+}

@@ -11,6 +11,7 @@ import { showToast, copyToClipboard, attachPuntoSearch } from '../../ui/componen
 import { iconMonitor, iconSmartphone } from '../../utils/icons.js';
 import { openScanner, openSmartScanner } from './inventario-scanner.js';
 import { AREA_MAPPINGS } from '../../core/constants.js';
+import { PLACA_GRUPOS, nombreGrupo } from './placa-ciudades.js';
 
 const toTitleCase = s => (s || '').toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
 
@@ -61,6 +62,16 @@ export function openForm(row, activeTab, onSuccess, isDuplicate = false, default
   if (sedeSelect && placaInput) {
     sedeSelect.addEventListener('change', () => fetchNextPlaca(sedeSelect.value));
     refreshBtn?.addEventListener('click', () => fetchNextPlaca(sedeSelect.value));
+  }
+  if (sedeSelect) {
+    cargarCiudadesCreadas(sedeSelect);
+    modalWrap.querySelector('#btn-crear-ciudad-placa')?.addEventListener('click', async () => {
+      const nueva = await crearCiudadModal(sedeSelect);
+      if (!nueva) return;
+      agregarOpcionCiudad(sedeSelect, nueva);
+      sedeSelect.value = nueva.valor;
+      sedeSelect.dispatchEvent(new Event('change'));
+    });
   }
   // ─────────────────────────────────────────────────────────────────────────
 
@@ -326,107 +337,7 @@ function placaBlock(currentPlaca = '', required = true, isEdit = false) {
 }
 
 function sedeSelectField(value = '') {
-  const grupos = [
-    { label: '— Administrativo —', opts: [
-      ['BODEGA',           'Bodega'],
-      ['BOGOTA',           'Bogotá'],
-      ['CARSON',           'Carson  · CRS'],
-      ['OFICINA',          'Oficina'],
-      ['SEDE PRINCIPAL',   'Sede Principal (Medivalle)'],
-    ]},
-    { label: '— Caldas —', opts: [
-      ['AGUADAS','Aguadas'],['ANSERMA','Anserma'],['ARANZAZU','Aranzazu'],
-      ['CHINCHINA','Chinchiná'],['LA DORADA','La Dorada'],['MANIZALES','Manizales'],
-      ['MARQUETALIA','Marquetalia'],['PENSILVANIA','Pensilvania'],['RIOSUCIO','Riosucio'],
-      ['SALAMINA','Salamina'],['SAMANA','Samaná'],['SUPIA','Supía'],
-    ]},
-    { label: '— Cauca —', opts: [
-      ['ARGELIA','Argelia'],['CORINTO','Corinto'],['GUAPI','Guapi'],
-      ['JAMBALO','Jambaló'],['MIRANDA','Miranda'],['MORALES','Morales'],
-      ['PIENDAMO','Piendamó'],['POPAYAN','Popayán'],['SANTANDER DE QUILICHAO','Santander de Quilichao'],
-      ['SILVIA','Silvia'],['TORIBIO','Toribio'],['TOTORO','Tótoró'],
-    ]},
-    { label: '— Nariño / Putumayo —', opts: [
-      ['LA UNION NARINO','La Unión Nariño'],['MOCOA','Mocoa'],['PASTO','Pasto'],['TUMACO','Tumaco'],
-    ]},
-    { label: '— Quindío —', opts: [['QUIMBAYA','Quimbaya']] },
-    { label: '— Risaralda —', opts: [
-      ['APIA','Apía'],['DOSQUEBRADAS','Dosquebradas'],['GUATICA','Guática'],
-      ['LA VIRGINIA','La Virginia'],['PEREIRA','Pereira'],['SANTA ROSA','Santa Rosa'],
-    ]},
-    { label: '— Cali (sub-sedes) —', opts: [
-      ['CALI SUR',              'Cali Sur  · CSR'],
-      ['CALI NORTE',            'Cali Norte  · CNR'],
-      ['CALI AIC',              'Cali AIC  · CAI'],
-      ['PASOANCHO',             'Pasoancho  · PAS'],
-      ['SEDE HOSPITALARIA 24H', 'Hospitalaria 24H Fomag  · SHF'],
-      ['LA FAVORITA',           'La Favorita  · CFV'],
-      ['CALI',                  'Cali (genérico)  · CAL'],
-    ]},
-    { label: '— Buenaventura —', opts: [
-      ['BUENAVENTURA',   'Buenaventura (principal)  · BNV'],
-      ['BUENAVENTURA 2', 'Buenaventura 2  · BN2'],
-      ['LA VERDAD 2',    'La Verdad 2 (horario extendido)  · BVD'],
-    ]},
-    { label: '— Buga —', opts: [
-      ['BUGA',           'Buga (principal)  · BGA'],
-      ['SAN JOSE BUGA',  'San José – Buga  · BGJ'],
-    ]},
-    { label: '— Candelaria —', opts: [
-      ['VILLAGORGONA',   'Villagorgona  · VLG'],
-      ['EL MANANTIAL',   'El Manantial  · ELM'],
-    ]},
-    { label: '— Cartago —', opts: [
-      ['CARTAGO FOMAG',  'Cartago Fomag  · CTF'],
-      ['ZARAGOZA',       'Zaragoza (Cartago)  · ZRG'],
-      ['CIPRES',         'Ciprés (Cartago)  · CIP'],
-      ['CARTAGO',        'Cartago (genérico)  · CTG'],
-    ]},
-    { label: '— El Cerrito —', opts: [
-      ['EL CERRITO VALLEJO',   'Vallejo  · ECV'],
-      ['EL CERRITO EXITO 1',   'Éxito 1  · CE1'],
-      ['EL CERRITO EXITO 2',   'Éxito 2  · CE2'],
-      ['EL CERRITO EXITO 3',   'Éxito 3  · CE3'],
-      ['EL CERRITO',           'El Cerrito (genérico)  · ECE'],
-    ]},
-    { label: '— Ginebra —', opts: [
-      ['GINEBRA EXITO 4', 'Éxito 4  · GN4'],
-      ['GINEBRA EXITO 5', 'Éxito 5  · GN5'],
-    ]},
-    { label: '— Jamundí —', opts: [
-      ['JAMUNDI',           'Jamundí (principal)  · JMD'],
-      ['ALPHAHEALTH JAMUNDI','Alphahealth  · JMA'],
-    ]},
-    { label: '— Palmira —', opts: [
-      ['PALMIRA',              'Palmira (principal)  · PLM'],
-      ['PALMIRA A SU SALUD',   'A Su Salud  · PLS'],
-    ]},
-    { label: '— Roldanillo —', opts: [
-      ['ROLDANILLO FOMAG', 'Roldanillo Fomag  · RLF'],
-      ['ROLDANILLO JM',    'J&M Urgencias  · RJM'],
-    ]},
-    { label: '— Tuluá —', opts: [
-      ['TULUA',              'Tuluá (principal)  · TLU'],
-      ['TULUA SAMARITANA',   'Samaritana  · TLS'],
-      ['TULUA FARMAPRECIOS', 'Farmaprecios  · TLF'],
-    ]},
-    { label: '— Yumbo —', opts: [
-      ['YUMBO',            'Yumbo (principal)  · YMB'],
-      ['YUMBO RAPI DROGAS','Rapi Drogas  · YRD'],
-      ['BODEGA YUMBO',     'Bodega Yumbo  · BOD'],
-    ]},
-    { label: '— Otros Valle del Cauca —', opts: [
-      ['ALCALA','Alcalá'],['ANDALUCIA','Andalucía'],['ANSERMANUEVO','Ansermanuevo'],
-      ['BUGALAGRANDE','Bugalagrande'],['CAICEDONIA','Caicedonia'],['CALIMA','Calima'],
-      ['DAGUA','Dagua'],['EL AGUILA','El Águila'],['EL DOVIO','El Dovio'],
-      ['FLORIDA','Florida'],['GUACARI','Guacarí'],['LA CUMBRE','La Cumbre'],
-      ['LA UNION VALLE','La Unión Valle'],['LA VICTORIA','La Victoria'],['OBANDO','Obando'],
-      ['PRADERA','Pradera'],['RESTREPO','Restrepo'],['RIOFRIO','Riofrío'],
-      ['SAN PEDRO','San Pedro'],['SELIA','Selia'],['SEVILLA','Sevilla'],
-      ['TORO','Toro'],['TRUJILLO','Trujillo'],['ULLOA','Ulloa'],
-      ['VERSALLES','Versalles'],['VIJES','Vijes'],['YOTOCO','Yotoco'],['ZARZAL','Zarzal'],
-    ]},
-  ];
+  const grupos = PLACA_GRUPOS;
 
   const optionsHTML = grupos.map(g => `
     <optgroup label="${esc(g.label)}">
@@ -436,11 +347,121 @@ function sedeSelectField(value = '') {
   return `
   <div class="form-group">
     <label style="font-size:12px;font-weight:500;color:var(--text-muted);margin-bottom:4px;display:block;">Ciudad / Punto *</label>
-    <select name="sede_placa" id="inv-sede-placa" class="form-control" required>
-      <option value="">— Seleccionar ciudad / punto —</option>
-      ${optionsHTML}
-    </select>
+    <div style="display:flex;gap:6px;">
+      <select name="sede_placa" id="inv-sede-placa" class="form-control" required style="flex:1;min-width:0;">
+        <option value="">— Seleccionar ciudad / punto —</option>
+        ${optionsHTML}
+      </select>
+      <button type="button" id="btn-crear-ciudad-placa" title="Crear ciudad / punto"
+        style="width:38px;flex-shrink:0;border:none;border-radius:var(--radius-sm);background:var(--primary);color:#fff;font-size:18px;font-weight:700;cursor:pointer;">+</button>
+    </div>
   </div>`;
+}
+
+const clave = (s) => String(s || '').normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().trim();
+
+/** Agrega al desplegable una ciudad creada, dentro de su grupo (o en un grupo nuevo). */
+function agregarOpcionCiudad(select, c) {
+  if (!select || [...select.options].some(o => o.value === c.valor)) return;
+  let grupo = [...select.querySelectorAll('optgroup')].find(g => clave(nombreGrupo(g.label)) === clave(c.grupo));
+  if (!grupo) {
+    grupo = document.createElement('optgroup');
+    grupo.label = `— ${c.grupo} —`;
+    select.appendChild(grupo);
+  }
+  const opt = document.createElement('option');
+  opt.value = c.valor;
+  opt.textContent = `${c.nombre}  · ${c.codigo}`;
+  grupo.appendChild(opt);
+}
+
+async function cargarCiudadesCreadas(select) {
+  try {
+    const res = await fetch('/api/inventario/placa-ciudades');
+    if (!res.ok) return;
+    for (const c of await res.json()) agregarOpcionCiudad(select, c);
+  } catch { /* sin conexión: queda la lista base */ }
+}
+
+/** Ventana para crear una ciudad / punto con su código de placa. Devuelve la creada o null. */
+function crearCiudadModal(select) {
+  return new Promise((resolve) => {
+    const grupos = [...new Set([...select.querySelectorAll('optgroup')].map(g => nombreGrupo(g.label)))];
+    const ov = document.createElement('div');
+    ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100000;display:flex;align-items:center;justify-content:center;padding:20px;';
+    const lbl = 'font-size:12px;font-weight:600;color:var(--text-2);';
+    ov.innerHTML = `
+      <div style="background:var(--surface);border-radius:14px;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,.4);">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--border);font-weight:700;font-size:15px;">Crear ciudad / punto</div>
+        <div style="padding:16px 20px;display:flex;flex-direction:column;gap:12px;">
+          <label style="${lbl}">Nombre *
+            <input id="cc-nombre" class="form-control" style="margin-top:4px;" maxlength="80" placeholder="Ej. Real"></label>
+          <label style="${lbl}">¿Dónde la agrego? (departamento o ciudad) *
+            <select id="cc-grupo" class="form-control" style="margin-top:4px;">
+              <option value="">— Seleccionar —</option>
+              ${grupos.map(g => `<option value="${esc(g)}">${esc(g)}</option>`).join('')}
+              <option value="__nuevo__">+ Otro (nuevo grupo)…</option>
+            </select></label>
+          <input id="cc-grupo-nuevo" class="form-control" style="display:none;" maxlength="80" placeholder="Nombre del departamento o ciudad">
+          <label style="${lbl}">Código de placa (3 letras)
+            <input id="cc-codigo" class="form-control" style="margin-top:4px;font-family:monospace;font-weight:700;text-transform:uppercase;letter-spacing:1px;" maxlength="3" placeholder="Automático"></label>
+          <div id="cc-preview" style="font-size:12px;color:var(--text-muted);">La placa se genera al escribir el nombre.</div>
+          <div id="cc-err" style="display:none;font-size:12px;color:var(--danger);"></div>
+        </div>
+        <div style="padding:12px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;">
+          <button type="button" class="btn btn-secondary" id="cc-cancel">Cancelar</button>
+          <button type="button" class="btn btn-primary" id="cc-ok">Guardar</button>
+        </div>
+      </div>`;
+    document.body.appendChild(ov);
+    const $ = (id) => ov.querySelector(id);
+    const cerrar = (v) => { ov.remove(); resolve(v); };
+    const err = (msg) => { $('#cc-err').textContent = msg; $('#cc-err').style.display = msg ? '' : 'none'; };
+    const preview = () => {
+      const c = $('#cc-codigo').value.trim().toUpperCase();
+      $('#cc-preview').textContent = c.length === 3 ? `Placa: AF-${c}001` : 'La placa se genera al escribir el nombre.';
+    };
+    let codigoManual = false;
+    let timer;
+    $('#cc-nombre').addEventListener('input', () => {
+      clearTimeout(timer);
+      if (codigoManual) return;
+      timer = setTimeout(async () => {
+        const nombre = $('#cc-nombre').value.trim();
+        if (!nombre) { $('#cc-codigo').value = ''; preview(); return; }
+        try {
+          const r = await fetch(`/api/inventario/placa-ciudades/sugerir?nombre=${encodeURIComponent(nombre)}`);
+          const d = await r.json();
+          if (!codigoManual) { $('#cc-codigo').value = d.codigo || ''; preview(); }
+        } catch { /* se genera al guardar */ }
+      }, 300);
+    });
+    $('#cc-codigo').addEventListener('input', () => { codigoManual = !!$('#cc-codigo').value.trim(); preview(); });
+    $('#cc-grupo').addEventListener('change', () => {
+      const nuevo = $('#cc-grupo').value === '__nuevo__';
+      $('#cc-grupo-nuevo').style.display = nuevo ? '' : 'none';
+      if (nuevo) $('#cc-grupo-nuevo').focus();
+    });
+    $('#cc-cancel').onclick = () => cerrar(null);
+    $('#cc-nombre').focus();
+    $('#cc-ok').onclick = async () => {
+      const nombre = $('#cc-nombre').value.trim();
+      const grupo = $('#cc-grupo').value === '__nuevo__' ? $('#cc-grupo-nuevo').value.trim() : $('#cc-grupo').value;
+      if (!nombre || !grupo) return err('Escribe el nombre y elige dónde agregarla.');
+      err('');
+      $('#cc-ok').disabled = true;
+      try {
+        const r = await fetch('/api/inventario/placa-ciudades', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nombre, grupo, codigo: $('#cc-codigo').value.trim().toUpperCase() }),
+        });
+        const data = await r.json().catch(() => ({}));
+        if (!r.ok) { err(data.error || 'No se pudo crear.'); $('#cc-ok').disabled = false; return; }
+        showToast(`"${data.nombre}" creada en ${data.grupo} (placa AF-${data.codigo}…)`, 'success');
+        cerrar(data);
+      } catch { err('Error de conexión.'); $('#cc-ok').disabled = false; }
+    };
+  });
 }
 
 function areaSelectField(value = '') {
