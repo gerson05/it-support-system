@@ -48,7 +48,8 @@ async function main() {
   const entry = existsSync('server.js') ? 'server.js' : 'src/app.js';
   const server = spawn('node', [entry], {
     stdio: 'pipe',
-    env: { ...process.env, PORT },
+    // El chatbot responde distinto fuera de horario; la prueba del flujo necesita horario abierto
+    env: { ...process.env, PORT, CHATBOT_FORCE_OPEN: '1' },
   });
   server.stdout.on('data', d => process.stdout.write(d));
   server.stderr.on('data', d => process.stderr.write(d));
