@@ -11,6 +11,8 @@ function coNow() {
  * 'closed'  — fuera de horario / fin de semana
  */
 export function getBusinessStatus() {
+  // Solo para pruebas automáticas (test-ci.mjs): simular horario de atención a cualquier hora
+  if (process.env.CHATBOT_FORCE_OPEN === '1') return 'open';
   const co  = coNow();
   const day = co.getDay();
   if (day === 0 || day === 6) return 'closed';

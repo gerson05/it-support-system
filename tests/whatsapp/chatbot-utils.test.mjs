@@ -115,3 +115,9 @@ test('nextBusinessDay: includes month name in Spanish', () => {
   const hasMonth = MONTHS.some(m => result.includes(m));
   assert.ok(hasMonth, `expected a month name in: "${result}"`);
 });
+
+test('getBusinessStatus: CHATBOT_FORCE_OPEN=1 always returns open (CI smoke tests)', () => {
+  process.env.CHATBOT_FORCE_OPEN = '1';
+  try { assert.equal(getBusinessStatus(), 'open'); }
+  finally { delete process.env.CHATBOT_FORCE_OPEN; }
+});
