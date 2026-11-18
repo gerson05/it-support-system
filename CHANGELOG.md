@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.23.0](https://github.com/gerson05/it-support-system/compare/v1.22.0...v1.23.0) (2026-11-18)
+
+
+### Features
+
+* **inventario:** create ciudad/punto with automatic placa code ([1fcd4b2](https://github.com/gerson05/it-support-system/commit/1fcd4b29340eba97a8acfd9ae2bde65c8683ce66))
+* **inventario:** create ciudad/punto with automatic placa code ([1b2a8bc](https://github.com/gerson05/it-support-system/commit/1b2a8bc3acfc85fcd94f85fd93f0d266a849702f))
+
+
+### Bug Fixes
+
+* **ci:** smoke test chatbot flow independent of business hours ([ade3678](https://github.com/gerson05/it-support-system/commit/ade3678af8bc628870d262d253914e001a867f5a))
+* **ci:** smoke test chatbot flow independent of business hours ([131c525](https://github.com/gerson05/it-support-system/commit/131c5252b66c948917182c6ff1b52f41c7bb7a0a))
+
 ## [1.22.0](https://github.com/gerson05/it-support-system/compare/v1.21.0...v1.22.0) (2026-11-18)
 
 
