@@ -4,7 +4,7 @@ import QRCode  from 'qrcode';
 import db from '../config/database.js';
 import { requireAuth, requirePermission } from '../auth/auth-middleware.js';
 import { getBaseUrl } from './import-service.js';
-import { getSedeCode, nextConsecutivo } from './sede-codes.js';
+import { codigoPlaca, nextConsecutivo } from './sede-codes.js';
 import { wrap } from '../utils/async-handler.js';
 import { fechaHoraLocal } from '../utils/fecha-local.js';
 
@@ -77,8 +77,8 @@ router.get('/api/inventario/registrar/:token/next-placa', wrap(async (req, res) 
   if (row.expires_at && new Date(row.expires_at) < new Date())
     return res.status(403).json({ error: 'Token expirado.' });
   const sede = req.query.sede || '';
-  const code = getSedeCode(sede);
-  const num  = nextConsecutivo(db, code);
+  const code = await codigoPlaca(db, sede);
+  const num  = await nextConsecutivo(db, code);
   res.json({ placa: `AF-${code}${num}` });
 }));
 
