@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.22.0](https://github.com/gerson05/it-support-system/compare/v1.21.0...v1.22.0) (2026-11-18)
+
+
+### Features
+
+* **inventario:** label placa selector as "Ciudad / Punto" ([e360de0](https://github.com/gerson05/it-support-system/commit/e360de04be64e9539d28ff0e4abb629d6b2b0c9a))
+* **inventario:** label placa selector as "Ciudad / Punto" ([23ba0e6](https://github.com/gerson05/it-support-system/commit/23ba0e6fbfcbf7640958ffac62a5f4aa4bc726f2))
+
 ## [1.21.0](https://github.com/gerson05/it-support-system/compare/v1.20.0...v1.21.0) (2026-11-17)
 
 
